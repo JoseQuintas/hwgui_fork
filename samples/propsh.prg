@@ -12,6 +12,7 @@
  * - Screenshots of both dialogs in
  *   subdirectory doc/image saved.
  *
+ * Solved 2025-03-29:
  * The function hwg_PropertySheet()
  * have a bug, the property sheet does not appear !
  * Also the programm freezes, if compiled with BCC.
@@ -57,6 +58,7 @@ FUNCTION OpenConfig()
    LOCAL e1 := "Xxxx"
    LOCAL oEditbox1, oCheckbox1, oCombobox1
    LOCAL oFont
+   LOCAL oSay1,oSay2,oSay3,oSay4
 
 #ifdef __PLATFORM__WINDOWS
    PREPARE FONT oFont NAME "MS Sans Serif" WIDTH 0 HEIGHT -13
@@ -88,6 +90,9 @@ FUNCTION OpenConfig()
         STYLE WS_CHILD + WS_VISIBLE + WS_BORDER ;
         FONT oFont
 
+   @ 40,150 SAY oSay1 CAPTION "Close sheet with <ESC>" OF aDlg1 SIZE 150,22
+   @ 40,175 SAY oSay2 CAPTION "or <Alt> + F4"         OF aDlg1 SIZE 150,22
+
    * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    // INIT DIALOG aDlg2 FROM RESOURCE  "PAGE_2" ON EXIT {||.T.}
      INIT DIALOG aDlg2 TITLE "Config2" ;
@@ -101,8 +106,12 @@ FUNCTION OpenConfig()
        STYLE CBS_DROPDOWNLIST + WS_TABSTOP ;
        FONT oFont
 
-     @ 18,83 CHECKBOX oCheckbox1 CAPTION "Checkbox" OF aDlg2 SIZE 120,22    ;
+     @ 18,83 CHECKBOX oCheckbox1 CAPTION "Checkbox" OF aDlg2 SIZE 80,22    ;
        FONT oFont
+    
+     @ 18,150 SAY oSay3 CAPTION "Close sheet with <ESC>" OF aDlg2 SIZE 150,22
+     @ 40,175 SAY oSay4 CAPTION "or <Alt> + F4"         OF aDlg2 SIZE 150,22
+
 
    // REDEFINE BROWSE oBrw1 ARRAY ID 104
    // REDEFINE BROWSE oBrw2 ARRAY ID 105
@@ -139,8 +148,8 @@ FUNCTION OpenConfig()
 
    hwg_PropertySheet( hwg_Getactivewindow(),{ aDlg1, aDlg2 }, "Sheet Example" )
 
-//   activate dialog aDlg1
-//   activate dialog aDlg2
+   activate dialog aDlg1
+   activate dialog aDlg2
 
 RETURN Nil
 

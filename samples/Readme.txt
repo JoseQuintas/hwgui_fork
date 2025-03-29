@@ -267,7 +267,7 @@ For beginners:
  nice2.prg           N  #    N         -      Demo of NICEBUTTON (2), starts only in background, kill with Task Manager (Bug!)
  night.prg           Y                        "ADD HEADER PANEL" for a night mode application
  progbars.prg  12)   Y                        Progress bar
- propsh.prg +)       N  #    N                Property sheet, freezes at hwg_PropertySheet()
+ propsh.prg          N  #    N                Property sheet
  pseudocm.prg        Y                        Pseudo context menu
  qrencode.prg 1) 2)  Y                        Encode QR code from string an convert to monochrome bitmap.
  qrencodedll.prg 1)  N       N                Encode QR code like qrencode.prg by using a DLL (for multi platform usage see contrib/qrencode)

@@ -21,7 +21,11 @@ The subdirectory "image" contains screenshots of
 sample programs.
 
 
-1.) propsh.prg: (to be continued)   
+1.) propsh.prg: 
+
+    Solved at 2025-03-29
+    Checked with MinGW and Borland C.
+
     Property sheet, freezes at hwg_PropertySheet(),
     the sheet is not visible.
     The property sheet feature is Windows only,

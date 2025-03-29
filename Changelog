@@ -16,8 +16,18 @@
 */
 
 
+025-03-29 15:30 UTC+0100 Wilfried Brunken DF7BE
+* samples/Readme.txt
+* samples/doc/Readme.txt
+* samples/propsh.prg
+* source/winapi/dialog.c
+  ! Internal bugfix
+  ! "Property sheet".
+  ! Readme's updated.
+  ! Tested with MinGW32 and
+  ! Borland C.
 
-2025-03-28 20:57 UTC+0100 Wilfried Brunken DF7BE
+2025-03-29 15:30 UTC+0100 Wilfried Brunken DF7BE
 * include/hb_missing.h (New)
 * source/common/procmisc/cfuncs.c
 * samples/testfunc.prg

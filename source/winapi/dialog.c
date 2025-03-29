@@ -387,7 +387,14 @@ HB_FUNC( HWG_RELEASEDLGTEMPLATE )
    s_ReleaseDlgTemplate( ( LPDLGTEMPLATE ) hb_parnl( 1 ) );
 }
 
+/* ~~~~~~~~~~~~~~~ Property sheets ~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/* Test them with
+   samples\propsh.prg
+*/   
+
 /*
+ * Creates a single property sheet 
+ *
  *  _CreatePropertySheetPage( aDlg, x1, y1, nWidth, nHeight, nStyle ) --> hPage
  */
 HB_FUNC( HWG__CREATEPROPERTYSHEETPAGE )
@@ -401,12 +408,16 @@ HB_FUNC( HWG__CREATEPROPERTYSHEETPAGE )
    memset( ( void * ) &psp, 0, sizeof( PROPSHEETPAGE ) );
 
    psp.dwSize = sizeof( PROPSHEETPAGE );
-   psp.hInstance = ( HINSTANCE ) NULL;
+   psp.hInstance = ( HINSTANCE ) NULL; 
    psp.pszTitle = NULL;
    psp.pfnDlgProc = ( DLGPROC ) s_PSPProc;
    psp.lParam = ( LPARAM ) hb_itemNew( pObj );
    psp.pfnCallback = ( LPFNPSPCALLBACK ) s_PSPProcRelease;
    psp.pcRefParent = 0;
+   /* Added by DF7BE */
+   psp.dwFlags = PSP_DLGINDIRECT | PSP_USECALLBACK;
+   
+
 #if !defined(__BORLANDC__) ||  (__BORLANDC__ > 1424)
    psp.hIcon = 0;
 #else
