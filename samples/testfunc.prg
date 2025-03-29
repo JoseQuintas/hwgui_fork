@@ -82,7 +82,7 @@ FUNCTION MAIN()
    LOCAL oButton18, oButton19 , oButton20 , oButton21 , oButton22 , oButton23 , oButton24 , oButton25
    LOCAL oButton26, oButton27, oButton28, oButton29
    LOCAL oButton30, oButton31, oButton32, oButton33, obutton34, obutton35
-   LOCAL obutton36, obutton37   
+   LOCAL obutton36, obutton37, obutton38   
 
    LOCAL nspcbutton
 
@@ -303,7 +303,12 @@ FUNCTION MAIN()
         STYLE WS_TABSTOP+BS_FLAT ON CLICK ;
                 { | | Test_hwg_EOLStyle() }
                 
-   /* Last  obuttonxx is obutton37 */
+                
+   @ 25 ,nspcbutton * 17 BUTTON obutton38 CAPTION "hwg_GetEpoch()" SIZE 140,nheight FONT oFont  ;
+        STYLE WS_TABSTOP+BS_FLAT ON CLICK ;
+                { | | Test_hwg_GetEpoch() }
+                
+   /* Last  obuttonxx is obutton38 */
                 
    /* Disable buttons for Windows only functions */
 #ifndef __PLATFORM__WINDOWS
@@ -863,6 +868,12 @@ DO CASE
   cretuv := "EOLStyle unknown"
 ENDCASE
 hwg_MsgInfo(cretuv,"hwg_EOLStyle()")
+RETURN NIL
+
+FUNCTION Test_hwg_GetEpoch()
+LOCAL nepoch
+ nepoch := hwg_GetEpoch()
+ Funkt( nepoch , "N" , "hwg_GetEpoch()")
 RETURN NIL 
 
 * ============================== EOF of testfunc.prg ==============================

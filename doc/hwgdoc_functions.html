@@ -1791,6 +1791,35 @@ See sample program "testspli.prg" for details.<br>
    used UTF-8 characters.<br>
 
    <p></p>
+   
+   <br><strong class="subhead">hwg_GetEpoch()</strong>
+    <br>
+   Returns the recent value of<br> 
+   SET EPOCH TO ...<br>
+   as integer value.<br>
+   This is helpful to recover a<br>
+   previous setting of the epoch<br>
+   processing code with alternative setting.<br>
+   <br>
+   Sample:<br>
+   &nbsp;LOCAL nsetepoch, csetepoch<br>
+   &nbsp;nsetepoch := hwg_GetEpoch()<br>
+   &nbsp; * Default value is 1900<br>
+   &nbsp; SET EPOCH TO 2000
+   &nbsp; * ... && processing with new EPOCH setting<br>
+   &nbsp; * Now restore old setting:<br>
+   &nbsp; csetepoch := ALLTRIM(STR(nsetepoch) )<br>
+   &nbsp; SET EPOCH TO &csetepoch<br>
+   <br>
+   Important advice for HWGUI programmers:<br>
+   Found this function in<br> 
+   source/common/procmisc/cfuncs.c:<br>
+   The function hb_setGetEpoch() is existing in Harbour 3.2,<br>
+   but not apearing in a *.h file of Harbour as prototype,<br>
+   so need to include "hb_missing.h" in HWGUI.<br>
+   <br>
+   <p></p>
+   
    <br><strong class="subhead"> hwg_GetItemByName( arr, cName )</strong>
    <br>Returns an object from an array by its name, which is kept as :objname.
    <ul>

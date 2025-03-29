@@ -16,7 +16,20 @@
 */
 
 
-2025-03-23 20{57 UTC-0200 Jose Quintas jmcquintas-gmail.com
+
+2025-03-28 20:57 UTC+0100 Wilfried Brunken DF7BE
+* include/hb_missing.h (New)
+* source/common/procmisc/cfuncs.c
+* samples/testfunc.prg
+  ! New function hwg_GetEpoch()
+  ! Get recent setting of 
+  ! SET EPOCH TO ..
+  ! returned as integer value.
+  ! More information see
+  ! function docu.
+
+
+2025-03-23 20:57 UTC-0200 Jose Quintas jmcquintas-gmail.com
 * source/winapi/hdialog.prg
 * source/winapi/hwindow.prg
   ! change test variable to HB_GUI_MT_EXPERIMENTAL

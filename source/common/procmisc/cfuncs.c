@@ -31,6 +31,8 @@
 
 #include "warnings.h"
 
+#include "hb_missing.h"
+
 /*-
  * Copyright (c) 2008 - 2010 CAS Dev Team
  *
@@ -1170,6 +1172,18 @@ HB_FUNC( HWG_STRREV )
    reverse_string(puffer);
 
    hb_retc(puffer);
+}
+
+/* DF7BE 2205-03-28:
+   The function hb_setGetEpoch() is existing in Harbour 3.2,
+   but not apearing in a *.h file of Harbour,
+   so need to include "hb_missing.h" in HWGUI
+*/   
+HB_FUNC( HWG_GETEPOCH )
+{
+  int iEpoch = hb_setGetEpoch();
+  
+  hb_retni(iEpoch);
 }
 
 /* ======================== EOF of cfuncs.c ================================ */
