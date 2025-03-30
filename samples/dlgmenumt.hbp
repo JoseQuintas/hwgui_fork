@@ -1,8 +1,49 @@
-#caution
-#experimental
+#
+# $Id$
+#
+
+# caution
+# experimental
+#
+# Instructions:
+# dlgbrwdbf can be compiled standalone
+# dlgmenumt menu using multithread and dlgbrwdbf
+# CAUTION: make your own tests, use at you own risk
+#
+# Before build, build libgtwvt.a
+#
+
+
+# Special parameters for LINUX/GTK and MacOS/GTK
+{linux}-lm
+{linux}-static
+{linux}-d__LINUX__
+{linux}-d__GTK__
+
+# MacOS
+{darwin}-static
+{darwin}-d__LINUX__
+{darwin}-d__GTK__
+{darwin}-d___MACOSX___
+
+
+{win}../hwgui.hbc
+
+# GTK2
+{linux}../hwgui.hbc
+{darwin}../hwgui_mac.hbc
+# GTK3: Deactivate previous lines
+# and activate following lines
+#{linux}../hwguiGTK3.hbc
+#{darwin}../hwgui_mac_gtk3.hbc
+
+{win}-gtwvt
+{linux}-gtwvt
+{darwin}-gtwvt
 
 dlgmenumt.prg
 dlgbrwdbf.prg
+
 -mt
-../hwgui.hbc
-{win}-gtwvt
+
+# ================================= EOF of dlgmenumt.hbp ================================

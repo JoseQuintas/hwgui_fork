@@ -15,6 +15,20 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+
+2025-03-30 19:00 UTC+0200 Wilfried Brunken DF7BE
+* samples/dlgbrwdbf.hbp
+* samples/dlgmenumt.hbp
+  ! Prepared for multi platform.
+  ! dlgbrwdbf.prg run on LINUX,
+  ! but dlgmenumt.prg needs 
+  ! library lib libgtwvt.a,
+  ! which seems to be Windows only.
+  ! libgthwg.a in contrib seems to be
+  ! a multi platform eqivalent.
+  ! Hello Jose, please check.
+
+
 2025-03-29 21:10 UTC-0200 Jose Quintas jmcquintas-gmail.com
 
 + samples/dlgbrwdbf.prg
