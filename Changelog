@@ -25,7 +25,9 @@
   ! library lib libgtwvt.a,
   ! which seems to be Windows only.
   ! libgthwg.a in contrib seems to be
-  ! a multi platform eqivalent.
+  ! a multi platform eqivalent,
+  ! but need some modifications.
+  !
   ! Hello Jose, please check.
 
 
