@@ -15,8 +15,17 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-03-29 21:10 UTC-0200 Jose Quintas jmcquintas-gmail.com
 
-025-03-29 15:30 UTC+0100 Wilfried Brunken DF7BE
++ samples/dlgbrwdbf.prg
++ samples/dlgbrwdbf.hbp
++ samples/dlgmenumt.prg
++ samples/dlgmenumt.hbp
+  ! dlgbrwdbf can be compiled standalone
+  ! dlgmenumt menu using multithread and dlgbrwdbf
+  ! CAUTION: make your own tests, use at you own risk
+
+2025-03-29 15:30 UTC+0100 Wilfried Brunken DF7BE
 * samples/Readme.txt
 * samples/doc/Readme.txt
 * samples/propsh.prg
@@ -32,7 +41,7 @@
 * source/common/procmisc/cfuncs.c
 * samples/testfunc.prg
   ! New function hwg_GetEpoch()
-  ! Get recent setting of 
+  ! Get recent setting of
   ! SET EPOCH TO ..
   ! returned as integer value.
   ! More information see
