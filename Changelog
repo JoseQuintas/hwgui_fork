@@ -14,6 +14,16 @@
  "oldlogs".
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+
+2025-04-08 13:50 UTC-0200 Jose Quintas jmcquintas-gmail.com
+* samples/hello.hbp
+* samples/nice2.hbp
+* samples/shadebtn.hbp
+* samples/testini.hbp
+* samples/testmenubitmap.hbp
+* samples/tstsplash.hbp
+  ! My mistake, recovered stop on these files, thanks Wilfried
+
 2025-04-08 13:30 UTC-0200 Jose Quintas jmcquintas-gmail.com
 * samples/mariadb/hbmk.hbm
 * test/samples/hbmk.hbm
