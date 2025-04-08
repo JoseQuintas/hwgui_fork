@@ -15,6 +15,20 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-08 16:05 UTC+0200 Wilfried Brunken DF7BE
+* samples/hbmk.hbm (New)
+* a.hbp 
+  ! Corrections of last commit by Jose Quintas.
+  ! First test on LINUX,
+  ! need to add sequence for LINUX and MacOS.
+  ! Hello Jose,
+  ! Please recover the stop sequence for all
+  ! Windows only samples like now seen in a.hbp
+  ! (Checked on Windows 11)
+  ! Need to add the squence for UNIX and LINUX
+  ! in all hbmk.hbm in the subdirectories.
+
+
 2025-04-07 22:30 UTC-0200 Jose Quintas jmcquintas-gmail.com
 + samples/hbmk.hbm
 * samples/*.hbp

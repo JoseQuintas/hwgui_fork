@@ -1,7 +1,14 @@
 #
 # $Id$
 #
+
+{linux}-stop="Windows only"
+{darwin}-stop="Windows only"    
+{unix}-stop="Windows only"
+
 # auto included hbmk.hbm
+
+
 
 -n
 -w
