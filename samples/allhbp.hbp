@@ -5,7 +5,7 @@
 #
 # File for hbmk2 utility for building:
 # - HWGUI
-# - Utils 
+# - Utils
 # - All sample programs and contrib's
 #
 
@@ -38,7 +38,7 @@
 #
 ../contrib/hwmake/hwmake.hbp
 
-# Under construction, MinGW OK, LINUX/GTK port needed ! 
+# Under construction, MinGW OK, LINUX/GTK port needed !
 ../contrib/hwreport/hwreport.hbp
 # Sample program freezes after start printing
 #../contrib/hwreport/example.hbp
@@ -115,7 +115,7 @@
 # ../samples/grid_2.prg
 # ../samples/grid_3.prg
 #
-# --- Outdated --- 
+# --- Outdated ---
 # ../samples/helpdemo.prg
 # ../samples/hole.prg
 # ../samples/iesample.hbp

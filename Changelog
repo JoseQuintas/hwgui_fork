@@ -14,10 +14,17 @@
  "oldlogs".
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+2025-04-08 13:30 UTC-0200 Jose Quintas jmcquintas-gmail.com
+* samples/mariadb/hbmk.hbm
+* test/samples/hbmk.hbm
+* samples/gtk_samples/hbmk.hbm
+* samples/hbmk.hbm
+  ! same hbmk.hbm for all folders, with relative path adjust
+  ! Reviewing my previous commit about any lost stop
 
 2025-04-08 16:05 UTC+0200 Wilfried Brunken DF7BE
 * samples/hbmk.hbm (New)
-* a.hbp 
+* a.hbp
   ! Corrections of last commit by Jose Quintas.
   ! First test on LINUX,
   ! need to add sequence for LINUX and MacOS.
