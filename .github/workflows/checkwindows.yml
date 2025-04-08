@@ -22,7 +22,7 @@ jobs:
       run: |
          c:
          git clone https://github.com/harbour/core /temp/harbour32 --depth 1
-         git clone https://github.com/JoseQuintas/hwgui /temp/hwgui --depth 1
+         git clone https://github.com/JoseQuintas/hwgui_fork /temp/hwgui --depth 1
 
     - name: mingw
       uses: dawidd6/action-download-artifact@v2
