@@ -1,17 +1,14 @@
 #
 # Compile script for test program with gtwvg
 # $Id$
-
+#
+# auto included hbmk.hbm
 
 # Harbour GTWVG is Windows only
 
 {linux}-stop="Windows only"
-{darwin}-stop="Windows only"    
+{darwin}-stop="Windows only"
 {unix}-stop="Windows only"
-
-# {linux}-static
-# {linux}-d__LINUX__
-# {linux}-d__GTK__
 -dWVTWINLG_CH
 
 -mt
@@ -21,7 +18,6 @@ testhgt.prg
 #-L..\..\lib
 #-L..\..
 -L..
-hwgui.hbc
 hbwin.hbc
 -lgtwvg
 

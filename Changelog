@@ -15,13 +15,24 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-07 22:30 UTC-0200 Jose Quintas jmcquintas-gmail.com
++ samples/hbmk.hbm
+* samples/*.hbp
+  ! hbmk.hbm, hbmk2 uses automatically for all compilations on folder
+  ! Moved all parameters for Linux/MacOS/Win to hbmk.hbm
+  ! (Not sure if they could be moved to hwgui.hbc, not same syntax)
+  ! adjust on all hbps
+  !
+  ! harbour/tests/wvtext uses gtxwc, is it hwgui compatible?
+  ! it is used only to do not have a visible window,
+  ! and to wait until dialog is closed
 
 2025-03-30 19:00 UTC+0200 Wilfried Brunken DF7BE
 * samples/dlgbrwdbf.hbp
 * samples/dlgmenumt.hbp
   ! Prepared for multi platform.
   ! dlgbrwdbf.prg run on LINUX,
-  ! but dlgmenumt.prg needs 
+  ! but dlgmenumt.prg needs
   ! library lib libgtwvt.a,
   ! which seems to be Windows only.
   ! libgthwg.a in contrib seems to be

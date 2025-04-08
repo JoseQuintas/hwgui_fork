@@ -1,29 +1,9 @@
 #
 # $Id$
 #
+# auto included hbmk.hbm
 
 # -stop={linux}
-
-# Special parameters for LINUX/GTK and MacOS/GTK
-{linux}-lm {linux}-static {linux}-d__LINUX__ {linux}-d__GTK__
-
-# MacOS
-{darwin}-static
-{darwin}-d__LINUX__
-{darwin}-d__GTK__
-{darwin}-d___MACOSX___
-
-
-{win}../hwgui.hbc
-# GTK2
-{darwin}../hwgui_mac.hbc
-{linux}../hwgui.hbc
-
-# GTK3: Deactivate previous line
-# and activate following line
-#{linux}../hwguiGTK3.hbc
-#{darwin}../hwgui_mac_gtk3.hbc
-
 
 -n
 -w

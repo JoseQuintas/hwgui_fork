@@ -1,23 +1,7 @@
 #
 # $Id$
 #
-
-{linux}-stop="Windows only"
-{darwin}-stop="Windows only"    
-{unix}-stop="Windows only"
-
-# Special parameters for LINUX/GTK
-# {linux}-lm
-# {linux}-static
-# {linux}-d__LINUX__
-# {linux}-d__GTK__
-
-{win}../hwgui.hbc
-# GTK2
-{linux}../hwgui.hbc
-# GTK3: Deactivate previous line
-# and activate following line
-#{linux}../hwguiGTK3.hbc
+# auto included hbmk.hbm
 
 -n
 -w

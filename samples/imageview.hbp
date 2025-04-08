@@ -1,14 +1,7 @@
 #
 # $Id$
 #
-
-# Special parameters for LINUX/GTK
-{linux}-lm
-{linux}-static
-{linux}-d__LINUX__
-{linux}-d__GTK__
-
-../hwgui.hbc
+# auto included hbmk.hbm
 
 -n
 -w
