@@ -5,7 +5,11 @@
 
 #include "hwgui.ch"
 
-FUNCTION DlgBrwDbf( nCont )
+#ifdef __USING_MENU__
+   FUNCTION DlgBrwDbf( nCont )
+#else
+   FUNCTION Main( nCont )
+#endif
 
    LOCAL oDlg, oBrowse, aList, aItem
 

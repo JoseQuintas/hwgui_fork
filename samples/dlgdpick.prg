@@ -1,6 +1,6 @@
 /*
  *
- * datepicker.prg
+ * dlgdpick.prg
  *
  * $Id$
  *
@@ -26,31 +26,11 @@
 
 #include "hwgui.ch"
 
-FUNCTION Main()
-
-   LOCAL oMainWindow
-
-   * Modify to your own needs
-   SET CENTURY ON
-   SET DATE GERMAN
-
-   INIT WINDOW oMainWindow MAIN TITLE "Datepicker main dialog" ;
-      AT 200,0 SIZE 200,250
-
-   MENU OF oMainWindow
-      MENU TITLE "&Exit"
-         MENUITEM "&Quit" ACTION hwg_EndWindow()
-      ENDMENU
-      MENU TITLE "&Test"
-         MENUITEM "&Datepicker" ACTION DlgDPick()
-      ENDMENU
-   ENDMENU
-
-   ACTIVATE WINDOW oMainWindow
-
-RETURN Nil
-
-FUNCTION DlgDPick()
+#ifdef __USING_MENU__
+   FUNCTION DlgDPick()
+#else
+   FUNCTION Main()
+#endif
 
    LOCAL odGet, oDateOwb, daltdatum, Ctext
    LOCAL oModDlg, oFont, d1 := Date() + 1
@@ -60,7 +40,7 @@ FUNCTION DlgDPick()
    * Remember old date
    daltdatum := d1
 
-   INIT DIALOG oModDlg TITLE "Datepicker"  ;
+   INIT DIALOG oModDlg TITLE "DLGDPICK - Datepicker"  ;
       AT 210,10  SIZE 350,300                  ;
       FONT oFont NOEXIT
 

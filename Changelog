@@ -15,6 +15,34 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-08 16:30 UTC-0200 Jose Quintas jmcquintas-gmail.com
+   - dlgbrwdbf.hbp
+   * dlgbrwdbf.prg
+   - datepicker.hbp
+   - datepicker.prg
+   + dlgdpick.prg
+   - tstcombo.hbp
+   - tstcombo.prg
+   + dlgcombo.prg
+   - test_bot.prg
+   - test_bot.hbp
+   + dlgbot.prg
+   - testxml.hbp
+   - testxml.prg
+   + dlgxml.prg
+   + dlgmenu1.prg
+     ! These samples can be compiled using hbmk2 name.prg
+   + all.prg
+   + all.hbp
+     ! A menu for all listed samples
+     ! hbp uses menu + same standalone source code samples
+     ! it is needed to define on prg and hbp about Windows/Linux/MacOs
+     ! example:  { "DLGBOT",    .T., .F., .F., "ON OTHER MESSAGES" }, ;
+     !           {win}dlgbot.prg
+     ! Samples not in menu continues with own hbp
+     ! Not all samples can be moved to menu
+     ! Please comments if can change another samples
+
 2025-04-08 13:50 UTC-0200 Jose Quintas jmcquintas-gmail.com
 * samples/hello.hbp
 * samples/nice2.hbp
