@@ -45,10 +45,11 @@
 #
 # Samples WinAPI and LINUX/GTK
 #
+../samples/all.hbp
 ../samples/arraybrowse.prg
 ../samples/bincnts.prg
 ../samples/colrbloc.prg
-../samples/datepicker.prg
+#../samples/datepicker.prg - dlgdpick.prg - on all.hbp
 ../samples/dbview.prg
 ../samples/demodbf.prg
 ../samples/demohlistsub.prg
@@ -74,9 +75,9 @@
 ../samples/testsdi.prg
 ../samples/testspli.prg
 ../samples/testtree.prg
-../samples/testxml.prg
+#../samples/testxml.prg - dlgxml.prg - on all.hbp
 ../samples/trackbar.prg
-../samples/tstcombo.prg
+#../samples/tstcombo.prg - dlgcombo.prg - on all.hbp
 ../samples/TwoLstSub.prg
 ../samples/winprn.prg
 ../samples/xmltree.prg
@@ -92,7 +93,7 @@
 ../samples/hello.prg
 ../samples/nice.prg
 ../samples/shadebtn.prg
-../samples/test_bot.prg
+#../samples/test_bot.prg - dlgbot.prg - on all.hbp
 ../samples/Testado.prg
 ../samples/testalert.prg
 ../samples/testbrw.prg
