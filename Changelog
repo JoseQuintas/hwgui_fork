@@ -15,6 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-08 17:40 UTC-0200 Jose Quintas jmcquintas-gmail.com
+* .github/workflow/checkubuntu.yml
++ test/ubuntuerror.txt
+  ! Changed to -w3 -es0 to do not stop on each error
+  ! save error list on test/ubuntuerror.txt
+  ! To all: not bugs, errors about -w3 check
+  ! Do not show these errors on local machine
+  ! It is an extra check using github machines Linux and Windows
+
 2025-04-08 16:40 UTC-0200 Jose Quintas jmcquintas-gmail.com
 * samples/dlgmdi.prg
   ! CENTER

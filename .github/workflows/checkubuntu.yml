@@ -39,4 +39,4 @@ jobs:
          hbmk2 procmisc.hbp -workdir=/tmp -w3
          hbmk2 hwgdebug.hbp -workdir=/tmp -w3
          cd /tmp/hwgui/samples
-         hbmk2 allhbp.hbp -workdir=/tmp -w3
+         hbmk2 allhbp.hbp -workdir=/tmp -w3 -es0
