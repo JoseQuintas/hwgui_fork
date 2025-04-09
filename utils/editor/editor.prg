@@ -1198,11 +1198,11 @@ STATIC FUNCTION setSpan()
    IF !Empty( cHRef ) .AND. !hwg_CheckBit( nAcc, BIT_CLCSCR )
       @ 10,nTop+40 SAY "Href:" SIZE 60, 22 TRANSPARENT
       @ 10,nTop+64 GET cHref SIZE 360, 26 STYLE ES_AUTOHSCROLL MAXLENGTH 0 ;
-            ON SIZE {|o,x,y|o:Move( ,,x-30)}
+            ON SIZE {|o,x,y| (y), o:Move( ,,x-30)}
 
       @ 10,nTop+100 SAY "Text:" SIZE 60, 22 TRANSPARENT
       @ 10,nTop+124 GET cBody SIZE 360, 26 STYLE ES_AUTOHSCROLL MAXLENGTH 0 ;
-            ON SIZE {|o,x,y|o:Move( ,,x-30)}
+            ON SIZE {|o,x,y| (y), o:Move( ,,x-30)}
    ENDIF
 
    END PAGE of oTab
@@ -1498,8 +1498,8 @@ STATIC FUNCTION setTable( lNew )
 
    @ 10, nTop BROWSE oBrw ARRAY SIZE 260, 160 ON SIZE {|o,x,y|o:Move(,,,y-70)}
    oBrw:aArray := aCols
-   oBrw:AddColumn( HColumn():New( " Column N  ",{ |value,o|o:nCurrent },"N",2 ) )
-   oBrw:AddColumn( HColumn():New( "  Width, %",{ |value,o|o:aArray[o:nCurrent] },"N",2 ) )
+   oBrw:AddColumn( HColumn():New( " Column N  ",{ |value,o| (value), o:nCurrent },"N",2 ) )
+   oBrw:AddColumn( HColumn():New( "  Width, %",{ |value,o| (value), o:aArray[o:nCurrent] },"N",2 ) )
    oBrw:aColumns[2]:lEditable := .T.
    oBrw:aColumns[2]:bValid := bValid
    oBrw:aColumns[2]:picture := "99"
@@ -1979,11 +1979,11 @@ STATIC FUNCTION selectImage()
    INIT DIALOG oDlg TITLE "Select image"  ;
       AT 20, 30 SIZE 400, 260 FONT HWindow():GetMain():oFont
 
-   @ 0, 0 BROWSE oBrw ARRAY SIZE 200, oDlg:nHeight - 60 ON SIZE {|o,x,y|o:Move( ,,, y-60)}
+   @ 0, 0 BROWSE oBrw ARRAY SIZE 200, oDlg:nHeight - 60 ON SIZE {|o,x,y| (x), o:Move( ,,, y-60)}
    @ 200, 0 PANEL oPanel SIZE 200, oDlg:nHeight - 60 STYLE SS_OWNERDRAW ;
       ON PAINT bPaint ON SIZE {|o,x,y|o:Move( ,, x-o:nLeft, y-60)}
    oBrw:aArray := oEdit:aBin
-   oBrw:AddColumn( HColumn():New( ,{ |value,o|o:aArray[o:nCurrent,1] },"C",32 ) )
+   oBrw:AddColumn( HColumn():New( ,{ |value,o| (value), o:aArray[o:nCurrent,1] },"C",32 ) )
    oBrw:bcolorSel := oBrw:htbColor := CLR_LBLUE
    oBrw:bColor := CLR_LIGHT1
    oBrw:tcolorSel := oBrw:httColor := CLR_BLACK
@@ -2122,6 +2122,7 @@ STATIC FUNCTION EdMsgAfter( o, msg, wParam, lParam )
       MarkRow( 0 )
 
    ENDIF
+   (o) // -w3 -es2
 
    RETURN -1
 

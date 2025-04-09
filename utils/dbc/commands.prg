@@ -38,9 +38,9 @@ FUNCTION C_REPL
 
    @ 140,10 GROUPBOX "" SIZE 160, 80
    GET RADIOGROUP r1
-   @ 150,24 RADIOBUTTON "All" SIZE 60, 20 
-   @ 150,44 RADIOBUTTON "Next" SIZE 60, 20 
-   @ 150,64 RADIOBUTTON "Rest" SIZE 60, 20 
+   @ 150,24 RADIOBUTTON "All" SIZE 60, 20
+   @ 150,44 RADIOBUTTON "Next" SIZE 60, 20
+   @ 150,64 RADIOBUTTON "Rest" SIZE 60, 20
    END RADIOGROUP
    @ 210,44 GET nNext SIZE 50, 24 PICTURE "9999"
 
@@ -118,9 +118,9 @@ FUNCTION C_4( nAct )
 
    @ 20,40 GROUPBOX "" SIZE 160, 80
    GET RADIOGROUP r1
-   @ 30,50 RADIOBUTTON "All" SIZE 60, 20 
-   @ 30,70 RADIOBUTTON "Next" SIZE 60, 20 
-   @ 30,90 RADIOBUTTON "Rest" SIZE 60, 20 
+   @ 30,50 RADIOBUTTON "All" SIZE 60, 20
+   @ 30,70 RADIOBUTTON "Next" SIZE 60, 20
+   @ 30,90 RADIOBUTTON "Rest" SIZE 60, 20
    END RADIOGROUP
    @ 96,70 GET nNext SIZE 50, 24 PICTURE "9999"
 
@@ -139,7 +139,7 @@ FUNCTION C_4( nAct )
          hwg_Msgstop( "Wrong 'FOR' expression!" )
          RETURN Nil
       ENDIF
-      IF nAct == 4 
+      IF nAct == 4
          IF Empty( cExpr ) .AND. Type( cExpr ) != "N"
             hwg_Msgstop( "Wrong 'SUM' expression!" )
             RETURN Nil
@@ -456,9 +456,9 @@ FUNCTION C_COPY()
 
    @ 200, 92 GROUPBOX "" SIZE 168, 88
    GET RADIOGROUP r2
-   @ 210,104 RADIOBUTTON "All" SIZE 90, 20 
+   @ 210,104 RADIOBUTTON "All" SIZE 90, 20
    @ 210,128 RADIOBUTTON "Next" SIZE 90, 20 ON CLICK {||oNext:Show()}
-   @ 210,152 RADIOBUTTON "Rest" SIZE 90, 20 
+   @ 210,152 RADIOBUTTON "Rest" SIZE 90, 20
    END RADIOGROUP
    @ 300,128 GET oNext VAR nNext SIZE 40, 24 PICTURE "9999"
 
@@ -649,9 +649,9 @@ FUNCTION C_REL
        ON SIZE ANCHOR_TOPABS+ANCHOR_LEFTABS+ANCHOR_BOTTOMABS+ANCHOR_RIGHTABS
 
    oBrowse:aArray := arel
-   oBrowse:AddColumn( HColumn():New( "",{|v,o|o:nCurrent},"N",4,0 ) )
-   oBrowse:AddColumn( HColumn():New( "Expression",{|v,o|o:aArray[o:nCurrent,1]},"C",30,0 ) )
-   oBrowse:AddColumn( HColumn():New( "Child",{|v,o|o:aArray[o:nCurrent,2]},"C",10,0 ) )
+   oBrowse:AddColumn( HColumn():New( "",{|v,o| (v), o:nCurrent},"N",4,0 ) )
+   oBrowse:AddColumn( HColumn():New( "Expression",{|v,o| (v), o:aArray[o:nCurrent,1]},"C",30,0 ) )
+   oBrowse:AddColumn( HColumn():New( "Child",{|v,o| (v), o:aArray[o:nCurrent,2]},"C",10,0 ) )
    oBrowse:bcolorSel := BCOLOR_SEL
    oBrowse:tcolorSel := TCOLOR_SEL
 

@@ -1,6 +1,6 @@
 *
 * escrita.prg
-* 
+*
 * $Id$
 *
 * HWGUI sample program:
@@ -42,7 +42,7 @@ CHECK_FILE(cbmppref + "cancel.ico")
       STATE 4;
       TEXT "teste1"  ;
       TOOLTIP "ola" ;
-      ON CLICK { |x, y|hwg_Msginfo( "ola" ), hwg_Enablewindow( oTool:aItem[2,11], .T. ) , hwg_Enablewindow( oTool:aItem[1,11], .F. ) }
+      ON CLICK { | x, y | (x), (y), hwg_Msginfo( "ola" ), hwg_Enablewindow( oTool:aItem[ 2, 11 ], .T. ) , hwg_Enablewindow( oTool:aItem[ 1, 11 ], .F. ) }
 
    TOOLBUTTON  otool ;
       ID 702 ;
@@ -51,7 +51,7 @@ CHECK_FILE(cbmppref + "cancel.ico")
       STATE 4;
       TEXT "teste2"  ;
       TOOLTIP "ola2" ;
-      ON CLICK { |x, y|hwg_Msginfo( "ola1" ), hwg_Enablewindow( oTool:aItem[1,11], .T. ), hwg_Enablewindow( oTool:aItem[2,11], .F. ) }
+      ON CLICK { | x, y | (x), (y), hwg_Msginfo( "ola1" ), hwg_Enablewindow( oTool:aItem[ 1, 11 ], .T. ), hwg_Enablewindow( oTool:aItem[ 2, 11], .F. ) }
 
    TOOLBUTTON  otool ;
       ID 703 ;
@@ -60,14 +60,14 @@ CHECK_FILE(cbmppref + "cancel.ico")
       STATE 4;
       TEXT "asdsa"  ;
       TOOLTIP "ola3" ;
-      ON CLICK { |x, y|hwg_Msginfo( "ola2" ) }
+      ON CLICK { | x, y | (x), (y), hwg_Msginfo( "ola2" ) }
    TOOLBUTTON  otool ;
       ID 702 ;
       STYLE 1 ;
       STATE 4;
       TEXT "teste2"  ;
       TOOLTIP "ola2" ;
-      ON CLICK { |x, y|hwg_Msginfo( "ola3" ) }
+      ON CLICK { | x, y | (x), (y), hwg_Msginfo( "ola3" ) }
    TOOLBUTTON  otool ;
       ID 702 ;
       BITMAP cbmppref + "door.bmp";  // DF7BE: tools.bmp does not exist, choose existing one
@@ -75,7 +75,7 @@ CHECK_FILE(cbmppref + "cancel.ico")
       STATE 4;
       TEXT "teste2"  ;
       TOOLTIP "ola2" ;
-      ON CLICK { |x, y|hwg_Msginfo( "ola4" ) }
+      ON CLICK { | x, y | (x), (y), hwg_Msginfo( "ola4" ) }
 
    TOOLBUTTON  otool ;
       ID 702 ;
@@ -84,7 +84,7 @@ CHECK_FILE(cbmppref + "cancel.ico")
       STATE 4;
       TEXT "teste2"  ;
       TOOLTIP "ola2" ;
-      ON CLICK { |x, y|hwg_Msginfo( "ola5" ) }
+      ON CLICK { | x, y | (x), (y), hwg_Msginfo( "ola5" ) }
 
 
 
@@ -103,14 +103,14 @@ CHECK_FILE(cbmppref + "cancel.ico")
    hwg_Msginfo( mnome  , "Contents of variable mnome")
 
    RETURN Nil
-   
+
 FUNCTION CHECK_FILE ( cfi )
 * Check, if file exist, otherwise terminate program
  IF .NOT. FILE( cfi )
   Hwg_MsgStop("File >" + cfi + "< not found, program terminated","File ERROR !")
   QUIT
- ENDIF 
+ ENDIF
 RETURN Nil
 
-* =================== EOF of escrita.prg ====================  
+* =================== EOF of escrita.prg ====================
 

@@ -288,14 +288,14 @@ FUNCTION Main( ... )
       ON SIZE { |o, x, y|o:Move( , y - 104, x - 8 ) }
 
    oBrwRes:aArray := {}
-   oBrwRes:AddColumn( HColumn():New( "",{ |v,o|o:aArray[o:nCurrent,1] },"C",80,0 ) )
+   oBrwRes:AddColumn( HColumn():New( "",{ | v, o | (v), o:aArray[ o:nCurrent, 1 ] }, "C", 80, 0 ) )
    oBrwRes:lDispHead := .F.
    oBrwRes:bcolor := CLR_LIGHT1
    oBrwRes:bcolorSel := oBrwRes:htbcolor := CLR_LGREEN
    oBrwRes:tcolorSel := oBrwRes:httcolor := 0
    oBrwRes:bEnter := { |o| iif( o:nCurrent > 0 .AND. o:nCurrent <= o:nRecords, oEditExpr:value := o:aArray[o:nCurrent,2], .T. ) }
 
-   @ 4, 516 SAY oSayState CAPTION "" SIZE 80, 28 STYLE WS_BORDER + SS_CENTER ON SIZE { |o, x, y|o:Move( , y - 32 ) }
+   @ 4, 516 SAY oSayState CAPTION "" SIZE 80, 28 STYLE WS_BORDER + SS_CENTER ON SIZE { | o, x, y | (x), o:Move( , y - 32 ) }
    SET KEY 0, VK_RETURN TO KeyPress( VK_RETURN )
    SET KEY 0, VK_UP TO KeyPress( VK_UP )
    SET KEY 0, VK_DOWN TO KeyPress( VK_DOWN )
@@ -361,7 +361,7 @@ STATIC FUNCTION ReadIni()
    IF FILE(cxmlfile)
    * DF7BE: crashes here, object oIni not constructed, if file not existing !
     oIni := HXMLDoc():Read( cxmlfile )
-    IF !Empty( oIni:aItems ) 
+    IF !Empty( oIni:aItems )
      IF oIni:aItems[1]:title == "init"
        oInit := oIni:aItems[1]
        FOR i := 1 TO Len( oInit:aItems )
@@ -1113,12 +1113,12 @@ STATIC FUNCTION CreateTextCtrl()
 
    oText:aArray := {}
 
-   oText:AddColumn( HColumn():New( "",{ |v,o|iif(cPrgName == o:cargo,iif(o:nCurrent == nCurrLine,'>',iif(getBP(o:nCurrent ) != 0,'#',' ' ) ),' ' ) },"C",2,0 ) )
+   oText:AddColumn( HColumn():New( "",{ |v,o| (v), iif(cPrgName == o:cargo,iif(o:nCurrent == nCurrLine,'>',iif(getBP(o:nCurrent ) != 0,'#',' ' ) ),' ' ) },"C",2,0 ) )
    oText:aColumns[1]:oFont := oMainFont:SetFontStyle( .T. )
    oText:aColumns[1]:bColorBlock := { ||iif( getBP( oText:nCurrent ) != 0, { 65535, 255, 16777215, 255 }, { oText:tColor, oText:bColor, oText:tColorSel, oText:bColorSel } ) }
 
-   oText:AddColumn( HColumn():New( "",{ |v,o|o:nCurrent },"N",5,0 ) )
-   oText:AddColumn( HColumn():New( "",{ |v,o|o:aArray[o:nCurrent] },"C",80,0 ) )
+   oText:AddColumn( HColumn():New( "",{ |v,o| (v), o:nCurrent },"N",5,0 ) )
+   oText:AddColumn( HColumn():New( "",{ |v,o| (v), o:aArray[o:nCurrent] },"C",80,0 ) )
 
    oText:bEnter := { ||AddBreakPoint() }
    oText:lDispHead := .F.
@@ -1517,9 +1517,9 @@ STATIC FUNCTION StackToggle()
          ON SIZE { |o, x, y|o:Move( 0, 0, x, y ) }
 
       oBrw:aArray := {}
-      oBrw:AddColumn( HColumn():New( "",{ |v,o|o:aArray[o:nCurrent,1] },"C",16,0 ) )
-      oBrw:AddColumn( HColumn():New( "",{ |v,o|o:aArray[o:nCurrent,2] },"C",16,0 ) )
-      oBrw:AddColumn( HColumn():New( "",{ |v,o|o:aArray[o:nCurrent,3] },"C",8,0 ) )
+      oBrw:AddColumn( HColumn():New( "",{ |v,o| (v), o:aArray[o:nCurrent,1] },"C",16,0 ) )
+      oBrw:AddColumn( HColumn():New( "",{ |v,o| (v), o:aArray[o:nCurrent,2] },"C",16,0 ) )
+      oBrw:AddColumn( HColumn():New( "",{ |v,o| (v), o:aArray[o:nCurrent,3] },"C",8,0 ) )
 
       oBrw:bcolorSel := oBrw:htbcolor := CLR_LGREEN
       oBrw:tcolorSel := oBrw:httcolor := 0
@@ -1565,6 +1565,7 @@ STATIC FUNCTION VarsToggle()
 
    }
    LOCAL bTbChange := { |o, n|
+   (o)
    IF lDebugging
       IF n == 1
          DoCommand( CMD_LOCAL, "on" )
@@ -1604,9 +1605,9 @@ STATIC FUNCTION VarsToggle()
          ON SIZE { |o, x, y|o:Move( , , x - 16, y - 38 ) }
 
       oBrwL:aArray := {}
-      oBrwL:AddColumn( HColumn():New( "",{ |v,o|o:aArray[o:nCurrent,1] },"C",16,0 ) )
-      oBrwL:AddColumn( HColumn():New( "",{ |v,o|o:aArray[o:nCurrent,2] },"C",2,0 ) )
-      oBrwL:AddColumn( HColumn():New( "",{ |v,o|o:aArray[o:nCurrent,3] },"C",60,0 ) )
+      oBrwL:AddColumn( HColumn():New( "",{ |v,o| (v), o:aArray[o:nCurrent,1] },"C",16,0 ) )
+      oBrwL:AddColumn( HColumn():New( "",{ |v,o| (v), o:aArray[o:nCurrent,2] },"C",2,0 ) )
+      oBrwL:AddColumn( HColumn():New( "",{ |v,o| (v), o:aArray[o:nCurrent,3] },"C",60,0 ) )
 
       oBrwL:bcolorSel := oBrwL:htbcolor := CLR_LGREEN
       oBrwL:tcolorSel := oBrwL:httcolor := 0
@@ -1623,9 +1624,9 @@ STATIC FUNCTION VarsToggle()
          ON SIZE { |o, x, y|o:Move( , , x - 16, y - 38 ) }
 
       oBrwR:aArray := {}
-      oBrwR:AddColumn( HColumn():New( "",{ |v,o|o:aArray[o:nCurrent,1] },"C",16,0 ) )
-      oBrwR:AddColumn( HColumn():New( "",{ |v,o|o:aArray[o:nCurrent,2] },"C",2,0 ) )
-      oBrwR:AddColumn( HColumn():New( "",{ |v,o|o:aArray[o:nCurrent,3] },"C",60,0 ) )
+      oBrwR:AddColumn( HColumn():New( "",{ |v,o| (v), o:aArray[o:nCurrent,1] },"C",16,0 ) )
+      oBrwR:AddColumn( HColumn():New( "",{ |v,o| (v), o:aArray[o:nCurrent,2] },"C",2,0 ) )
+      oBrwR:AddColumn( HColumn():New( "",{ |v,o| (v), o:aArray[o:nCurrent,3] },"C",60,0 ) )
 
       oBrwR:bcolorSel := oBrwR:htbcolor := CLR_LGREEN
       oBrwR:tcolorSel := oBrwR:httcolor := 0
@@ -1642,9 +1643,9 @@ STATIC FUNCTION VarsToggle()
          ON SIZE { |o, x, y|o:Move( , , x - 16, y - 38 ) }
 
       oBrwU:aArray := {}
-      oBrwU:AddColumn( HColumn():New( "",{ |v,o|o:aArray[o:nCurrent,1] },"C",16,0 ) )
-      oBrwU:AddColumn( HColumn():New( "",{ |v,o|o:aArray[o:nCurrent,2] },"C",2,0 ) )
-      oBrwU:AddColumn( HColumn():New( "",{ |v,o|o:aArray[o:nCurrent,3] },"C",60,0 ) )
+      oBrwU:AddColumn( HColumn():New( "",{ |v,o| (v), o:aArray[o:nCurrent,1] },"C",16,0 ) )
+      oBrwU:AddColumn( HColumn():New( "",{ |v,o| (v), o:aArray[o:nCurrent,2] },"C",2,0 ) )
+      oBrwU:AddColumn( HColumn():New( "",{ |v,o| (v), o:aArray[o:nCurrent,3] },"C",60,0 ) )
 
       oBrwU:bcolorSel := oBrwU:htbcolor := CLR_LGREEN
       oBrwU:tcolorSel := oBrwU:httcolor := 0
@@ -1661,9 +1662,9 @@ STATIC FUNCTION VarsToggle()
          ON SIZE { |o, x, y|o:Move( , , x - 16, y - 38 ) }
 
       oBrwS:aArray := {}
-      oBrwS:AddColumn( HColumn():New( "",{ |v,o|o:aArray[o:nCurrent,1] },"C",16,0 ) )
-      oBrwS:AddColumn( HColumn():New( "",{ |v,o|o:aArray[o:nCurrent,2] },"C",2,0 ) )
-      oBrwS:AddColumn( HColumn():New( "",{ |v,o|o:aArray[o:nCurrent,3] },"C",60,0 ) )
+      oBrwS:AddColumn( HColumn():New( "",{ |v,o| (v), o:aArray[o:nCurrent,1] },"C",16,0 ) )
+      oBrwS:AddColumn( HColumn():New( "",{ |v,o| (v), o:aArray[o:nCurrent,2] },"C",2,0 ) )
+      oBrwS:AddColumn( HColumn():New( "",{ |v,o| (v), o:aArray[o:nCurrent,3] },"C",60,0 ) )
 
       oBrwS:bcolorSel := oBrwS:htbcolor := CLR_LGREEN
       oBrwS:tcolorSel := oBrwS:httcolor := 0
@@ -1747,8 +1748,8 @@ STATIC FUNCTION WatchesToggle()
          ON SIZE { |o, x, y|o:Move( 0, 0, x, y ) }
 
       oBrw:aArray := aWatches
-      oBrw:AddColumn( HColumn():New( "",{ |v,o|o:aArray[o:nCurrent,1] },"C",16,0 ) )
-      oBrw:AddColumn( HColumn():New( "",{ |v,o|o:aArray[o:nCurrent,2] },"C",60,0 ) )
+      oBrw:AddColumn( HColumn():New( "",{ |v,o| (v), o:aArray[o:nCurrent,1] },"C",16,0 ) )
+      oBrw:AddColumn( HColumn():New( "",{ |v,o| (v), o:aArray[o:nCurrent,2] },"C",60,0 ) )
 
       oBrw:bcolorSel := oBrw:htbcolor := CLR_LGREEN
       oBrw:tcolorSel := oBrw:httcolor := 0
@@ -1839,14 +1840,14 @@ STATIC FUNCTION InspectAreas()
       ON SIZE ANCHOR_TOPABS + ANCHOR_LEFTABS + ANCHOR_RIGHTABS + ANCHOR_BOTTOMABS
 
    oBrw:aArray := {}
-   oBrw:AddColumn( HColumn():New( "",{ |v,o|iif(Left(o:aArray[o:nCurrent,1],1 ) == "*","*","" ) },"C",1,0 ) )
-   oBrw:AddColumn( HColumn():New( "Alias",{ |v,o|iif(Left(o:aArray[o:nCurrent,1],1 ) == "*",SubStr(o:aArray[o:nCurrent,1],2 ),o:aArray[o:nCurrent,1] ) },"C",10,0 ) )
-   oBrw:AddColumn( HColumn():New( "Records",{ |v,o|o:aArray[o:nCurrent,4] },"C",10,0 ) )
-   oBrw:AddColumn( HColumn():New( "Current",{ |v,o|o:aArray[o:nCurrent,5] },"C",10,0 ) )
-   oBrw:AddColumn( HColumn():New( "Bof",{ |v,o|o:aArray[o:nCurrent,6] },"C",5,0 ) )
-   oBrw:AddColumn( HColumn():New( "Eof",{ |v,o|o:aArray[o:nCurrent,7] },"C",5,0 ) )
-   oBrw:AddColumn( HColumn():New( "Fou",{ |v,o|o:aArray[o:nCurrent,8] },"C",5,0 ) )
-   oBrw:AddColumn( HColumn():New( "Del",{ |v,o|o:aArray[o:nCurrent,9] },"C",5,0 ) )
+   oBrw:AddColumn( HColumn():New( "",{ |v,o| (v), iif(Left(o:aArray[o:nCurrent,1],1 ) == "*","*","" ) },"C",1,0 ) )
+   oBrw:AddColumn( HColumn():New( "Alias",{ |v,o| (v), iif(Left(o:aArray[o:nCurrent,1],1 ) == "*",SubStr(o:aArray[o:nCurrent,1],2 ),o:aArray[o:nCurrent,1] ) },"C",10,0 ) )
+   oBrw:AddColumn( HColumn():New( "Records",{ |v,o| (v), o:aArray[o:nCurrent,4] },"C",10,0 ) )
+   oBrw:AddColumn( HColumn():New( "Current",{ |v,o| (v), o:aArray[o:nCurrent,5] },"C",10,0 ) )
+   oBrw:AddColumn( HColumn():New( "Bof",{ |v,o| (v), o:aArray[o:nCurrent,6] },"C",5,0 ) )
+   oBrw:AddColumn( HColumn():New( "Eof",{ |v,o| (v), o:aArray[o:nCurrent,7] },"C",5,0 ) )
+   oBrw:AddColumn( HColumn():New( "Fou",{ |v,o| (v), o:aArray[o:nCurrent,8] },"C",5,0 ) )
+   oBrw:AddColumn( HColumn():New( "Del",{ |v,o| (v), o:aArray[o:nCurrent,9] },"C",5,0 ) )
 
    oBrw:bcolorSel := oBrw:htbcolor := CLR_LGREEN
    oBrw:tcolorSel := oBrw:httcolor := 0
@@ -1899,10 +1900,10 @@ STATIC FUNCTION InspectRec( cAlias )
       ON SIZE ANCHOR_TOPABS + ANCHOR_LEFTABS + ANCHOR_RIGHTABS + ANCHOR_BOTTOMABS
 
    oBrw:aArray := {}
-   oBrw:AddColumn( HColumn():New( "Name",{ |v,o|o:aArray[o:nCurrent,1] },"C",14,0 ) )
-   oBrw:AddColumn( HColumn():New( "Type",{ |v,o|o:aArray[o:nCurrent,2] },"C",2,0 ) )
-   oBrw:AddColumn( HColumn():New( "Len",{ |v,o|o:aArray[o:nCurrent,3] },"C",6,0 ) )
-   oBrw:AddColumn( HColumn():New( "Value",{ |v,o|o:aArray[o:nCurrent,4] },"C",60,0 ) )
+   oBrw:AddColumn( HColumn():New( "Name",{ |v,o| (v), o:aArray[o:nCurrent,1] },"C",14,0 ) )
+   oBrw:AddColumn( HColumn():New( "Type",{ |v,o| (v), o:aArray[o:nCurrent,2] },"C",2,0 ) )
+   oBrw:AddColumn( HColumn():New( "Len",{ |v,o| (v), o:aArray[o:nCurrent,3] },"C",6,0 ) )
+   oBrw:AddColumn( HColumn():New( "Value",{ |v,o| (v), o:aArray[o:nCurrent,4] },"C",60,0 ) )
 
    oBrw:bcolorSel := oBrw:htbcolor := CLR_LGREEN
    oBrw:tcolorSel := oBrw:httcolor := 0
@@ -1938,9 +1939,9 @@ STATIC FUNCTION InspectInd( cInd )
       ON SIZE ANCHOR_TOPABS + ANCHOR_LEFTABS + ANCHOR_RIGHTABS + ANCHOR_BOTTOMABS
 
    oBrw:aArray := arr
-   oBrw:AddColumn( HColumn():New( "Num",{ |v,o|o:nCurrent },"N",3,0 ) )
-   oBrw:AddColumn( HColumn():New( "Name",{ |v,o|o:aArray[o:nCurrent,1] },"C",10,0 ) )
-   oBrw:AddColumn( HColumn():New( "Key",{ |v,o|o:aArray[o:nCurrent,2] },"C",80,0 ) )
+   oBrw:AddColumn( HColumn():New( "Num",{ |v,o| (v), o:nCurrent },"N",3,0 ) )
+   oBrw:AddColumn( HColumn():New( "Name",{ |v,o| (v), o:aArray[o:nCurrent,1] },"C",10,0 ) )
+   oBrw:AddColumn( HColumn():New( "Key",{ |v,o| (v), o:aArray[o:nCurrent,2] },"C",80,0 ) )
 
    oBrw:bcolorSel := oBrw:htbcolor := CLR_LGREEN
    oBrw:tcolorSel := oBrw:httcolor := 0
@@ -1983,9 +1984,9 @@ STATIC FUNCTION InspectObject( cObjName )
       ON SIZE ANCHOR_TOPABS + ANCHOR_LEFTABS + ANCHOR_RIGHTABS + ANCHOR_BOTTOMABS
 
    oBrw:aArray := {}
-   oBrw:AddColumn( HColumn():New( "Name",{ |v,o|o:aArray[o:nCurrent,1] },"C",12,0 ) )
-   oBrw:AddColumn( HColumn():New( "Type",{ |v,o|o:aArray[o:nCurrent,2] },"C",2,0 ) )
-   oBrw:AddColumn( HColumn():New( "Value",{ |v,o|o:aArray[o:nCurrent,3] },"C",60,0 ) )
+   oBrw:AddColumn( HColumn():New( "Name",{ |v,o| (v), o:aArray[o:nCurrent,1] },"C",12,0 ) )
+   oBrw:AddColumn( HColumn():New( "Type",{ |v,o| (v), o:aArray[o:nCurrent,2] },"C",2,0 ) )
+   oBrw:AddColumn( HColumn():New( "Value",{ |v,o| (v), o:aArray[o:nCurrent,3] },"C",60,0 ) )
 
    oBrw:bcolorSel := oBrw:htbcolor := CLR_LGREEN
    oBrw:tcolorSel := oBrw:httcolor := 0
@@ -2021,17 +2022,17 @@ STATIC FUNCTION ShowObject( arr, n )
 
 STATIC FUNCTION InspectArray( cArrName )
    LOCAL oDlg, oBrw, i
-   
+
    /* Bugfix Ticket #80:
        this old line causes crash press button "Refresh" in array inspector:
        n2 := n1 + oBrw:rowCount - 1
        oBrw:rowCount return 13, but must be 4 !
    */
-   
+
    /* hwg_WriteLog("n1=" + ALLTRIM(STR(n1)) +  " n2=" + ALLTRIM(STR(n2)) + " oBrw:rowCount=" + ;
           ALLTRIM(STR(oBrw:rowCount)) )
    */
-   
+
    LOCAL bRefresh := { ||
    LOCAL n1, n2, lRefr := .F.
 
@@ -2087,9 +2088,9 @@ STATIC FUNCTION InspectArray( cArrName )
       ON SIZE ANCHOR_TOPABS + ANCHOR_LEFTABS + ANCHOR_RIGHTABS + ANCHOR_BOTTOMABS
 
    oBrw:aArray := {}
-   oBrw:AddColumn( HColumn():New( "Index",{ |v,o|"[" + LTrim(Str(o:nCurrent ) ) + "]" },"C",12,0 ) )
-   oBrw:AddColumn( HColumn():New( "Type",{ |v,o|o:aArray[o:nCurrent,1] },"C",2,0 ) )
-   oBrw:AddColumn( HColumn():New( "Value",{ |v,o|o:aArray[o:nCurrent,2] },"C",60,0 ) )
+   oBrw:AddColumn( HColumn():New( "Index",{ |v,o| (v), "[" + LTrim(Str(o:nCurrent ) ) + "]" },"C",12,0 ) )
+   oBrw:AddColumn( HColumn():New( "Type",{ |v,o| (v), o:aArray[o:nCurrent,1] },"C",2,0 ) )
+   oBrw:AddColumn( HColumn():New( "Value",{ |v,o| (v), o:aArray[o:nCurrent,2] },"C",60,0 ) )
 
    oBrw:bcolorSel := oBrw:htbcolor := CLR_LGREEN
    oBrw:tcolorSel := oBrw:httcolor := 0
@@ -2362,4 +2363,4 @@ STATIC FUNCTION ExitDbg()
    RETURN .T.
 
 * ===================== EOF of hwgdebug.prg ========================
-   
+

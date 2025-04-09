@@ -56,11 +56,11 @@ FUNCTION StruMan( lNew )
    oBrowse:aHeadPadding := { 4, 2, 4, 2 }
    oBrowse:oStyleHead := HStyle():New( { 0xffffff, 0xbbbbbb }, 1 )
    oBrowse:aArray := af
-   oBrowse:AddColumn( HColumn():New( "",{ |v,o|o:nCurrent },"N",4,0 ) )
-   oBrowse:AddColumn( HColumn():New( "Name",{ |v,o|o:aArray[o:nCurrent,1] },"C",14,0 ) )
-   oBrowse:AddColumn( HColumn():New( "Type",{ |v,o|o:aArray[o:nCurrent,2] },"C",1,0 ) )
-   oBrowse:AddColumn( HColumn():New( "Length",{ |v,o|o:aArray[o:nCurrent,3] },"N",5,0 ) )
-   oBrowse:AddColumn( HColumn():New( "Dec",{ |v,o|o:aArray[o:nCurrent,4] },"N",2,0 ) )
+   oBrowse:AddColumn( HColumn():New( "",{ |v,o| (v), o:nCurrent },"N",4,0 ) )
+   oBrowse:AddColumn( HColumn():New( "Name",{ |v,o| (v), o:aArray[o:nCurrent,1] },"C",14,0 ) )
+   oBrowse:AddColumn( HColumn():New( "Type",{ |v,o| (v), o:aArray[o:nCurrent,2] },"C",1,0 ) )
+   oBrowse:AddColumn( HColumn():New( "Length",{ |v,o| (v), o:aArray[o:nCurrent,3] },"N",5,0 ) )
+   oBrowse:AddColumn( HColumn():New( "Dec",{ |v,o| (v), o:aArray[o:nCurrent,4] },"N",2,0 ) )
 
    @ 20, 230 GET oGet1 VAR cName SIZE 100, 24 PICTURE "XXXXXXXXXX"
    @ 130, 230 GET COMBOBOX oGet2 VAR nType ITEMS aTypes SIZE 100, 24

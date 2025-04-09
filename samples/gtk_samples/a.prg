@@ -67,16 +67,19 @@ return nil
 
 Function FileOpen
 Local oModDlg, oBrw
-Local mypath , cdirSep
+Local cdirSep
 Local fname
 Local nId
+#ifndef __GTK__
+   LOCAL mypath
+#endif
 
 cdirSep := hwg_GetDirSep()
-mypath := cdirSep + CURDIR() + IIF( EMPTY( CURDIR() ), "", cdirSep )
 
 #ifdef __GTK__
 fname := hwg_SelectFileEx(,,{{"Dbf Files","*.dbf"},{"All files","*"}} )
 #else
+mypath := cdirSep + CURDIR() + IIF( EMPTY( CURDIR() ), "", cdirSep )
 fname := hwg_Selectfile("Dbf Files" , "*.dbf", mypath )
 #endif
 

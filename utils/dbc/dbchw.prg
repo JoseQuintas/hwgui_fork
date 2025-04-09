@@ -169,7 +169,7 @@ FUNCTION Main( ... )
 
    IF lMdi
 #ifndef __GTK__
-      INIT WINDOW oWndMain MDI TITLE "Dbc" MENU "APPMENU" MENUPOS 8 ; 
+      INIT WINDOW oWndMain MDI TITLE "Dbc" MENU "APPMENU" MENUPOS 8 ;
             ICON HIcon():AddResource("DBC")
 #endif
    ELSE
@@ -414,7 +414,7 @@ STATIC FUNCTION About
    @ 290, 48 SAY "version 3.2" SIZE 178, 20 STYLE SS_CENTER
 #ifdef __XHARBOUR__
    sv := version()
-#else   
+#else
    sv := hb_version()
 #endif
    nPos := At( "(", sv )
@@ -435,7 +435,7 @@ Static Function SelectIndex()
 Local aIndex := { { "None","   ","   " } }, i, indname, iLen := 0
 Local oDlg, oBrowse, width, height, nChoice := 0, cOrder, nOrder := OrdNumber()+1
 
-   i := 1   
+   i := 1
    DO WHILE !EMPTY( indname := ORDNAME( i ) )
       AADD( aIndex, { indname, ORDKEY( i ), ORDBAGNAME( i ) } )
       iLen := Max( iLen, Len( OrdKey( i ) ) )
@@ -455,25 +455,25 @@ Local oDlg, oBrowse, width, height, nChoice := 0, cOrder, nOrder := OrdNumber()+
        ON CLICK {|o|nChoice:=o:nCurrent,cOrder:=o:aArray[o:nCurrent,1],hwg_EndDialog(o:oParent:handle)}
 
    oBrowse:aArray := aIndex
-   oBrowse:AddColumn( HColumn():New( "OrdName",{|v,o|o:aArray[o:nCurrent,1]},"C",10,0 ) )
-   oBrowse:AddColumn( HColumn():New( "Order key",{|v,o|o:aArray[o:nCurrent,2]},"C",Max(iLen,30),0 ) )
-   oBrowse:AddColumn( HColumn():New( "Filename",{|v,o|o:aArray[o:nCurrent,3]},"C",10,0 ) )
+   oBrowse:AddColumn( HColumn():New( "OrdName",{|v,o| (v), o:aArray[o:nCurrent,1]},"C",10,0 ) )
+   oBrowse:AddColumn( HColumn():New( "Order key",{|v,o| (v), o:aArray[o:nCurrent,2]},"C",Max(iLen,30),0 ) )
+   oBrowse:AddColumn( HColumn():New( "Filename",{|v,o| (v), o:aArray[o:nCurrent,3]},"C",10,0 ) )
 
    oBrowse:bScrollPos := {|o,n,lEof,nPos|hwg_VScrollPos(o,n,lEof,nPos)}
    oBrowse:aHeadPadding := { 4,2,4,2 }
    oBrowse:oStyleHead := HStyle():New( { 0xffffff, 0xbbbbbb }, 1 )
-   
+
    oBrowse:rowPos := nOrder
    Eval( oBrowse:bGoTo,oBrowse,nOrder )
-   
+
    oDlg:Activate()
-   
+
    IF nChoice > 0
       nChoice --
       Set Order To nChoice
       UpdBrowse()
    ENDIF
-                           
+
 Return Nil
 
 Static Function NewIndex()
@@ -485,26 +485,26 @@ Local lMulti := .T., lUniq := .F., cTag := "", cExpr := "", cCond := ""
          AT 0,0         ;
          SIZE 300,250   ;
          FONT oMainFont
-         
+
    @ 10,10 SAY "Order name:" SIZE 100,22
    @ 110,10 GET cName SIZE 100,24
-   
+
    @ 10,40 GET CHECKBOX lMulti CAPTION "Multibag" SIZE 100,22
    @ 110,40 GET cTag SIZE 100,24
-   
+
    @ 10,65 GET CHECKBOX lUniq CAPTION "Unique" SIZE 100,22
-   
+
    @ 10,85 SAY "Expression:" SIZE 100,22
    @ 10,107 GET cExpr SIZE 280,24
-         
+
    @ 10,135 SAY "Condition:" SIZE 100,22
    @ 10,157 GET cCond SIZE 280,24
-   
+
    @  30,210  BUTTON "Ok" SIZE 100, 32 ON CLICK {||oDlg:lResult:=.T.,hwg_EndDialog()}
    @ 170,210 BUTTON "Cancel" SIZE 100, 32 ON CLICK {||hwg_EndDialog()}
 
    oDlg:Activate()
-   
+
    IF oDlg:lResult
       IF !Empty( cName ) .AND. ( !Empty( cTag ) .OR. !lMulti ) .AND. !Empty( cExpr )
 
@@ -513,14 +513,14 @@ Local lMulti := .T., lUniq := .F., cTag := "", cExpr := "", cCond := ""
          IF lMulti
             IF EMPTY( cCond )
                ORDCREATE( cName,RTRIM(cTag),RTRIM(cExpr), &("{||"+RTRIM(cExpr)+"}"),Iif(lUniq,.T.,Nil) )
-            ELSE                     
+            ELSE
                ordCondSet( RTRIM(cCond), &("{||"+RTRIM(cCond) + "}" ),,,,, RECNO(),,,, )
                ORDCREATE( cName, RTRIM(cTag), RTRIM(cExpr), &("{||"+RTRIM(cExpr)+"}"),Iif(lUniq,.T.,Nil) )
             ENDIF
          ELSE
             IF EMPTY( cCond )
                dbCreateIndex( cName,RTRIM(cExpr),&("{||"+RTRIM(cExpr)+"}"),Iif(lUniq,.T.,Nil) )
-            ELSE                     
+            ELSE
                ordCondSet( RTRIM(cCond), &("{||"+RTRIM(cCond) + "}" ),,,,, RECNO(),,,, )
                ORDCREATE( cName, RTRIM(cTag), RTRIM(cExpr), &("{||"+RTRIM(cExpr)+"}"),Iif(lUniq,.T.,Nil) )
             ENDIF
@@ -531,7 +531,7 @@ Local lMulti := .T., lUniq := .F., cTag := "", cExpr := "", cCond := ""
          hwg_MsgStop( "Fill necessary fields" )
       ENDIF
    ENDIF
-   
+
 Return Nil
 
 Static Function OpenIndex()
@@ -596,7 +596,7 @@ Function GetBrwActive()
 
    IF lMdi
 #ifndef __GTK__
-      IF !Empty( oWindow := HMainWindow():GetMdiActive() ) 
+      IF !Empty( oWindow := HMainWindow():GetMdiActive() )
          i := Ascan( oWindow:aControls, { |o|o:classname() == "HBROWSE" } )
       ENDIF
       oBrw := Iif( Empty(i), Nil, oWindow:aControls[i] )
@@ -673,8 +673,8 @@ Local bFileBtn := {||
 #ifdef RDD_ADS
    GET RADIOGROUP r1
    @ 220,116 RADIOBUTTON "AXS_CDX" SIZE 120, 22
-   @ 220,140 RADIOBUTTON "AXS_NTX" SIZE 120, 22 
-   @ 220,164 RADIOBUTTON "AXS_ADT" SIZE 120, 22 
+   @ 220,140 RADIOBUTTON "AXS_NTX" SIZE 120, 22
+   @ 220,164 RADIOBUTTON "AXS_ADT" SIZE 120, 22
    END RADIOGROUP
 
    @ 220,188 GET CHECKBOX lAxl CAPTION "Axslock" SIZE 120, 20
@@ -915,7 +915,7 @@ FUNCTION Calcul()
          STYLE WS_BORDER ON SIZE ANCHOR_TOPABS+ANCHOR_LEFTABS+ANCHOR_RIGHTABS
 
    @ 150,100 BUTTON "Close" SIZE 100, 32 ON CLICK {||hwg_EndDialog()}
-      
+
    oDlg:Activate()
 
    RETURN Nil
@@ -1333,7 +1333,7 @@ LOCAL cType, nLen, nDec, cPicture, rowPos
       cPicture := "L"
    ENDIF
 
-   x1 := oBrw:x1 
+   x1 := oBrw:x1
    y1 := oBrw:nLeftCol - 1
    DO WHILE ++y1 < n
       x1 += oBrw:aColumns[y1]:width
@@ -1346,7 +1346,7 @@ LOCAL cType, nLen, nDec, cPicture, rowPos
    x1 := aCoors[1]
    y1 := aCoors[2]
 
-   lReadExit := Set( _SET_EXIT, .T. ) 
+   lReadExit := Set( _SET_EXIT, .T. )
 
    IF cType != "M"
       INIT DIALOG oDlg AT x1, y1 - 1 ;
