@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-09 15:30 UTC+0200 Wilfried Brunken DF7BE
+* contrib/hwreport/make_linux.sh (New)
+  ! Hello Jose,
+  ! referenced by your mail from
+  ! 2025-04-09 01:19
+  ! i can compile my hwreport without
+  ! W0032 on Ubuntu.
+  ! This warning does not appear.
+  ! Bugin Harbour ?
+  
 
 2025-04-09 13:30 UTC+0200 Wilfried Brunken DF7BE
 * samples/dlgsplit.prg
