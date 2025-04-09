@@ -35,9 +35,11 @@
 
 
 #include "hwgui.ch"
-#ifdef __GTK__
-#include "gtk.ch"
-#endif
+
+* remove the include of gtk.ch, not needed any more 
+// #ifdef __GTK__
+// #include "gtk.ch"
+// #endif
 
 #ifdef __USING_MENU__
    FUNCTION DlgSplit()

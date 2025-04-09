@@ -15,6 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+
+2025-04-09 13:30 UTC+0200 Wilfried Brunken DF7BE
+* samples/dlgsplit.prg
+  ! hbmk2 all.hbp aborts on LINUX:
+  ! Removed the include of gtk.ch, not needed any more
+
 2025-04-08 22:20 UTC-0200 Jose Quintas jmcquintas-gmail.com
    - a.prg
    - a.hbp
