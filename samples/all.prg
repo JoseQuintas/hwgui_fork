@@ -30,7 +30,8 @@ PROCEDURE Main
        { "DLGMENU1",  .T., .T., .T., "Menu using desktop Size" }, ;
        { "DLGBOT",    .T., .F., .F., "ON OTHER MESSAGES" }, ;
        { "DLGSPLIT",  .T., .T., .T., "Splitter" }, ;
-       { "DLGXML",    .T., .T., .T., "Setup from XML" } }
+       { "DLGXML",    .T., .T., .T., "Setup from XML" }, ;
+       { "DLGMDI",    .T., .F., .F., "MDI Window" } }
 
    INIT DIALOG oDlg TITLE "ALL - Samples without own hbp" ;
      AT 0,0 SIZE 600, 400

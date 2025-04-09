@@ -84,7 +84,7 @@
 #
 # Samples WinAPI only
 #
-../samples/a.prg
+#../samples/a.prg - dlgmdi.prg - on all.hbp
 ../samples/buildpelles.prg
 ../samples/demohlist.prg
 ../samples/grid_1.prg

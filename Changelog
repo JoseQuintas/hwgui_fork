@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-08 22:20 UTC-0200 Jose Quintas jmcquintas-gmail.com
+   - a.prg
+   - a.hbp
+   + dlgmdi.prg
+   * all.prg
+   * all.hbp
+   * allhbp.hbp
+     ! included a.prg as dlgmdi.prg on all.hbp as Windows only
+     ! hbmk2 dlgmdi.prg works too
+
 2025-04-08 19:30 UTC-0200 Jose Quintas jmcquintas-gmail.com
    - testspli.prg
    - testspli.hbp
@@ -22,7 +32,7 @@
    * all.prg
    * all.hbp
    * allhbp.hbp
-     ! include dlgsplit.prg on menu
+     ! include dlgsplit.prg on all.hbp
      ! remembering: hbmk2 dlgsplit.prg works too
      ! Do not change INIT WINDOW, later test on mt
    .github/workflows/checkubuntu.yml
