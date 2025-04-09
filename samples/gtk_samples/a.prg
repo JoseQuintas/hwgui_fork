@@ -1,7 +1,7 @@
 /*
  * $Id$
  * HWGUI using sample
- * 
+ *
  *
  * Copyright 2004 Alexander S.Kresin <alex@kresin.ru>
  * www - http://www.kresin.ru
@@ -27,7 +27,7 @@ Private oBmp2
 
    INIT WINDOW oMainWindow MAIN TITLE "Example" ;
      AT 200,0 SIZE 400,150
-     
+
    @ 0,0 PANEL oPanel SIZE 0,32
    @ 2,3 OWNERBUTTON OF oPanel ON CLICK {||FileOpen()} ;
    SIZE 32,26 FLAT ;
@@ -46,14 +46,14 @@ Private oBmp2
          MENUITEM "&Exit" ACTION hwg_EndWindow()
       ENDMENU
       MENU TITLE "&Samples"
-         MENUITEMCHECK "&Checked" ID 1001 
+         MENUITEMCHECK "&Checked" ID 1001
          SEPARATOR
          MENUITEM "&Test Tab" ACTION TestTab()
          SEPARATOR
          MENUITEM "&MsgGet" ;
                ACTION hwg_Copystringtoclipboard(hwg_MsgGet("Dialog Sample","Input table name"))
          MENUITEM "&Dialog from prg" ACTION DialogFromPrg()
-         #ifdef TEST_PRINT         
+         #ifdef TEST_PRINT
          SEPARATOR
          MENUITEM "&Print Preview" ACTION PrnTest()
          #endif
@@ -61,7 +61,7 @@ Private oBmp2
 
    ENDMENU
 
-   ACTIVATE WINDOW oMainWindow 
+   ACTIVATE WINDOW oMainWindow
 
 return nil
 
@@ -81,8 +81,8 @@ fname := hwg_Selectfile("Dbf Files" , "*.dbf", mypath )
 #endif
 
    IF !Empty( fname )
-   
-      mypath := cdirSep + CURDIR() + IIF( EMPTY( CURDIR() ), "", cdirSep )
+
+      //mypath := cdirSep + CURDIR() + IIF( EMPTY( CURDIR() ), "", cdirSep ) // duplicated
       use &fname new
       nId := 111
 
@@ -103,11 +103,11 @@ fname := hwg_Selectfile("Dbf Files" , "*.dbf", mypath )
             ON GETFOCUS {|o|dbSelectArea(o:alias)}
       hwg_CreateList( oBrw,.T. )
       oBrw:bScrollPos := {|o,n,lEof,nPos|hwg_VScrollPos(o,n,lEof,nPos)}
-      oBrw:bRClick := {|o,nCol,nRow|hwg_MsgInfo(str(nCol)+"/"+str(nRow))}
+      oBrw:bRClick := {|o,nCol,nRow|(o), hwg_MsgInfo(str(nCol)+"/"+str(nRow))}
       IF oFont != Nil
          oBrw:ofont := oFont
       ENDIF
-      AEval(oBrw:aColumns, {|o| o:bHeadClick := {|oB, n| hwg_Msginfo("Column number "+Str(n))}})
+      AEval(oBrw:aColumns, {|o| o:bHeadClick := {|oB, n| (ob), hwg_Msginfo("Column number "+Str(n))}})
 
       ACTIVATE DIALOG oModDlg NOMODAL
    ENDIF
@@ -134,10 +134,10 @@ return nil
 Function DialogFromPrg()
 Local cTitle := "Dialog from prg", cText := "Input something"
 Local oModDlg, oFont := HFont():Add( "Serif",0,-13 ), oTab
-Local cRes, aCombo := { "First","Second" }, oEdit, vard := "Monday"
+Local aCombo := { "First","Second" }, oEdit, vard := "Monday"
 
    hwg_CheckMenuItem( ,1001, !hwg_IsCheckedMenuItem( ,1001 ) )
-   
+
    INIT DIALOG oModDlg TITLE cTitle           ;
    AT 210,10  SIZE 300,300                    ;
    FONT oFont                                 ;
@@ -222,12 +222,12 @@ Function PrnTest
 Local oPrinter, oFont
 
    INIT PRINTER oPrinter
-   IF oPrinter == Nil      
-      Return Nil         
-   ENDIF            
-                              
+   IF oPrinter == Nil
+      Return Nil
+   ENDIF
+
    oFont := oPrinter:AddFont( "sans",10 )
-                  
+
    oPrinter:StartDoc()
    oPrinter:StartPage()
    oPrinter:SetFont( oFont )
@@ -247,4 +247,4 @@ Local oPrinter, oFont
 Return Nil
 
 * ================== EOF of a.prg =====================
-                                                               
+

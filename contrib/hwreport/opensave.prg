@@ -99,7 +99,7 @@ STATIC FUNCTION BrowFile( lOpen )
 
 STATIC FUNCTION EndOpen( lOpen )
    LOCAL fname, repName
-   LOCAL res := .T.
+   LOCAL res // := .T.// not needed value
 
    fname := oDlg:oEdit1:Value
    IF !Empty( fname )
@@ -201,6 +201,9 @@ STATIC FUNCTION OpenFile( fname, repName )
                   ELSE
                      cSource += LTrim( RTrim( stroka ) )
                      vDummy := &cSource
+// ---
+                     (vDummy) // value not used -w3 -es2
+// ---
                      cSource := ""
                   ENDIF
                ENDIF

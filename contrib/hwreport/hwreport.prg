@@ -290,7 +290,10 @@ STATIC FUNCTION PaintMain( oWnd )
          nWidth := Round( nHeight * aPaintRep[FORM_WIDTH] / aPaintRep[FORM_HEIGHT], 0 )
          IF nWidth > aCoors[3] - aCoors[1] - XINDENT
             nWidth := aCoors[3] - aCoors[1] - XINDENT
+// -----
             nHeight := Round( nWidth * aPaintRep[FORM_HEIGHT] / aPaintRep[FORM_WIDTH], 0 )
+            (nHeight) // this value is not used anymore, why error on github ubuntu only?
+// -----
          ENDIF
       ENDIF
       aPaintRep[FORM_XKOEF] := nWidth/aPaintRep[FORM_WIDTH]

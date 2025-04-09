@@ -34,7 +34,7 @@ FUNCTION hwg_hwr_Open( fname, repName )
    LOCAL aPaintRep
    LOCAL strbuf := Space( 512 ), poz := 513, stroka, nMode := 0
    LOCAL han
-   LOCAL aLine, itemName, aItem, res := .T.
+   LOCAL aLine, itemName, aItem // , res := .T. // not used
    LOCAL nFormWidth
 
    han := FOpen( fname, FO_READ + FO_SHARED )

@@ -47,7 +47,10 @@ FUNCTION _hwr_PrintRpt
    aMetr := hwg_GetDeviceArea( hDCwindow )
    hwg_Selectobject( hDCwindow, oFontStandard:handle )
    aTmetr := hwg_Gettextmetric( hDCwindow )
+   //---
    dKoef := ( aMetr[1] - XINDENT ) / aTmetr[2]
+   (dKoef) // used only when __GTK__ -w3 -es2
+   //---
    hwg_Releasedc( Hwindow():GetMain():handle, hDCwindow )
 
 #ifdef __GTK__

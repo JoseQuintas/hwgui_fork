@@ -136,7 +136,7 @@ STATIC FUNCTION SetItemFont( oDlg, aItem )
 
 STATIC FUNCTION LineDlg( aItem )
    LOCAL oModDlg
-   LOCAL oPen := aItem[ITEM_PEN]
+   //LOCAL oPen := aItem[ITEM_PEN] // not used
    LOCAL oEdit1, oCombo1
 
    // FROM RESOURCE "DLG_LINE"
