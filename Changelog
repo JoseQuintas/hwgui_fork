@@ -15,6 +15,21 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-08 19:30 UTC-0200 Jose Quintas jmcquintas-gmail.com
+   - testspli.prg
+   - testspli.hbp
+   + dlgsplit.prg
+   * all.prg
+   * all.hbp
+   * allhbp.hbp
+     ! include dlgsplit.prg on menu
+     ! remembering: hbmk2 dlgsplit.prg works too
+     ! Do not change INIT WINDOW, later test on mt
+   .github/workflows/checkubuntu.yml
+   .github/workflows/checkwindows.yml
+     ! changed to compile allhbp.hbp too
+     ! need help to create a checkmacos.yml
+
 2025-04-08 18:10 UTC-0200 Jose Quintas jmcquintas-gmail.com
    * allhbp.hbp
      ! include all.hbp and commented individual prgs already on all.hbp

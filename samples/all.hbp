@@ -8,6 +8,7 @@ dlgbrwdbf.prg
 dlgcombo.prg
 dlgdpick.prg
 dlgmenu1.prg
+dlgsplit.prg
 dlgxml.prg
 
 -d__USING_MENU__

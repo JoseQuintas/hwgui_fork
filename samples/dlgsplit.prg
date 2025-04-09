@@ -1,6 +1,6 @@
 /*
  *
- * testspli.prg
+ * dlgsplit.prg
  *
  * $Id$
  *
@@ -39,9 +39,13 @@
 #include "gtk.ch"
 #endif
 
-FUNCTION Main()
+#ifdef __USING_MENU__
+   FUNCTION DlgSplit()
+#else
+   FUNCTION Main()
+#endif
 
-   LOCAL oMainWindow, oFont, oSplitV, oSplitH, oEdit1, oEdit2 , cVal_Wcur1 , cVal_Wcur2
+   LOCAL oDlg, oFont, oSplitV, oSplitH, oEdit1, oEdit2 , cVal_Wcur1 , cVal_Wcur2
    LOCAL oTree, oItem
 * Local cVal_Wcur3
 
@@ -52,9 +56,9 @@ FUNCTION Main()
    cVal_Wcur2 := hwg_cHex2Bin( hex_splith() )
 *   cVal_Wcur3 := hwg_cHex2Bin( hex_transistor() )
 
-   INIT WINDOW oMainWindow MAIN TITLE "Split windows example"  ;
-     SYSCOLOR COLOR_3DLIGHT+1                    ;
-     AT 200,0 SIZE 420,300                       ;
+   INIT WINDOW oDlg TITLE "Split windows example"  ;
+     SYSCOLOR COLOR_3DLIGHT+1 ;
+     AT 200,0 SIZE 420,300 ;
      FONT oFont
 
    @ 20,10 TREE oTree SIZE 140,100
@@ -91,7 +95,7 @@ FUNCTION Main()
 #endif
    oSplitH:hCursor := hwg_LoadCursorFromString(cVal_Wcur2, 16 , 16 ) && From hex value
 
-   ACTIVATE WINDOW oMainWindow
+   ACTIVATE WINDOW oDlg CENTER
 
 RETURN Nil
 

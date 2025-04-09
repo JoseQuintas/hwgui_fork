@@ -23,12 +23,13 @@ PROCEDURE Main
 
    LOCAL oDlg, aItem
    LOCAL aList := { ;
-       ; // NAME, WIN, LINUX, MACOS, DESCRIPTION
+       ; // NAME,     WIN, LINUX, MACOS, DESCRIPTION
        { "DLGBRWDBF", .T., .T., .T., "Browse DBF"  }, ;
        { "DLGCOMBO",  .T., .T., .T., "Combobox" }, ;
        { "DLGDPICK",  .T., .T., .T., "Date Picker" }, ;
        { "DLGMENU1",  .T., .T., .T., "Menu using desktop Size" }, ;
        { "DLGBOT",    .T., .F., .F., "ON OTHER MESSAGES" }, ;
+       { "DLGSPLIT",  .T., .T., .T., "Splitter" }, ;
        { "DLGXML",    .T., .T., .T., "Setup from XML" } }
 
    INIT DIALOG oDlg TITLE "ALL - Samples without own hbp" ;

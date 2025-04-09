@@ -20,7 +20,7 @@
 ../hwgdebug.hbp
 #
 # Only for MinGW and Borland C compiler
-../hwguidyn.hbp
+#../hwguidyn.hbp
 #
 # Contrib
 #
@@ -73,7 +73,7 @@
 ../samples/testhmonth.prg
 ../samples/testimage.prg
 ../samples/testsdi.prg
-../samples/testspli.prg
+#../samples/testspli.prg - dlgsplit.prg - on all.hbp
 ../samples/testtree.prg
 #../samples/testxml.prg - dlgxml.prg - on all.hbp
 ../samples/trackbar.prg
