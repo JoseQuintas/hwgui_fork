@@ -57,6 +57,8 @@ jobs:
          hbmk2 hbxml.hbp -w3
          hbmk2 procmisc.hbp -w3
          hbmk2 hwgdebug.hbp -w3
+         cd c:\temp\hwgui\samples
+         hbmk2 allhbp.hbp
 
     #- name: Build 64 bits
     #  env:

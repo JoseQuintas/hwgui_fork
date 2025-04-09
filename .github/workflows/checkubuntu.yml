@@ -23,10 +23,11 @@ jobs:
          HB_BUILD_STRIP: all
          HB_COMPILER: gcc
       run: |
+         sudo apt-get update
+         sudo apt-get upgrade
          sudo apt-get install gcc
          sudo apt-get install make
-         sudo apt-get install build-essential libgtk2.0-dev
-         #sudo apt-get install gnome-themes-standard
+         sudo apt-get install build-essential libgtk2.0-dev --fix-missing
          sudo apt-get install git
          git clone https://github.com/harbour/core /tmp/harbour --depth 1
          git clone https://github.com/JoseQuintas/hwgui_fork /tmp/hwgui --depth 1
@@ -37,3 +38,5 @@ jobs:
          hbmk2 hbxml.hbp -workdir=/tmp -w3
          hbmk2 procmisc.hbp -workdir=/tmp -w3
          hbmk2 hwgdebug.hbp -workdir=/tmp -w3
+         cd /tmp/hwgui/samples
+         hbmk2 allhbp.hbp -workdir=/tmp -w3
