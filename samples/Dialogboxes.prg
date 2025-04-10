@@ -50,7 +50,7 @@ RETURN Nil
 
 FUNCTION Test()
 
-   LOCAL oDlg, oFont, oFontSay, oFontC, oSay3, oSay4, oSay5, oSay6, oSay7, y1 := 50, n
+   LOCAL oDlg, oFont, oFontSay, oFontC, oSay3, oSay4, oSay5, oSay6, oSay7, y1 := 50
    LOCAL nChoic, cRes, arr := {"White","Blue","Green","Red"}
 
    PREPARE FONT oFont NAME "MS Sans Serif" WIDTH 0 HEIGHT -13

@@ -50,9 +50,6 @@ FUNCTION Teste()
    LOCAL oList, oItemso := { { "Item01" } , { "Item02" } , { "Item03" } , { "Item04" } }
    // Array oItemso is a 2 dimensional array with one "column".
 
-   nPosi   := 0
-   cResult := ""
-
 #ifdef __PLATFORM__WINDOWS
    PREPARE FONT oFont NAME "MS Sans Serif" WIDTH 0 HEIGHT -13
 #else
@@ -68,7 +65,7 @@ FUNCTION Teste()
    @ 34,56  BROWSE obrowsbox1  ARRAY oList SIZE 210, 220 FONT oFont  ;
       STYLE WS_BORDER  // NO VSCROLL
    obrowsbox1:aArray := ConvItems( oItemso ) // Fill browse box with all items
-   obrowsbox1:AddColumn( HColumn():New( "Listbox", { | v, o | o:aArray[ o:nCurrent, 1 ]}, "C", 10, 0 ) )
+   obrowsbox1:AddColumn( HColumn():New( "Listbox", { | v, o | (v), o:aArray[ o:nCurrent, 1 ]}, "C", 10, 0 ) )
    obrowsbox1:lEditable := .F.
    obrowsbox1:lDispHead := .F. // No Header
    obrowsbox1:active := .T.

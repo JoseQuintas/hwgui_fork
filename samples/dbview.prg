@@ -31,16 +31,16 @@
     0   : Default
     204 : Russian
     15  : IBM 858 with Euro currency sign
-    
+
   January 2023:
   Port to GTK3:
   The Move() method has no effect with the browse window.
   hcontrol.prg:METHOD Move( x1, y1, width, height, lMoveParent )  CLASS HControl
-  ==> hwg_MoveWidget() ==> control.c:HB_FUNC( HWG_MOVEWIDGET ) 
-  
+  ==> hwg_MoveWidget() ==> control.c:HB_FUNC( HWG_MOVEWIDGET )
+
   The following messages seem to be relevant for this
   bug:
-  
+
   dbview:4761): Gtk-WARNING **: 14:33:10.767: Attempting to add a widget with type GtkVBox to a GtkWindow,
    but as a GtkBin subclass a GtkWindow can only contain one widget at a time;
    it already contains a widget of type GtkLayout
@@ -50,10 +50,10 @@
   (dbview:4761): Gtk-CRITICAL **: 14:33:10.796: gtk_container_propagate_draw:
    assertion '_gtk_widget_get_parent (child) == GTK_WIDGET (container)' failed
 
-  
+
   More info for debugging:
   hbmk2 dbview.hbp -info -trace
-  
+
 */
 
 #include "hwgui.ch"
@@ -61,7 +61,7 @@
 * Otherwise fires lots warnings on MacOS like this:
 * ../include/gtk.ch(94) Warning W0002  Redefinition or duplicate definition of #define GDK_UR_ANGLE
 * Fixed Dec. 2024:
-* remove the include of gtk.ch, not needed any more 
+* remove the include of gtk.ch, not needed any more
 
 // #ifndef ___MACOSX___
 
@@ -193,7 +193,7 @@ FUNCTION Main()
       ENDMENU
    ENDMENU
 
-* The menu needs about 25 pixels, so start BROWSE at y = 25 + 1 
+* The menu needs about 25 pixels, so start BROWSE at y = 25 + 1
 #ifdef ___GTK3___
    @ 0,26 BROWSE oBrw                 ;
       SIZE 300,272                   ;
@@ -217,7 +217,7 @@ FUNCTION Main()
    @ 0,297 PANEL oPanel SIZE 0,26 ON SIZE {|o,x,y|o:Move(0,y-26,x-1)}
 #else
    @ 0,272 PANEL oPanel SIZE 0,26 ON SIZE {|o,x,y|o:Move(0,y-26,x-1)}
-#endif   
+#endif
    @ 5,4 SAY oSay1 CAPTION "" OF oPanel SIZE 150,22 FONT oFont
    @ 160,4 SAY oSay2 CAPTION "" OF oPanel SIZE 100,22 FONT oFont
 
@@ -233,11 +233,11 @@ RETURN Nil
 STATIC FUNCTION FileOpen( fname )
 
    LOCAL mypath, cdirsep
-   
-   MEMVAR oBrw, oSay1, oSay2, DataCP, currentCP, currFname   
-   
+
+   MEMVAR oBrw, oSay1, oSay2, DataCP, currentCP, currFname
+
    cdirsep := hwg_GetDirSep()
-   
+
    mypath := cdirsep + CURDIR() + IIF( EMPTY( CURDIR() ), "", cdirsep )
 
 
@@ -261,7 +261,7 @@ STATIC FUNCTION FileOpen( fname )
       hwg_CreateList( oBrw,.T. )
       Aadd( oBrw:aColumns,Nil )
       Ains( oBrw:aColumns,1 )
-      oBrw:aColumns[1] := HColumn():New( "*",{|v,o|Iif(Deleted(),'*',' ')},"C",1,0 )
+      oBrw:aColumns[1] := HColumn():New( "*",{|v,o| (v), (o), Iif(Deleted(),'*',' ')},"C",1,0 )
       oBrw:active := .T.
       oBrw:nHCCharset := nBrwCharset
       oBrw:Refresh()
@@ -339,9 +339,9 @@ STATIC FUNCTION SelectIndex()
        ON CLICK {|o|nChoice:=o:nCurrent,hwg_EndDialog(o:oParent:handle)}
 
    oBrowse:aArray := aIndex
-   oBrowse:AddColumn( HColumn():New( "OrdName",{|v,o|o:aArray[o:nCurrent,1]},"C",10,0 ) )
-   oBrowse:AddColumn( HColumn():New( "Order key",{|v,o|o:aArray[o:nCurrent,2]},"C",Max(iLen,12),0 ) )
-   oBrowse:AddColumn( HColumn():New( "Filename",{|v,o|o:aArray[o:nCurrent,3]},"C",10,0 ) )
+   oBrowse:AddColumn( HColumn():New( "OrdName",{|v,o| (v), o:aArray[o:nCurrent,1]},"C",10,0 ) )
+   oBrowse:AddColumn( HColumn():New( "Order key",{|v,o| (v), o:aArray[o:nCurrent,2]},"C",Max(iLen,12),0 ) )
+   oBrowse:AddColumn( HColumn():New( "Filename",{|v,o| (v), o:aArray[o:nCurrent,3]},"C",10,0 ) )
 
    oBrowse:rowPos := nOrder
    Eval( oBrowse:bGoTo,oBrowse,nOrder )
@@ -503,18 +503,18 @@ STATIC FUNCTION ModiStru( lNew )
    LOCAL af, af0, cName := "", nType := 1, cLen := "0", cDec := "0", i
    LOCAL aTypes := { "Character","Numeric","Date","Logical" }
    LOCAL fname, cAlias, nRec, nOrd, lOverFlow := .F., xValue
-   
+
    LOCAL nxdia
-   
+
    MEMVAR oBrw, currentCP, currFname
-   
-   
+
+
 #ifdef ___GTK3___
  nxdia := 600
 #else
  nxdia := 1000
-#endif   
-   
+#endif
+
 
    IF lNew
       af := { {"","",0,0} }
@@ -537,10 +537,10 @@ STATIC FUNCTION ModiStru( lNew )
        ON POSCHANGE {|o|brw_onPosChg(o,oGet1,oGet2,oGet3,oGet4)}
 
    oBrowse:aArray := af
-   oBrowse:AddColumn( HColumn():New( "Name",{|v,o|o:aArray[o:nCurrent,1]},"C",10,0 ) )
-   oBrowse:AddColumn( HColumn():New( "Type",{|v,o|o:aArray[o:nCurrent,2]},"C",1,0 ) )
-   oBrowse:AddColumn( HColumn():New( "Length",{|v,o|o:aArray[o:nCurrent,3]},"N",5,0 ) )
-   oBrowse:AddColumn( HColumn():New( "Dec",{|v,o|o:aArray[o:nCurrent,4]},"N",2,0 ) )
+   oBrowse:AddColumn( HColumn():New( "Name",{|v,o| (v), o:aArray[o:nCurrent,1]},"C",10,0 ) )
+   oBrowse:AddColumn( HColumn():New( "Type",{|v,o| (v), o:aArray[o:nCurrent,2]},"C",1,0 ) )
+   oBrowse:AddColumn( HColumn():New( "Length",{|v,o| (v), o:aArray[o:nCurrent,3]},"N",5,0 ) )
+   oBrowse:AddColumn( HColumn():New( "Dec",{|v,o| (v), o:aArray[o:nCurrent,4]},"N",2,0 ) )
 
 
 #ifdef ___GTK3___
@@ -553,7 +553,7 @@ STATIC FUNCTION ModiStru( lNew )
    @ 120,230 GET COMBOBOX oGet2 VAR nType ITEMS aTypes SIZE 100,24
    @ 230,230 GET oGet3 VAR cLen SIZE 50,24
    @ 290,230 GET oGet4 VAR cDec SIZE 40,24
-#endif   
+#endif
 
    @ 20,270 BUTTON "Add" SIZE 80,30 ON CLICK {||UpdStru(oBrowse,oGet1,oGet2,oGet3,oGet4,1)}
    @ 110,270 BUTTON "Insert" SIZE 80,30 ON CLICK {||UpdStru(oBrowse,oGet1,oGet2,oGet3,oGet4,2)}
@@ -838,7 +838,9 @@ RETURN cRes
 STATIC FUNCTION MacroError( e )
 
    hwg_Msgstop( hwg_ErrMsg(e),"Expression error" )
-   BREAK
+   IF .T.	// for -w3 alert
+      BREAK
+   ENDIF
 
 RETURN .T.
 

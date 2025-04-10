@@ -52,14 +52,16 @@
 FUNCTION Main()
 
    LOCAL cImageDir, cppath , oIcon, oBitmap , oToolbar , oFileOpen , oQuit , oMainW , oFontMain
-   LOCAL htab, nbut , oBMPExit , oPNGDoor , oBtnDoor , ojpeg , oBtnjpeg
+   LOCAL htab, nbut , oBMPExit , oPNGDoor , ojpeg , oBtnjpeg
    LOCAL oastropng , oastrobmp
    LOCAL cDirSep := hwg_GetDirSep()
    * For design differences Windows and GTK/LINUX
    LOCAL nxowb, nyowb, nlowb
    LOCAL oSayImg1 , oSayImg2
    LOCAL nx1, ny1 , nx2, ny2
-
+#ifndef  __PLATFORM__WINDOWS
+   LOCAL oBtnDoor
+#endif
 #ifdef __GTK__
    nxowb := 24  && size x
    nyowb := 24  && size y

@@ -182,7 +182,6 @@ FUNCTION OpenAbout()
    LOCAL oModDlg, oFontBtn, oFontDlg, oBrw
    LOCAL aSample := { {.t.,"Line 1",10}, {.t.,"Line 2",22}, {.f.,"Line 3",40} }
    LOCAL oBmp, oIcon := HIcon():AddFile( ".." + cdirSep +  "image" + cdirSep + "exclmk_trsp.ico")   && PIM.ICO was deleted
-   LOCAL oSay
 
    PREPARE FONT oFontDlg NAME "MS Sans Serif" WIDTH 0 HEIGHT -13
    PREPARE FONT oFontBtn NAME "MS Sans Serif" WIDTH 0 HEIGHT -13 ITALIC UNDERLINE
@@ -303,7 +302,7 @@ FUNCTION FileOpen()
       IF oFont != Nil
          oBrw:ofont := oFont
       ENDIF
-      AEval( oBrw:aColumns, { | o | o:bHeadClick := { | oB, n | hwg_Msginfo( "Column number " + Str( n ) ) } } )
+      AEval( oBrw:aColumns, { | o | o:bHeadClick := { | oB, n | (ob), hwg_Msginfo( "Column number " + Str( n ) ) } } )
 
       ACTIVATE DIALOG oModDlg NOMODAL
    ENDIF
@@ -367,7 +366,7 @@ FUNCTION DialogFromPrg( o )
 
    LOCAL cTitle := "Dialog from prg", cText := "Input something"
    LOCAL oModDlg, oFont := HFont():Add( "MS Sans Serif",0,-13 )
-   LOCAL cRes, aCombo := { "First","Second" }, oEdit, vard := "Monday"
+   LOCAL aCombo := { "First","Second" }, oEdit, vard := "Monday"
 // Local aTabs := { "Monday","Tuesday","Wednesday","Thursday","Friday" }
    LOCAL oTab
 
@@ -428,6 +427,7 @@ STATIC FUNCTION CreateC( oDlg )
 
    STATIC lFirst := .F., o
 
+   (oDlg) // not used
    IF ! lFirst
       @ 100, 200 DATEPICKER o SIZE 80, 24
       lFirst := .T.
@@ -493,7 +493,7 @@ RETURN lSucess
 FUNCTION TestProgres()
 
    LOCAL oDlg,ostatus,oBar
-   LOCAL cRes, aCombo := { "First","Second" }
+   LOCAL aCombo := { "First","Second" }
    LOCAL oCombo
 
    PRIVATE oProg

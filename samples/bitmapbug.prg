@@ -8,10 +8,10 @@
  * Sample program for handling bug in display
  * of bitmaps (Class HBITMAP)
  *
- * Copyright 2024 Wilfried Brunken, DF7BE 
+ * Copyright 2024 Wilfried Brunken, DF7BE
  * https://sourceforge.net/projects/cllog/
  */
- 
+
     * Status:
     *  WinAPI   :  Yes
     *  GTK/Linux:  Yes
@@ -33,13 +33,13 @@
 *   On GTK, the call crashes with:
 *   (bitmapbug:53290): GLib-ERROR **: 16:12:05.854: ../../../glib/gmem.c:372:
 *    overflow allocating 18446744073709551615*18446744073709551615 bytes
-*  
+*
 *
 *
 * Handling of this bug:
 * Call test menu point "Bitmap OK" as often as you can,
 * and the bitmap is displayed every time.
-* 
+*
 * In FUNCTION TestOK the bitmap obeject is forever created new
 * before display operation.
 * LOCAL oBitmap2,...,olbitmap
@@ -87,7 +87,7 @@ RETURN Nil
 
 
 
-* Display bitmap by passed object 
+* Display bitmap by passed object
 * variable
 FUNCTION TestBug(opbitmap)
 
@@ -103,12 +103,12 @@ MEMVAR ncalls
      STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
 
     @ 10 , 10 SAY olabel1 CAPTION "Number of calls: " + ALLTRIM(STR(ncalls)) ;
-                SIZE 150, 30 
+                SIZE 150, 30
 
   IF opbitmap != NIL
 
    nflx  := hwg_GetBitmapWidth ( opbitmap:handle )
-   nfly  := hwg_GetBitmapHeight( opbitmap:handle ) 
+   nfly  := hwg_GetBitmapHeight( opbitmap:handle )
 
    hwg_MsgInfo("nflx=" + ALLTRIM(STR(nflx)) + " nfly=" + ALLTRIM(STR(nfly)) )
 
@@ -116,32 +116,32 @@ MEMVAR ncalls
 
    @ 100,40 BITMAP oBitmap1 ; && OF Display_bitmap ;
         SHOW opbitmap  ;
-         SIZE nflx, nfly 
-#else   
+         SIZE nflx, nfly
+#else
    @ 100,40 BITMAP oBitmap1  ;
         SHOW opbitmap  ;
-         SIZE nflx, nfly 
- 
-#endif 
+         SIZE nflx, nfly
+
+#endif
    @ 107,124 BUTTON oButton1 CAPTION "OK"   SIZE 80,32 ;
         STYLE WS_TABSTOP+BS_FLAT ;
         ON CLICK {|| Display_bitmap:Close() }
   ELSE
     hwg_MsgInfo("opbitmap is NIL")
-  ENDIF  
+  ENDIF
 
    ACTIVATE DIALOG Display_bitmap
-   
-   
+
+
 RETURN NIL
 
 
-* Display bitmap by passed binary image 
+* Display bitmap by passed binary image
 * variable
 FUNCTION TestOK(cBMPCancel)
 
 LOCAL Display_bitmap
-LOCAL oBitmap2, oButton1 , olabel1 , nflx , nfly , olbitmap
+LOCAL oBitmap2, oButton1 , nflx , nfly , olbitmap
 
 * That's it: create object new before every usage !!!!
 olbitmap := HBitmap():AddString( "cancel", cBMPCancel )
@@ -150,11 +150,11 @@ olbitmap := HBitmap():AddString( "cancel", cBMPCancel )
     AT 467,236 SIZE 304,248 ;
      STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
 
- 
+
   IF olbitmap != NIL
 
    nflx  := hwg_GetBitmapWidth ( olbitmap:handle )
-   nfly  := hwg_GetBitmapHeight( olbitmap:handle ) 
+   nfly  := hwg_GetBitmapHeight( olbitmap:handle )
 
 //   hwg_MsgInfo("nflx=" + ALLTRIM(STR(nflx)) + " nfly=" + ALLTRIM(STR(nfly)) )
 
@@ -166,18 +166,18 @@ olbitmap := HBitmap():AddString( "cancel", cBMPCancel )
    @ 100,40 BITMAP oBitmap2  ;
         SHOW olbitmap  ;
          SIZE nflx, nfly
-#endif 
- 
+#endif
+
    @ 107,124 BUTTON oButton1 CAPTION "OK"  SIZE 80,32 ;
         STYLE WS_TABSTOP+BS_FLAT ;
         ON CLICK {|| Display_bitmap:Close() }
   ELSE
     hwg_MsgInfo("olbitmap is NIL")
-  ENDIF  
+  ENDIF
 
    ACTIVATE DIALOG Display_bitmap
-   
-   
+
+
 RETURN NIL
 
 FUNCTION LOAD_HEX_RES()

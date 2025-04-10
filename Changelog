@@ -15,6 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-10 12:00 UTC-0200 Jose Quintas jmcquintas-gmail.com
+   * samples/Dialogboxes.prg
+   * samples/bincnts.prg
+   * samples/bitmapbug.prg
+   * samples/dbview.prg
+   * samples/demohlistsub.prg
+   * samples/dlgmdi.prg
+     ! more warnings -w3 -es2 fixed
+
 2025-04-10 10:30 UTC-0200 Jose Quintas jmcquintas-gmail.com
    * samples/*.hbp
    * samples/hbmk.hbm
