@@ -42,7 +42,7 @@ MEMVAR oProg
 
    // hb_SetCodepage( "RU1251" )
 
-   INIT WINDOW oMainWindow MDI TITLE "Example" SIZE 800,500 ;
+   INIT WINDOW oMainWindow MDI TITLE "DLGMDI - MDI Sample" SIZE 800,500 ;
          MENUPOS 3 BACKCOLOR 16744703
 
    @ 0,0 PANEL oPanel SIZE 800,32 ON SIZE ANCHOR_TOPABS + ANCHOR_LEFTABS + ANCHOR_RIGHTABS
@@ -112,7 +112,7 @@ MEMVAR oProg
 
 RETURN Nil
 
-FUNCTION CreateChildWindow()
+STATIC FUNCTION CreateChildWindow()
 
    LOCAL oChildWnd, oPanel, oFontBtn, oBoton1, oBoton2
    LOCAL e1 := "Dialog from prg"
@@ -164,7 +164,7 @@ FUNCTION CreateChildWindow()
 
 RETURN Nil
 
-FUNCTION NoExit()
+STATIC FUNCTION NoExit()
 
    LOCAL oDlg, oGet, vGet:="Dialog if no close in ENTER or EXIT"
 
@@ -177,7 +177,7 @@ FUNCTION NoExit()
 
 RETURN Nil
 
-FUNCTION OpenAbout()
+STATIC FUNCTION OpenAbout()
 
    LOCAL oModDlg, oFontBtn, oFontDlg, oBrw
    LOCAL aSample := { {.t.,"Line 1",10}, {.t.,"Line 2",22}, {.f.,"Line 3",40} }
@@ -269,15 +269,14 @@ STATIC FUNCTION BrwKey( oBrw, key )
 
 RETURN .T.
 
-FUNCTION FileOpen()
+STATIC FUNCTION FileOpen()
 
-   LOCAL oModDlg, oBrw
-   LOCAL mypath := cdirSep + CurDir() + IIF( Empty( CurDir() ), "", cdirSep )
-   LOCAL fname := hwg_Selectfile( "xBase files( *.dbf )", "*.dbf", mypath )
-   LOCAL nId
+   LOCAL oModDlg, oBrw, fname, nId, MyPath
+
+   mypath := cdirSep + CurDir() + IIF( Empty( CurDir() ), "", cdirSep )
+   fname := hwg_Selectfile( "xBase files( *.dbf )", "*.dbf", mypath )
 
    IF ! Empty( fname )
-      mypath := cdirSep + CurDir() + IIF( Empty( CurDir() ), "", cdirSep )
       // use &fname new codepage RU866
       USE &fname NEW
       nId := 111
@@ -295,7 +294,7 @@ FUNCTION FileOpen()
       @ 0,0 BROWSE oBrw DATABASE OF oModDlg ID nId ;
             SIZE 500,300                           ;
             STYLE WS_VSCROLL + WS_HSCROLL          ;
-            ON SIZE { | o, x, y | hwg_Movewindow( o:handle, 0, 0, x, y ) } ;
+            ON SIZE { | o, x, y | (o), hwg_Movewindow( o:handle, 0, 0, x, y ) } ;
             ON GETFOCUS { | o | dbSelectArea( o:alias ) }
       hwg_CreateList( oBrw,.T. )
       oBrw:bScrollPos := { | o, n, lEof, nPos | hwg_VScrollPos( o, n, lEof, nPos ) }
@@ -309,7 +308,7 @@ FUNCTION FileOpen()
 
 RETURN Nil
 
-FUNCTION FileClose( oDlg )
+STATIC FUNCTION FileClose( oDlg )
 
    LOCAL oBrw := oDlg:FindControl( 111 )
 
@@ -318,7 +317,7 @@ FUNCTION FileClose( oDlg )
 
 RETURN .T.
 
-FUNCTION printdos()
+STATIC FUNCTION printdos()
 
    LOCAL han := fcreate( "LPT1", 0 )
 
@@ -333,7 +332,7 @@ FUNCTION printdos()
 
 RETURN Nil
 
-FUNCTION PrnTest()
+STATIC FUNCTION PrnTest()
 
    LOCAL oPrinter, oFont
 
@@ -362,7 +361,7 @@ FUNCTION PrnTest()
 
 RETURN Nil
 
-FUNCTION DialogFromPrg( o )
+STATIC FUNCTION DialogFromPrg( o )
 
    LOCAL cTitle := "Dialog from prg", cText := "Input something"
    LOCAL oModDlg, oFont := HFont():Add( "MS Sans Serif",0,-13 )
@@ -370,6 +369,7 @@ FUNCTION DialogFromPrg( o )
 // Local aTabs := { "Monday","Tuesday","Wednesday","Thursday","Friday" }
    LOCAL oTab
 
+   (o) // -w3 -es2
    // o:bGetFocus := Nil
    INIT DIALOG oModDlg TITLE cTitle           ;
       AT 210, 10  SIZE 300, 300               ;
@@ -436,7 +436,7 @@ STATIC FUNCTION CreateC( oDlg )
 
 RETURN Nil
 
-FUNCTION Sendemail( endereco )
+STATIC FUNCTION Sendemail( endereco )
 
    hwg_Shellexecute( "rundll32.exe", "open", ;
             "url.dll,FileProtocolHandler " + ;
@@ -446,7 +446,7 @@ FUNCTION Sendemail( endereco )
 
 RETURN Nil
 
-FUNCTION TestTab()
+STATIC FUNCTION TestTab()
 
    LOCAL oDlg, oTAB
    LOCAL oGet1, oGet2, oVar1:="1", oVar2:="2"
@@ -478,7 +478,7 @@ FUNCTION TestTab()
 
 RETURN Nil
 
-FUNCTION ActiveTopMost( nHandle, lActive )
+STATIC FUNCTION ActiveTopMost( nHandle, lActive )
 
    LOCAL lSucess
 
@@ -490,7 +490,7 @@ FUNCTION ActiveTopMost( nHandle, lActive )
 
 RETURN lSucess
 
-FUNCTION TestProgres()
+STATIC FUNCTION TestProgres()
 
    LOCAL oDlg,ostatus,oBar
    LOCAL aCombo := { "First","Second" }
@@ -513,9 +513,11 @@ FUNCTION TestProgres()
 
    oDlg:Activate()
 
+   (oCombo) // -w3 -es2
+
 RETURN Nil
 
-FUNCTION MudeProg( ostatus )
+STATIC FUNCTION MudeProg( ostatus )
 
    LOCAL ct := 1
 
@@ -528,7 +530,7 @@ FUNCTION MudeProg( ostatus )
 RETURN Nil
 
 
-FUNCTION RRectangle()
+STATIC FUNCTION RRectangle()
 
    LOCAL oDlg, oR1, oR2, oR3
 
@@ -545,7 +547,7 @@ FUNCTION RRectangle()
 
 RETURN Nil
 
-FUNCTION Test1()
+STATIC FUNCTION Test1()
 
    LOCAL hDC := hwg_Getdc( 0 ), aMetr, oFont
 

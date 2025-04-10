@@ -30,7 +30,7 @@ FUNCTION Main()
 
    LOCAL oDlg, nCont := 1
 
-   INIT DIALOG oDlg TITLE "ADO Example" ;
+   INIT DIALOG oDlg TITLE "DLGMENUMT - Menu using Multithread" ;
      AT 200,0 SIZE 400,150
 
    MENU OF oDlg
@@ -44,7 +44,7 @@ FUNCTION Main()
 
    RETURN Nil
 
-FUNCTION DoMt( nCont )
+STATIC FUNCTION DoMt( nCont )
 
    hb_gtReload( hb_gtInfo( HB_GTI_VERSION ) )
    hwg_initProc() // init hwgui on thread

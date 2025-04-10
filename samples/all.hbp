@@ -9,6 +9,8 @@ dlgcombo.prg
 dlgdpick.prg
 {win}dlgmdi.prg
 dlgmenu1.prg
+dlghmonth.prg
+{win}dlgshadebtn.prg
 dlgsplit.prg
 dlgxml.prg
 

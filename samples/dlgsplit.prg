@@ -36,7 +36,7 @@
 
 #include "hwgui.ch"
 
-* remove the include of gtk.ch, not needed any more 
+* remove the include of gtk.ch, not needed any more
 // #ifdef __GTK__
 // #include "gtk.ch"
 // #endif
@@ -58,7 +58,7 @@
    cVal_Wcur2 := hwg_cHex2Bin( hex_splith() )
 *   cVal_Wcur3 := hwg_cHex2Bin( hex_transistor() )
 
-   INIT WINDOW oDlg TITLE "Split windows example"  ;
+   INIT WINDOW oDlg TITLE "DLGSPLIT - Split windows example"  ;
      SYSCOLOR COLOR_3DLIGHT+1 ;
      AT 200,0 SIZE 420,300 ;
      FONT oFont
@@ -101,7 +101,7 @@
 
 RETURN Nil
 
-FUNCTION hex_splith()
+STATIC FUNCTION hex_splith()
 
    * Hex value of splith.cur
 
@@ -128,7 +128,7 @@ RETURN ;
    "7F FF FF F8 FF FF FF FD FF FF FF FF FF FF FF FF " + ;
    "FF FF FF FF FF FF "
 
-FUNCTION hex_splitv()
+STATIC FUNCTION hex_splitv()
 
    * Hex value of splitv.cur
 

@@ -31,7 +31,7 @@
 
 RETURN Nil
 
-FUNCTION OnOtherMessages( Sender, WinMsg, WParam, LParam )
+STATIC FUNCTION OnOtherMessages( Sender, WinMsg, WParam, LParam )
 
    LOCAL nKey
 

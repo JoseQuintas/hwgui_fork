@@ -70,7 +70,7 @@
 ../samples/stretch.prg
 ../samples/tab.prg
 ../samples/testfunc.prg
-../samples/testhmonth.prg
+*../samples/testhmonth.prg - dlghmonth - on all.hbp
 ../samples/testimage.prg
 ../samples/testsdi.prg
 #../samples/testspli.prg - dlgsplit.prg - on all.hbp
@@ -92,7 +92,7 @@
 ../samples/grid_5.prg
 ../samples/hello.prg
 ../samples/nice.prg
-../samples/shadebtn.prg
+#../samples/shadebtn.prg - dlgshade.prg - on all.hbp
 #../samples/test_bot.prg - dlgbot.prg - on all.hbp
 ../samples/Testado.prg
 ../samples/testalert.prg

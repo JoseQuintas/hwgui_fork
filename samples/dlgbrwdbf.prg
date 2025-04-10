@@ -24,7 +24,7 @@
       { "Name",   { || field->Name } }, ;
       { "Adress", { || field->Address } } }
 
-   INIT DIALOG oDlg TITLE "DBF BROWSE " + Ltrim( Str( nCont ) ) AT 0,0 SIZE 1024,600
+   INIT DIALOG oDlg TITLE "DLGBRWDBF - DBF BROWSE " + Ltrim( Str( nCont ) ) AT 0,0 SIZE 1024,600
 
 
    @ 20,10 BROWSE oBrowse DATABASE SIZE 780, 500 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
@@ -42,7 +42,7 @@
 
    RETURN Nil
 
-FUNCTION CreateDbf( cFileName )
+STATIC FUNCTION CreateDbf( cFileName )
 
    LOCAL aList
 

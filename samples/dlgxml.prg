@@ -114,7 +114,7 @@ MEMVAR oXmlDoc, lIniChanged, nCurrentItem , oDlg, oFont
 
 RETURN Nil
 
-FUNCTION NewItem( nItem )
+STATIC FUNCTION NewItem( nItem )
 
    LOCAL oDlg, oItemFont, oFontNew
    LOCAL oXmlNode, i, aMenu, nId
@@ -212,7 +212,7 @@ FUNCTION NewItem( nItem )
 
 RETURN Nil
 
-FUNCTION FontFromXML( oXmlNode )
+STATIC FUNCTION FontFromXML( oXmlNode )
 
    LOCAL width  := oXmlNode:GetAttribute( "width" )
    LOCAL height := oXmlNode:GetAttribute( "height" )
@@ -246,7 +246,7 @@ RETURN HFont():Add( oXmlNode:GetAttribute( "name" ),  ;
                     width, height, weight, charset,   ;
                     ita, under )
 
-FUNCTION hwg_Font2XML( oFont )
+STATIC FUNCTION hwg_Font2XML( oFont )
 
    LOCAL aAttr := {}
 
@@ -277,7 +277,7 @@ FUNCTION SaveOptions()
 
 RETURN Nil
 
-FUNCTION p_about()
+STATIC FUNCTION p_about()
 
 #ifdef __GTK__
    hwg_MsgInfo("This sample demonstrates reading/writing" + CHR(10) + ;
