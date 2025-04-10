@@ -79,10 +79,10 @@ MEMVAR oXmlDoc, lIniChanged, nCurrentItem , oDlg, oFont
 
    PREPARE FONT oFont NAME "Times New Roman" WIDTH 0 HEIGHT -17 && CHARSET 0 && 204 = Russian
 
-   INIT WINDOW oDlg TITLE "DLGXML - XML Sample"  ;
-     SYSCOLOR COLOR_3DLIGHT+1                       ;
-     AT 200,0 SIZE 600,300                       ;
-     ON EXIT {||SaveOptions()}                   ;
+   INIT DIALOG oDlg TITLE "DLGXML - XML Sample"  ;
+     ; // SYSCOLOR COLOR_3DLIGHT+1 ; // not valid for dialog
+     AT 200,0 SIZE 600,300 ;
+     ON EXIT {||SaveOptions()} ;
      FONT oFont
 
    MENU OF oDlg
@@ -102,7 +102,7 @@ MEMVAR oXmlDoc, lIniChanged, nCurrentItem , oDlg, oFont
             NEXT
             SEPARATOR
          ENDIF
-         MENUITEM "Exit" ACTION hwg_EndWindow()
+         MENUITEM "Exit" ACTION hwg_EndDialog()
       ENDMENU
 
       MENU TITLE "Help"
@@ -110,7 +110,7 @@ MEMVAR oXmlDoc, lIniChanged, nCurrentItem , oDlg, oFont
       ENDMENU
    ENDMENU
 
-   ACTIVATE WINDOW oDlg CENTER
+   ACTIVATE DIALOG oDlg CENTER
 
 RETURN Nil
 

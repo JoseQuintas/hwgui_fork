@@ -58,8 +58,8 @@
    cVal_Wcur2 := hwg_cHex2Bin( hex_splith() )
 *   cVal_Wcur3 := hwg_cHex2Bin( hex_transistor() )
 
-   INIT WINDOW oDlg TITLE "DLGSPLIT - Split windows example"  ;
-     SYSCOLOR COLOR_3DLIGHT+1 ;
+   INIT DIALOG oDlg TITLE "DLGSPLIT - Split windows example"  ;
+     ; //SYSCOLOR COLOR_3DLIGHT+1 ; // not valid for dialog
      AT 200,0 SIZE 420,300 ;
      FONT oFont
 
@@ -97,7 +97,7 @@
 #endif
    oSplitH:hCursor := hwg_LoadCursorFromString(cVal_Wcur2, 16 , 16 ) && From hex value
 
-   ACTIVATE WINDOW oDlg CENTER
+   ACTIVATE DIALOG oDlg CENTER
 
 RETURN Nil
 

@@ -30,16 +30,16 @@
 
    hwg_Settooltipballoon(.t.)
 
-   INIT WINDOW oWnd MAIN TITLE "DLGHMONTH - Controle MonthCalendar" ;
+   INIT DIALOG oWnd TITLE "DLGHMONTH - Controle MonthCalendar" ;
       AT 100,100 SIZE 640,480
 
    MENU OF oWnd
       MENUITEM "&Calendário 1" ACTION Dlg1()
       MENUITEM "&Calendário 2" ACTION Dlg2()
-      MENUITEM "&Sair"         ACTION hwg_EndWindow()
+      MENUITEM "&Sair"         ACTION hwg_EndDialog()
    ENDMENU
 
-   ACTIVATE WINDOW oWnd CENTER
+   ACTIVATE DIALOG oWnd CENTER
 
 RETURN Nil
 

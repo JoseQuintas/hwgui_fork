@@ -15,6 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-10 15:45 UTC-0200 Jose Quintas jmcquintas-gmail.com
+   * samples/all.hbp
+   * samples/allhbp.hbp
+   * samples/dlghmonth.prg
+   * samples/dlgmdi.prg
+   * samples/dlgshadebtn.prg
+   * samples/dlgsplit.prg
+   * samples/dlgxml.prg
+     ! return dlgmdi.prg as a.prg
+     ! samples using window can't be opened 2 times, only dialog
+     ! mdi need to be main window or close all
+
 2025-04-10 14:30 UTC-0200 Jose Quintas jmcquintas-gmail.com
    * samples/all.hbp
    * samplesall.prg

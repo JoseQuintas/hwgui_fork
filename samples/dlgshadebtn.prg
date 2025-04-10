@@ -7,7 +7,7 @@
 #include "hwgui.ch"
 
 #ifdef __USING_MENU__
-   FUNCTION DlgShade()
+   FUNCTION DlgShadeBtn()
 #else
    FUNCTION Main()
 #endif
