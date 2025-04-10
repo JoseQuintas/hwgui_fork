@@ -11,8 +11,8 @@
 #   hbmk2 a.prg
 # and HWGUI sample program a.prg will be build.
 #
- 
--n -w
+
+-n -w3 -es0
 
 # -strip
 

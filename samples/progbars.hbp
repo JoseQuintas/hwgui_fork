@@ -9,7 +9,6 @@
 {unix}-stop="Windows only"
 
 -n
-#-w
 
 -oprogbars
 

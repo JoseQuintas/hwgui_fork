@@ -13,7 +13,7 @@
 
 
 -b
--n -q0 -w -es2
+-n -q0 -es2
 
 -lhbactivex
 #-L../..

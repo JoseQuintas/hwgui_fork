@@ -12,7 +12,7 @@
 -dWVTWINLG_CH
 
 -mt
--n -w
+-n
 testhgt.prg
 
 #-L..\..\lib

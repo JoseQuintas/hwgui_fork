@@ -3,5 +3,5 @@
 /home/itamar/dev/hwgui-code/hwgui/hwgui.hbc
 sddodbc.hbc
 -lm
--n -w3
+-n
 hwgui_crud.prg

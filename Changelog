@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-10 10:30 UTC-0200 Jose Quintas jmcquintas-gmail.com
+   * samples/*.hbp
+   * samples/hbmk.hbm
+   * samples/gtk_samples/*.hbp
+   * samples/gtk_samples/hbmk.hbm
+     ! removed -w from all hbps
+     ! as a workaround added -w3 -es0 to hbmk.hbm
+     ! show warnings but do not stop
+     ! remember: hbmk.hbm change all samples at a time, -w0 -es2 if needed
+
 2025-04-09 21:00 UTC-0200 Jose Quintas jmcquintas-gmail.com
    * samples/gtk_samples/a.prg
    * samples/gtk_samples/dbview.prg

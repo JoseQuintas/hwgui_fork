@@ -7,7 +7,6 @@
 ../../hwgui.hbc
 
 -n
--w
 -lm
 -static
 -d__LINUX__ -d__GTK__

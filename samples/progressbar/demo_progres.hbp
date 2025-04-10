@@ -30,8 +30,6 @@
 #{linux}../../hwguiGTK3.hbc
 #{darwin}../../hwgui_mac_gtk3.hbc
 
--w3
-
 demo_progres.prg
 
 -odemo_progres

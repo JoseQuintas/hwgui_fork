@@ -7,7 +7,6 @@
 {darwin}-stop="Windows only"
 {unix}-stop="Windows only"
 -n
--w
 
 -oshadebtn
 

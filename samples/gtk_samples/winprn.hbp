@@ -5,7 +5,7 @@
 -stop={win}
 winprn.prg
 -owinprn
--n -w
+-n
 -lm
 -static
 -d__LINUX__ -d__GTK__

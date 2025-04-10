@@ -8,7 +8,6 @@
 {unix}-stop="Windows only"
 
 -n
--w
 
 -otestalert
 

@@ -9,7 +9,7 @@
 # Modify "sample" ( 2 x ) to the name of program to compile
 
 -b
--n -w
+-n -w3 -es0
 
 # Special parameters for LINUX/GTK
 {linux}-lm
