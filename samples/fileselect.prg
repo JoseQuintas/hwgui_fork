@@ -30,7 +30,7 @@ MEMVAR cloctext,clocmsk,clocallf,cstartvz
 FUNCTION Main()
 
    LOCAL oFormMain, oFontMain
-   LOCAL cDirSep := hwg_GetDirSep()
+   //LOCAL cDirSep := hwg_GetDirSep()
 
    PRIVATE cloctext,clocmsk,clocallf,cstartvz
 
@@ -90,9 +90,9 @@ RETURN Nil
 
 FUNCTION Test2()
 
+#ifdef __GTK__
    LOCAL fname
 
-#ifdef __GTK__
    fname := hwg_SelectFileEx(,,{{ cloctext,clocmsk },{ clocallf ,"*"}} )
    * Check for cancel
    IF EMPTY( fname )

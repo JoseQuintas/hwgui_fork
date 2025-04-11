@@ -54,7 +54,7 @@ MEMVAR aGetsTab
 
 FUNCTION Main()
 
-   LOCAL oMainWindow, oBtn, aCombo := {"First","Second" }, cTool := "Example", oFont
+   LOCAL oMainWindow, aCombo := {"First","Second" }, oFont // oBtn, cTool := "Example",
    LOCAL aTabs := { "A","B","C","D","E","F","G","H","I","J","K","L","M","N" }, oTab
    LOCAL acho := { {"First item",180}, {"Second item",200} }
    LOCAL oEdit, oGetTab, oTree, oItem, oCombo
@@ -224,6 +224,8 @@ STATIC FUNCTION ChangeTab( oWnd,oGet,n )
    hwg_Setdlgitemtext( oGet:oParent:handle,oGet:id,aGetsTab[n] )
    lastTab := n
 
+   (oWnd) // -w3 -es2
+
 RETURN Nil
 #endif
 
@@ -242,6 +244,8 @@ FUNCTION PS1( oWnd )
    hwg_MsgIsNIL(hwg_Getactivewindow() )
 
    hwg_PropertySheet( hwg_Getactivewindow(), { oDlg1, oDlg2 }, "Sheet Example",210,10,300,300 )
+
+   (oWnd) // -w3 -es2
 
 RETURN Nil
 #endif

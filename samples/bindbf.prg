@@ -54,16 +54,19 @@
 
 FUNCTION Main()
 
-   LOCAL cImageDir, cppath , oIcon, oBitmap , oToolbar , oFileOpen , oQuit , oMainW , oFontMain
-   LOCAL htab, nbut , oBMPExit , oPNGDoor , oBtnDoor , ojpeg , oBtnjpeg
-   LOCAL oastropng , oastrobmp
-   LOCAL cDirSep := hwg_GetDirSep()
+   LOCAL oIcon, oBitmap , oToolbar , oFileOpen , oQuit , oMainW , oFontMain // cImageDir, cPPath
+   LOCAL htab, nbut , oBMPExit , ojpeg , oBtnjpeg
+   LOCAL oastrobmp
+   //LOCAL cDirSep := hwg_GetDirSep()
    * For design differences Windows and GTK/LINUX
    LOCAL nxowb, nyowb, nlowb
-   LOCAL oSayImg1 , oSayImg2
    LOCAL nx1, ny1 , nx2, ny2
-
+#ifndef __PLATFORM__WINDOWS
+   LOCAL oBtnDoor, oPngDoor
+#endif
 #ifdef __GTK__
+   LOCAL oSayImg1 , oSayImg2, oAstroPng
+
    nxowb := 24  && size x
    nyowb := 24  && size y
    nlowb := 32  && at x
@@ -77,8 +80,8 @@ FUNCTION Main()
    nbut := 0
 
    * Path to container
-   cppath := "."
-   cImageDir := cppath + cDirSep + "image" + cDirSep
+   //cppath := "."
+   //cImageDir := cppath + cDirSep + "image" + cDirSep
 
    * Check for existung container, if not existing
    * no error message and image does not appear.
@@ -106,9 +109,7 @@ FUNCTION Main()
 
    oBitmap := bindbf_getimage("open","bmp")
    oBMPExit := bindbf_getimage("exit","bmp")
-   oPNGDoor := bindbf_getimage("door","png")
    ojpeg  := bindbf_getimage("next","jpg")
-   oastropng := bindbf_getimage("astro","png")
    oastrobmp := bindbf_getimage("astro2"," bmp")
 
 #ifdef __PLATFORM__WINDOWS
@@ -187,6 +188,8 @@ FUNCTION Main()
 
    * !!!!! PNG not supported on Windows
 #ifndef __PLATFORM__WINDOWS
+   oPNGDoor := bindbf_getimage("door","png")
+
    @ htab+(nbut * nlowb ),3 OWNERBUTTON oBtnDoor /* OF oToolbar */ ;
       ON CLICK { | | OpenDoor()} ;
       SIZE nxowb,nyowb /* FLAT */ ;
@@ -220,6 +223,7 @@ FUNCTION Main()
    ny2 := hwg_GetBitmapHeight( oastrobmp:handle )
 
 #ifdef __GTK__
+   oastropng := bindbf_getimage("astro","png")
 
    nx1 := hwg_GetBitmapWidth ( oastropng:handle )
    ny1 := hwg_GetBitmapHeight( oastropng:handle )

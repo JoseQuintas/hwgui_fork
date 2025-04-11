@@ -35,13 +35,13 @@ FUNCTION Main()
    LOCAL meditbox := "", mnome := Space( 50 )
    LOCAL cbmppref
    LOCAL otool
-   LOCAL nxowb, nyowb, nlowb, htab, nbut
+   LOCAL nxowb, nyowb, nlowb, htab
    LOCAL noffset
    LOCAL cTitle
 
 #ifndef __GTK__
    * Used by OWNERBUTTON's
-   LOCAL oFileOpen , oBook
+   LOCAL oFileOpen , oBook, nBut
    LOCAL oBmpNew , oBmpbook , oIcoOK , oBmpdoor , oIcoCancel
 #endif
 
@@ -50,6 +50,7 @@ FUNCTION Main()
    nxowb := 24  && size x
    nyowb := 24  && size y
    nlowb := 32  && at x
+   nbut := 0
 #else
    * But recent usage on Windows
    nxowb := 50  && size x
@@ -58,7 +59,6 @@ FUNCTION Main()
 #endif
 
    htab := 0
-   nbut := 0
 
    cTitle := "Teste da Acentuação"  && ==> "Accent Test"
 
@@ -225,14 +225,15 @@ FUNCTION Main()
       TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ;
       TOOLTIP "ola5"
 
-   nbut += 1
+   //nbut += 1
 
 #endif
 
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+#ifdef __GTK__
    noffset := 0
-#ifndef __GTK__
+#else
 * Add an Y Offset for the last controls on Windows
    noffset := 55
 #endif

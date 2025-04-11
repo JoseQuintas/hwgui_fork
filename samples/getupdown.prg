@@ -24,13 +24,13 @@
 
 FUNCTION Main()
 
-   LOCAL n_Key1, n_Key2, o_Number, o_TAB_1, nValue, o_get
+   LOCAL n_Key2, o_Number, o_TAB_1, nValue, o_get // n_Key1
 
 #ifndef __GTK__
    hwg_Settooltipballoon(.t.)
 #endif
 
-   n_Key1 := 1
+   //n_Key1 := 1
    n_Key2 := 3000
    o_Number := 10
 

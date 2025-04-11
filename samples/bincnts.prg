@@ -52,14 +52,16 @@
 FUNCTION Main()
 
    LOCAL cImageDir, cppath , oIcon, oBitmap , oToolbar , oFileOpen , oQuit , oMainW , oFontMain
-   LOCAL htab, nbut , oBMPExit , oPNGDoor , ojpeg , oBtnjpeg
-   LOCAL oastropng , oastrobmp
+   LOCAL htab, nbut , oBMPExit , ojpeg , oBtnjpeg
+   LOCAL oastrobmp
    LOCAL cDirSep := hwg_GetDirSep()
    * For design differences Windows and GTK/LINUX
    LOCAL nxowb, nyowb, nlowb
-   LOCAL oSayImg1 , oSayImg2
    LOCAL nx1, ny1 , nx2, ny2
-#ifndef  __PLATFORM__WINDOWS
+#ifdef  __GTK__
+   LOCAL oSayImg1, oSayImg2, oAstroPng, oPngDoor
+#endif
+#ifndef __PLATFORM__WINDOWS
    LOCAL oBtnDoor
 #endif
 #ifdef __GTK__
@@ -103,14 +105,14 @@ FUNCTION Main()
 
    oBitmap := HBitmap():AddResource("open")      && bmp
    oBMPExit := HBitmap():AddResource("exit")     && bmp
-   oPNGDoor := HBitmap():AddResource("door")     && png
    ojpeg  := HBitmap():AddResource("next")       && jpg
-   oastropng := HBitmap():AddResource("astro")   && png
    oastrobmp := HBitmap():AddResource("astro2")  && bmp
 
 #ifdef __PLATFORM__WINDOWS
     PREPARE FONT oFontMain NAME "MS Sans Serif" WIDTH 0 HEIGHT -14
 #else
+   oPNGDoor := HBitmap():AddResource("door")     && png
+   oastropng := HBitmap():AddResource("astro")   && png
     PREPARE FONT oFontMain NAME "Sans" WIDTH 0 HEIGHT 12
 #endif
 

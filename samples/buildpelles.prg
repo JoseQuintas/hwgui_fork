@@ -26,8 +26,8 @@ MEMVAR oBrowse4
 FUNCTION Main()
 
    Local oFont
-   Local aBrowse1, aBrowse2, aBrowse3, aBrowse4
-   LOCAL oPasta  := DiskName()+":\"+CurDir()+"\"
+   //Local aBrowse1, aBrowse2, aBrowse3, aBrowse4
+   //LOCAL oPasta  := DiskName()+":\"+CurDir()+"\"
    Local vGt1:=Space(80)
    Local vGt2:=Space(80)
    Local vGt3:=Space(80)
@@ -174,8 +174,8 @@ RETURN Nil
 
 FUNCTION ReadBuildFile()
 
-   LOCAL oLibFiles, oBr1:={}, oBr2:={}, oBr3:={}, oBr4:={}, oSel1, oSel2, oSel3, i, oSel4
-   LOCAL aPal:=""
+   LOCAL oBr1:={}, oBr2:={}, oBr3:={}, oBr4:={}, oSel1, oSel2, oSel3, i, oSel4 // oLibFiles
+   //LOCAL aPal:=""
    LOCAL oFolderFile:=hwg_Selectfile("HwGUI File Build (*.bld)", "*.bld" )
 
    IF empty( oFolderFile )
@@ -230,7 +230,7 @@ RETURN Nil
 
 FUNCTION SaveBuildFile()
 
-   LOCAL oLibFiles, i, oNome, g
+   LOCAL i, oNome, g // oLibFiles
    LOCAL oFolderFile:=hwg_Savefile("*.bld", "HwGUI File Build (*.bld)", "*.bld" )
 
    IF empty(oFolderFile)

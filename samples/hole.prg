@@ -1,7 +1,7 @@
 /*
  This sample is not running and fires a runtime error
  (seems to be outdated)
- 
+
 Error TOleAuto/-1  CO_E_CLASSSTRING: TOLEAUTO:NEW
 Called from (b)HWG_ERRSYS(20)
 Called from THROW(0)
@@ -17,9 +17,9 @@ Harbour options
 -n0
 -w0
 avoids build abort with
-Warning W0001  Ambiguous reference 
- 
-*/ 
+Warning W0001  Ambiguous reference
+
+*/
 
 
 #include "hwgui.ch"
@@ -146,6 +146,6 @@ EXIT PROCEDURE EXI
    ENDIF
    oTimer:End()
 
-RETURN Nil
+RETURN
 
 * ======================== EOF of hole.prg ==============================

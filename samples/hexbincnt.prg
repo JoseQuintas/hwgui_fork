@@ -14,10 +14,10 @@
  * a good substitute for Windows
  * resource compiler, it is "Windows only".
  *
- * Copyright 2020 Wilfried Brunken, DF7BE 
+ * Copyright 2020 Wilfried Brunken, DF7BE
  * https://sourceforge.net/projects/cllog/
  */
- 
+
     * Status:
     *  WinAPI   :  Yes
     *  GTK/Linux:  Yes
@@ -32,7 +32,7 @@
 *     - Select desired image in the file selection dialog
 *     - Wait for message of creating hex file
 *
-* 3.) Open generated file "hexdump.txt" with 
+* 3.) Open generated file "hexdump.txt" with
 *     your preferred text editor, copy and
 *     paste the variable definition into
 *     your program code file.
@@ -41,7 +41,7 @@
 *
 * Repeat this for every image file.
 * Every run of "file2hex" overwrites hexdump.txt.
-* 
+*
 * You need a 2 variables for every image
 *  1.) cHex.. : contains the Hex string (or set as a "long" parameter to hwg_cHex2Bin() )
 *  2.) cVal.. : contains the binary value of the image.
@@ -56,17 +56,17 @@
 
 #include "hwgui.ch"
 
-MEMVAR cHexAstro , cHexok , cHexopen , cHexexit , cHexdoor , cHexnext, cHexExit2    && Hex dumps 
+MEMVAR cHexAstro , cHexok , cHexopen , cHexexit , cHexdoor , cHexnext, cHexExit2    && Hex dumps
 MEMVAR cValAstro , cValok , cValopen , cValexit , cValdoor , cValnext, cValExit2    && Resource contents
 
 FUNCTION Main
 
-LOCAL cImageDir, cppath , oIcon, oBitmap , oToolbar , oFileOpen , oQuit , oMainW , oFontMain
-LOCAL htab, nbut , oBMPExit , oPNGDoor , oBtnDoor , ojpeg , oBtnjpeg , oastropng , oBMPExit2
-LOCAL cDirSep := hwg_GetDirSep()
+LOCAL oIcon, oBitmap , oToolbar , oFileOpen , oQuit , oMainW , oFontMain // cImageDir, cPPath
+LOCAL htab, nbut , oBMPExit , oPNGDoor , oBtnDoor , ojpeg , oBtnjpeg , oastropng // , oBMPExit2
+//LOCAL cDirSep := hwg_GetDirSep()
 LOCAL obttontest , obttontest2
 
-PUBLIC cHexAstro , cHexok , cHexopen , cHexexit , cHexdoor , cHexnext , cHexExit2   && Hex dumps 
+PUBLIC cHexAstro , cHexok , cHexopen , cHexexit , cHexdoor , cHexnext , cHexExit2   && Hex dumps
 PUBLIC cValAstro , cValok , cValopen , cValexit , cValdoor , cValnext , cValExit2   && Resource contents
 
 htab := 0
@@ -77,7 +77,7 @@ nbut := 0
 * next.bmp : door.bmp
 * exit.bmp
 * open.bmp
-* ok.ico 
+* ok.ico
 
 * Fill variables with hex values
 Init_Hexvars()
@@ -105,56 +105,56 @@ oastropng := HBitmap():AddString( "astro", cValAstro )
 #ifdef __PLATFORM__WINDOWS
    PREPARE FONT oFontMain NAME "MS Sans Serif" WIDTH 0 HEIGHT -14
 #else
-   PREPARE FONT oFontMain NAME "Sans" WIDTH 0 HEIGHT 12 
+   PREPARE FONT oFontMain NAME "Sans" WIDTH 0 HEIGHT 12
 #endif
 
 INIT WINDOW oMainW  ;
    FONT oFontMain  ;
    TITLE "Bitmap Hex container sample" AT 0,0 SIZE 400 , 400 ;
    ICON oIcon STYLE WS_POPUP +  WS_CAPTION + WS_SYSMENU ;
- 
-   
-* @ 0, 0 TOOLBAR oToolbar OF oMainW SIZE  299 , 50 
- @ 0,0 PANEL oToolbar OF oMainW SIZE 300 , 50 ON SIZE ANCHOR_TOPABS + ANCHOR_LEFTABS + ANCHOR_RIGHTABS 
+
+
+* @ 0, 0 TOOLBAR oToolbar OF oMainW SIZE  299 , 50
+ @ 0,0 PANEL oToolbar OF oMainW SIZE 300 , 50 ON SIZE ANCHOR_TOPABS + ANCHOR_LEFTABS + ANCHOR_RIGHTABS
 
 
 @ htab+(nbut*32), 3 OWNERBUTTON oFileOpen OF oToolbar ;
    ON CLICK { | | FileOpen()} ;
    SIZE 28,24 FLAT ;
    BITMAP oBitmap ;
-   TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ; 
+   TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ;
    TOOLTIP "Open File"
-   
+
    nbut += 1
 
 @ htab+(nbut*32),3 OWNERBUTTON oQuit OF oToolbar ;
    ON CLICK { | | oMainW:Close()} ;
    SIZE 28,24 FLAT ;
-   BITMAP oBMPExit ; 
-   TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ; 
+   BITMAP oBMPExit ;
+   TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ;
    TOOLTIP "Terminate Program"
 
-   
-   
+
+
    nbut += 1
 
-* !!!!! PNG not supported   
+* !!!!! PNG not supported
 @ htab+(nbut*32),3 OWNERBUTTON oBtnDoor OF oToolbar ;
    ON CLICK { | | OpenDoor()} ;
    SIZE 28,24 FLAT ;
-   BITMAP oPNGDoor ; 
-   TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ; 
+   BITMAP oPNGDoor ;
+   TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ;
    TOOLTIP "Open the door"
-   
-  nbut += 1 
+
+  nbut += 1
 
 @ htab+(nbut*32),3 OWNERBUTTON oBtnjpeg OF oToolbar ;
    ON CLICK { | | ClickJpeg()} ;
    SIZE 28,24 FLAT ;
-   BITMAP ojpeg ; 
-   TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ; 
-   TOOLTIP "JPEG image" 
-  
+   BITMAP ojpeg ;
+   TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ;
+   TOOLTIP "JPEG image"
+
 nbut+=1
 
    @ htab+(nbut*32), 3 BUTTON obttontest CAPTION "Show Bmp"  OF oToolbar SIZE 80,32 ;
@@ -168,14 +168,14 @@ nbut+=1
         ON CLICK { || showbitmap(cValAstro,"astro") }
 
 * Attention:
-* This crashes with core dump        
+* This crashes with core dump
 //   @ htab+(nbut*32), 3 BUTTON obttontest CAPTION "Show Bitmap" SIZE 80,32 ;
 //        STYLE WS_TABSTOP+BS_FLAT ;
 //        ON CLICK { || showbitmap(oBMPExit) }
 
  @ 60 , 100 SAY "astro.png" SIZE 100, 20
- @ 60 , 100 BITMAP oastropng 
- 
+ @ 60 , 100 BITMAP oastropng
+
    oMainW:Activate()
 RETURN NIL
 
@@ -213,22 +213,22 @@ ny := hwg_GetBitmapHeight( obmp:handle )
 
 IF nx > 1277
   nx := 1277
-ENDIF 
+ENDIF
 
 IF ny > 640
   ny := 640
-ENDIF  
+ENDIF
 
   INIT DIALOG frm_bitmap TITLE "Bitmap Image" ;
     AT 20,20 SIZE 1324,772 ;
      STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
 
    @ 747,667 SAY oLabel1 CAPTION "Size:  x:"  SIZE 87,22 ;
-        STYLE SS_RIGHT   
-   @ 866,667 SAY oLabel2 CAPTION ALLTRIM(STR(nx))  SIZE 80,22   
+        STYLE SS_RIGHT
+   @ 866,667 SAY oLabel2 CAPTION ALLTRIM(STR(nx))  SIZE 80,22
    @ 988,667 SAY oLabel3 CAPTION "y:"  SIZE 80,22 ;
-        STYLE SS_RIGHT   
-   @ 1130,667 SAY oLabel4 CAPTION ALLTRIM(STR(ny))  SIZE 80,22    
+        STYLE SS_RIGHT
+   @ 1130,667 SAY oLabel4 CAPTION ALLTRIM(STR(ny))  SIZE 80,22
 
 
 #ifdef __GTK__
@@ -240,7 +240,7 @@ ENDIF
         SHOW obmp OF frm_bitmap
 #endif
 
- 
+
    @ 590,663 BUTTON oButton1 CAPTION "OK"   SIZE 80,32 ;
         STYLE WS_TABSTOP+BS_FLAT ;
         ON CLICK { || frm_bitmap:Close() }
