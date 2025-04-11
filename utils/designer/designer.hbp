@@ -2,7 +2,7 @@
 # $Id$
 #
 
--n -w
+-n -w1
 
 # Special parameters for LINUX/GTK and MacOS/GTK
 {linux}-lm

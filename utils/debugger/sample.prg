@@ -8,7 +8,7 @@
 * Sample for demonstrate the HWGUI debugger
 *
 * For details read file "readme.eng".
-* Copyright 2020 Wilfried Brunken, DF7BE 
+* Copyright 2020 Wilfried Brunken, DF7BE
 * https://sourceforge.net/projects/cllog/
 *
 
@@ -85,8 +85,6 @@ FUNCTION Teste
    @ 20 , 150  BUTTON "OK" SIZE 100, 32 ON CLICK {|| oDlg:Close() }
 
     ACTIVATE DIALOG oDlg
-
-  RETURN Nil
 
 Return Nil
 

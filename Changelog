@@ -15,6 +15,26 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-11 20:00 UTC-0200 JoseQuintas jmcquintas-gmail.com
+   * *.hbp
+     ! define max -w level for all
+   * test/hbmk.hbm
+     ! to have a default
+   * utils/debugger/sample.prg
+   * utils/hwbuild/hwb.prg
+   * utils/statichelp/stathblpconv.prg
+   * utils/tutorial/tutor.prg
+     ! fix -w3 -es2 warnings
+   * utils/debugger/hwgdebug.hbp
+   * utils/debugger/sample.hbp
+     | -w2
+   * utils/bincnt/binnt.hbp
+   * utils/dbc/dbchw.hbp
+   * utils/designer/designer.hbp
+   * utils/designer/designer2.hbp
+   * utils/editor/editor.hbp
+     ! -w1
+
 2025-04-11 12:00 UTC-0200 JoseQuintas jmcquintas-gmail.com
    * samples/buildpelles.prg
    * samples/colrbloc.prg

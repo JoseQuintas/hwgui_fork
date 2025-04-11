@@ -28,7 +28,7 @@
 
 hbct.hbc
 
--n -w
+-n -w1
 
 -o./editor
 

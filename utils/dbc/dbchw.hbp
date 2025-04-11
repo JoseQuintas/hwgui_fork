@@ -3,7 +3,7 @@
 #
 
 
--n -w
+-n -w1
 
 # The macro for unix has also effect on LINUX
 {unix}-lm
@@ -44,5 +44,5 @@ procs_c.c
 
 
 # =================== EOF of dbchw.hbp ===============
- 
+
 

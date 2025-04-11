@@ -5,15 +5,15 @@
  * stathlpconv.prg - Utility convert help text
  * to HWGUI source code.
  *
- * Copyright 2023 
+ * Copyright 2023
  * Wilfried Brunken, DF7BE
- * 
+ *
  * https://sourceforge.net/projects/hwgui/
  */
     * Status:
     *  WinAPI   :  Yes
     *  GTK/Linux:  Yes
- 
+
 #include "hwgui.ch"
 #ifdef __GTK__
 #include "gtk.ch"
@@ -25,7 +25,7 @@
 FUNCTION Main()
 
    LOCAL oWndMain
-   
+
   INIT WINDOW oWndMain MAIN TITLE "Static help text converter" AT 200,100 SIZE 300,300
 
 MENU OF oWndMain
@@ -38,27 +38,27 @@ MENU OF oWndMain
       MENU TITLE "&Help"
          MENUITEM "&About" ACTION hwg_Msginfo("HWGUI Static help text converter" + Chr(10) + "2022" )
       ENDMENU
-   ENDMENU  
- 
-  ACTIVATE WINDOW oWndMain 
-  
+   ENDMENU
+
+  ACTIVATE WINDOW oWndMain
+
 RETURN NIL
- 
+
 FUNCTION ConvertHelp()
- 
+
    LOCAL mypath, cdirsep, fname , ctext , cprgtext , cvarname , i
    LOCAL cfoutfile, ctemp, nchrcount , ninlen
    LOCAL lf := CHR(13) + CHR(10) , lfstr := "CHR(13) + CHR(10)"
 
    nchrcount := 0
-   cprgtext := ""
-   
+   //cprgtext := ""
+
    cvarname  := "cHelptext1" + SPACE(20) && size = 30
-   
+
    cvarname  := hwg_GET_Helper(cvarname,30)
-   
+
    cdirsep := hwg_GetDirSep()
-   
+
    mypath := cdirsep + CURDIR() + IIF( EMPTY( CURDIR() ), "", cdirsep )
 
    fname := hwg_Selectfile( "Text files( *.txt )", "*.txt", mypath )
@@ -79,23 +79,23 @@ FUNCTION ConvertHelp()
 
     cvarname := GetCValue(cvarname,"HWGUI Static help text converter", ;
      "Enter variable name:",,.F.)
-  
-    cprgtext := ALLTRIM(cvarname) + " := ;" + lf + CHR(34) 
+
+    cprgtext := ALLTRIM(cvarname) + " := ;" + lf + CHR(34)
 
     ctext := MEMOREAD(fname)
     * Interpret the input file contents
     * and collect the new contents into cprgtext.
     * Handle special characters:
-    * LF : CHR(10) 
+    * LF : CHR(10)
     * For output use variables "lf" and "lfstr"
     * "  : CHR(34)
     * '  : CHR(39)
     ninlen := LEN(ctext)
-    FOR i := 1 TO ninlen 
+    FOR i := 1 TO ninlen
       ctemp := SUBSTR(ctext,i,1)
-      DO CASE 
+      DO CASE
        CASE ctemp == CHR(10) && LF  Force a new prg line
-        cprgtext := cprgtext + CHR(34) + " + " + lfstr + " + ;" + lf + CHR(34)       
+        cprgtext := cprgtext + CHR(34) + " + " + lfstr + " + ;" + lf + CHR(34)
         nchrcount := 0
        CASE ctemp == CHR(34) && "
         cprgtext := cprgtext + CHR(34) + " + CHR(34) + " + CHR(34)
@@ -110,7 +110,7 @@ FUNCTION ConvertHelp()
         nchrcount++
         IF nchrcount > MAXCHARSPERLINE
          * Force a new prg line
-         cprgtext := cprgtext + " ;" + CHR(34) 
+         cprgtext := cprgtext + " ;" + CHR(34)
          nchrcount := 0
         ENDIF
        OTHERWISE
@@ -118,7 +118,7 @@ FUNCTION ConvertHelp()
         nchrcount++
         IF nchrcount > MAXCHARSPERLINE
         * Force a new prg line
-         cprgtext := cprgtext  + CHR(34) + " +  ; " + lf + CHR(34) 
+         cprgtext := cprgtext  + CHR(34) + " +  ; " + lf + CHR(34)
          nchrcount := 0
         ENDIF
        ENDCASE
@@ -126,8 +126,8 @@ FUNCTION ConvertHelp()
 
     * Handle end of file
     IF SUBSTR(ctext,ninlen,1) != CHR(34)
-     cprgtext := cprgtext  + CHR(34) 
-    ENDIF 
+     cprgtext := cprgtext  + CHR(34)
+    ENDIF
     * Reduce "+ "" +" to " + "
     cprgtext := STRTRAN(cprgtext,"+ " + CHR(34) + CHR(34) + " +"," + ")
     IF  MEMOWRIT(cfoutfile,cprgtext)
@@ -138,7 +138,7 @@ FUNCTION ConvertHelp()
        "HWGUI Static help text converter")
     ENDIF
 
- 
+
 RETURN NIL
 
 
@@ -148,7 +148,7 @@ FUNCTION GetCValue(cPreset,cTitle,cQuery,nlaenge,lcaval)
 *
 * lcaval  : if set to .T., old value is returned
 *           .F. : empty string returned
-*           Default is .T. 
+*           Default is .T.
 * nlaenge : Max length of string to get.
 *           Default value is LEN(cPreset)
 LOCAL _enterC, oLabel1, oEditbox1, oButton1 , oButton2 , cNewValue, lcancel
@@ -164,11 +164,11 @@ LOCAL _enterC, oLabel1, oEditbox1, oButton1 , oButton2 , cNewValue, lcancel
  IF cPreset == NIL
   cPreset := " "
  ENDIF
- 
+
  IF lcaval == NIL
   lcaval := .T.
- ENDIF 
- 
+ ENDIF
+
  IF nlaenge == NIL
   nlaenge := LEN(cPreset)
  ELSE
@@ -176,13 +176,13 @@ LOCAL _enterC, oLabel1, oEditbox1, oButton1 , oButton2 , cNewValue, lcancel
    cpreset := SPACE(nlaenge)
   ELSE
    cpreset := PADR(cpreset,nlaenge)
-  ENDIF  
- ENDIF  
+  ENDIF
+ ENDIF
 
  lcancel := .T.
- 
+
  cPreset := hwg_GET_Helper(cPreset, nlaenge )
- 
+
  cNewValue := cPreset
 
  INIT DIALOG _enterC TITLE cTitle ;
@@ -193,13 +193,13 @@ LOCAL _enterC, oLabel1, oEditbox1, oButton1 , oButton2 , cNewValue, lcancel
         STYLE WS_BORDER
    @ 115,120 BUTTON oButton1 CAPTION "OK" SIZE 80,32 ;
         STYLE WS_TABSTOP+BS_FLAT ;
-        ON CLICK {|| lcancel := .F. , _enterC:Close() } 
+        ON CLICK {|| lcancel := .F. , _enterC:Close() }
    @ 809,120 BUTTON oButton2 CAPTION "Cancel" SIZE 80,32 ;
         STYLE WS_TABSTOP+BS_FLAT ;
         ON CLICK {|| _enterC:Close() }
 
    ACTIVATE DIALOG _enterC
-   
+
    IF lcancel
     IF lcaval
      cNewValue := cPreset
@@ -208,6 +208,6 @@ LOCAL _enterC, oLabel1, oEditbox1, oButton1 , oButton2 , cNewValue, lcancel
     ENDIF
    ENDIF
 
-RETURN cNewValue   
- 
-* ====================== EOF of stathlpconv.prg ==================== 
+RETURN cNewValue
+
+* ====================== EOF of stathlpconv.prg ====================

@@ -2,7 +2,7 @@
 # $Id$
 #
 
--n -w
+-n -w2
 
 {linux}-lm
 {linux}-static

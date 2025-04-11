@@ -407,11 +407,15 @@ STATIC FUNCTION NodeOut( oItem )
 STATIC FUNCTION RunSample( oItem )
    LOCAL cText := "", cLine, i, ie, cHrb, lWnd := .F.
    LOCAL cFileErr := hb_DirTemp() + "hwg_compile_err.out", cTemp
-   LOCAL cHrbCopts
-
-   cHrbCopts := ""
+#ifdef __XHARBOUR__
+   LOCAL cHrbCopts := ""
+#endif
 #ifdef __GTK__
    cHrbCopts := cHrbCopts + "-d__GTK__"
+#else
+   #ifdef __XHARBOUR__
+      cHrbCopts := ""
+   #endif
 #endif
 
    IF oItem != Nil .AND. !oItem:cargo[1]

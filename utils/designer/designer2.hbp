@@ -3,7 +3,7 @@
 #
 
 ..\..\hwgui.hbc
--n -w
+-n -w1
 designer.prg
 hctrl.prg
 hformgen.prg
