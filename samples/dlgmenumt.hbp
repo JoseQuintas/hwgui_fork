@@ -17,7 +17,7 @@
 {win}-gtwvt
 {linux}-gtwvt
 {darwin}-gtwvt
-
+-D__USING_MENU__
 dlgmenumt.prg
 dlgbrwdbf.prg
 
