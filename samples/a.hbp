@@ -1,2 +1,3 @@
-{!win}stop "Windows only"
-dlgmdi.prg
+-stop={!win}
+
+a.prg

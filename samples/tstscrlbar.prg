@@ -1,9 +1,9 @@
 /*
 
  $Id$
- 
+
 Additional information about scollbars for GTK on main window:
-The style constants 
+The style constants
 WS_VSCROLL + WS_HSCROLL + ES_AUTOHSCROLL
 are ignored.
 
@@ -18,7 +18,6 @@ In other dialogs, the scrollbars appeared correct, for example in BROWSE window.
 
 */
 
-
 #include "hwgui.ch"
 
 FUNCTION main()
@@ -31,10 +30,10 @@ FUNCTION main()
         STYLE WS_VSCROLL + WS_HSCROLL + ES_AUTOHSCROLL
 #else
 
-   INIT WINDOW oMain main TITLE "Scrollbar example"  ;
+   INIT WINDOW oMain MAIN TITLE "Scrollbar example"  ;
         At 200, 100 SIZE 400, 250 ;
         STYLE WS_VSCROLL + WS_HSCROLL
-#endif        
+#endif
 
    FOR i := 0 TO 200 STEP 20
       @ 0, i  say StrZero( i, 3 ) + "  -  " + "01234567890123456789012345678901234567890" + "  -  " + StrZero( i, 3 ) size 420, 20

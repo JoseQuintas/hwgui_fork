@@ -15,6 +15,20 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-10 20:55 UTC-0200 Jose Quintas jmcquintas-gmail.com
+   * samples/*.hbp
+      ! removed -n already on hbmk.hbm
+      ! not on same commit to a easy check
+   * samples/a.hbp
+      ! wrong on previous changes
+   * samples/all.prg
+      ! changed to WINDOW MAIN
+   * samples/testsdi.prg
+   * samples/tstscrbar.prg
+      ! can't add to all.hbp
+   - test/ubuntuerror.txt
+      ! no more needed
+
 2025-04-10 15:45 UTC-0200 Jose Quintas jmcquintas-gmail.com
    * samples/all.hbp
    * samples/allhbp.hbp

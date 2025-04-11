@@ -34,8 +34,10 @@ PROCEDURE Main
        { "DLGXML",       .T., .T., .T., "Setup from XML" }, ;
        { "DLGMENU1",     .T., .T., .T., "Menu using desktop Size" } }
        // { "DLGMDI",       .T., .F., .F., "MDI Window" } } // need to be out of menu
+       // { "TESTSDI",      .T., .T., .T., "SDI" } // need to be out of menu
+       // { "TESTSCRLBAR",  .T., .T., .T., "Scrollbar & Splitter } // need to be out of menu
 
-   INIT DIALOG oDlg TITLE "ALL - Samples without own hbp" ;
+   INIT WINDOW oDlg MAIN TITLE "ALL - Samples without own hbp" ;
      AT 0,0 SIZE 600, 400
 
    MENU OF oDlg
@@ -60,9 +62,9 @@ PROCEDURE Main
       IF lCloseMenu // close menu if < 10
          ENDMENU
       ENDIF
-      MENUITEM "&Exit" ACTION hwg_EndDialog()
+      MENUITEM "&Exit" ACTION hwg_EndWindow()
    ENDMENU
 
-   ACTIVATE DIALOG oDlg CENTER
+   ACTIVATE WINDOW oDlg CENTER
 
    RETURN
