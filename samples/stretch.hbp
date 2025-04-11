@@ -5,10 +5,7 @@
 
 # -stop={linux}
 
--n
-
 -ostretch
-
 
 stretch.prg
 

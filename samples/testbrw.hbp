@@ -5,8 +5,6 @@
 
 # -stop={linux}
 
--n
-
 -otestbrw
 
 testbrw.prg

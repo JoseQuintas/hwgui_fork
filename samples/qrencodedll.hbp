@@ -10,10 +10,6 @@
 # hbwin.hbc
 xhb.hbc
 
--n
-
--L../lib
-
 # -lqrcodegen
 # -lhbqrencode
 

@@ -5,10 +5,7 @@
 
 # -stop={linux}
 
--n
-
 -obincnts
-
 
 bincnts.prg
 {win}bincnts.rc

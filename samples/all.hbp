@@ -1,6 +1,8 @@
 #
 # all.hbp
 #
+# auto included hbmk.hbm
+#
 
 all.prg
 dlgbrwdbf.prg
@@ -14,6 +16,5 @@ dlgsplit.prg
 dlgxml.prg
 
 -d__USING_MENU__
-..\hwgui.hbc
 
 # ================================= EOF of all_1.hbp ================================

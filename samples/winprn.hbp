@@ -10,10 +10,6 @@
 # hbwin.hbc
 xhb.hbc
 
--n
-
--L../lib
-
 # Free this entries for static link of QR encoding library
 #-lqrcodegen
 #-lhbqrencode

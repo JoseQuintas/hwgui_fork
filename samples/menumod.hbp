@@ -3,8 +3,6 @@
 #
 # auto included hbmk.hbm
 
--n
-
 -omenumod
 
 menumod.prg

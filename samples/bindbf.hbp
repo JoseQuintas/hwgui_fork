@@ -5,10 +5,7 @@
 
 # -stop={linux}
 
--n
-
 -obindbf
-
 
 bindbf.prg
 {win}bindbf.rc
