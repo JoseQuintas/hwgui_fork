@@ -22,6 +22,7 @@ MEMVAR oBrowse1, oBrowse2, oBrowse3
 MEMVAR oDlg
 MEMVAR oButton1, oExeName, oLabel1, oLibFolder, oButton4, oLabel2, oIncFolder, oLabel3, oButton3, oPrgFlag, oLabel4, oCFlag, oLabel5, oButton2, oMainPrg, oLabel6, oTab
 MEMVAR oBrowse4
+MEMVAR CRF
 
 FUNCTION Main()
 
@@ -37,9 +38,8 @@ FUNCTION Main()
    Local aFiles1:={""}, aFiles2:={""}, aFiles3:={""}, aFiles4:={""}
 
    PRIVATE oBrowse4
-
-   Private oDirec:=DiskName()+":\"+CurDir()+"\"
-
+   PRIVATE oDirec := DiskName()+":\"+CurDir()+"\"
+   PRIVATE CRF    := CHR(13)+CHR(10)
    If !File(oDirec+"BuildPelles.Ini")
       Hwg_WriteIni( 'Config', 'Dir_HwGUI', "C:\HwGUI", oDirec+"BuildPelles.Ini" )
       Hwg_WriteIni( 'Config', 'Dir_HARBOUR', "C:\xHARBOUR", oDirec+"BuildPelles.Ini" )
@@ -230,7 +230,7 @@ RETURN Nil
 
 FUNCTION SaveBuildFile()
 
-   LOCAL i, oNome, g // oLibFiles
+   LOCAL i //, oNome // , g // oLibFiles
    LOCAL oFolderFile:=hwg_Savefile("*.bld", "HwGUI File Build (*.bld)", "*.bld" )
 
    IF empty(oFolderFile)
@@ -250,7 +250,7 @@ FUNCTION SaveBuildFile()
    Hwg_WriteIni( 'Config', 'PrgFlags'      ,oPrgFlag:GetText(), oFolderFile )
    Hwg_WriteIni( 'Config', 'CFlags'        ,oCFlag:GetText(), oFolderFile )
    Hwg_WriteIni( 'Config', 'PrgMain'       ,oMainPrg:GetText(), oFolderFile )
-   oNome:=""
+   //oNome:=""
 
    IF Len(oBrowse1:aArray)>=1
       FOR i := 1 TO Len(oBrowse1:aArray)
@@ -300,10 +300,10 @@ RETURN NIL
 
 FUNCTION BuildBat()
 
-   LOCAL voExeName, voLibFolder, voIncFolder, voPrgFlag, voCFlag, voPrgMain, voPrgFiles, voCFiles,voResFiles
-   LOCAL oLibFiles, CRF:=CHR(13)+CHR(10), oName, oInc, lName, gDir
+   LOCAL voExeName, voIncFolder, voPrgFlag, voCFlag, voPrgMain, voPrgFiles, voCFiles,voResFiles // voLibFolder,
+   LOCAL oName, oInc, lName // , gDir // oLibFiles
    LOCAL oArq:=fCreate("Hwg_Build.bat"),i, vHwGUI, vHarbour, vPelles
-   LOCAL voLibFiles
+   //LOCAL \
    LOCAL g
 
    IF File(oDirec+"BuildPelles.Ini")
@@ -316,7 +316,7 @@ FUNCTION BuildBat()
       vPelles:="C:\Pocc"
    ENDIF
    voExeName  :=oExeName:GetText()
-   voLibFolder:=oLibFolder:GetText()
+   //voLibFolder:=oLibFolder:GetText()
    voIncFolder:=oIncFolder:GetText()
    voPrgFlag  :=oPrgFlag:GetText()
    voCFlag    :=oCFlag:GetText()
@@ -324,7 +324,7 @@ FUNCTION BuildBat()
 
    voPrgFiles :=oBrowse1:aArray
    voCFiles   :=oBrowse2:aArray
-   voLibFiles :=oBrowse3:aArray
+   //voLibFiles :=oBrowse3:aArray
    voResFiles :=oBrowse4:aArray
 
    fwrite(oArq,"@echo off"+CRF)
@@ -448,7 +448,7 @@ FUNCTION BuildBat()
    ENDIF
 
    IF Len(voResFiles)>0
-      oInc:=""
+      //oInc:=""
       FOR i:=1 TO Len(voResFiles)
          IF !Empty(voResFiles[i])
             fwrite(oArq,vPelles+'\BIN\porc -r '+voResFiles[i]+' -foobj\'+voExeName+CRF)
@@ -488,10 +488,10 @@ RETURN Nil
 
 FUNCTION BuildPoMake()
 
-   LOCAL voExeName, voLibFolder, voIncFolder, voPrgFlag, voCFlag, voPrgMain, voPrgFiles, voCFiles,voResFiles
-   LOCAL oLibFiles, CRF:=CHR(13)+CHR(10), oName, oInc, lName, gDir
+   LOCAL voExeName, voIncFolder, voPrgMain, voPrgFiles, voCFiles //,voResFiles, voCFlag, voLibFolder, voPrgFlag
+   LOCAL oName //, oInc //, lName //, gDir, oLibFiles, CRF:=CHR(13)+CHR(10)
    LOCAL oArq:=fCreate("Makefile.pc"),i, vHwGUI, vHarbour, vPelles
-   LOCAL voLibFiles
+   //LOCAL voLibFiles
 
    If File(oDirec+"BuildPelles.Ini")
       vHwGUI:=Hwg_GetIni( 'Config', 'DIR_HwGUI' , , oDirec+"BuildPelles.Ini" )
@@ -504,16 +504,16 @@ FUNCTION BuildPoMake()
    ENDIF
 
    voExeName  :=oExeName:GetText()
-   voLibFolder:=oLibFolder:GetText()
+   //voLibFolder:=oLibFolder:GetText()
    voIncFolder:=oIncFolder:GetText()
-   voPrgFlag  :=oPrgFlag:GetText()
-   voCFlag    :=oCFlag:GetText()
+   //voPrgFlag  :=oPrgFlag:GetText()
+   //voCFlag    :=oCFlag:GetText()
    voPrgMain  :=oMainPrg:GetText()
 
    voPrgFiles :=oBrowse1:aArray
    voCFiles   :=oBrowse2:aArray
-   voLibFiles :=oBrowse3:aArray
-   voResFiles :=oBrowse4:aArray
+   //voLibFiles :=oBrowse3:aArray
+   //voResFiles :=oBrowse4:aArray
 
    fwrite(oArq,"# makefile for Pelles C 32 bits"+CRF)
    fwrite(oArq,"# Building of App Using Pomake"+CRF)
@@ -583,8 +583,8 @@ FUNCTION BuildPoMake()
          if !empty( voPrgFiles[i] )
 
             oName:=Substr(voPrgFiles[i],1,Len(voPrgFiles[i])-4)
-            lName:=""
             /*
+            lName:=""
             for g:=1 to Len(oName)
                if Substr(oName, -g, 1)="\"
                   Exit
@@ -640,12 +640,12 @@ FUNCTION BuildPoMake()
    ENDIF
 
    IF Len(voCFiles)>0
-      oInc:=""
+      //oInc:=""
       FOR i:=1 to Len(voCFiles)
          IF !empty(voCFiles[i])
-            IF !empty(oIncFolder)
-               oInc:='/I"'+voIncFolder+'"'
-            ENDIF
+            //IF !empty(oIncFolder)
+               //oInc:='/I"'+voIncFolder+'"'
+            //ENDIF
             oName:=Substr(voCFiles[i],1,Len(voCFiles[i])-4)
             fwrite(oArq,oName+".obj : "+voCFiles[i]+CRF)
             fwrite(oArq, "   $(CC_EXE) $(CFLAGS) /Fo$@ $** "+CRF)

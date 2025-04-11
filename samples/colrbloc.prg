@@ -54,7 +54,7 @@ MEMVAR cImgTop , cImgBottom , cImgPrev, cImgNext
 FUNCTION Main()
 
    LOCAL oWinMain , cImageDir
-   LOCAL cDirSep := hwg_GetDirSep()
+   //LOCAL cDirSep := hwg_GetDirSep()
 
    PUBLIC cImgTop , cImgBottom , cImgPrev, cImgNext
 
@@ -121,7 +121,7 @@ STATIC FUNCTION BrwDbs( lEdit, lZebra )
    LOCAL oEdGoto
    LOCAL oBrwDb
    LOCAL o_Obtn1, o_Obtn2, o_Obtn3, o_Obtn4
-   LOCAL oTbar
+   //LOCAL oTbar
    LOCAL nRec := 1
    LOCAL nLast := 0
    LOCAL nI , oDlg , oTbar1 , oLbl1 , oLbl2 , oBtn1
@@ -277,6 +277,8 @@ RETURN .T.
 
 STATIC FUNCTION BrowseDbKey(oBrwDb, nKey, nLast, oLbl2, cPar)
 
+   (oBrwDB); (nLast); (oLbl2); (cPar) // -w3 -es2
+
    IF nKey == 46   // DEL
 
    ELSEIF nKey == VK_RETURN
@@ -288,7 +290,7 @@ RETURN .T.
 STATIC FUNCTION CriaDbf()
 
    LOCAL Estrutura := {}
-   LOCAL i := 1
+   LOCAL i
    LOCAL nIncrement := 10
 
    IF ! FILE( "tstbrw.dbf" )
@@ -329,7 +331,7 @@ STATIC FUNCTION BrwArr(lEdit, lZebra)
    LOCAL oEdGoto
    LOCAL oBrwArr
    LOCAL o_Obtn1, o_Obtn2, o_Obtn3, o_Obtn4
-   LOCAL oTbar
+   //LOCAL oTbar
    LOCAL nRec := 1
    LOCAL aArrayTst := Create_Array()
    LOCAL nLast := LEN(aArrayTst)
@@ -425,11 +427,11 @@ STATIC FUNCTION BrwArr(lEdit, lZebra)
    // {tColor, bColor, tColorSel, bColorSel} ,;
    // {tColor, bColor, tColorSel, bColorSel}) }
    IF lEdit
-      oBrwArr:aColumns[1]:bColorBlock := {|n| IF(aArrayTst[oBrwArr:nCurrent][1] < 0 , ;
+      oBrwArr:aColumns[1]:bColorBlock := {|n| (n), IF(aArrayTst[oBrwArr:nCurrent][1] < 0 , ;
          {x_RED, x_WHITE, x_CYAN, x_BLUE} , ;
          {x_BLUE, x_WHITE , x_WHITE, x_BLUE })}
    ELSE
-      oBrwArr:aColumns[1]:bColorBlock := {|n| IF(aArrayTst[oBrwArr:nCurrent][1] < 0 , ;
+      oBrwArr:aColumns[1]:bColorBlock := {|n| (n), IF(aArrayTst[oBrwArr:nCurrent][1] < 0 , ;
          {x_RED, x_WHITE, x_CYAN, x_DARKBLUE} , ;
          {x_BLUE, x_WHITE , x_WHITE, x_BLUE })}
       IF lZebra
@@ -452,13 +454,13 @@ RETURN .T.
 
 STATIC FUNCTION Create_Array()
 
-   LOCAL i := 1
-   LOCAL n := 1
+   LOCAL i
+   LOCAL n
    LOCAL nIncrement := 10
    LOCAL aArray := {}
 
    FOR i := 1 TO 200
-      n := i
+      //n := i
       IF i == nIncrement
          nIncrement += 10
          n := -i
@@ -499,6 +501,10 @@ FUNCTION MsgD( cV1, cV2, cV3, cV4, cV5, cV6, cV7, cV8, cV9, cV10 )
        cVar += "/"
    NEXT
    hwg_Msginfo(LEFT(cVar, LEN(cVar) - 1))
+
+   // remarks: values used by hb_PValue(), do not remove names
+   // can be changed to ... and hb_AParams() but do not know if exists on xharbour
+   (cV1); (cV2); (cV3); (cV4); (cV5); (cV6); (cV7); (cV8); (cV9); (cV10) // -w3 -es2
 
 RETURN Nil
 

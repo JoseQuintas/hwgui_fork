@@ -72,11 +72,13 @@ RETURN Nil
 
 FUNCTION OnDispInfo( o, x, y )
 
-   LOCAL result := ''
+   LOCAL result
 
    DBGoto( x )
 
    result := field->line
+
+   (o); (y) // -w3 -es2
 
 RETURN result
 

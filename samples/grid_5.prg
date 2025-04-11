@@ -118,18 +118,18 @@ RETURN Nil
 FUNCTION GridEdit( cAlias, aFields, lAppend, bChange )
 
    LOCAL i , oFont
-   LOCAL cField
+   //LOCAL cField
    LOCAL nSay := 0
    LOCAL nGet := 0
    LOCAL cType
    LOCAL nLen
-   LOCAL nRowSize := 30
+   //LOCAL nRowSize := 30
    LOCAL nGetSize := 10
    LOCAL oForm
    LOCAL nRow := 10
    LOCAL nCol
    LOCAL nHeight := 0
-   LOCAL cValid
+   //LOCAL cValid
    LOCAL nStyle := 0
    LOCAL nArea := Select()
 
@@ -338,6 +338,8 @@ STATIC FUNCTION __valid(value, oCtrl, aFields, bChange)
       NEXT
    ENDIF
 
+   (Value) // -w3 -es2
+
 RETURN result
 
 STATIC FUNCTION OnDispInfo( oCtrl, nRow, nCol )
@@ -358,6 +360,8 @@ STATIC FUNCTION OnDispInfo( oCtrl, nRow, nCol )
       result := MemoLine( field->field_5, 100, 1)
    ENDIF
 
+   (oCtrl) // -w3 -es2
+
 RETURN result
 
 STATIC FUNCTION OnKey( o, k, aItems , oGrid )
@@ -374,11 +378,15 @@ STATIC FUNCTION OnKey( o, k, aItems , oGrid )
          MyDelete(o)
    ENDIF
 
+   (oGrid) // -w3 -es2
+
 RETURN Nil
 
 STATIC FUNCTION OnClick( o, aItems )
 
     GridEdit('temp', aItems, .F., {|oCtrl, colpos| myblock(oCtrl, colpos)})
+
+   (o) // -w3 -es2
 
 RETURN Nil
 
@@ -387,6 +395,8 @@ STATIC FUNCTION myblock( oCtrl, colpos )
    IF colpos == 3
       REPLACE field_5 WITH 'hello'
    ENDIF
+
+   (oCtrl) // -w3 -es2
 
 RETURN Nil
 

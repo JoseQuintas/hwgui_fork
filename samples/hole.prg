@@ -28,6 +28,10 @@ Warning W0001  Ambiguous reference
 #xtranslate HB_AT(<x,...>) => AT(<x>)
 #endif
 
+MEMVAR oMainWindow, oChar, oBtnSpeak, oBtnPause, oUpDown, lPause // PRIVATE
+MEMVAR oReq, cText, nPos, nPosOld // PRIVATE
+MEMVAR oAgent, oTimer // PUBLIC
+
 FUNCTION Main()
 
    LOCAL oFont

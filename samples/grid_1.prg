@@ -61,11 +61,15 @@ FUNCTION OnKey( o, k )
 
    //    hwg_Msginfo(str(k))
 
+   (o); (k) // -w3 -es2
+
 RETURN Nil
 
 FUNCTION OnPosChange( o, row )
 
    //    hwg_Msginfo( str(row) )
+
+   (o); (row) // -w3 -es2
 
 RETURN Nil
 
@@ -73,8 +77,12 @@ FUNCTION OnClick( o )
 
    //    hwg_Msginfo( "click" )
 
+   (o) // -w3 -es2
+
 RETURN Nil
 
 FUNCTION OnDispInfo( o, x, y )
+
+   (o) // -w3 -es2
 
 RETURN "Row: " + ltrim( str( x ) ) + " Col: " + ltrim( str( y ) )

@@ -12,7 +12,7 @@
 # and HWGUI sample program a.prg will be build.
 #
 
--n -w3 -es0
+-n -w3 -es2
 
 # -strip
 

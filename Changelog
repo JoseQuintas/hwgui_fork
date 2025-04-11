@@ -15,7 +15,22 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2025-11-04 02:42 UTC-0200 Jose Quintas jmcquintas-gmail.com
+2025-04-11 12:00 UTC-0200 JoseQuintas jmcquintas-gmail.com
+   * samples/buildpelles.prg
+   * samples/colrbloc.prg
+   * samples/graph.prg
+   * samples/grid_1.prg
+   * samples/grid_4.prg
+   * samples/grid_5.prg
+   * samples/hole.prg
+      ! warnings -w3 -es2
+   * samples/hbmk.hbm
+      ! fixed -w3 -es2 as default
+   !
+   ! TODO: warnings -w3 -es2 on /*.hbp, contrib/*.hbp, utils/*.hbp
+   !       they are using -w and not -w3
+
+2025-04-11 02:42 UTC-0200 Jose Quintas jmcquintas-gmail.com
    * samples/bincnts.prg
    * samples/bindbf.prg
    * samples/buildpelles.prg
@@ -27,7 +42,7 @@
    * samples/hole.prg
       ! warnings -w3 -es2 on windows
 
-2025-11-04 00:20 UTC-0200 Jose Quintas jmcquintas-gmail.com
+2025-04-11 00:20 UTC-0200 Jose Quintas jmcquintas-gmail.com
    * samples/dlgmenumt.hbp
      ! added -D__USING_MENU__
 
