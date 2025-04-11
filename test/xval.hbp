@@ -2,19 +2,9 @@
 # $Id$
 #
 
-# Special parameters for LINUX/GTK
-{linux}-lm
-{linux}-static
-{linux}-d__LINUX__
-{linux}-d__GTK__
-
--n -w
-
 -oxval
 
 xval.prg
-
-..\hwgui.hbc
 
 # ===================== EOF of xval.prg ====================
 

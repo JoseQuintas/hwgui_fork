@@ -8,7 +8,7 @@
 -o../lib/hbactivex
 -hbx=../hbactivex.hbx
 
--n -q0 -w -es2
+-n -q0 -w3 -es2
 
 -i../include
 

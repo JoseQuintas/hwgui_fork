@@ -8,7 +8,7 @@
 -o../lib/hwg_qhtm
 -hbx=../hwg_qhtm.hbx
 
--n -q0 -w -es2
+-n -q0 -w3 -es2
 
 -i../include
 

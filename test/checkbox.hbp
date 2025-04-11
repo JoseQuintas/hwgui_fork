@@ -2,19 +2,6 @@
 # $Id: checkbox.hbp 3096 2022-07-05 19:27:51Z df7be $
 #
 
-# -stop={linux}
-
-# Special parameters for LINUX/GTK
-{linux}-lm
-{linux}-static
-{linux}-d__LINUX__
-{linux}-d__GTK__
-
-../hwgui.hbc
-
--n
--w
-
 -ocheckbox
 
 checkbox.prg

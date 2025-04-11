@@ -6,9 +6,6 @@
 
 -stop={linux}
 
--n
--w
-
 hbct.hbc
 
 -oTicket116

@@ -14,8 +14,7 @@ frm_validate.prg
 test.rc
 
 -otest
--w3
--es2
+
 -mt
 -gui
 {win}-gtgui

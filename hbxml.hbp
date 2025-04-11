@@ -11,7 +11,7 @@ hwgui.hbc
 
 -hbx=include/procmisc.hbx
 
--w
+-w3
 
 # Uncomment these two lines to build HwGUI in Unicode mode
 #-prgflag=-DUNICODE

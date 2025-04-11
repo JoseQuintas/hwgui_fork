@@ -285,6 +285,7 @@ STATIC FUNCTION ShowResult( cOut )
    }
    LOCAL bSwi := {||
       LOCAL i, j, cLastHea := "", lLastHea := .F., cc
+      (J) // -w3 -es2
       lFull := !lFull
       oBtnSwi:SetText( Iif( lFull, 'Short log', 'Full log' ) )
       IF lFull
@@ -980,7 +981,7 @@ STATIC FUNCTION FindHarbour()
 
 STATIC FUNCTION ReadIni( cFile )
 
-   LOCAL cPath, hIni, aIni, arr, nSect, aSect, cTmp, i, j, key, nPos, cFam, oComp, oGui
+   LOCAL cPath, hIni, aIni, arr, nSect, aSect, cTmp, i, key, nPos, cFam, oComp, oGui // j
    LOCAL aEnv, aMsvc := Array(4), aEnvM
 
 #ifdef __PLATFORM__UNIX
@@ -1705,9 +1706,9 @@ CLASS HwProject
    DATA aProjects  INIT {}
 
    METHOD New( aFiles, oComp, cGtLib, cLibsDop, cLibsPath, cFlagsPrg, cFlagsC, ;
-      cOutName, cObjPath, lLib, lMake )
-   METHOD Open( xSource, oComp, aUserPar )
-   METHOD Build( lClean )
+      cOutName, cObjPath, lLib, lMake, lNoGui )
+   METHOD Open( xSource, oComp, aUserPar, aFiles, aParentVars )
+   METHOD Build( lClean, lSub )
 
 ENDCLASS
 
@@ -2024,10 +2025,10 @@ METHOD Open( xSource, oComp, aUserPar, aFiles, aParentVars ) CLASS HwProject
 
 METHOD Build( lClean, lSub ) CLASS HwProject
 
-   LOCAL i, cCmd, cComp, cLine, cOut, cFullOut := "", lErr := .F., to, tc
+   LOCAL i, cCmd, cLine, cOut, cFullOut := "", lErr := .F., to, tc // cComp
    LOCAL cObjs := "", cFile, cExt, cBinary, cObjFile, cObjPath
    LOCAL aLibs, cLibs := "", a4Delete := {}, tStart := hb_DtoT( Date(), Seconds()-1 )
-   LOCAL aEnv, cResFile := "", cResList := ""
+   LOCAL aEnv, cResFile, cResList := ""
    LOCAL cCompPath, cCompHrbLib, cCompGuiLib
 
    IF Empty( lSub ) .AND. Empty( lClean ) .AND. !Empty( i := CheckOptions( Self, @cLine ) )

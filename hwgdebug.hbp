@@ -10,7 +10,7 @@ hwgui.hbc
 
 -hbx=hwgdebug.hbx
 
--w
+-w3
 
 # Uncomment these two lines to build HwGUI in Unicode mode
 #-prgflag=-DUNICODE

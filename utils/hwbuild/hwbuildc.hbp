@@ -6,7 +6,7 @@
 -lprocmisc
 
 -n
--w
+-w3
 -D__CONSOLE
 -ohwbc
 

@@ -9,7 +9,7 @@
 -o../lib/hwg_extctrl
 -hbx=../hwg_extctrl.hbx
 
--n -q0 -w -es2
+-n -q0 -w3 -es2
 # Activate for GCC > V8
 #-Wold-style-cast
 

@@ -8,7 +8,7 @@
 
 -o../../lib/qrcodegen
 
--w
+-w3
 
 -I./include
 

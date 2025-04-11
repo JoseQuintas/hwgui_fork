@@ -14,7 +14,7 @@ hwgui.hbc
 
 -o{!bcc}lib/hwguidyn
 
--w
+-w3
 
 # -cflag=-DHWG_USE_POINTER_ITEM
 # "{unix}-cflag=`pkg-config --cflags gtk+-2.0`"

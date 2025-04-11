@@ -2,7 +2,7 @@
 # $Id$
 #
 
--n -w
+-n -w3
 
 {linux}-static
 {linux}-d__LINUX__

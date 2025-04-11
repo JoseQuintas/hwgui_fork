@@ -28,7 +28,7 @@
 #{linux}../../hwguiGTK3.hbc
 #{darwin}../../hwgui_mac_gtk3.hbc
 
--n -w
+-n -w3
 
 -oexample
 

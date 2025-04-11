@@ -19,7 +19,7 @@
 
 -o../../lib/hbqrencode
 
--w
+-w3
 
 -I./include
 

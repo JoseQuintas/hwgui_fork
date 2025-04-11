@@ -3,12 +3,12 @@
 # $Id$
 #
 
--n -w
+-n -w3
 
 # The macro for unix has also effect on LINUX
 # Bugfix: Do not set more than one option in one line
-#         take a new line for every option !!!! 
- 
+#         take a new line for every option !!!!
+
 {unix}-lm
 {unix}-lz
 {unix}-lpcre

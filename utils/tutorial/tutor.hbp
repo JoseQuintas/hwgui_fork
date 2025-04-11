@@ -2,8 +2,6 @@
 # $Id$
 #
 
--n -w
-
 # The macro for unix has also effect on LINUX
 {unix}-lm
 {unix}-lz
@@ -22,8 +20,6 @@
 {darwin}-d__LINUX__
 {darwin}-d__GTK__
 
--L../..
-
 {win}../../hwgui.hbc
 {darwin}../../hwgui_mac.hbc
 
@@ -35,6 +31,7 @@
 
 #-o../../bin/tutor
 -o./tutor
+-w3 -es2
 
 tutor.prg
 tutor_res.prg

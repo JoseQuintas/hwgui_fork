@@ -8,7 +8,7 @@
 {linux}-d__LINUX__
 {linux}-d__GTK__
 
--n -w
+-n -w3
 
 # -o../../bin/
 -obindbf
