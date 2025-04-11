@@ -15,6 +15,13 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-11 20:20 UTC-0200 JoseQuintas jmcquintas-gmail.com
+   + test/windowonly.prg
+     ! window main call window and don't open
+   ! Note about previous commit:
+   ! on samples/ using hbmk2 *.hbp (this includes allhbp.hbp)
+   ! on test/    using hbmk2 *.hbp
+
 2025-04-11 20:00 UTC-0200 JoseQuintas jmcquintas-gmail.com
    * *.hbp
      ! define max -w level for all
