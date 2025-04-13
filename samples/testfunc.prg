@@ -49,7 +49,7 @@
  hwg_EOLStyle()
  hwg_RunConsoleApp( cCommand [, cOutFile] )
      coutfile is fixed set to "output.txt"
- 
+
 
  Harbour functions:
  CurDir()
@@ -78,11 +78,11 @@ FUNCTION MAIN()
 
    LOCAL Testfunc, oFont , nheight
    LOCAL oButton1, oButton2, oButton3, oButton4, oButton5, oButton6, oButton7, oButton8, oButton9
-   LOCAL oButton10, oButton11 , oButton12 , oButton13 , oButton14 , oButton15 , oButton16 , oButton17
-   LOCAL oButton18, oButton19 , oButton20 , oButton21 , oButton22 , oButton23 , oButton24 , oButton25
+   LOCAL oButton10, oButton11 , oButton12 , oButton13 , oButton15 , oButton16 , oButton17
+   LOCAL oButton18, oButton19 , oButton20 , oButton22 , oButton23 , oButton24 , oButton25
    LOCAL oButton26, oButton27, oButton28, oButton29
    LOCAL oButton30, oButton31, oButton32, oButton33, obutton34, obutton35
-   LOCAL obutton36, obutton37, obutton38   
+   LOCAL obutton36, obutton37, obutton38
 
    LOCAL nspcbutton
 
@@ -93,23 +93,23 @@ FUNCTION MAIN()
 *    argv[0]: The argv[0] argument passed to the main()
 *    function contains the path and name of the executable file.
 *
-*    int main(int argc, char *argv[]) { 
-*        printf("Executable path: %s", argv[0]); 
-*        return 0; 
+*    int main(int argc, char *argv[]) {
+*        printf("Executable path: %s", argv[0]);
+*        return 0;
 *    }
-*    but this is reachable from Harbour and HWGUI by following sequence: 
-*  
+*    but this is reachable from Harbour and HWGUI by following sequence:
+*
  * Get the origin path and name
    coriginp := hb_argV( 0 )
-  
- * Change to origin directory  
+
+ * Change to origin directory
   IF .NOT. EMPTY(coriginp)
-     coriginchdir := hwg_Dirname(coriginp) 
+     coriginchdir := hwg_Dirname(coriginp)
      //ft_ChDir( coriginp )
      hwg_CHDIR(coriginchdir)
   ENDIF
-  
-         
+
+
 
    PUBLIC cDirSep := hwg_GetDirSep()
    PUBLIC bgtk , ndefaultcsrtype
@@ -286,30 +286,30 @@ FUNCTION MAIN()
                 { | | Test_hwg_MsgOkCancel() }
 
    /* Added August 2024 also for MacOS port */
-   
+
     @ 25 ,nspcbutton * 14 BUTTON oButton33 CAPTION "OS()" SIZE 140,nheight FONT oFont  ;
         STYLE WS_TABSTOP+BS_FLAT ON CLICK ;
                 { | | Test_hb_os() }
-                
+
     @ 25 ,nspcbutton * 15 BUTTON oButton34 CAPTION "Build date" SIZE 140,nheight FONT oFont  ;
         STYLE WS_TABSTOP+BS_FLAT ON CLICK ;
-                { | | Test_BuildDatetime() }  
-                            
+                { | | Test_BuildDatetime() }
+
     @ 25 ,nspcbutton * 16 BUTTON oButton35 CAPTION "Origin path" SIZE 140,nheight FONT oFont  ;
         STYLE WS_TABSTOP+BS_FLAT ON CLICK ;
-                { | | Test_originpath(coriginp) } 
+                { | | Test_originpath(coriginp) }
 
    @ 180 ,nspcbutton * 8 BUTTON obutton36 CAPTION "hwg_EOLStyle()" SIZE 140,nheight FONT oFont  ;
         STYLE WS_TABSTOP+BS_FLAT ON CLICK ;
                 { | | Test_hwg_EOLStyle() }
-                
-                
+
+
    @ 25 ,nspcbutton * 17 BUTTON obutton38 CAPTION "hwg_GetEpoch()" SIZE 140,nheight FONT oFont  ;
         STYLE WS_TABSTOP+BS_FLAT ON CLICK ;
                 { | | Test_hwg_GetEpoch() }
-                
+
    /* Last  obuttonxx is obutton38 */
-                
+
    /* Disable buttons for Windows only functions */
 #ifndef __PLATFORM__WINDOWS
    oButton8:Disable()
@@ -321,9 +321,10 @@ RETURN Nil
 
 FUNCTION HIDE_CURSOR ( oFont , nheight , Testfunc )
 
-   * Testfunc: object variable of main window only for GTK
-
    LOCAL odlg , oButton1 , oButton2 , oButton3 , ncursor , hmain
+
+   (testfunc) // -w3 -es2 where it is used ?????
+   * Testfunc: object variable of main window only for GTK
 
    * Init, otherwise crashes, if dialog closed without any action.
    ncursor := 0
@@ -560,14 +561,14 @@ FUNCTION Test_hwg_MsgOkCancel()
    LOCAL nretu
 
    nretu := hwg_MsgOkCancel("Press a button")
-   
-#ifdef __PLATFORM__WINDOWS   
+
+#ifdef __PLATFORM__WINDOWS
    hwg_MsgInfo( STR( nretu ) , "Return value of hwg_MsgOkCancel()" )
 #else
   hwg_MsgInfo( IIF( nretu , ".T.",".F." ) , "Return value of hwg_MsgOkCancel()" )
-#endif   
+#endif
 
-RETURN Nil   
+RETURN Nil
 
 FUNCTION do_the_RunApp()
 LOCAL cCmd , rc , cgt
@@ -769,8 +770,8 @@ LOCAL oLabel17, oLabel18, oLabel19, oLabel20, oLabel21, oLabel22 , oLabel23, oLa
 
    @ 130,13 SAY oLabel16 CAPTION "Set to file extension .prg"  SIZE 271,22
 
-   * After test case number in comment line: the expected result   
-   
+   * After test case number in comment line: the expected result
+
    * 1 : test.prg
    @ 40,50 SAY oLabel1 CAPTION "test.txt"  SIZE 152,22
    @ 237,50 SAY oLabel2 CAPTION ">"  SIZE 29,22
@@ -806,9 +807,9 @@ LOCAL oLabel17, oLabel18, oLabel19, oLabel20, oLabel21, oLabel22 , oLabel23, oLa
    * There is no file extension to remove
    @ 40,400 SAY oLabel23 CAPTION "/home/temp/test"  SIZE 134,22
    @ 237,400 SAY oLabel24 CAPTION ">"  SIZE 29,22
-   @ 338,400 SAY oLabel25 CAPTION hwg_ProcFileExt("/home/temp/test",,,"/")  SIZE 157,22   
- 
- 
+   @ 338,400 SAY oLabel25 CAPTION hwg_ProcFileExt("/home/temp/test",,,"/")  SIZE 157,22
+
+
    @ 205,508 BUTTON oButton1 CAPTION "OK"   SIZE 80,32 ;
         STYLE WS_TABSTOP+BS_FLAT ;
         ON CLICK {|| oDlg:Close() }
@@ -828,18 +829,18 @@ FUNCTION Test_BuildDatetime()
  hwg_MsgInfo("Build date = " + __DATE__ + CHR(10) + ;
              "Build time = " + __TIME__ , "Build"  )
 RETURN NIL
- 
- 
+
+
 FUNCTION Test_originpath(coriginp)
   hwg_MsgInfo("Origin path and name is :" + coriginp + CHR(10) + ;
    "Changed to directory at start : " + PWD() , "Test Originpath")
-RETURN NIL   
- 
+RETURN NIL
+
 * ================================================================= *
 FUNCTION PWD()
 * Returns the curent directory with trailing \ or /
 * so you can add a file name after the returned value:
-* fullpath := PWD() + "FILE.EXT" 
+* fullpath := PWD() + "FILE.EXT"
 * ================================================================= *
 
 LOCAL oDir
@@ -864,7 +865,7 @@ DO CASE
   cretuv := "EOLStyle = LINUX/UNIX: 0A (LF)"
  CASE ceolsty == CHR(13)
   cretuv := "MacOS: 0D (CR)"
- OTHERWISE 
+ OTHERWISE
   cretuv := "EOLStyle unknown"
 ENDCASE
 hwg_MsgInfo(cretuv,"hwg_EOLStyle()")
@@ -874,6 +875,6 @@ FUNCTION Test_hwg_GetEpoch()
 LOCAL nepoch
  nepoch := hwg_GetEpoch()
  Funkt( nepoch , "N" , "hwg_GetEpoch()")
-RETURN NIL 
+RETURN NIL
 
 * ============================== EOF of testfunc.prg ==============================

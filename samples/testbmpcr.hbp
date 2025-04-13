@@ -6,7 +6,7 @@
 # -mt
 
 -otestbmpcr
-
+-w1
 testbmpcr.prg
 
 # ===================== EOF of testbmpcr.hbp ====================

@@ -51,7 +51,7 @@
 ../samples/colrbloc.prg
 #../samples/datepicker.prg - dlgdpick.prg - on all.hbp
 ../samples/dbview.prg
-../samples/demodbf.prg
+../samples/testdemodbf.prg
 ../samples/demohlistsub.prg
 ../samples/fileselect.prg
 ../samples/getupdown.prg
@@ -80,7 +80,7 @@
 #../samples/tstcombo.prg - dlgcombo.prg - on all.hbp
 ../samples/TwoLstSub.prg
 ../samples/winprn.prg
-../samples/xmltree.prg
+../samples/testxmltree.prg
 #
 # Samples WinAPI only
 #

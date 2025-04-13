@@ -27,7 +27,7 @@ MEMVAR oWndMain
 
 FUNCTION Main()
 
-   LOCAL  oFont
+//   LOCAL  oFont
 
    PRIVATE oWndMain
 
@@ -35,7 +35,7 @@ FUNCTION Main()
    hwg_Settooltipballoon(.t.)
 #endif
 *   Parameter            Font Name,Breite,Hoehe
-   oFont := HFont():Add( "Courier", 0, -14 )
+   //oFont := HFont():Add( "Courier", 0, -14 )
 
    INIT WINDOW oWndMain MAIN TITLE "Default title"  ;
      AT 200,100 SIZE 500,500 ;

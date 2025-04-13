@@ -54,7 +54,7 @@ FUNCTION CreateChild( lClip )
 
    LOCAL cTitle := "Child Window #" + Str(len(aChilds)+1,2,0)
    LOCAL oIcon := HIcon():AddFile(cImagdir + "W.ico")
-   LOCAL oBmp  := HBitMap():AddFile(cImagdir + "logo.bmp")
+   //LOCAL oBmp  := HBitMap():AddFile(cImagdir + "logo.bmp")
    LOCAL cMenu := ""
    LOCAL bExit := { | oSelf | hwg_Msginfo( "Bye!" , "Destroy message from " + oSelf:title )  }
 

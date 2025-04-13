@@ -103,6 +103,8 @@ STATIC FUNCTION fKeyDown(oBrw, msg, wParam, lParam)
       ENDIF
    ENDIF
 
+   (lParam) // -w3 -es2
+
 RETURN .T.
 
 // --- Recordset ADO ---

@@ -3,8 +3,6 @@
 #
 # auto included hbmk.hbm
 
--odemodbf
-
-demodbf.prg
+testdemodbf.prg
 
 # ==================== EOF of demodbf.hbp ===============

@@ -42,13 +42,13 @@ PROCEDURE main
 
    LOCAL i
    LOCAL oAlert
-   LOCAL nResult
+   //LOCAL nResult
    LOCAL oMainWindow
-   LOCAL hCursor
+   //LOCAL hCursor
 
    hwg_Alert("Hello")
 
-   hCursor := Hwg_SetCursor(Hwg_LoadCursor(IDC_WAIT))
+   /* hCursor := */ Hwg_SetCursor(Hwg_LoadCursor(IDC_WAIT))
         // not Modal, param 7
    SetDefaultAlert( , , 10, IDI_HAND, , , ALERT_NOTMODAL, , , , , ALERT_NOCLOSEBUTTON)
         // Note default aOptions overriden with empty array
@@ -59,7 +59,7 @@ PROCEDURE main
    NEXT
    hwg_ReleaseDefaultAlert()
    hwg_GetDefaultAlert():ResetVars()
-   hCursor := Hwg_SetCursor(hCursor)
+   //hCursor := Hwg_SetCursor(hCursor)
 
    ResetDefaultAlert()
    // Can't close - shows icon in title bar (and task bar)
@@ -81,7 +81,7 @@ PROCEDURE main
       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", "Alert")))
 
    SetDefaultAlert("Error", , , IDI_ERROR, , SS_LEFT)
-   nResult := hwg_Alert("This is how an error with Alert looks")
+   /* Result := */ hwg_Alert("This is how an error with Alert looks")
    // By way of comparison to "error look" of MessageBox
    Hwg_MsgStop("This is how an error with Hwg_MsgStop looks!", "Error")
 
@@ -107,7 +107,7 @@ PROCEDURE main
    oAlert:Time := 5
    oAlert:Icon := IDI_APPLICATION
    oAlert:TitleIcon := .t.
-   nResult := hwg_Alert("5s and we are done;but you can hit enter first!")
+   /* nResult := */ hwg_Alert("5s and we are done;but you can hit enter first!")
        // Remember to switch this off for new alerts
    oAlert:Time := 0
    oAlert:Icon := IDI_INFORMATION

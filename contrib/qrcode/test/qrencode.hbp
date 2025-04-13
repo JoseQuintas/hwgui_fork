@@ -1,0 +1,16 @@
+#
+# $Id$
+#
+# auto included hbmk.hbm
+
+# hbwin.hbc
+# xhb.hbc
+
+-lqrcodegen
+-lhbqrencode
+
+-oqrencode
+
+qrencode.prg
+
+# ==================== EOF of qrencode.hbp ===============

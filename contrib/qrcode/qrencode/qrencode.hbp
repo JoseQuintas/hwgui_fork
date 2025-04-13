@@ -1,0 +1,34 @@
+#
+# $Id$
+#
+
+# ../../hwgui.hbc
+
+{win}../../hwgui.hbc
+# GTK2
+{darwin}../../hwgui_mac.hbc
+{linux}../../hwgui.hbc
+
+# GTK3: Deactivate previous line
+# and activate following line
+#{linux}../../hwguiGTK3.hbc
+#{darwin}../../hwgui_mac_gtk3.hbc
+
+
+-hblib
+
+-o../../lib/hbqrencode
+
+-w3
+
+-I./include
+
+# Uncomment these two lines to build HwGUI in Unicode mode
+#-prgflag=-DUNICODE
+#-cflag=-DUNICODE
+
+#-cflag=-DHWG_USE_POINTER_ITEM
+libqrencode.prg
+qrencode.c
+
+# ============================ EOF of qrencode.hbp ======================================

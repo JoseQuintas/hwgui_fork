@@ -33,14 +33,14 @@
 *  stretch.exe x
 * To use BITMAP ...  SHOW command call by
 *  stretch.exe
-* 
+*
 *
 * The workaroud solution:
 * (because dk_pixbuf_loader_set_size() has no effect , bug in GTK ?)
 * Store the image string with MEMOWRIT() in a temporary file
 * and reload it. While loading a file, the image is resized as desired.
 
-* @ 110,0 BITMAP oBitmap  SHOW oBmp .. works correct an both OS's 
+* @ 110,0 BITMAP oBitmap  SHOW oBmp .. works correct an both OS's
 
 * Comment this define out for reading bitmap from file
 * The new functions are ready for WinAPI and GTK
@@ -72,20 +72,21 @@ FUNCTION Main( lStretch )
 
    LOCAL cDirSep := hb_PS() //PATH SEPARATOR
    LOCAL cImagePath := ".." + cDirSep + "image" + cDirSep
+#ifndef BYHEXDUMP
    LOCAL cImageMain := cImagePath + "hwgui.bmp"
-   
-   
-   LOCAL c
+#endif
 
- 
+   //LOCAL c
+
+
 
    // Here default is resized image
    // But works only with WinAPI, not GTK.
 
    nPosX := hwg_Getdesktopwidth()
    nPosY := hwg_Getdesktopheight()
-   
-   lStretch := IIF( lStretch == NIL, lStretch := .T.,lStretch := .F.)  
+
+   lStretch := IIF( lStretch == NIL, lStretch := .T.,lStretch := .F.)
 
 * Several ways for access to bitmap
 * Activate one of this features by comment them out
@@ -97,9 +98,9 @@ FUNCTION Main( lStretch )
 #ifndef BYHEXDUMP
 
    CHECK_FILE( cImageMain )
-   
+
    * Strech it
-   IF lStretch    
+   IF lStretch
      oBmp := HBitmap():AddFile(cImageMain,,.F.,hwg_Getdesktopwidth() - 100 ,hwg_Getdesktopheight()-21)
    ELSE
    * Original size / tiled
@@ -107,41 +108,41 @@ FUNCTION Main( lStretch )
    ENDIF
 
 #else
-   * ==============   
+   * ==============
    * From hex dump
    * ==============
-   
- 
-  IF lStretch 
-   * By original size / tiled 
+
+
+  IF lStretch
+   * By original size / tiled
    * and resized by BITMAP ... SHOW command
      oBmp := HBitmap():AddString("hwgui",hwg_cHex2Bin(ini_hwgui_bmp()) )
    ELSE
     *
     * Background image
-    * By original size / tiled 
+    * By original size / tiled
     //  oBmp := HBitmap():AddString("hwgui",hwg_cHex2Bin(ini_hwgui_bmp()) )
- 
+
     * Strech it by hwg_Stretch_BMP_i()
     * Returns a bitmap binary string image and must be converted to a bitmap
     * object
      cBmp := hwg_Stretch_BMP_i( hwg_cHex2Bin(ini_hwgui_bmp()), "hwgui" ,nPosX, nPosY)
-     oBmp := HBitmap():AddString("hwgui",cBmp)  && Write streched bmp to object variable 
-     
-      * ALternative method on : LINUX: Stretch by GTK function 
-//      oBmp := HBitmap():AddString( "hwgui", hwg_cHex2Bin(ini_hwgui_bmp()) , nPosX, nPosY ) 
+     oBmp := HBitmap():AddString("hwgui",cBmp)  && Write streched bmp to object variable
+
+      * ALternative method on : LINUX: Stretch by GTK function
+//      oBmp := HBitmap():AddString( "hwgui", hwg_cHex2Bin(ini_hwgui_bmp()) , nPosX, nPosY )
       && source code in drawwidg.prg
      #endif
 
     ENDIF
-  
- 
+
+
     * Check for transparent
     * Color white (FFFFFF = 16777215) handled as transparent color,
     * Default is 00FFF.
      CHECK_FILE( cImagePath + "cancel.bmp" )
      oBitmtrsp := HBitmap():AddFile(cImagePath + "cancel.bmp",,.F.)
- 
+
     * ===========
     * Debug tests
     * ===========
@@ -149,14 +150,14 @@ FUNCTION Main( lStretch )
      // IF .NOT. hwg_is_object(oBmp)
      // hwg_MsgStop("oBmp is not an object!","Error")
      // ENDIF
- 
-    
+
+
     // Write TOC of bitmap to logfile
     //  BMPTOC2Logfile(oBmp)
 
 
 
-  
+
      * Display size of recent desktop, it is equal to the size of screen.
    hwg_msginfo("X=" + STR(nPosX) + CHR(10) + "Y=" + STR(nPosY) + CHR(10) + ;
       "lStretch=" + IIF(lStretch,"True","False") )
@@ -168,7 +169,7 @@ FUNCTION Main( lStretch )
          SIZE nPosX - 10, nPosY - 100 // Here resize of background image (stretch)
          // 301, 160
 
- 
+
       * Transparent test
       @ 110,100 BITMAP oBitmtrsp  OF oFormMain ;
          TRANSPARENT COLOR 16777215
@@ -192,7 +193,7 @@ FUNCTION Main( lStretch )
       * Transparent test
       @ 110,100 BITMAP oBitmtrsp  OF oFormMain ;
          TRANSPARENT COLOR 16777215
-      
+
 
       @ 25,25 BUTTON oQuitButton CAPTION "Exit" SIZE 75,32 ;
       ON CLICK { | | oFormMain:Close() }

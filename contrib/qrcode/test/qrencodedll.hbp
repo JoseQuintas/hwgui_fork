@@ -1,0 +1,20 @@
+#
+# $Id$
+#
+# auto included hbmk.hbm
+
+{linux}-stop="Windows only"
+{darwin}-stop="Windows only"
+{unix}-stop="Windows only"
+
+# hbwin.hbc
+xhb.hbc
+
+# -lqrcodegen
+# -lhbqrencode
+
+-oqrencodedll
+
+qrencodedll.prg
+
+# ==================== EOF of qrencodedll.hbp ===============

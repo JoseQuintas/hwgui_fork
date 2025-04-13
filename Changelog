@@ -15,54 +15,45 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2025-04-13 01:30 UTC-0200 JoseQuintas jmcquintas-gmail.com
-   - samples/arraybrowse.hbp
-   - samples/arraybrowse.prg
-   + samples/testbrowsearr.hbp
-   + samples/testbrowsearr.prg
-     ! rename
-   - samples/dlgbrwdbf.prg
-   + samples/testbrowsedbf.prg
-     ! rename
-   - samples/dlgcombo.prg
-   + samples/testcombobox.prg
-     ! rename
-   - samples/checkbox.hbp
-   - samples/checkbox.prg
-   + samples/testcheckbox.hbp
-   + samples/testcheckbox.prg\
-     ! rename
-   - samples/dlgdpick.prg
-   + samples/testdatepick.prg
-     ! rename
-   - samples/dlghmonth.prg
-   + samples/testhmonth.prg
-     ! rename
-   - samples/dlgmenu1.prg
-   + samples/testmenu1.prg
-     ! rename
-   - samples/dlgmenumt.prg
-   - samples/dlgmenumt.hbp
-   + samples/testmenumt.hbp
-   + sanmples/testmenumt.prg
-      ! rename
-   - samples/dlgxml.prg
-   + samples/testmenuxml.prg
-     ! rename
-   - samples/dlgbot.prg
-   + samples/testother.prg
-     ! rename
-   - samples/dlgshadebtn.prg
-   - samples/testshadebtn.prg
-     ! rename
-   - samples/dlgsplit.prg
-   + samples/testsplit.prg
-     ! rename
-   - samples/iesample.hbp
-   - samples/iesample.prg
-   + test/iesample.hbp
-   + test/iesample.prg
-     ! Moved, not sample anymore
+2025-04-13 08:00 UTC-0200 Jose Quintas jmcquintas-gmail.com
+   * rename samples/demodbf.* to samples/testdemodbf.*
+   * rename samples/testxmltree.* to samples/testxmltree.*
+   * move contrib/qrencode/* to contrib/qrcode/qrencode/*
+   * move contrib/qrdecode/* to contrib/qrcode/qrdecode/*
+   * move samples/qr* to contrib/qrcode/test/*
+     ! specific sample with dependencies
+  * move test/iesample.* to test/samples/iesample.*
+  * samples/testado.prg
+  * samples/modtitle.prg
+  * samples/nice2.prg
+  * samples/night.prg
+  * samples/pseudocm.prg
+  * samples/stretch.prg
+  * samples/testalert.prg
+  * samples/testbmpcr.hbp
+  * samples/testchild.prg
+  * samples/testfunc.prg
+  * samples/testget1.prg
+  * samples/testini.prg
+    ! fix warnings -e3 -es2, window CENTER
+  * all.prg
+    ! qrcode* removed from menu
+  ! sorry about too renames
+
+2025-04-13 01:30 UTC-0200 Jose Quintas jmcquintas-gmail.com
+   * rename samples/arraybrowse.* to samples/testbrowsearr.*
+   * rename samples/dlgbrwdbf.prg to samples/testbrowsedbf.prg
+   * rename samples/dlgcombo.prg to samples/testcombobox.prg
+   * rename samples/checkbox.* to samples/testcheckbox.*
+   * rename samples/dlgdpick.prg to samples/testdatepick.prg
+   * rename samples/dlghmonth.prg to samples/testhmonth.prg
+   * rename samples/dlgmenu1.prg to samples/testmenu1.prg
+   * rename samples/dlgmenumt.* to samples/testmenumt.*
+   * rename samples/dlgxml.prg to samples/testmenuxml.prg
+   * rename samples/dlgbot.prg to samples/testother.prg
+   * rename samples/dlgshadebtn.prg to samples/testshadebtn.prg
+   * rename samples/dlgsplit.prg to samples/testsplit.prg
+   * move samples/iesample.* to test/iesample.*
    * samples/imageview.prg
    * samples/tab.prg
      ! fix warnings -w3 -es2
@@ -74,7 +65,7 @@
    ! renaming to avoid reserved name, samples will be testxxxx
    ! internal samples functions to STATIC
 
-2025-04-12 21:00 UTC-0200 JoseQuintas jmcquintas-gmail.com
+2025-04-12 21:00 UTC-0200 Jose Quintas jmcquintas-gmail.com
    * samples/grid_2.prg
    * samples/grid_3.prg
    * samples/tab.prg
@@ -84,14 +75,14 @@
      ! Samples as EXE, can build them, with or without hbp
      ! TO DO: Review samples folder
 
-2025-04-11 20:20 UTC-0200 JoseQuintas jmcquintas-gmail.com
+2025-04-11 20:20 UTC-0200 Jose Quintas jmcquintas-gmail.com
    + test/windowonly.prg
      ! window main call window and don't open
    ! Note about previous commit:
    ! on samples/ using hbmk2 *.hbp (this includes allhbp.hbp)
    ! on test/    using hbmk2 *.hbp
 
-2025-04-11 20:00 UTC-0200 JoseQuintas jmcquintas-gmail.com
+2025-04-11 20:00 UTC-0200 Jose Quintas jmcquintas-gmail.com
    * *.hbp
      ! define max -w level for all
    * test/hbmk.hbm
@@ -111,7 +102,7 @@
    * utils/editor/editor.hbp
      ! -w1
 
-2025-04-11 12:00 UTC-0200 JoseQuintas jmcquintas-gmail.com
+2025-04-11 12:00 UTC-0200 Jose Quintas jmcquintas-gmail.com
    * samples/buildpelles.prg
    * samples/colrbloc.prg
    * samples/graph.prg

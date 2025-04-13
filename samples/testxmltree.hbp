@@ -3,8 +3,6 @@
 #
 # auto included hbmk.hbm
 
--oxmltree
-
-xmltree.prg
+testxmltree.prg
 
 # ==================== EOF of xmltree.hbp ===============

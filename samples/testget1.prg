@@ -58,14 +58,16 @@ RETURN Nil
 FUNCTION DlgGet()
 
    LOCAL oModDlg, oFont
-   LOCAL cRes, oCombo, aCombo := { "First","Second" }
+   LOCAL oCombo, aCombo := { "First","Second" }
    LOCAL oGet
    LOCAL e1 := "Dialog from prg", c1 := .F., c2 := .T., r1 := 2, cm := 1
    LOCAL upd := 12, d1 := Date()+1
-   LOCAL odGet, oDateOwb   && For DATEPICKER substitute
    LOCAL nxsizedia
 
 #ifdef __GTK__
+   LOCAL odGet
+   LOCAL oDateOwb   && For DATEPICKER substitute
+
    nxsizedia := 450
 #else
    nxsizedia := 350
@@ -157,7 +159,7 @@ FUNCTION Cal_Dialog()
 
    LOCAL ddatum, daltdatum, Ctext
 
-   Ctext := "Calendar"
+   //Ctext := "Calendar"
    daltdatum := DATE()
    * Starts with today
    ddatum := hwg_pCalendar()
@@ -179,7 +181,7 @@ FUNCTION DLG_MONTHCALENDAR()
    LOCAL oMC , dheute , lcancel , dnewdate , daltdatum
    Local oFont , Ctext
 
-   Ctext := "MONTHCALENDAR"
+   //Ctext := "MONTHCALENDAR"
 
    * Today (based on local time)
    dheute := Date()

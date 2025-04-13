@@ -34,7 +34,7 @@ STATIC oFont
 
 FUNCTION MAIN()
 
-   LOCAL oDlg, oPanel, oPaneTop , oButton
+   LOCAL oDlg, oPanel, oButton // oPaneTop
    LOCAL cTitle := "Header"
 
 

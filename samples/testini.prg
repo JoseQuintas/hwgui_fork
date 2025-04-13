@@ -7,10 +7,10 @@
  * The dafault path for Windows INI files is:
  * C:\Users\<userid>\AppData\Local\VirtualStore\Windows
  * (Windows 11)
- * 
+ *
  * For multi platform usage see project CLLOG:
  * https://sourceforge.net/p/cllog/code/HEAD/tree/trunk/src/libini.prg
- * It is an extract of Harbour code with some modifications 
+ * It is an extract of Harbour code with some modifications
  * and processes Windows like inifiles.
  */
 
@@ -30,7 +30,6 @@ FUNCTION Main()
 
     ENDIF
 
-
    INIT WINDOW oMainWindow MAIN TITLE "Example" ;
      AT 200,0 SIZE 400,150
 
@@ -39,7 +38,7 @@ FUNCTION Main()
       MENUITEM "&Read Ini" ACTION ReadIni()
    ENDMENU
 
-   ACTIVATE WINDOW oMainWindow
+   ACTIVATE WINDOW oMainWindow CENTER
 
 RETURN Nil
 

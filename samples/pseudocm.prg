@@ -14,7 +14,7 @@ MEMVAR aSample
 
 FUNCTION Main()
 
-   LOCAL oBmp
+   LOCAL oBmp := Nil // -w3 -es2 but no value and is used
    LOCAL oBrw, Form_Main
    // LOCAL oFontBtn
 
@@ -39,7 +39,7 @@ FUNCTION Main()
 
    @ 160, 10 BROWSE oBrw ARRAY SIZE 180, 180 ;
       STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL ;
-      ON RIGHTCLICK { |o, nrow, ncol| SUBMNU_BRW( ncol, nrow ) }
+      ON RIGHTCLICK { |o, nrow, ncol| (o), SUBMNU_BRW( ncol, nrow ) }
 
    hwg_CREATEARLIST( oBrw, aSample )
 
@@ -60,6 +60,7 @@ FUNCTION SUBMNU_BRW( nCol, nRow )
       nrp := ncol
       oMenuBrw:Show( HWindow():GetMain() )
    ENDIF
+   (nRow) // -w3 -es2
 
 RETURN Nil
 
