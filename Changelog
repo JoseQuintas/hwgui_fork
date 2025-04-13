@@ -15,6 +15,65 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-13 01:30 UTC-0200 JoseQuintas jmcquintas-gmail.com
+   - samples/arraybrowse.hbp
+   - samples/arraybrowse.prg
+   + samples/testbrowsearr.hbp
+   + samples/testbrowsearr.prg
+     ! rename
+   - samples/dlgbrwdbf.prg
+   + samples/testbrowsedbf.prg
+     ! rename
+   - samples/dlgcombo.prg
+   + samples/testcombobox.prg
+     ! rename
+   - samples/checkbox.hbp
+   - samples/checkbox.prg
+   + samples/testcheckbox.hbp
+   + samples/testcheckbox.prg\
+     ! rename
+   - samples/dlgdpick.prg
+   + samples/testdatepick.prg
+     ! rename
+   - samples/dlghmonth.prg
+   + samples/testhmonth.prg
+     ! rename
+   - samples/dlgmenu1.prg
+   + samples/testmenu1.prg
+     ! rename
+   - samples/dlgmenumt.prg
+   - samples/dlgmenumt.hbp
+   + samples/testmenumt.hbp
+   + sanmples/testmenumt.prg
+      ! rename
+   - samples/dlgxml.prg
+   + samples/testmenuxml.prg
+     ! rename
+   - samples/dlgbot.prg
+   + samples/testother.prg
+     ! rename
+   - samples/dlgshadebtn.prg
+   - samples/testshadebtn.prg
+     ! rename
+   - samples/dlgsplit.prg
+   + samples/testsplit.prg
+     ! rename
+   - samples/iesample.hbp
+   - samples/iesample.prg
+   + test/iesample.hbp
+   + test/iesample.prg
+     ! Moved, not sample anymore
+   * samples/imageview.prg
+   * samples/tab.prg
+     ! fix warnings -w3 -es2
+   * samples/all.hbp
+   * samples/all.prg
+   * samples/allhbp.hbp
+     ! update names
+   ! reviewing samples folder
+   ! renaming to avoid reserved name, samples will be testxxxx
+   ! internal samples functions to STATIC
+
 2025-04-12 21:00 UTC-0200 JoseQuintas jmcquintas-gmail.com
    * samples/grid_2.prg
    * samples/grid_3.prg

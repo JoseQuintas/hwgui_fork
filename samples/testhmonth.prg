@@ -18,7 +18,7 @@
 //================================================================//
 
 #ifdef __USING_MENU__
-   FUNCTION DlgHMonth()
+   FUNCTION TestHMonth()
 #else
    FUNCTION Main()
 #endif
@@ -30,7 +30,7 @@
 
    hwg_Settooltipballoon(.t.)
 
-   INIT DIALOG oWnd TITLE "DLGHMONTH - Controle MonthCalendar" ;
+   INIT DIALOG oWnd TITLE "TESTHMONTH - Controle MonthCalendar" ;
       AT 100,100 SIZE 640,480
 
    MENU OF oWnd

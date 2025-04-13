@@ -46,7 +46,7 @@
 # Samples WinAPI and LINUX/GTK
 #
 ../samples/all.hbp
-../samples/arraybrowse.prg
+../samples/testbrowsearr.prg
 ../samples/bincnts.prg
 ../samples/colrbloc.prg
 #../samples/datepicker.prg - dlgdpick.prg - on all.hbp
@@ -119,7 +119,7 @@
 # --- Outdated ---
 # ../samples/helpdemo.prg
 # ../samples/hole.prg
-# ../samples/iesample.hbp
+# ../test/iesample.hbp
 # ../samples/tstprdos.prg
 #
 ../samples/testhgt.hbp

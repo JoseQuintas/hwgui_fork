@@ -1,6 +1,6 @@
 /*
  *
- * dlgdpick.prg
+ * testdatepick.prg
  *
  * $Id$
  *
@@ -27,7 +27,7 @@
 #include "hwgui.ch"
 
 #ifdef __USING_MENU__
-   FUNCTION DlgDPick()
+   FUNCTION TestDatePick()
 #else
    FUNCTION Main()
 #endif
@@ -40,7 +40,7 @@
    * Remember old date
    daltdatum := d1
 
-   INIT DIALOG oModDlg TITLE "DLGDPICK - Datepicker"  ;
+   INIT DIALOG oModDlg TITLE "TESTDATEPICK - Datepicker"  ;
       AT 210,10  SIZE 350,300                  ;
       FONT oFont NOEXIT
 

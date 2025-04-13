@@ -5,15 +5,16 @@
 #
 
 all.prg
-dlgbrwdbf.prg
-{win}dlgbot.prg
-dlgcombo.prg
-dlgdpick.prg
-dlgmenu1.prg
-dlghmonth.prg
-{win}dlgshadebtn.prg
-dlgsplit.prg
-dlgxml.prg
+testbrowsedbf.prg
+{win}testonother.prg
+testcombobox.prg
+testdatepick.prg
+testmenu1.prg
+testhmonth.prg
+{win}testshadebtn.prg
+testsplit.prg
+testcheckbox.prg
+testmenuxml.prg
 
 -d__USING_MENU__
 

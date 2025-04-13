@@ -1,5 +1,5 @@
 /*
- * test_bot.prg
+ * testonother.prg
  *
  * HWGUI sample display key codes
  *
@@ -15,7 +15,7 @@
 #INCLUDE "hwgui.CH"
 
 #ifdef __USING_MENU__
-   FUNCTION DlgBot()
+   FUNCTION TestOnOther()
 #else
    FUNCTION Main()
 #endif
@@ -23,7 +23,7 @@
    LOCAL oDlg
 
    INIT DIALOG oDlg ;
-      TITLE "DLGBOT - ON OTHER MESSAGES"  ;
+      TITLE "TESTONOTHER - ON OTHER MESSAGES"  ;
       SIZE 500, 500 ;
       ON OTHER MESSAGES { | a, b, c, d | OnOtherMessages( a, b, c, d ) }
 

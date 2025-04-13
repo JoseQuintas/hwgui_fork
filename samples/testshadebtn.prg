@@ -1,5 +1,5 @@
 /*
- * $Id: shadebtn.prg,v 1.1 2006/12/29 10:18:55 alkresin Exp $
+ * $Id: testshadebtn.prg,v 1.1 2006/12/29 10:18:55 alkresin Exp $
  * Shade buttons sample
  *
 */
@@ -7,7 +7,7 @@
 #include "hwgui.ch"
 
 #ifdef __USING_MENU__
-   FUNCTION DlgShadeBtn()
+   FUNCTION TestShadeBtn()
 #else
    FUNCTION Main()
 #endif
@@ -18,7 +18,7 @@
 
    PREPARE FONT oFont NAME "Times New Roman" WIDTH 0 HEIGHT 20 WEIGHT 400
 
-   INIT WINDOW oMainWindow TITLE "DLGSHADEBTN - Shade Buttons" ;
+   INIT WINDOW oMainWindow TITLE "TESTSHADEBTN - Shade Buttons" ;
      AT 200,0 SIZE 480,220 SYSCOLOR COLOR_3DLIGHT+1
 
    @ 10,10 SHADEBUTTON SIZE 100,36 TEXT "Metal" FONT oFont EFFECT SHS_METAL PALETTE PAL_METAL

@@ -1,7 +1,7 @@
 /*
- dlgmenu.prg
+ testmenumt.prg
  menu using multithread
- need dlgBrwDbf.prg
+ need testbrowsedbf.prg
  compile using -mt
 
 CAUTION
@@ -30,7 +30,7 @@ FUNCTION Main()
 
    LOCAL oDlg, nCont := 1
 
-   INIT DIALOG oDlg TITLE "DLGMENUMT - Menu using Multithread" ;
+   INIT DIALOG oDlg TITLE "TESTMENUMT - Menu using Multithread" ;
      AT 200,0 SIZE 400,150
 
    MENU OF oDlg
@@ -48,7 +48,7 @@ STATIC FUNCTION DoMt( nCont )
 
    hb_gtReload( hb_gtInfo( HB_GTI_VERSION ) )
    hwg_initProc() // init hwgui on thread
-   DlgBrwDbf( nCont )
+   TestBrowseDBF( nCont )
 
    RETURN Nil
 

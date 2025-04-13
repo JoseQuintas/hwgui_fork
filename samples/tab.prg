@@ -65,7 +65,8 @@ FUNCTION Main()
       ENDMENU
    ENDMENU
 
-   oWinMain:Activate()
+   ACTIVATE WINDOW oWinMain CENTER
+   // oWinMain:Activate()
 
 RETURN Nil
 
@@ -166,7 +167,7 @@ oTab:StartPage( "pagina2",aDlg2 ),    oTab:EndPage(),otab:changepage(1)
 * REDEFINE TAB oTab ID IDC_1 COLOR 65280 BACKCOLOR 255
 
 
-  ACTIVATE DIALOG oDlg1
+  ACTIVATE DIALOG oDlg1 CENTER
 
 RETURN Nil
 

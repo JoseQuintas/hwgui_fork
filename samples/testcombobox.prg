@@ -1,5 +1,5 @@
 /*
- * $Id: tstcombo.prg,v 1.2 2004/05/13 12:46:20 rodrigo_moreno Exp $
+ * $Id: testcombobox.prg,v 1.2 2004/05/13 12:46:20 rodrigo_moreno Exp $
  *
  * HWGUI - Harbour Win32 GUI library source code:
  * HGrid class
@@ -30,7 +30,7 @@
 Static oMain,  oFont && oBar && oForm,
 
 #ifdef __USING_MENU__
-   FUNCTION dlgCombo()
+   FUNCTION TestCombobox()
 #else
    FUNCTION MAIN()
 #endif
@@ -55,7 +55,7 @@ Static oMain,  oFont && oBar && oForm,
 
    PREPARE FONT oFont NAME "Courier New" WIDTH 0 HEIGHT -11
 
-   INIT DIALOG oForm  TITLE "DLGCOMBO - ComboBox Demo"; && CLIPPER NOEXIT
+   INIT DIALOG oForm  TITLE "TESTCOMBOBOX - ComboBox Demo"; && CLIPPER NOEXIT
       AT 0, 0 SIZE 700, 425 && ;
 //    STYLE DS_CENTER + WS_VISIBLE + WS_POPUP + WS_VISIBLE + WS_CAPTION + WS_SYSMENU
 

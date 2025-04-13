@@ -1,6 +1,6 @@
 /*
  *
- * dlgsplit.prg
+ * testplit.prg
  *
  * $Id$
  *
@@ -42,7 +42,7 @@
 // #endif
 
 #ifdef __USING_MENU__
-   FUNCTION DlgSplit()
+   FUNCTION TestSplit()
 #else
    FUNCTION Main()
 #endif
@@ -58,7 +58,7 @@
    cVal_Wcur2 := hwg_cHex2Bin( hex_splith() )
 *   cVal_Wcur3 := hwg_cHex2Bin( hex_transistor() )
 
-   INIT DIALOG oDlg TITLE "DLGSPLIT - Split windows example"  ;
+   INIT DIALOG oDlg TITLE "TESTSPLIT - Split windows example"  ;
      ; //SYSCOLOR COLOR_3DLIGHT+1 ; // not valid for dialog
      AT 200,0 SIZE 420,300 ;
      FONT oFont

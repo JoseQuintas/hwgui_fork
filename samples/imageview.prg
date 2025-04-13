@@ -72,7 +72,7 @@ FUNCTION ViewImg( ctype, nresize )
 
    LOCAL odlg, oSayImg , oImg
    LOCAL cs := hwg_GetDirSep()
-   LOCAL fname , mypath , nWidth , nHeight , osay , cstr , noHeight , noWidth
+   LOCAL fname , mypath , nWidth , nHeight , cstr , noHeight , noWidth // oSay
 
    IF nresize == NIL
       nresize := 1

@@ -48,14 +48,16 @@ FUNCTION Main()
 
 RETURN Nil
 
-FUNCTION DlgGet()
+STATIC FUNCTION DlgGet()
 
    LOCAL oBmp
    LOCAL oModDlg, oBrw1, oBrw2
    LOCAL aSample1 := { {"Alex",17,2500}, {"Victor",42,2200}, {"John",31,1800}, ;
       {"Sebastian",35,2000}, {"Mike",54,2600}, {"Sardanapal",22,2350}, {"Sergey",30,2800}, {"Petr",42,2450} }
    LOCAL aSample2 := { {.t.,"Line 1",10}, {.t.,"Line 2",22}, {.f.,"Line 3",40} }
+#ifdef __GTK__
    LOCAL cValTrue
+#endif
 
    INIT DIALOG oModDlg TITLE "About" AT 190,10 SIZE 600,320
 
@@ -66,9 +68,9 @@ FUNCTION DlgGet()
         STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
 
    oBrw1:aArray := aSample1
-   oBrw1:AddColumn( HColumn():New( "Name",{|v,o|o:aArray[o:nCurrent,1]},"C",12,0,.F.,DT_CENTER ) )
-   oBrw1:AddColumn( HColumn():New( "Age",{|v,o|o:aArray[o:nCurrent,2]},"N",6,0,.T.,DT_CENTER,DT_RIGHT ) )
-   oBrw1:AddColumn( HColumn():New( "Koef",{|v,o|o:aArray[o:nCurrent,3]},"N",6,0,.F.,DT_CENTER,DT_RIGHT ) )
+   oBrw1:AddColumn( HColumn():New( "Name",{|v,o| (v), o:aArray[o:nCurrent,1]},"C",12,0,.F.,DT_CENTER ) )
+   oBrw1:AddColumn( HColumn():New( "Age",{|v,o| (v), o:aArray[o:nCurrent,2]},"N",6,0,.T.,DT_CENTER,DT_RIGHT ) )
+   oBrw1:AddColumn( HColumn():New( "Koef",{|v,o| (v), o:aArray[o:nCurrent,3]},"N",6,0,.F.,DT_CENTER,DT_RIGHT ) )
    oBrw1:aColumns[2]:footing := "Age"
    oBrw1:aColumns[2]:lResizable := .F.
 
@@ -105,7 +107,7 @@ STATIC FUNCTION BrwKey( oBrw, key )
 RETURN .T.
 
 #ifdef __GTK__
-FUNCTION true_bmp()
+STATIC FUNCTION true_bmp()
 
    * Hexdump of true.bmp, needed for GTK
 RETURN ;

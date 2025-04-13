@@ -1,5 +1,5 @@
 /*
- * $Id: testxml.prg,v 1.2 2007/04/07 16:33:18 alkresin Exp $
+ * $Id: testmenuxml.prg,v 1.2 2007/04/07 16:33:18 alkresin Exp $
  *
  * This sample demonstrates reading/writing XML file and handling menu items
  * while run-time.
@@ -58,7 +58,7 @@ REQUEST HB_CODEPAGE_UTF8
 MEMVAR oXmlDoc, lIniChanged, nCurrentItem , oDlg, oFont
 
 #ifdef __USING_MENU__
-   FUNCTION DlgXML()
+   FUNCTION TestMenuXml()
 #else
    FUNCTION Main()
 #endif
@@ -75,11 +75,11 @@ MEMVAR oXmlDoc, lIniChanged, nCurrentItem , oDlg, oFont
 #endif
    HB_LANGSELECT("DE")
 
-   oXmlDoc := HXMLDoc():Read( "testxml.xml" )
+   oXmlDoc := HXMLDoc():Read( "testmenuxml.xml" )
 
    PREPARE FONT oFont NAME "Times New Roman" WIDTH 0 HEIGHT -17 && CHARSET 0 && 204 = Russian
 
-   INIT DIALOG oDlg TITLE "DLGXML - XML Sample"  ;
+   INIT DIALOG oDlg TITLE "TESTMENUXML - XML Sample"  ;
      ; // SYSCOLOR COLOR_3DLIGHT+1 ; // not valid for dialog
      AT 200,0 SIZE 600,300 ;
      ON EXIT {||SaveOptions()} ;
