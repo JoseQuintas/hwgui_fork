@@ -22,6 +22,8 @@ STATIC nCount := 50, conn, leof := .F.
 
 FUNCTION Main()
 
+   LOCAL res
+
    SET (_SET_DATEFORMAT, "yyyy-mm-dd")
    CriaBase()
 
@@ -80,17 +82,21 @@ RETURN Nil
 
 FUNCTION OnKey( o, k )
 
+   (o); (k) // -w3 -es2
    // hwg_Msginfo(str(k))
 
 RETURN Nil
 
 FUNCTION OnPosChange( o, row )
 
+   (o); (row) // -w3 -es2
    //    hwg_Msginfo( str(row) )
 
 RETURN Nil
 
 FUNCTION OnClick( o )
+
+   (o) // -w3 -es2
 
    //    hwg_Msginfo( 'click' )
 
@@ -98,7 +104,9 @@ RETURN Nil
 
 FUNCTION OnDispInfo( o, x, y )
 
-   LOCAL result := '', i
+   LOCAL result := '', i, res
+
+   (o) // -w3 -es2
 
    IF x > Lastrec() .and. ! lEof
       res := PQexec(conn, 'FETCH FORWARD 10 FROM cursor_1')
@@ -125,17 +133,19 @@ FUNCTION OnDispInfo( o, x, y )
    IF x <= Lastrec()
       dbgoto( x )
       IF y == 1
-         result := str(code)
+         result := str( field->code )
       ELSEIF y == 2
-         result := dtoc( creation )
+         result := dtoc( field->creation )
       ELSEIF y == 3
-         result := descr
+         result := field->descr
       ENDIF
    ENDIF
 
 RETURN result
 
 FUNCTION CriaBase()
+
+   LOCAL res, I
 
    IF File('trash.dbf')
       FErase( 'trash.dbf' )

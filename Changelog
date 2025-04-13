@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-12 21:00 UTC-0200 JoseQuintas jmcquintas-gmail.com
+   * samples/grid_2.prg
+   * samples/grid_3.prg
+   * samples/tab.prg
+     ! fix warnings -w3 -es2
+   * samples/all.prg
+     ! Now a tool to easy view/review samples folder
+     ! Samples as EXE, can build them, with or without hbp
+     ! TO DO: Review samples folder
+
 2025-04-11 20:20 UTC-0200 JoseQuintas jmcquintas-gmail.com
    + test/windowonly.prg
      ! window main call window and don't open

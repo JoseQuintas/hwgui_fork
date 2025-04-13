@@ -71,8 +71,8 @@ RETURN Nil
 
 FUNCTION Teste()
 
-   LOCAL oDlg1,oDlg2,oDlg3,oTab
-   LOCAL aDlg1, aDlg2, aCombo := { "Aaaa","Bbbb" }
+   LOCAL oDlg1,oTab // oDlg2, oDlg3
+   LOCAL aCombo := { "Aaaa","Bbbb" }
    LOCAL oBrw1, oBrw2
    LOCAL aSample1 := { {"Alex",17}, {"Victor",42}, {"John",31} }
    LOCAL aSample2 := { {"Line 1",10}, {"Line 2",22}, {"Line 3",40} }
