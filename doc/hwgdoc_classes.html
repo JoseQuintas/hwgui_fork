@@ -7,8 +7,8 @@
 <body bgcolor="#ffffff" text="#000000">
 <!--
   Modification Dokumentation
-  
- +-------------------!---------------------------------!--------------------------------------------+ 
+
+ +-------------------!---------------------------------!--------------------------------------------+
  ! Date (YYYY-MM-DD) ! Name and/or E-Mail or Call Sign !  Modification                              !
  +-------------------!---------------------------------!--------------------------------------------+
  ! 2022-12-15        ! Wilfried Brunken, DF7BE         ! Recent State of development                !
@@ -16,9 +16,9 @@
  ! 2020-08-05        ! Wilfried Brunken, DF7BE         ! HBITMAP update                             !
  +-------------------!---------------------------------!--------------------------------------------+
  ! 2020-05-06        ! Wilfried Brunken, DF7BE         ! Clipper style Alert() replacement          !
- !                   !                                 ! Delivered by Alex Strickland (TNX)         !  
- +-------------------!---------------------------------!--------------------------------------------+ 
- + 2018-12-          ! Alexander S.Kresin              ! Last known state                           !  
+ !                   !                                 ! Delivered by Alex Strickland (TNX)         !
+ +-------------------!---------------------------------!--------------------------------------------+
+ + 2018-12-          ! Alexander S.Kresin              ! Last known state                           !
  +-------------------!---------------------------------!--------------------------------------------+
 -->
 <table width="100%" border="0" cellpadding="0" cellspacing="0">
@@ -111,7 +111,7 @@
            <li><a name="_hboard" href="#hboard">HBoard</a>
            <ul>
              <li><a name="_hlenta" href="#hlenta">HLenta</a>
-             <li><a name="_htrack" href="#htrack">HTrack</a> 
+             <li><a name="_htrack" href="#htrack">HTrack</a>
              <li><a name="_hgraph" href="#hgraph">HGraph</a>
              <li><a name="_hceditbasic" href="#hceditbasic">HCEditBasic</a>
              <li><a name="_hdateselect" href="#hdateselect">HDateSelect</a>
@@ -170,7 +170,7 @@
    </ul>
 
    <br><strong class="subhead"><a name="hobject" href="#_hobject">
-   HObject</a></strong> 
+   HObject</a></strong>
    <p>It is a base class for all HwGUI classes.</p>
    <pre class="code">DATA
      objName                  (RW) a name of an object to identify it in user programs
@@ -178,12 +178,12 @@
    </pre>
 
    <br><strong class="subhead"><a name="hscrollarea" href="#_hscrollarea">
-    HScrollArea</a></strong> 
+    HScrollArea</a></strong>
 
    <p>It is a base class for windows (HWindow), currently it is implemented in WinAPI version only.</p>
 
    <br><strong class="subhead"><a name="hcustomwindow" href="#_hcustomwindow">
-    HCustomWindow</a></strong> 
+    HCustomWindow</a></strong>
 
    <p>Do not create instances of HCustomWindow. It serves as a base class
     for all windows and controls. In other words, HCustomWindow provide basic variables and methods,
@@ -192,7 +192,7 @@
 
    <pre class="code">DATA
      CLASS VAR oDefaultParent
-     title                    (RW) a title/caption of a window or a control 
+     title                    (RW) a title/caption of a window or a control
      nTop, nLeft              (RW) coordinates of a top left corner
      nWidth, nHeight          (RW) a size: width and height
      tcolor, bcolor           (RW) text and background color, respectively,
@@ -215,13 +215,13 @@
      aControls                 (R) an array with controls objects, belonged to this
                                     window or container
   Internal:
-     aEvents, aNotify 
-     HelpId 
+     aEvents, aNotify
+     HelpId
      nHolder
    </pre>
    <pre class="code">METHODS
-     AddControl( oCtrl ) 
-     DelControl( oCtrl ) 
+     AddControl( oCtrl )
+     DelControl( oCtrl )
      AddEvent( nEvent,nId,bAction,lNotify )
      FindControl( nId,nHandle )
      Hide()
@@ -236,7 +236,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hwindow" href="#_hwindow">
-   HWindow</a></strong> 
+   HWindow</a></strong>
 
    <p>It is a base class for all windows and dialogs, do not create instances of it.</p>
 
@@ -259,12 +259,12 @@
       nLastKey                 (R)
       aOffset
       oEmbedded
-      oPopup, hAccel 
+      oPopup, hAccel
    </pre>
    <pre class="code">METHODS
       New( oIcon, clr, nStyle, x, y, width, height, cTitle, cMenu, nPos,
          oFont, bInit, bExit, bSize, bPaint, bGfocus, bLfocus, bOther,
-         cAppName, oBmp, cHelp, nHelpId, bColor ) 
+         cAppName, oBmp, cHelp, nHelpId, bColor )
       FindWindow( hWnd )          - Seeking a window by the handle, returns a window object
       GetMain()                   - returns a main window object
       Center()                    - moves the window in the center of the screen
@@ -275,33 +275,33 @@
       EvalKeyList( nKey, bPressed )
       Close()                     - closes windows, deletes it with all controls
   Internal:
-      AddItem( oWnd ) 
-      DelItem( oWnd ) 
+      AddItem( oWnd )
+      DelItem( oWnd )
    </pre>
 
    <br><strong class="subhead"><a name="hmainwindow" href="#_hmainwindow">
-   HMainWindow</a></strong> 
+   HMainWindow</a></strong>
 
    <p>A class of a main window. The corresponding command is <a href="hwgdoc_commands.html#initwindow"><i>INIT WINDOW MAIN</i></a></p>
 
    <pre class="code">DATA
-      CLASS VAR aMessages 
-      nMenuPos 
-      oNotifyIcon, bNotify, oNotifyMenu 
+      CLASS VAR aMessages
+      nMenuPos
+      oNotifyIcon, bNotify, oNotifyMenu
       lTray
    </pre>
    <pre class="code">METHODS
-      New( lType, oIcon, clr, nStyle, x, y, width, height, cTitle, cMenu, nPos, 
-         oFont, bInit, bExit, bSize, bPaint, bGfocus, bLfocus, bOther, 
-         cAppName, oBmp, cHelp, nHelpId, bColor, nExclude ) 
+      New( lType, oIcon, clr, nStyle, x, y, width, height, cTitle, cMenu, nPos,
+         oFont, bInit, bExit, bSize, bPaint, bGfocus, bLfocus, bOther,
+         cAppName, oBmp, cHelp, nHelpId, bColor, nExclude )
       Activate( lShow, lMaximized,           - Activates a window, the corresponding
          lMinimized, lCentered, bActivate )    command is <a href="hwgdoc_commands.html#actwindow"><i>ACTIVATE WINDOW</i></a>
-      InitTray( oNotifyIcon, bNotify, oNotifyMenu ) (Windows only, on GTK available, but empty with no function) 
+      InitTray( oNotifyIcon, bNotify, oNotifyMenu ) (Windows only, on GTK available, but empty with no function)
       GetMdiActive()                         - returns an active MDI child window object
       DEICONIFY()   (LINUX/GTK only)         - maximize
       ICONIFY()     (LINUX/GTK only)         - minimize
   Internal:
-      onEvent( msg, wParam, lParam ) 
+      onEvent( msg, wParam, lParam )
    </pre>
    <br>
    <b>Special information for methods DEICONIFY() and InitTray():</b><br>
@@ -309,15 +309,15 @@
    For details see sample programs<br>
    samples/gtk_samples/testtray.prg and samples/testtray.prg .<br>
    <br>
-   
+
 
    <br><strong class="subhead"><a name="hmdichildwindow" href="#_hmdichildwindow">
    HMDIChildWindow</a></strong>
-   
+
    <p>A class of a MDI child window. the corresponding command: <a href="hwgdoc_commands.html#initwindow"><i>INIT WINDOW MDICHILD</i></a></p>
 
    <pre class="code">DATA
-      CLASS VAR aMessages 
+      CLASS VAR aMessages
    </pre>
    <pre class="code">METHODS
       New( oIcon, clr, nStyle, x, y, width, height, cTitle, cMenu, oFont,
@@ -329,7 +329,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hdialog" href="#_hdialog">
-   HDialog</a></strong> 
+   HDialog</a></strong>
 
    <p>A class of a dialog window. The corresponding command is <a href="hwgdoc_commands.html#initdialog"><i>INIT DIALOG</i></a></p>
 
@@ -345,21 +345,21 @@
       nInitState
    </pre>
    <pre class="code">METHODS
-     New( lType, nStyle, x, y, width, height, cTitle, bInit, bExit, bSize, 
+     New( lType, nStyle, x, y, width, height, cTitle, bInit, bExit, bSize,
          bPaint, bGfocus, bLfocus, bOther, lClipper, oBmp, oIcon, lExitOnEnter, nHelpId,
          xResourceID, lExitOnEsc, bColor, lNoClosable )
      Activate( lNoModal, lMaximized, lMinimized, lCentered, bActivate )
-     FindDialog( hWnd ) 
+     FindDialog( hWnd )
      GetActive()      - returns a GET element object of this dialog, which owns input focus
      Close()
   Internal:
-     AddItem() 
-     DelItem() 
-     onEvent( msg, wParam, lParam ) 
+     AddItem()
+     DelItem()
+     onEvent( msg, wParam, lParam )
    </pre>
 
    <br><strong class="subhead"><a name="hcontrol" href="#_hcontrol">
-   HControl</a></strong> 
+   HControl</a></strong>
 
    <p>Do not create instances of HControl. It serves as a base class
     for all controls, except &quot;drawn&quot;. In other words, HControl provide basic variables and methods,
@@ -374,24 +374,24 @@
       lInit
    </pre>
    <pre class="code">METHODS
-      New( oWndParent,nId,nStyle,nLeft,nTop,nWidth,nHeight,oFont,bInit, 
-         bSize,bPaint,ctoolt,tcolor,bcolor ) 
-      Disable() 
-      Enable() 
-      Enabled() 
-      SetFocus() 
-      GetText() 
+      New( oWndParent,nId,nStyle,nLeft,nTop,nWidth,nHeight,oFont,bInit,
+         bSize,bPaint,ctoolt,tcolor,bcolor )
+      Disable()
+      Enable()
+      Enabled()
+      SetFocus()
+      GetText()
       SetText( c )
       Refresh()       - virtual method
       SetTooltip()
   Internal:
-      Init() 
-      NewId() 
+      Init()
+      NewId()
       End()
    </pre>
 
    <br><strong class="subhead"><a name="hbrowse" href="#_hbrowse">
-   HBrowse</a></strong> 
+   HBrowse</a></strong>
 
    <p>The corresponding command is <a href="hwgdoc_commands.html#browse"><i>@ &lt;x&gt;,&lt;y&gt; BROWSE</i></a></p>
 
@@ -459,55 +459,55 @@
       DATA nHCCharset INIT -1      Charset for MEMO EDIT, -1 for use default (set default value = 0)
                                    For compatibiltity purposes, do not modify
                                    with UTF-8 (0).
-                                   For Windows:     
+                                   For Windows:
                                    204: Russian
-                                   15 : IBM 858 with Euro currency sign (&euro;)                                  
+                                   15 : IBM 858 with Euro currency sign (&euro;)
       --- International Language Support for internal dialogs ---
-      cTextTitME              (RW) "Memo Edit"   
-      cTextClose              (RW) "Close"   // Button 
+      cTextTitME              (RW) "Memo Edit"
+      cTextClose              (RW) "Close"   // Button
       cTextSave               (RW) "Save"
       cTextMod                (RW) "Memo was modified, save ?"
       cTextLockRec            (RW) "Can't lock the record!"
    </pre>
    <pre class="code">METHODS
-      New( lType, oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, oFont ; 
-         bInit, bSize, bPaint, bEnter, bGfocus, bLfocus, lNoVScroll, lNoBorder, 
+      New( lType, oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, oFont ;
+         bInit, bSize, bPaint, bEnter, bGfocus, bLfocus, lNoVScroll, lNoBorder,
          lAppend, lAutoedit, bUpdate, bKeyDown, bPosChg, lMultiSelect, bRClick )
       InitBrw( nType )
-      DefaultLang()                // Reset of messages to default value English 
-      Rebuild() 
-      AddColumn( oColumn ) 
-      InsColumn( oColumn,nPos ) 
-      DelColumn( nPos ) 
-      SetColumn( nCol ) 
-      LineDown( lMouse ) 
-      LineUp() 
-      PageUp() 
-      PageDown() 
-      Bottom() 
+      DefaultLang()                // Reset of messages to default value English
+      Rebuild()
+      AddColumn( oColumn )
+      InsColumn( oColumn,nPos )
+      DelColumn( nPos )
+      SetColumn( nCol )
+      LineDown( lMouse )
+      LineUp()
+      PageUp()
+      PageDown()
+      Bottom()
       Top()
       Home()
-      RefreshLine() 
-      Refresh() 
+      RefreshLine()
+      Refresh()
       ShowSizes()
   Internal:
-      Activate() 
-      Paint() 
+      Activate()
+      Paint()
       DrawHeader( hDC, nColumn, x1, y1, x2, y2 )
-      LineOut() 
-      HeaderOut( hDC ) 
-      FooterOut( hDC ) 
-      DoHScroll( wParam ) 
-      DoVScroll( wParam ) 
-      ButtonDown( lParam ) 
-      ButtonRDown( lParam ) 
-      ButtonUp( lParam ) 
-      ButtonDbl( lParam ) 
-      MouseMove( wParam, lParam ) 
-      MouseWheel( nKeys, nDelta, nXPos, nYPos ) 
-      Edit( wParam,lParam ) 
-      Append() 
-      onEvent( msg, wParam, lParam ) 
+      LineOut()
+      HeaderOut( hDC )
+      FooterOut( hDC )
+      DoHScroll( wParam )
+      DoVScroll( wParam )
+      ButtonDown( lParam )
+      ButtonRDown( lParam )
+      ButtonUp( lParam )
+      ButtonDbl( lParam )
+      MouseMove( wParam, lParam )
+      MouseWheel( nKeys, nDelta, nXPos, nYPos )
+      Edit( wParam,lParam )
+      Append()
+      onEvent( msg, wParam, lParam )
       End()
    </pre>
    <p>
@@ -523,9 +523,9 @@
    But closing them must be done in the reverse order of call.<br>
    This only works in submenus, if the first (main) browse is implemented in the main<br>
    window of the application, the edit dialog is called modal.<br>
-   For your application we suggest to add this description special behavior in your app 
+   For your application we suggest to add this description special behavior in your app
    documentation.<br>
-   For sample call, look at program "CLLOG" by DF7BE.<br>   
+   For sample call, look at program "CLLOG" by DF7BE.<br>
    <br>
       MEMO EDIT on WinAPI:<br>
    If the Euro currency was displayed as single bar
@@ -536,7 +536,7 @@
    </p>
 
    <br><strong class="subhead"><a name="hpanel" href="#_hpanel">
-   HPanel</a></strong> 
+   HPanel</a></strong>
    <pre class="code">DATA
       bScroll                 (RW)
       oStyle                  (RW)
@@ -548,22 +548,22 @@
       hCursor
    </pre>
    <pre class="code">METHODS
-     New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, 
-         bInit, bSize, bPaint, bColor, oStyle ) 
+     New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight,
+         bInit, bSize, bPaint, bColor, oStyle )
      Hide()
      Show()
      BackColor( bcolor )
   Internal:
-     Activate() 
-     onEvent( msg, wParam, lParam ) 
+     Activate()
+     onEvent( msg, wParam, lParam )
      DrawItems( hDC, aCoors )
-     Paint() 
+     Paint()
      Drag( xPos, yPos )
      Release()
    </pre>
 
    <br><strong class="subhead"><a name="hpanelsts" href="#_hpanelsts">
-   HPanelSts</a></strong> 
+   HPanelSts</a></strong>
    <pre class="code">DATA
       aParts                   (R)
       aText                    (R)
@@ -578,7 +578,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hpanelhea" href="#_hpanelhea">
-   HPanelHea</a></strong> 
+   HPanelHea</a></strong>
    <pre class="code">DATA
      xt, yt                   (RW)
      lMaximized
@@ -593,10 +593,10 @@
      PaintText( hDC )
      Paint()
    </pre>
-   <p></p>  
+   <p></p>
 
    <br><strong class="subhead"><a name="hownbutton" href="#_hownbutton">
-   HOwnButton</a></strong> 
+   HOwnButton</a></strong>
    <pre class="code">DATA
      CLASS VAR cPath SHARED
      lFlat                    (RW)
@@ -621,26 +621,26 @@
          cText, color, font, xt, yt, widtht, heightt,
          bmp, lResour, xb, yb, widthb, heightb, lTr, trColor,
          cTooltip, lEnabled, lCheck, bColor )
-     Press() 
-     Release() 
+     Press()
+     Release()
      Enable()
      Disable()
   Internal:
-     Activate() 
-     onEvent( msg, wParam, lParam ) 
-     Init() 
-     Paint() 
+     Activate()
+     onEvent( msg, wParam, lParam )
+     Init()
+     Paint()
      DrawItems( hDC )
-     MouseMove( wParam, lParam ) 
-     MDown() 
-     MUp() 
+     MouseMove( wParam, lParam )
+     MDown()
+     MUp()
      End()
    </pre>
 
     <br><strong class="subhead"><a name="hshadebutton" href="#_hshadebutton">
     HShadeButton</a></strong>
    <p>(Windows only)<br>
-   <pre class="code">DATA 
+   <pre class="code">DATA
      hShade
    </pre>
    <pre class="code">METHODS
@@ -652,12 +652,12 @@
                    granularity, highlight, coloring, shcolor )
   Internal:
        Paint()
-       END()   
-   </pre> 
+       END()
+   </pre>
 
    <br><strong class="subhead"><a name="hnicebutton" href="#_hnicebutton">
    HNiceButton</a></strong>
-   <p>(Windows only)<br>   
+   <p>(Windows only)<br>
    <pre class="code">DATA
        winclass INIT "NICEBUTT"
 
@@ -671,7 +671,7 @@
        g INIT 90
        b INIT 90
        lFlat
-       nOrder   
+       nOrder
    </pre>
    <pre class="code">METHODS
        New( oWndParent, nId, nStyle, nStyleEx, nLeft, nTop, nWidth, nHeight, ;
@@ -692,11 +692,11 @@
        MUp()
        Press() INLINE( ::lPress := .T., ::MDown() )
        RELEASE()
-       END ()   
-   </pre>    
-   
+       END ()
+   </pre>
+
    <br><strong class="subhead"><a name="hsplitter" href="#_hsplitter">
-   HSplitter</a></strong> 
+   HSplitter</a></strong>
    <pre class="code">DATA
       aLeft                   (RW)
       aRight                  (RW)
@@ -706,52 +706,52 @@
       nFrom, nTo              (RW)
       bEndDrag                (RW)
       winclass                 (R)
-      hCursor 
-      lCaptured, lMoved 
+      hCursor
+      lCaptured, lMoved
    </pre>
    <pre class="code">METHODS
       New( oWndParent, nId, nLeft, nTop, nWidth, nHeight,
          bSize, bPaint, color, bcolor, aLeft, aRight, nFrom, nTo, oStyle )
   Internal:
-      Activate() 
-      onEvent( msg, wParam, lParam ) 
-      Init() 
-      Paint( lpdis ) 
-      Drag( lParam ) 
+      Activate()
+      onEvent( msg, wParam, lParam )
+      Init()
+      Paint( lpdis )
+      Drag( lParam )
       DragAll()
    </pre>
 
    <br><strong class="subhead"><a name="hstatus" href="#_hstatus">
-   HStatus</a></strong> 
+   HStatus</a></strong>
    <pre class="code">DATA
       CLASS VAR winclass       (R)
       aParts                   (R)
    </pre>
    <pre class="code">METHODS
-     New( oWndParent, nId, nStyle, aParts, bInit, bSize, bPaint ) 
+     New( oWndParent, nId, nStyle, aParts, bInit, bSize, bPaint )
      SetText( cText,nPart )
   Internal:
-     Activate() 
+     Activate()
      Init()
    </pre>
 
    <br><strong class="subhead"><a name="hstatic" href="#_hstatic">
-   HStatic</a></strong> 
+   HStatic</a></strong>
    <pre class="code">DATA
      CLASS VAR winclass        (R)
      nStyleDraw                (R)
    </pre>
    <pre class="code">METHODS
      New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, cCaption, oFont,
-        bInit, bSize, bPaint, ctoolt, tcolor, bcolor, lTransp ) 
+        bInit, bSize, bPaint, ctoolt, tcolor, bcolor, lTransp )
   Internal:
-     Activate() 
+     Activate()
      Init()
      Paint( lpDis )
    </pre>
 
    <br><strong class="subhead"><a name="hstaticlink" href="#_hstaticlink">
-   HStaticLink</a></strong> 
+   HStaticLink</a></strong>
    <pre class="code">DATA
       m_bFireChild            (RW)
       m_hHyperCursor          (RW)
@@ -775,7 +775,7 @@
      SetFireChild( lFlag )
      SetLinkColor( sLinkColor )
   Internal:
-     Activate() 
+     Activate()
      Init()
      onEvent( msg, wParam, lParam )
      GoToLinkUrl( csLink )
@@ -785,24 +785,24 @@
    </pre>
 
    <br><strong class="subhead"><a name="hbutton" href="#_hbutton">
-   HButton</a></strong> 
+   HButton</a></strong>
    <pre class="code">DATA
      bClick                   (RW)
      CLASS VAR winclass        (R)
    </pre>
    <pre class="code">METHODS
-     New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, cCaption, oFont, 
+     New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, cCaption, oFont,
          bInit, bSize, bPaint, bClick, ctoolt, tcolor, bcolor )
      SetText( c )
      GetText()
 
   Internal:
-     Activate() 
+     Activate()
      Init()
    </pre>
 
    <br><strong class="subhead"><a name="hedit" href="#_hedit">
-   HEdit</a></strong> 
+   HEdit</a></strong>
    <pre class="code">DATA
      CLASS VAR winclass        (R)
      oPicture                  (R)
@@ -829,13 +829,13 @@
      SelStart( nStart ) SETGET
      SelLength( nLength ) SETGET
   Internal:
-     Activate() 
-     onEvent( msg, wParam, lParam ) 
-     Init() 
+     Activate()
+     onEvent( msg, wParam, lParam )
+     Init()
    </pre>
 
    <br><strong class="subhead"><a name="hcheckbox" href="#_hcheckbutton">
-   HCheckButton</a></strong> 
+   HCheckButton</a></strong>
    <pre class="code">DATA
      CLASS VAR winclass        (R)
      bSetGet                  (RW)
@@ -845,35 +845,35 @@
    <pre class="code">METHODS
      New( oWndParent, nId, vari, bSetGet,nStyle, nLeft, nTop, nWidth, nHeight,
         cCaption, oFont, bInit, bSize, bPaint, bClick, ctoolt, tcolor, bcolor,
-        bGFocus, lTransp, bLFocus ) 
-     Refresh() 
-     Disable() 
+        bGFocus, lTransp, bLFocus )
+     Refresh()
+     Disable()
      Enable()
      Value( lValue ) SETGET
      Invert()
      SetTooltip()
   Internal:
-     Activate() 
-     Init() 
+     Activate()
+     Init()
    </pre>
 
    <br><strong class="subhead"><a name="hradiobutton" href="#_hradiobutton">
-   HRadioButton</a></strong> 
+   HRadioButton</a></strong>
    <pre class="code">DATA
      CLASS VAR winclass        (R)
      bClick                   (RW)
      oGroup
    </pre>
    <pre class="code">METHODS
-     New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, cCaption, oFont, 
-         bInit, bSize, bPaint, bClick, ctoolt, tcolor, bcolor, lTransp ) 
+     New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, cCaption, oFont,
+         bInit, bSize, bPaint, bClick, ctoolt, tcolor, bcolor, lTransp )
      Value( lValue ) SETGET
  Internal:
      Activate()
    </pre>
 
    <br><strong class="subhead"><a name="hcombobox" href="#_hcombobox">
-   HCombobox</a></strong> 
+   HCombobox</a></strong>
    <pre class="code">DATA
      CLASS VAR winclass        (R)
      bSetGet                  (RW)
@@ -886,7 +886,7 @@
      xValue
    </pre>
    <pre class="code">METHODS
-     New( oWndParent, nId, vari, bSetGet, nStyle, nLeft, nTop, nWidth, nHeight, aItems, 
+     New( oWndParent, nId, vari, bSetGet, nStyle, nLeft, nTop, nWidth, nHeight, aItems,
          bInit, bSize, bPaint, bChange, cTooltip, lEdit, lText, bGFocus, tcolor,
          bcolor, bValid, nDisplay )
      Refresh( xVal )
@@ -899,28 +899,28 @@
    </pre>
 
    <br><strong class="subhead"><a name="hgroup" href="#_hgroup">
-   HGroup</a></strong> 
+   HGroup</a></strong>
    <pre class="code">DATA
      CLASS VAR winclass        (R)
    </pre>
    <pre class="code">METHODS
-     New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, cCaption, oFont, 
-         bInit, bSize, bPaint, tcolor, bcolor ) 
+     New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, cCaption, oFont,
+         bInit, bSize, bPaint, tcolor, bcolor )
   Internal:
      Activate()
    </pre>
 
    <br><strong class="subhead"><a name="hline" href="#_hline">
-   HLine</a></strong> 
+   HLine</a></strong>
    <pre class="code">DATA
      CLASS VAR winclass        (R)
      lVert                     (R)
      oPenLight, oPenGray       (R)
    </pre>
    <pre class="code">METHODS
-     New( oWndParent, nId, lVert, nLeft, nTop, nLength, bSize ) 
+     New( oWndParent, nId, lVert, nLeft, nTop, nLength, bSize )
   Internal:
-     Activate() 
+     Activate()
      Paint()
    </pre>
 
@@ -943,7 +943,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hsaybmp" href="#_hsaybmp">
-   HSayBmp</a></strong> 
+   HSayBmp</a></strong>
    <pre class="code">DATA
       lTransp                 (RW) Is the image transparent, .F. by default
       trcolor                 (RW) The transparent color value
@@ -955,7 +955,7 @@
       nZoom
    </pre>
    <pre class="code">METHODS
-     New( oWndParent, nId, nLeft, nTop, nWidth, nHeight, Image, lRes, bInit, 
+     New( oWndParent, nId, nLeft, nTop, nWidth, nHeight, Image, lRes, bInit,
         bSize, ctoolt, bClick, bDblClick, lTransp, nStretch, trcolor )
      ReplaceBitmap( Image, lRes )
      Refresh()
@@ -975,29 +975,29 @@
    in the display.<br>
    This case was handled in closed bug ticket<br>
    #195 Bug of @ Image in a tab<br>
-   
+
    </p>
 
    <br><strong class="subhead"><a name="hsayicon" href="#_hsayicon">
-   HSayIcon</a></strong> 
+   HSayIcon</a></strong>
    <pre class="code">METHODS
-     New( oWndParent, nId, nLeft, nTop, nWidth, nHeight, Image, lRes, bInit, 
-        bSize, ctoolt, lOEM, bClick, bDblClick ) 
+     New( oWndParent, nId, nLeft, nTop, nWidth, nHeight, Image, lRes, bInit,
+        bSize, ctoolt, lOEM, bClick, bDblClick )
   Internal:
      Refresh()
      Init()
    </pre>
 
    <br><strong class="subhead"><a name="hsayfimage" href="#_hsayfimage">
-   HSayFImage</a></strong> 
+   HSayFImage</a></strong>
    <pre class="code">DATA
      nOffsetV
      nOffsetH
      nZoom
    </pre>
    <pre class="code">METHODS
-     New( oWndParent, nId, nLeft, nTop, nWidth, nHeight, Image, lRes, bInit, 
-        bSize, ctoolt, cType ) 
+     New( oWndParent, nId, nLeft, nTop, nWidth, nHeight, Image, lRes, bInit,
+        bSize, ctoolt, cType )
      ReplaceImage( Image, cType )
      Refresh()
   Internal:
@@ -1005,25 +1005,25 @@
    </pre>
 
    <br><strong class="subhead"><a name="hdatepicker" href="#_hdatepicker">
-   HDatePicker</a></strong> 
+   HDatePicker</a></strong>
    <pre class="code">DATA
       CLASS VAR winclass       (R)
       bSetGet                 (RW)
       bChange                 (RW)
-      value 
+      value
    </pre>
    <pre class="code">METHODS
       New( oWndParent, nId, vari, bSetGet, nStyle, nLeft, nTop, nWidth, nHeight,
-         oFont, bInit, bGfocus, bLfocus, ctoolt, tcolor, bcolor ) 
+         oFont, bInit, bGfocus, bLfocus, ctoolt, tcolor, bcolor )
       Refresh()
       Value ( dValue ) SETGET
   Internal:
-      Activate() 
-      Init() 
+      Activate()
+      Init()
    </pre>
 
    <br><strong class="subhead"><a name="hupdown" href="#_hupdown">
-   HUpDown</a></strong> 
+   HUpDown</a></strong>
    <pre class="code">DATA
       CLASS VAR winclass       (R)
       bSetGet                 (RW)
@@ -1031,41 +1031,41 @@
       nUpper                  (RW)
       nValue                   (R)
       nUpDownWidth             (R)
-      hUpDown, idUpDown, styleUpDown 
+      hUpDown, idUpDown, styleUpDown
       lChanged
    </pre>
    <pre class="code">METHODS
       New( oWndParent, nId, vari,bSetGet, nStyle, nLeft, nTop, nWidth, nHeight,
          oFont, bInit, bSize, bPaint, bGfocus, bLfocus, ctoolt, tcolor, bcolor,
-         nUpDWidth, nLower, nUpper ) 
+         nUpDWidth, nLower, nUpper )
       Refresh()
       Value( nValue ) SETGET
       SetRange( n1, n2 )
       Hide()
       Show()
   Internal:
-      Activate() 
-      Init() 
+      Activate()
+      Init()
    </pre>
 
    <br><strong class="subhead"><a name="htab" href="#_htab">
-   HTab</a></strong> 
+   HTab</a></strong>
    <pre class="code">DATA
       CLASS VAR winclass       (R)
       bChange,bChange2        (RW)
       bAction                 (RW)
       aTabs                    (R)
       aPages                   (R)
-      hIml, aImages, Image1, Image2 
+      hIml, aImages, Image1, Image2
       oTemp
       aTooltips               // Array with tooltips messages
                               // One element for every tab
-                      
+
    </pre>
    <pre class="code">METHODS
       New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, oFont, bInit,
          bSize, bPaint, aTabs, bChange, aImages, lResour, nBC, bClick, bGetFocus,
-         bLostFocus ) 
+         bLostFocus )
       GetActivePage( nFirst,nEnd )
       SetTab( n )
   Internal:
@@ -1080,11 +1080,11 @@
       HidePage( nPage )
       ShowPage( nPage )
       Notify( lParam )
-      SetTooltip( nhandle, ntab )  // WinAPI 
+      SetTooltip( nhandle, ntab )  // WinAPI
    </pre>
 
    <br><strong class="subhead"><a name="htree" href="#_htree">
-   HTree</a></strong> 
+   HTree</a></strong>
    <pre class="code">DATA
       CLASS VAR winclass       (R)
       aItems                   (R)
@@ -1094,7 +1094,7 @@
       bRClick                 (RW)
       bDblClick               (RW)
       bAction                 (RW)
-      himl,aImages,Image1,Image2 
+      himl,aImages,Image1,Image2
       lEmpty
    </pre>
    <pre class="code">METHODS
@@ -1115,23 +1115,23 @@
    </pre>
 
    <br><strong class="subhead"><a name="hmonthcalendar" href="#_hmonthcalendar">
-   HMonthCalendar</a></strong> 
+   HMonthCalendar</a></strong>
    <pre class="code">DATA
       CLASS VAR winclass       (R)
       bChange                 (RW)
-      dValue 
+      dValue
    </pre>
    <pre class="code">METHODS
-      New( oWndParent, nId, vari, nStyle, nLeft, nTop, nWidth, nHeight, 
-         oFont, bInit, bChange, cTooltip, lNoToday, lNoTodayCircle, lWeekNumbers ) 
+      New( oWndParent, nId, vari, nStyle, nLeft, nTop, nWidth, nHeight,
+         oFont, bInit, bChange, cTooltip, lNoToday, lNoTodayCircle, lWeekNumbers )
       Value( dValue ) SETGET
   Internal:
-      Activate() 
+      Activate()
       Init()
    </pre>
 
    <br><strong class="subhead"><a name="hprogressbar" href="#_hprogressbar">
-   HProgressBar</a></strong> 
+   HProgressBar</a></strong>
    <pre class="code">DATA
       CLASS VAR winclass
       DATA  maxPos
@@ -1170,7 +1170,7 @@
     </p>
 
    <br><strong class="subhead"><a name="htoolbar" href="#_htoolbar">
-   HToolBar</a></strong> 
+   HToolBar</a></strong>
    <pre class="code">DATA
       Name
       id
@@ -1202,13 +1202,13 @@
    <p>(Windows only)<br>
     Because of a bug in GTK, the LISTBOX feature could not be ported to GTK.<br>
     For multi platform use the BROWSE class of an array instead.<br>
-    Look into samples "samples\demohlistsub.prg" and "samples\TwoLstSub.prg" for usage.
-   </p> 
+    Look into samples "samples\demolistboxsub.prg" and "samples\TwoLstSub.prg" for usage.
+   </p>
    <pre class="code">DATA
-      CLASS VAR winclass 
-      aItems 
-      bSetGet 
-      value 
+      CLASS VAR winclass
+      aItems
+      bSetGet
+      value
       bChangeSel
       bkeydown, bDblclick
       bValid
@@ -1216,10 +1216,10 @@
    <pre class="code">METHODS
       New( oWndParent, nId, vari, bSetGet, nStyle, nLeft, nTop, nWidth, nHeight,
          aItems, oFont, bInit, bSize, bPaint, bChange, cTooltip, tColor, bcolor,
-         bGFocus, bLFocus, bKeydown, bDblclick, bOther ) 
-      Activate() 
-      Init( aListbox, nCurrent ) 
-      Refresh() 
+         bGFocus, bLFocus, bKeydown, bDblclick, bOther )
+      Activate()
+      Init( aListbox, nCurrent )
+      Refresh()
       Requery()
       Setitem( nPos )
       AddItems( p )
@@ -1246,41 +1246,41 @@
    <pre class="code">METHODS
       New( oWndParent, nId, vari, nStyle, nLeft, nTop, nWidth, nHeight, bInit,
          bSize, bPaint, cTooltip, bChange, bDrag, nLow, nHigh, lVertical,
-         TickStyle, TickMarks ) 
+         TickStyle, TickMarks )
       Value( nValue ) SETGET
       GetNumTics()
   Internal:
-      Activate() 
-      onEvent( msg, wParam, lParam ) 
-      Init() 
+      Activate()
+      onEvent( msg, wParam, lParam )
+      Init()
    </pre>
    <p>This is outdated control. <a href="#htrack">HTrack</a> is recommended to use instead it.</p>
 
    <br><strong class="subhead"><a name="hanimation" href="#_hanimation">
-   HAnimation</a></strong> 
+   HAnimation</a></strong>
    <pre class="code">DATA
       CLASS VAR winclass       (R)
       cFileName               (RW)
       xResID
    </pre>
    <pre class="code">METHODS
-      New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, 
+      New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight,
          cFilename, lAutoPlay, lCenter, lTransparent, xResID )
-      Open( cFileName ) 
-      Play( nFrom, nTo, nRep ) 
-      Seek( nFrame ) 
-      Stop() 
-      Close() 
+      Open( cFileName )
+      Play( nFrom, nTo, nRep )
+      Seek( nFrame )
+      Stop()
+      Close()
       Destroy()
   Internal:
-      Activate() 
-      Init() 
+      Activate()
+      Init()
    </pre>
 
    <br><strong class="subhead"><a name="hgrid" href="#_hgrid">
    HGrid</a></strong> (Windows only)
    <pre class="code">DATA
-      CLASS VAR winclass 
+      CLASS VAR winclass
       aBitMaps
       ItemCount
       color
@@ -1306,8 +1306,8 @@
       New( oWnd, nId, nStyle, x, y, width, height, oFont, bInit, bSize, bPaint, bEnter,
                bGfocus, bLfocus, lNoScroll, lNoBord, bKeyDown, bPosChg, bDispInfo,
                nItemCount, lNoLines, color, bkcolor, lNoHeader, aBit )
-      Activate() 
-      Init() 
+      Activate()
+      Init()
       AddColumn( cHeader, nWidth, nJusHead, nBit )
       Refresh()
       RefreshLine()
@@ -1317,7 +1317,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hpager" href="#_hpager">
-   HPager</a></strong> 
+   HPager</a></strong>
    <pre class="code">DATA
       CLASS DATA oSelected INIT Nil
       winclass
@@ -1350,7 +1350,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hrebar" href="#_hrebar">
-   HRebar</a></strong> 
+   HRebar</a></strong>
    <pre class="code">DATA
       CLASS DATA oSelected
       winclass
@@ -1374,7 +1374,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hcedit" href="#_hcedit">
-   HCEdit</a></strong> 
+   HCEdit</a></strong>
 
    <pre class="code">DATA
       CLASS VAR winclass       (R)
@@ -1442,8 +1442,8 @@
       nDocWidth                (R)
       aUndo                    (R)
       nLastKey                 (R)
-      // --- International Language Support for internal dialogs --  
-      aLangTexts               (RW)  INIT {}  
+      // --- International Language Support for internal dialogs --
+      aLangTexts               (RW)  INIT {}
 
    </pre>
    <pre class="code">METHODS
@@ -1496,7 +1496,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hboard" href="#_hboard">
-   HBoard</a></strong> 
+   HBoard</a></strong>
 
    <p>This widget is mainly used to place DRAWN widgets on it. It can be used also to draw on it with HwGUI's drawing functions.</p>
    <p>The corresponding command is <a href="hwgdoc_commands.html#board"><i>@ &lt;x&gt;,&lt;y&gt; BOARD</i></a></p>
@@ -1520,7 +1520,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hlenta" href="#_hlenta">
-   HLenta</a></strong> 
+   HLenta</a></strong>
    <pre class="code">DATA
       oDrawn                  (R)
    </pre>
@@ -1534,7 +1534,7 @@
    </pre>
 
   <br><strong class="subhead"><a name="htrack" href="#_htrack">
-   HTrack</a></strong> 
+   HTrack</a></strong>
    <pre class="code">DATA
       oDrawn                  (R)
    </pre>
@@ -1555,24 +1555,24 @@
    </p>
 
    <br><strong class="subhead"><a name="hgraph" href="#_hgraph">
-   HGraph</a></strong> 
+   HGraph</a></strong>
    <pre class="code">DATA
-      aValues                  (RW) Data array                                          
-      nType                    (RW) Signs arrays for X and Y axes                       
-      aSignX, aSignY           (RW) Number of lines in a line chart                     
-      nGraphs                  (RW) Graph type: 1 - line chart, 2 - bar histogram       
-      lGridX                   (RW) Should I draw grid lines for X axis                 
-      lGridY                   (RW) Should I draw grid lines for Y axis                 
+      aValues                  (RW) Data array
+      nType                    (RW) Signs arrays for X and Y axes
+      aSignX, aSignY           (RW) Number of lines in a line chart
+      nGraphs                  (RW) Graph type: 1 - line chart, 2 - bar histogram
+      lGridX                   (RW) Should I draw grid lines for X axis
+      lGridY                   (RW) Should I draw grid lines for Y axis
       lGridXMid                (RW) Should I shift X axis grid line to a middle of a bar
-      lPositive                (RW)                                                     
-      x1Def                    (RW) A left indent                                       
-      x2Def                    (RW) A right indent                                      
-      y1Def                    (RW) A top indent                                        
-      y2Def                    (RW) A bottom indent                                     
-      ymaxSet                  (RW)                      
-      colorCoor                (RW) A color for signs                                   
-      colorGrid                (RW) A color for axes and grid lines                     
-      aColors                  (RW) Colors for each line           
+      lPositive                (RW)
+      x1Def                    (RW) A left indent
+      x2Def                    (RW) A right indent
+      y1Def                    (RW) A top indent
+      y2Def                    (RW) A bottom indent
+      ymaxSet                  (RW)
+      colorCoor                (RW) A color for signs
+      colorGrid                (RW) A color for axes and grid lines
+      aColors                  (RW) Colors for each line
       aPens                     (R)
       scaleX, scaleY            (R)
       tbrush                    (R)
@@ -1590,7 +1590,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hceditbasic" href="#_hceditbasic">
-   HCEditBasic</a></strong> 
+   HCEditBasic</a></strong>
    <pre class="code">DATA
       oDrawn                  (R)
    </pre>
@@ -1602,7 +1602,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hdateselect" href="#_hdateselect">
-   HDateSelect</a></strong> 
+   HDateSelect</a></strong>
    <pre class="code">DATA
    </pre>
    <pre class="code">METHODS
@@ -1613,7 +1613,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hcolumn" href="#_hcolumn">
-   HColumn</a></strong> 
+   HColumn</a></strong>
    <pre class="code">DATA
       block                   (RW)
       heading                 (RW) Header text string
@@ -1653,7 +1653,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hbrwcol" href="#_hbrwcol">
-   HBrwCol</a></strong> 
+   HBrwCol</a></strong>
    <pre class="code">DATA
       block                   (RW)
       cHead, cFoot            (RW)
@@ -1676,7 +1676,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hbrwdata" href="#_hbrwdata">
-   HBrwData</a></strong> 
+   HBrwData</a></strong>
    <pre class="code">DATA
       nCurrent                (R)
   Internal:
@@ -1697,7 +1697,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hdataarray" href="#_hdataarray">
-   HDataArray</a></strong> 
+   HDataArray</a></strong>
    <pre class="code">DATA
       aData                   (R)
    </pre>
@@ -1715,7 +1715,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hdatadbf" href="#_hdatadbf">
-   HDataDbf</a></strong> 
+   HDataDbf</a></strong>
    <pre class="code">DATA
       cAlias                  (R)
    </pre>
@@ -1733,9 +1733,9 @@
    </pre>
 
    <br><strong class="subhead"><a name="hradiogroup" href="#_hradiogroup">
-   HRadioGroup</a></strong> 
+   HRadioGroup</a></strong>
    <pre class="code">DATA
-      CLASS VAR oGroupCurrent 
+      CLASS VAR oGroupCurrent
       bSetGet                 (RW)
       aButtons                 (R)
       nValue                   (R)
@@ -1751,7 +1751,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hfont" href="#_hfont">
-   HFont</a></strong> 
+   HFont</a></strong>
    <pre class="code">DATA
      CLASS VAR aFonts          (R)
      handle                    (R)
@@ -1813,8 +1813,8 @@
    The Method Select(oFont) calls the OS system dialog for selecting a new font.<br>
    Think about, that the design of the font selection dialog differs between<br>
    WinAPI and LINUX/GTK.<br>
-   Example:<br> 
-   &nbsp;&nbsp;oBrwFont := HFont():Select(oFont)<br> 
+   Example:<br>
+   &nbsp;&nbsp;oBrwFont := HFont():Select(oFont)<br>
    &nbsp;&nbsp;oFont := oBrwFont<br>
    &nbsp;&nbsp;oBrw:oFont := oFont<br>
    Modification of a font for the HBROWSE class<br>
@@ -1824,7 +1824,7 @@
 
 
    <br><strong class="subhead"><a name="hpen" href="#_hpen">
-   HPen</a></strong> 
+   HPen</a></strong>
    <pre class="code">DATA
      CLASS VAR aPens           (R)
      handle                    (R)
@@ -1838,7 +1838,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hbrush" href="#_hbrush">
-   HBrush</a></strong> 
+   HBrush</a></strong>
    <pre class="code">DATA
      CLASS VAR aBrushes        (R)
      handle                    (R)
@@ -1852,7 +1852,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hbitmap" href="#_hbitmap">
-   HBitmap</a></strong> 
+   HBitmap</a></strong>
    <pre class="code">DATA
      CLASS VAR cPath SHARED   (RW)
      CLASS VAR lSelFile       (RW)
@@ -1893,18 +1893,18 @@
    be unique for every single bitmap.<br>
    The value for the bitmap name is valid<br>
    during a single program run.<br>
-   See also function documentation for<br>  
+   See also function documentation for<br>
    hwg_ShowBitmap(), corresponding parameter "cbmpname"<br>
    for more details.<br>
    Resizing of bitmaps (stretching):<br>
    Many details for this item see comment lines of<br>
    sample program "stretch.prg and
    <br>
-   
+
    </p>
 
    <br><strong class="subhead"><a name="hicon" href="#_hicon">
-   HIcon</a></strong> 
+   HIcon</a></strong>
    <pre class="code">DATA
       CLASS VAR cPath SHARED  (RW)
       CLASS VAR lSelFile      (RW)
@@ -1929,7 +1929,7 @@
    </p>
 
    <br><strong class="subhead"><a name="hprinter" href="#_hprinter">
-   HPrinter</a></strong> 
+   HPrinter</a></strong>
    <pre class="code">DATA
       CLASS VAR aPaper         (R)
       hDCPrn                   (R)
@@ -1968,19 +1968,19 @@
       LeftMargin              (RW)
       RightMargin             (RW)
       // --- International Language Support for internal dialogs --
-      aLangTexts              (RW) 
+      aLangTexts              (RW)
       // Print Preview Dialog with sub dialog:
       // The messages and control text's are delivered by other classes, calling
       // the method Preview() in Parameter aTooltips as an array.
       // After call of Init method, you can update the array with messages in your
       // desired language.
       // Sample: Preview( , , aTooltips, )
-      // Structure of array look at 
+      // Structure of array look at
       // METHOD SetLanguage(apTooltips) CLASS HWinPrn
       // in file hwinprn.prg.
       // List of classes calling print preview
       // HWINPRN, HRepTmpl , ...
-      // For more details see inline comments in sample program "Winprn.prg" 
+      // For more details see inline comments in sample program "Winprn.prg"
    </pre>
    <pre class="code">METHODS
       New( cPrinter, lmm, nFormType, nBin, lLandScape, nCopies, lProprierties, hDCPrn ) - Windows
@@ -2012,7 +2012,7 @@
    <p>
    Additional instructions:<br>
    <br>
-   Some more instructions see class HWINPRN. 
+   Some more instructions see class HWINPRN.
    <br>
    Set lPreview in method StartDoc() to .T. to show the print preview dialog. Default is .F.<br>
    Otherwise the printing process starts immediately.<br>
@@ -2021,7 +2021,7 @@
    </p>
 
    <br><strong class="subhead"><a name="htreenode" href="#_htreenode">
-   HTreeNode</a></strong> 
+   HTreeNode</a></strong>
    <pre class="code">DATA
       CLASS VAR winclass       (R)
       aItems                   (R)
@@ -2030,16 +2030,16 @@
       bAction                 (RW)
    </pre>
    <pre class="code">METHODS
-      New( oTree, oParent, oPrev, oNext, cTitle, bAction,aImages ) 
-      AddNode( cTitle, oPrev, oNext, bAction, aImages ) 
-      Delete() 
-      FindChild( handle ) 
-      GetText() 
+      New( oTree, oParent, oPrev, oNext, cTitle, bAction,aImages )
+      AddNode( cTitle, oPrev, oNext, bAction, aImages )
+      Delete()
+      FindChild( handle )
+      GetText()
       SetText(cText)
    </pre>
 
    <br><strong class="subhead"><a name="htimer" href="#_htimer">
-   HTimer</a></strong> 
+   HTimer</a></strong>
    <pre class="code">DATA
       CLASS VAR aTimers        (R)
       id                       (R)
@@ -2054,7 +2054,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hfreeimage" href="#_hfreeimage">
-   HFreeImage</a></strong> 
+   HFreeImage</a></strong>
    <p>This class is similar to HBitmap, HIcon classes, it allows to load, save and draw
    an image in BMP, JPEG, PNG and some other formats. It uses FreeImage library (<a href=http://freeimage.sourceforge.net>http://freeimage.sourceforge.net></a>) -
    so, if you include it in your application, you need to have FreeImage.dll.</p>
@@ -2073,7 +2073,7 @@
       Draw( hDC, nLeft, nTop, nWidth, nHeight )
       Release()                 - Unload the image
    </pre>
-   The example of using this class you may find in samples/viewer/viewer.prg. 
+   The example of using this class you may find in samples/viewer/viewer.prg.
 
    <br><strong class="subhead"><a name="hsplash" href="#_hsplash">
    HSplash</a></strong>
@@ -2154,8 +2154,8 @@
     // --- International Language Support for internal dialogs --
       aTooltips                (RW) INIT {}  // Array with tooltips messages for print preview dialog
       aBootUser                (RW) INIT {}  // Array with control  messages for print preview dialog  (optional usage)
-   
-  
+
+
    </pre>
    <pre class="code">METHODS
       New( cPrinter, cpFrom, cpTo, nFormType )
@@ -2164,14 +2164,14 @@
       SetMode( lElite, lCond, nLineInch, lBold, lItalic, lUnder, nLineMax  )
       SetDefaultMode() &nbsp;&nbsp;  // Should act like a "printer reset".
       SetCPTo(cpTo)    &nbsp;&nbsp;&nbsp;&nbsp; - GTK only, on Windows ignored, see nPrCharset
-      SetCP(ccp)       &nbsp;&nbsp;&nbsp;&nbsp; - GTK only   
-      SetCDPin(ccp)    &nbsp;&nbsp;&nbsp;&nbsp; - GTK only     
+      SetCP(ccp)       &nbsp;&nbsp;&nbsp;&nbsp; - GTK only
+      SetCDPin(ccp)    &nbsp;&nbsp;&nbsp;&nbsp; - GTK only
       StartDoc( lPreview,cMetaName,lprbutton )
       NextPage()
       NewLine()
       PrintLine( cLine,lNewLine )
       PrintLine2( cLine )  - GTK only, Special for German Umlaute and other characters
-      PrintBitmap( xBitmap, nAlign , cBitmapName ) 
+      PrintBitmap( xBitmap, nAlign , cBitmapName )
       PrintText( cText )
       SetX( nYvalue )
       SetY( nYvalue )
@@ -2181,7 +2181,7 @@
    </pre>
    <p>
    Default fonts:<BR>
-   GTK:&nbsp;&nbsp;   "monospace"<BR>  
+   GTK:&nbsp;&nbsp;   "monospace"<BR>
    WinAPI:      "Lucida Console"<BR>
    <BR>
    Additional instructions:<BR>
@@ -2200,7 +2200,7 @@
    <BR> ===> Do not press "Cancel" (Abbruch), otherwise the program crashes.<br>
    After say "Print" in the preview dialog, you must enter a file name for the created PDF file:<BR>
    <BR>
-     <img src="./image/Win10_PR2PDF_FSel.png" align=center wborder=0 alt="System dialog for printer selection"> 
+     <img src="./image/Win10_PR2PDF_FSel.png" align=center wborder=0 alt="System dialog for printer selection">
    <BR>
    <BR>
    National Language Support for Print Preview Dialog:<BR>
@@ -2215,7 +2215,7 @@
    the text lines, and than the bitmap images (exact in this order).<BR>
    For details, see inline comments of sample program <BR>
    "samples/gtk_samples/winprn.prg".<BR>
-   More description in following text block.<BR> 
+   More description in following text block.<BR>
    </p>
 
 
@@ -2280,14 +2280,14 @@
    Check with WinAPI:
    The method SetY() does not work in the same way.
    For multi platform applications use the compiler switch
-   #ifdef __GTK__ 
+   #ifdef __GTK__
    to activate special adapted code.
    See also same sample for WinAPI.
   </pre>
 
 
    <br><strong class="subhead"><a name="hformtmpl" href="#_hformtmpl">
-   HFormTmpl</a></strong> 
+   HFormTmpl</a></strong>
    <pre class="code">DATA
       CLASS VAR aForms         (R)
       CLASS VAR maxId          (R)
@@ -2327,7 +2327,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hreptmpl" href="#_hreptmpl">
-   HRepTmpl</a></strong> 
+   HRepTmpl</a></strong>
    <pre class="code">DATA
       CLASS VAR aReports       (R)
       CLASS VAR maxId          (R)
@@ -2347,7 +2347,7 @@
       lNextPage, lFinish
       oPrinter
       // --- International Language Support for internal dialogs --
-      cTextRepDescnotF         (RW)  INIT "Report description isn't found" 
+      cTextRepDescnotF         (RW)  INIT "Report description isn't found"
    </pre>
    <pre class="code">METHODS
       READ( fname, cId )
@@ -2360,7 +2360,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hbinc" href="#_hbinc">
-   HBinC</a></strong> 
+   HBinC</a></strong>
    <p>This class implements a binary container - an one-file repository for different files, which you need to use
    in your program - an images, for example. It gets rid off directories with icons, images and other
    supplementary files, which are included in the distribution of your application, replacing them all
@@ -2412,7 +2412,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hstyle" href="#_hstyle">
-   HStyle</a></strong> 
+   HStyle</a></strong>
    <p>This class defines a style, painting parameters of a rectangular area, in particular - of some widget.
    It is possible to define a bacground color, an array of colors - in this case a gradient will be drawn.
    A direction of a gradient, a thickness and color of a border (if needed) may be specified in HStyle object.
@@ -2448,7 +2448,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hilightbase" href="#_hilightbase">
-   HilightBase</a></strong> 
+   HilightBase</a></strong>
    <p>Do not create instances of HilightBase. It serves as a base class for other syntax hilighting classes.</p>
    <pre class="code">DATA
       oEdit                    (R)
@@ -2462,7 +2462,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hilight" href="#_hilight">
-   Hilight</a></strong> 
+   Hilight</a></strong>
    <p>Syntax hilighting class, it is intended to be used together with an editor class
    <a href="#hcedit">HCEdit</a>.</p>
    <pre class="code">DATA
@@ -2483,10 +2483,10 @@
    </pre>
 
   <br><strong class="subhead"><a name="halert" href="#_halert">
-   HAlert</a></strong> 
+   HAlert</a></strong>
    <p>
    Clipper style Alert() replacement.<BR>
-   (Windows only)<br> 
+   (Windows only)<br>
    Emulates the old Clipper function with some bells and whistles.<br>
    Delivered by Alex Strickland (TNX !)<br>
    For detailed description look into comment lines of sample program "testalert.prg".
@@ -2563,7 +2563,7 @@
 
     ACCESS Choice INLINE ::nChoice
 
-  
+
    </pre>
    <pre class="code">METHODS
       Init(cTitle, cFont, nFontSize, nIcon, acOptions, nAlign, lModal, nTime, lBeep, nBeepSound, lTitleIcon, ;
@@ -2580,7 +2580,7 @@
    </pre>
 
    <br><strong class="subhead"><a name="hxmlnode" href="#_hxmlnode">
-   HXMLNode</a></strong> 
+   HXMLNode</a></strong>
    <pre class="code">DATA
       CLASS VAR nLastErr SHARED  (R)
       title                    (R)
@@ -2603,21 +2603,21 @@
    <b>Additional instructions:</b><br>
    These two functions supports the handling of XML files with fonts:<br>
    <br>
-   FUNCTION hwg_Font2XML( oFont )<br> 
+   FUNCTION hwg_Font2XML( oFont )<br>
    Returns an HXMLNode object with font attributes.<br>
    <br>
    FUNCTION hwg_hfrm_FontFromXML( oXmlNode, lReport )<br>
    Extracts the font attributes from an HXMLNode object created<br>
    with function hwg_Font2XML() and return them as a font object.<br>
    <br>
-   For usage see sample program "samples/testxml.prg".<br>
+   For usage see sample program "samples/demomenuxml.prg".<br>
    <br>
    Handling of character sets:<br>
    1.) In the header of an XML file the used character set is defined (for example):<br>
    &nbsp;&nbsp;&nbsp;&nbsp; &lt;?xml version="1.0" encoding="windows-1252"?&gt;<br>
    2.) In the second step, if the XML file was read by method HXMLDoc():Read(),<br>
    the file is explored for used enconding automatically.<br>
-   More instructions in inline comments of sample program "samples/testxml.prg".<br>
+   More instructions in inline comments of sample program "samples/demomenuxml.prg".<br>
    <br>
    If creating a new XML file with an editor, be shure before saving, that the desired codepage<br>
    is set: For example in Notepad++ look at the right bottom panel, here the recent<br>
@@ -2627,7 +2627,7 @@
    </p>
 
    <br><strong class="subhead"><a name="hxmldoc" href="#_hxmldoc">
-   HXMLDoc</a></strong> 
+   HXMLDoc</a></strong>
    <pre class="code">DATA
 
    </pre>
@@ -2640,7 +2640,7 @@
    </pre>
 
   <br><strong class="subhead"><a name="hpaintcb" href="#_hpaintcb">
-   HPaintCB</a></strong> 
+   HPaintCB</a></strong>
 
    <pre class="code">DATA
       aCB                    (R)
@@ -2652,7 +2652,7 @@
    </pre>
 
   <br><strong class="subhead"><a name="hpicture" href="#_hpicture">
-   HPicture</a></strong> 
+   HPicture</a></strong>
 
    <pre class="code">DATA
       cPicFunc                (R)
@@ -2676,7 +2676,7 @@
    </pre>
 
   <br><strong class="subhead"><a name="hdrawn" href="#_hdrawn">
-   HDrawn</a></strong> 
+   HDrawn</a></strong>
 
    <pre class="code">DATA
       CLASS VAR oDefParent    (R)
@@ -2733,7 +2733,7 @@
    </pre>
 
   <br><strong class="subhead"><a name="hdrawntt" href="#_hdrawntt">
-   HDrawnTT</a></strong> 
+   HDrawnTT</a></strong>
 
    <pre class="code">DATA
        CLASS VAR oFontDef     (RW) A default font for all drawn tooltips
@@ -2752,7 +2752,7 @@
    </pre>
 
   <br><strong class="subhead"><a name="hdrawncheck" href="#_hdrawncheck">
-   HDrawnCheck</a></strong> 
+   HDrawnCheck</a></strong>
 
    <pre class="code">DATA
       cForTitle               (RW) A char to be displayed as a check mark
@@ -2764,7 +2764,7 @@
    </pre>
 
   <br><strong class="subhead"><a name="hdrawnradio" href="#_hdrawnradio">
-   HDrawnRadio</a></strong> 
+   HDrawnRadio</a></strong>
 
    <pre class="code">DATA
       cForTitle               (RW) A char to be displayed as a check mark
@@ -2779,7 +2779,7 @@
    </pre>
 
   <br><strong class="subhead"><a name="hdrawnedit" href="#_hdrawnedit">
-   HDrawnEdit</a></strong> 
+   HDrawnEdit</a></strong>
 
    <pre class="code">DATA
       lUtf8                   (RW) Flag - UTF8 codepage is used
@@ -2807,8 +2807,8 @@
       bGetFocus, bLostFocus   (RW)
   Internal:
       hEdit
-      nPosF 
-      nPosC 
+      nPosF
+      nPosC
       nInit
    </pre>
    <pre class="code">METHODS
@@ -2832,7 +2832,7 @@
    </pre>
 
   <br><strong class="subhead"><a name="hdrawnlenta" href="#_hdrawnlenta">
-   HDrawnLenta</a></strong> 
+   HDrawnLenta</a></strong>
 
    <pre class="code">DATA
       lVertical               (R)
@@ -2844,12 +2844,12 @@
       nFirst                  (RW)
       nSelected               (RW)
   Internal:
-      lDrawNext 
-      lPressed  
-      lMoved    
-      nOver     
-      nShift    
-      nDragKoef 
+      lDrawNext
+      lPressed
+      lMoved
+      nOver
+      nShift
+      nDragKoef
       xPos, yPos
       bCli
    </pre>
@@ -2867,7 +2867,7 @@
    </pre>
 
   <br><strong class="subhead"><a name="hdrawntrack" href="#_hdrawntrack">
-   HDrawnTrack</a></strong> 
+   HDrawnTrack</a></strong>
 
    <pre class="code">DATA
       lVertical               (RW)
@@ -2898,7 +2898,7 @@
    </pre>
 
   <br><strong class="subhead"><a name="hdrawnbrw" href="#_hdrawnbrw">
-   HDrawnBrw</a></strong> 
+   HDrawnBrw</a></strong>
 
    <pre class="code">DATA
       oData                   (RW)
@@ -2979,7 +2979,7 @@
    </pre>
 
   <br><strong class="subhead"><a name="hdrawncombo" href="#_hdrawncombo">
-   HDrawnCombo</a></strong> 
+   HDrawnCombo</a></strong>
 
    <pre class="code">DATA
        aItems                       (RW)
@@ -3007,7 +3007,7 @@
    </pre>
 
   <br><strong class="subhead"><a name="hdrawnupdown" href="#_hdrawnupdown">
-   HDrawnUpdown</a></strong> 
+   HDrawnUpdown</a></strong>
 
    <pre class="code">DATA
        nLower                 (RW)
@@ -3034,7 +3034,7 @@
    </pre>
 
   <br><strong class="subhead"><a name="hdrawndate" href="#_hdrawndate">
-   HDrawnDate</a></strong> 
+   HDrawnDate</a></strong>
 
    <pre class="code">DATA
       oEdit, oBtn, oList

@@ -7,7 +7,7 @@ Creative Commons License CC BY-SA 2.0 de
 
  $Id$
 
- 
+
 A little guide to port old Clipper programs to HWGUI
 ____________________________________________________
 
@@ -33,7 +33,7 @@ Contents
 Lead your old Clipper program into the future with Harbour and HWGUI.
 This file contains my experience to port my old application "CLLOG" [1]
 compiled with Clipper Summer 1987 running on MS-DOS to HWGUI for
-Windows and LINUX. My project started as an open source application 
+Windows and LINUX. My project started as an open source application
 in the year 1995. You find the old Clipper code archived in
 the "Files" tab in directory "v1.x_DOS".
 
@@ -57,13 +57,13 @@ for example:
 - RS232
 - Internet (sockets) functions
 and many more.
- 
+
 
 Port was done in 2 big steps:
 For best success, it is a good idea to port your program first to Harbour as a
 console or terminal application for a good preparation for the following HWGUI port.
 This is a recommended method and an intermediate step to detect incompatible code, before you
-start with HWGUI. 
+start with HWGUI.
 
 I wish good luck.
 
@@ -75,7 +75,7 @@ DF7BE, Wilfried
 
 1.1. Recommended open source programs for developer's environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-(For Windows 32 and 64 bit) 
+(For Windows 32 and 64 bit)
 
    - Notepad++ : Editor with a lot of functions.
       Search for file "xbase.xml" or "harbour.xml" and import the programming language for
@@ -85,7 +85,7 @@ DF7BE, Wilfried
    - 7zip      : Archiver for many formats, e.g. ZIP, tar.gz ...
 
    - WinMerge  : A mighty diff and merge tool.
-   
+
 
 2. Port to Harbour
 ~~~~~~~~~~~~~~~~~~
@@ -145,7 +145,7 @@ Must be removed and ported to Harbour or C.
 Try to look for extensions of Harbour, if it is possible to substitute these
 functions. In CLLOG, only one assembler module increases the number of available
 file handle. I removed it complete, because Harbour can serve much more available handles.
-Try to search in the Internet for a solution.  
+Try to search in the Internet for a solution.
 
 2.) Mouse support
 In most cases, external libraries are linked to the program (assembler based ?).
@@ -175,7 +175,7 @@ in the HWGUI source code files.
 4.) Printing
 
 Clipper and Harbour printing functions send their data directly to the parallel printer port
-(LPTx). In general, in the Clipper program you have to send printer control sequences 
+(LPTx). In general, in the Clipper program you have to send printer control sequences
 dependent of the used printer model. In CLLOG, i used a printer database
 to support more printer models.
 
@@ -183,7 +183,7 @@ Because recent computer systems have no printer interfaces any more, it is stric
 to use the Winprn class for Windows and Linux/GTK for all printing actions.
 The Winprn class contains a good print preview dialog.
 If you have a valid printer driver for your printer model installed,
-your printing job is done easy (printer connection via USB or LAN). 
+your printing job is done easy (printer connection via USB or LAN).
 
 For evaluation purposes, you can redirect the printer output in the Harbour console program into a
 normal file and look for the result with a text editor.
@@ -192,7 +192,7 @@ normal file and look for the result with a text editor.
 5.) Help system
 The recent style to serve help information is to set links into the Internet.
 
-In old Clipper programs you set: 
+In old Clipper programs you set:
 SET KEY -1 TO help  && F1
 The HELP function was called with 3 parameters:
 - procedure name
@@ -206,7 +206,7 @@ and calls the help function on click by setting the parameters manually
 corresponding to the dialog:
 @ <x>,<y> BUTTON obutton3 CAPTION "Help"  SIZE 80,32 ;
         STYLE WS_TABSTOP+BS_FLAT ;
-        ON CLICK { ||  HELP("ADIFSEL",PROCLINE(),"ADIFSEL") } 
+        ON CLICK { ||  HELP("ADIFSEL",PROCLINE(),"ADIFSEL") }
 So the help information is displayed context sensitive.
 I use the same help database for the console and HWGUI program.
 
@@ -215,12 +215,12 @@ because support ended.
 
 Instead of a help database you can store the help information in
 XML or text files.
- 
- 
- 
+
+
+
 6.) UNIX/LINUX
 - File names are case sensitive.
-For example 
+For example
 "Readme.txt" is not the same file as "readme.txt".
 Think about it, if using names of
 normal files, databases, labels, reports and so on.
@@ -235,7 +235,7 @@ For example (for german language):
 REQUEST HB_LANG_DE
 * Data Codepage (in DBFs)
 REQUEST HB_CODEPAGE_DE858
-* Windows codepage 
+* Windows codepage
 REQUEST HB_CODEPAGE_DEWIN
 
 IF hwg__isUnicode()
@@ -245,7 +245,7 @@ IF hwg__isUnicode()
 ELSE
  set(_SET_CODEPAGE,"DE858")
  hb_cdpSelect("DEWIN")
-ENDIF 
+ENDIF
 
 Open a DBF file with old codepage:
 (Variable "pDataCP" contains the name of the codepage, for example "DE858")
@@ -263,8 +263,8 @@ So substitute them to newer commands.
   also be removed for those variables.
 - PUBLIC variables:
   In some cases, public variables are used in only one source module,
-  declare them as STATIC at the beginnung of the module code 
-  (before starting with functions and procedures).   
+  declare them as STATIC at the beginnung of the module code
+  (before starting with functions and procedures).
 - Assignment of variables:
   Set "=" to ":="
 
@@ -287,7 +287,7 @@ Add resources (icons and images) with the "Binary Container manager" or by hex v
 
 Add printing function with the HWINPRN class. See sample program "winprn.prg".
 
-Because of no memory limitation, add more features. 
+Because of no memory limitation, add more features.
 In CLLOG, some features are realized at the beginning of the project as external programs.
 This is not easy to handle for the user, so they are now integrated into the HWGUI main program.
 
@@ -301,16 +301,16 @@ for realizing.
 4.1.1 Quick and dirty method
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 I my application CLLOG, i desired to support only
-two languages: English and German. So message text's of both languages can be set static in the 
+two languages: English and German. So message text's of both languages can be set static in the
 program code.
 These only few special characters must be handled in extra routines:
 Umlaute (ÄÖÜäöü), the sharp "S" (ß), the Euro Currency sign (€) and the greek micro (µ) as a
 symbol for parts of a million from the SI system, the degree sign (°), the rest is pure ASCII.
-The greek mocro (µ) must not handled extra, it is the same code in Windows and UTF-8(0xb5). 
+The greek mocro (µ) must not handled extra, it is the same code in Windows and UTF-8(0xb5).
 The special characters must be handled different for Windows Codepage and UTF-8.
 - For every special character i declared a PUBLIC variable containing each character:
   PUBLIC CAGUML, COGUML , CUGUML , CAKUML, COKUML , CUKUML , CSZUML , EURO, GRAD_ZEICH
-  *      Ä       Ö        Ü        ä       ö        ü        ß        €     ° 
+  *      Ä       Ö        Ü        ä       ö        ü        ß        €     °
 - In the next step these variables must be initialized:
   (Use for coding a text editor with codepage UTF-8 activated)
   IF hwg__isUnicode()
@@ -331,8 +331,8 @@ The special characters must be handled different for Windows Codepage and UTF-8.
    COKUML := CHR(246)
    CUKUML := CHR(252)
    CSZUML := CHR(223)
-   EURO   := CHR(128)   
-   GRAD_ZEICH := CHR(248)  
+   EURO   := CHR(128)
+   GRAD_ZEICH := CHR(248)
   ENDIF
 
 - Declare a PUBLIC array containing all messages of the program in the main section:
@@ -369,10 +369,10 @@ FUNCTION INITARRTXT_DE
       .
    /* nnn   */ AAdd(aMsgText, "...")
 
-RETURN NIL 
+RETURN NIL
 
 - Call one of this functions in your initializing sequence of your programm
-  depending on the desired language setting (store program setting for 
+  depending on the desired language setting (store program setting for
   language section in XML, text , ini or MEM files) .
 
 - Get the recent message text by access to the array (For example "Close"):
@@ -414,7 +414,7 @@ FUNCTION hwg_HPrinter_LangArray_EN()
   /* 3  */ AAdd(aTooltips,"First page")
   ...
 
-Overwrite the messages of the print preview with german text's  
+Overwrite the messages of the print preview with german text's
 (samples\winprn.prg) by calling this function:
 
 FUNCTION hwg_HPrinter_LangArray_DE()
@@ -424,19 +424,19 @@ Copy this function with a new name and
 translate the message to your language:
 
 FUNCTION hwg_HPrinter_LangArray_RU()
-* ============ Russian ============== 
+* ============ Russian ==============
 ....
 
 See detailed instructions in the inline comment of sample program "winprn.prg".
 
 In most cases, the setting is immedeately active after the new setting is done.
 For the main menu (here i reach the dialag for language selection) it is
-necessary to restart the program to see the main menu in the selected language.  
+necessary to restart the program to see the main menu in the selected language.
 
 
 4.1.2 Language files
 ~~~~~~~~~~~~~~~~~~~~
-The best way to store messages for different languages is by using values 
+The best way to store messages for different languages is by using values
 stored in XML files.
 For every language you need a pair of language files, for Windows and UTF-8.
 Select them dependent of the return value of function hwg__isUnicode().
@@ -444,7 +444,7 @@ With the Notepad++ editor, you can preset the used codepage before
 start editing first ("ANSI" for Windows or "UTF-8 without BOM").
 
 It is strictliy recommended, to load first the text in english language
-as described in the "Quick and dirty method" in static code. If a language file 
+as described in the "Quick and dirty method" in static code. If a language file
 is not readable because of a file error, the message are displayed and the control
 of the program is nevertheless available.
 
@@ -452,7 +452,7 @@ Load the language file for your desired language and overwrite
 the message array "aMsgText" and optional for the internal HWGUI dialogs
 by extracts them from the XML language file.
 The class HXMLDoc of HWGUI supports reading and writing values in XML files.
-See sample program C:\hwgui\hwgui\samples\xmltree.prg and utilities
+See sample program C:\hwgui\hwgui\samples\demoxmltree.prg and utilities
 utils\editor\editor.prg
 utils\tutorial\hwgrun.prg
 utils\tutorial\tutor.prg
@@ -476,5 +476,5 @@ https://sourceforge.net/projects/cllog/
 
 A lot of inline comments are in german language.
 We add translations to english during the developing process step by step.
- 
+
 ======================= EOF of port.txt ========================================

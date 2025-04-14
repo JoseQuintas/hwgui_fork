@@ -46,15 +46,15 @@
 # Samples WinAPI and LINUX/GTK
 #
 ../samples/all.hbp
-../samples/testbrowsearr.prg
+../samples/demobrowsearr.prg
 ../samples/bincnts.prg
 ../samples/colrbloc.prg
-#../samples/datepicker.prg - dlgdpick.prg - on all.hbp
+../samples/demodatepicker.prg ##- old demodatepicker
 ../samples/dbview.prg
-../samples/testdemodbf.prg
-../samples/demohlistsub.prg
+../samples/demodbfdata.prg
+../samples/demolistboxsub.prg
 ../samples/fileselect.prg
-../samples/getupdown.prg
+../samples/demogetupdown.prg
 ../samples/GetWinVers.prg
 ../samples/graph.prg
 ../samples/helpstatic.prg
@@ -70,36 +70,36 @@
 ../samples/stretch.prg
 ../samples/tab.prg
 ../samples/testfunc.prg
-*../samples/testhmonth.prg - dlghmonth - on all.hbp
+../samples/demomonthcal.prg ## old testhmonth.prg
 ../samples/testimage.prg
-../samples/testsdi.prg
-#../samples/testspli.prg - dlgsplit.prg - on all.hbp
+../samples/demotreebox.prg ## old testsdi.prg
+../samples/demosplit.prg ## old testspli.prg
 ../samples/testtree.prg
-#../samples/testxml.prg - dlgxml.prg - on all.hbp
+../samples/testmenuxml.prg ## old menuxml.prg
 ../samples/trackbar.prg
-#../samples/tstcombo.prg - dlgcombo.prg - on all.hbp
+../samples/demolistbox.prg ## old tstcombo.prg
 ../samples/TwoLstSub.prg
 ../samples/winprn.prg
-../samples/testxmltree.prg
+../samples/demoxmltree.prg
 #
 # Samples WinAPI only
 #
 ../samples/a.prg
 ../samples/buildpelles.prg
-../samples/demohlist.prg
+../samples/demolistbox ## old demohlist.prg
 ../samples/grid_1.prg
 ../samples/grid_4.prg
 ../samples/grid_5.prg
 ../samples/hello.prg
 ../samples/nice.prg
-#../samples/shadebtn.prg - dlgshade.prg - on all.hbp
-#../samples/test_bot.prg - dlgbot.prg - on all.hbp
+../samples/demoshadebtn.prg ## old dlgshade.prg
+../samples/demoonother.prg ## old test_bot.prg
 ../samples/Testado.prg
 ../samples/testalert.prg
 ../samples/testbrw.prg
 ../samples/testget1.prg
 ../samples/testget2.prg
-../samples/testini.prg
+../samples/demoini.prg
 ../samples/testmenubitmap.prg
 ../samples/testrtf.prg
 ../samples/tstscrlbar.prg
@@ -109,7 +109,7 @@
 # Programs not runable
 # ../samples/nice2.prg
 # ../samples/propsh.prg
-# ../samples/testchild.prg
+# ../samples/testchild.prg ## moved to test/samples/
 #../samples/testtray.prg
 #
 # use Postgres Library, you need to link libpq.lib and libhbpg.lib
@@ -119,10 +119,9 @@
 # --- Outdated ---
 # ../samples/helpdemo.prg
 # ../samples/hole.prg
-# ../test/iesample.hbp
+# ../test/iesample.hbp ## moved to test/samples/
 # ../samples/tstprdos.prg
-#
-../samples/testhgt.hbp
+# ../samples/testhgt.hbp ## moved to test/samples/
 #
 # Samples LINUX/GTK
 #

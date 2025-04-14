@@ -11,16 +11,16 @@ Tasks by DF7BE
  - Check for Pelles C compiler
    (recent state: not supported by Harbour)
  - Port of HWGUI designer to LINUX
- 
+
 List:  Samples not running or have bugs (Fix bugs, if time available, low priority):
   1.) WinAPI
-      grid_5.prg     crashes, if click on button "Change": 
+      grid_5.prg     crashes, if click on button "Change":
                      Hint: commenting out this line without crash:
                      //   ADD COLUMN TO GRIDEDIT aItems FIELD "Field_2" LABEL "Char" PICTURE "@!" //READONLY
       nice2.prg      Seems to be outdated, starts only in background, kill with Task Manager
-      testchild.prg  child window not created ! command seems to be outdated.
+      testchild.prg  child window not created ! command seems to be outdated. - moved to test/samples/
       testrtf.prg    Created Rich text files are corrupted, see bug ticket #37 (text above).
-      propsh.prg     hwg_PropertySheet() freezes. 
+      propsh.prg     hwg_PropertySheet() freezes.
 
   2.) GTK
       tstsplash.prg  works for WinAPI, but background for splash window on GTK empty:
@@ -34,24 +34,24 @@ List:  Samples not running or have bugs (Fix bugs, if time available, low priori
 some work for recover mouse cursor on GTK.
 - Add parameters for internal HWGUI dialogs like
   hwg_msginfo() or printer preview to hide there
-  the mouse cursor. 
+  the mouse cursor.
 
 
  Binary container manager:
  Bug at deleting an item,
  the entry is not deleted, but the name is empty.
  Adding a new item, the name is corupted.
- 
- 
- GTK + Toolbar : If used, the Ownerbuttons are not visible 
+
+
+ GTK + Toolbar : If used, the Ownerbuttons are not visible
 
 Documentation:
 - A lot of functions with no describing text for usage and
   purpose (all developers).
 
-  
+
 =========================================================
-Create list with Windows only functions and commands 
+Create list with Windows only functions and commands
 to use as a task list for port this functions to GTK.
 
 List of commands to port
@@ -71,9 +71,9 @@ substitute:
 Urgent ports marked with *
 
 hwg_PrintSetup()
-* hwg_MsgNoYes()  
+* hwg_MsgNoYes()
 * hwg_MsgRetryCancel()
-* hwg_MsgBeep() 
+* hwg_MsgBeep()
 hwg_ShellAbout()
 hwg_Box()
 hwg_Pie()
@@ -84,62 +84,62 @@ hwg_CenterBitmap()
 * hwg_GetIconSize()
 hwg_GetsyscolorBrush()
 hwg_Createhatchbrush()
-hwg_SaveDC() 
-hwg_DeleteDC() 
-hwg_Restoredc() 
-hwg_CreateCompatibleBitmap() 
+hwg_SaveDC()
+hwg_DeleteDC()
+hwg_Restoredc()
+hwg_CreateCompatibleBitmap()
 hwg_Patblt()
-hwg_Setmapmode() 
-hwg_Setwindoworgex() 
-hwg_Setwindowextex() 
-hwg_Setviewportorgex() 
-hwg_Setviewportextex() 
-hwg_Setarcdirection() 
-hwg_Setrop2() 
+hwg_Setmapmode()
+hwg_Setwindoworgex()
+hwg_Setwindowextex()
+hwg_Setviewportorgex()
+hwg_Setviewportextex()
+hwg_Setarcdirection()
+hwg_Setrop2()
 hwg_DrawFrameControl()
 hwg_WindowFromDC()
 hwg_Loadimage()
 hwg_Loadbitmap()
-hwg_GetPpsRect() 
-hwg_GetPpsErase() 
+hwg_GetPpsRect()
+hwg_GetPpsErase()
 hwg_GetUpdateRect()
 hwg_isWindow()
 hwg_FlashWindow()
 hwg_GetInstance()
 hwg_SetWindowStyle()
-hwg_GetWindowStyle() 
-hwg_SetWindowExStyle() 
-hwg_GetWindowExStyle() 
-hwg_FindWindow() 
+hwg_GetWindowStyle()
+hwg_SetWindowExStyle()
+hwg_GetWindowExStyle()
+hwg_FindWindow()
 hwg_SetForegroundWindow()
-hwg_BringToTop() 
+hwg_BringToTop()
 hwg_ResetWindowPos()
 hwg_UpdateWindow()
-hwg_SendMessage() 
-hwg_PostMessage() 
-hwg_SetWindowFont() 
+hwg_SendMessage()
+hwg_PostMessage()
+hwg_SetWindowFont()
 hwg_GetLastError()
 hwg_ExitProcess()
-hwg_ChildWindowFromPoint() 
-hwg_WindowFromPoint() 
+hwg_ChildWindowFromPoint()
+hwg_WindowFromPoint()
 hwg_GetFontDialogUnits()
-hwg_GetWindowPlacement() 
+hwg_GetWindowPlacement()
 hwg_ClearKeyboard()
 hwg_ShowProgress()
 hwg_trackbarsetrange()
 hwg_Setctrlfont()
 hwg_GetTimePicker()
 hwg_SetTabSize() ==> hwg_SetCurrentTab()
-hwg_GetTabHeight() 
+hwg_GetTabHeight()
 hwg_CreateImageList()
 hwg_DestroyImageList()
 hwg_Imagelist_Add()
 hwg_Imagelist_AddMasked()
 hwg_ImageList_GetImageCount()
 hwg_getAncestor()
-hwg_GetCursor() 
-* hwg_SetTooltipBalloon() ==> Dummy for GTK 
-hwg_GetTooltipBalloon() 
+hwg_GetCursor()
+* hwg_SetTooltipBalloon() ==> Dummy for GTK
+hwg_GetTooltipBalloon()
 hwg_SetDlgItemText()
 hwg_GetDlgItemText()
 hwg_GetEditText()
@@ -191,7 +191,7 @@ hwg_SetScrollInfo()
 hwg_GetScrollRange()
 hwg_SetScrollRange()
 hwg_GetScrollPos()
-hwg_SetScrollPos() 
+hwg_SetScrollPos()
 hwg_ShowScrollBar()
 hwg_ScrollWindow()
 hwg_isCapslockActive()
@@ -210,7 +210,7 @@ hwg_Getsystemmetrics()
 hwg_GetBackBrush()
 hwg_LastKey()
 hwg_ProcessRun()
-hwg_Alert() 
+hwg_Alert()
 hwg_Alert_DisableCloseButton()
 hwhwg_Alert_GetWindow()
 
@@ -228,7 +228,7 @@ hwg_RegGetValue()
 
 =========================================================
 Area: Rich Text Format (RTF)
-Special Task for Alexander Kresin and 
+Special Task for Alexander Kresin and
 mlacecilia, JIJA, TRM, JJA:
 Bug Ticket #37 and #38.
 
@@ -242,7 +242,7 @@ Old entries, must be checked (is bugfixing done ?)
 - GET with AUTO_VSCROOL not function equal "@S"
 - possibilidade de um STYLE para que o objeto nao seje o proximo foco
   in english:
-  possibility of a STYLE so that the object is not the next focus 
+  possibility of a STYLE so that the object is not the next focus
 - STYLE DT_VCENTER in SAY not function perfectly the back change to dark gray
 - CHILD possibility change de backgrond color
 - PANEL possibility change de backgrond color

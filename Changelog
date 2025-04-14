@@ -15,6 +15,21 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-14 08:30 UTC-0200 Jose Quintas jmcquintas-gmail.com
+   * samples/*
+      ! Samples review, name demo*, title of dialogs with source code name
+      ! fix warnings -w3 -es2
+      ! update scripts and references with new name
+      ! all.prg can compile samples before to show
+   * samples/testhgt.*
+   * samples/iesample.*
+   * samples/testchild.*
+     ! moved to test/samples/, not usable examples for users
+   * qrcode samples moved to contrib/qrcode/test
+     ! specific dependencies to build and samples, user solve all at same time
+   ! About new names demo*: samples are demonstration not test
+   ! TODO: more samples to review, see all.prg
+
 2025-04-13 08:00 UTC-0200 Jose Quintas jmcquintas-gmail.com
    * rename samples/demodbf.* to samples/testdemodbf.*
    * rename samples/testxmltree.* to samples/testxmltree.*

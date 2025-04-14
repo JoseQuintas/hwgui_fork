@@ -5,7 +5,7 @@ install-macos.txt
 
 $Id$
 
-By DF7BE 
+By DF7BE
 
 History:
 (Date format is YYYY-MM-DD)
@@ -26,7 +26,7 @@ Contents:
 MacOS by Apple is not official supported by the Harbour project,
 but the "xcode" development environment allows
 to run Harbour and HWGUI applications on MacOS.
-An extra set of make scripts are added to HWGUI, 
+An extra set of make scripts are added to HWGUI,
 but a selection macro for this OS is "{darwin}",
 it can  be set in *.hbp files for hbmk2 utility,
 details in the following chapters.
@@ -40,7 +40,7 @@ and commands are running also here.
 2. Installation steps
 ---------------------
 
-Installation instructions, tested under 
+Installation instructions, tested under
 MacOS Sonoma 14.5
 Dual-Core Intel i3, 1.1GHz
 
@@ -49,14 +49,14 @@ at 2024-08-18 (YYYY-MM-DD).
 For editing text files you need a suitable text editor,
 the "TextEdit" coming with the system is only for some formats
 (Rich-Text, HTML, ...)
-For more info see chapter "2. Hints for programmers". 
+For more info see chapter "2. Hints for programmers".
 
     1.) Launch terminal:
-        must be found in Applications/Utilities, 
+        must be found in Applications/Utilities,
         search for "Terminal":
         Finder, menu item "Go" (Gehe zu) and
-        "Utilities" (Dienstprogramme), 
-        key "command" + "U" 
+        "Utilities" (Dienstprogramme),
+        key "command" + "U"
         Start the Terminal and
         fix the Terminal at the dock, if running.
         (german: "Im Dock behalten")
@@ -71,11 +71,11 @@ For more info see chapter "2. Hints for programmers".
 
 
     3.) Install Harbour from Source:
-        - Download the newest code snapshot as ZIP 
+        - Download the newest code snapshot as ZIP
         - Extract the Harbour archive,
           most done automatically.
         - become root user by
-          sudo su 
+          sudo su
           ==> Enter your password.
         - cd into base directory of Harbour
         - export HB_INSTALL_PREFIX=/usr/local
@@ -92,7 +92,7 @@ For more info see chapter "2. Hints for programmers".
 
     4.) Install macports:
 
- 
+
        Download package file for your OS, for example:
        MacPorts-2.9.3-14-Sonoma.pkg
 
@@ -102,19 +102,19 @@ For more info see chapter "2. Hints for programmers".
       - leave root by "exit"
 
 
-  
-    5.) Install GTK2    
-    
+
+    5.) Install GTK2
+
        - sudo /opt/local/bin/port install gtk2
 
          Answer question "Continue? [Y/n]:" with "y"
          (after display of all dependency packages to be installed)
- 
-   
+
+
     6.) Install pkgconfig
 
-        - sudo /opt/local/bin/port install pkgconfig   
-   
+        - sudo /opt/local/bin/port install pkgconfig
+
         - Test flag display for GTK2:
          /opt/local/bin/pkg-config --cflags gtk+-2.0
 
@@ -129,7 +129,7 @@ For more info see chapter "2. Hints for programmers".
         sudo installer -target / -pkg XQuartz-2.8.5.pkg
 
         There must be started a background process.
-        Test: 
+        Test:
         start "xeyes" or "xclock" in the terminal.
         Be shure, that the X icon is visible in the dock
         (after every login). A running process is marked
@@ -137,7 +137,7 @@ For more info see chapter "2. Hints for programmers".
         Adding a "&" after the program call command,
         the program starts in background and you can enter
         more commands.
-  
+
     8.) Install "wmctrl" (Needed for PROGRESSBAR)
 
       Direct support for progressbar is WinAPI only.
@@ -158,7 +158,7 @@ For more info see chapter "2. Hints for programmers".
         Installation destination is
         /Users/<userid>/hwgui/hwgui
         (at your home directory)
-     
+
         - Create directory:
           mkdir hwgui
           and extract archive here.
@@ -168,41 +168,41 @@ For more info see chapter "2. Hints for programmers".
         - Start compilation by calling
           ./make_macgtk2.sh
 
-  
+
     10.) Compile a sample program
-     
+
         goto directory "samples"
-        and start compiling of arraybrowse.prg
-        hbmk2 arraybrowse.hbp
+        and start compiling of demobrowsearray.prg
+        hbmk2 demobrowsearray.hbp
         Ignore warning:
         ld: warning: ignoring duplicate libraries: '-lhbrdd', '-lhbrtl', '-lhbvm'
 
         Start sample programm:
-        ./arraybrowse
- 
+        ./demobrowsearray
+
 
     11.) Compile your own application
 
-        Use the file arraybrowse.hbp as a template
+        Use the file demobrowsearray.hbp and hbmk.hbm as a template
         to create a hbp file for building your own application.
         Because the HPB macro "{mac}" does not exist,
         use following macros to divide to your used operating system:
         - {!win} ==> for LINUX and MacOS
         - {darwin}  ==> only MacOS
-        - {win} ==> Windows only 
-        
-        To divide code for MacOS for Harbour and HWGUI we suggest to use the following 
+        - {win} ==> Windows only
+
+        To divide code for MacOS for Harbour and HWGUI we suggest to use the following
         define for all .prg files:
         ___MACOSX___
         Add the following line in your *.hbp file:
         {darwin}-d___MACOSX___
         So say in your .prg:
-        #ifdef ___MACOSX___    
-      
+        #ifdef ___MACOSX___
+
        Get more samples for programming your own HWGUI application
        in the subdirectory "samples" and at
-       [3] Project "CLLOG". 
-       
+       [3] Project "CLLOG".
+
        If you also use Harbour Console/Terminal programs,
        solve a problem on MacOS:
        Regularly the command
@@ -213,7 +213,7 @@ For more info see chapter "2. Hints for programmers".
          ./helloworld       the start is faulted with the following error message:
         dyld[1767]: Library not loaded: libharbour.dylib
         Referenced from: <F7B1FE28-9F46-3B03-BBF2-CCB7EC56B210> /Users/afumacbook/svnwork/
-         hwgui/hwgui-code/hwgui/samples/helloworld        
+         hwgui/hwgui-code/hwgui/samples/helloworld
          Reason: tried: 'libharbour.dylib' (no such file),
          '/System/Volumes/Preboot/Cryptexes/OSlibharbour.dylib' (no such file),
          'libharbour.dylib' (no such file),
@@ -225,8 +225,8 @@ For more info see chapter "2. Hints for programmers".
              ./hbmk.sh helloworld
       and it runs now.
       The script can also be used on LINUX, it
-      has an OS autodetect function.          
-  
+      has an OS autodetect function.
+
    12.) How to create desktop shortcuts for files and folders
 
         The term "desktop shortcut" is a more familiar term to Windows users,
@@ -238,7 +238,7 @@ For more info see chapter "2. Hints for programmers".
         german language setting.
 
         Select the "Finder" icon which is the leftmost icon on the dock.
- 
+
         Use the "Finder" to locate the folder,
         file, or application you'd like to create a
         shortcut for on the left side of the window.
@@ -247,7 +247,7 @@ For more info see chapter "2. Hints for programmers".
 
         Go to the main menu bar, "Select File" (Ablage) ==> "Make Alias" (Alias erzeugen).
 
-        Right-click on the file and select "Make Alias" (Alias erzeugen) from the menu. 
+        Right-click on the file and select "Make Alias" (Alias erzeugen) from the menu.
         Right-Click on Folder to make alias.
         Der created alias for a file or program is named "<name> alias"
         and is located in this directory.
@@ -264,7 +264,7 @@ For more info see chapter "2. Hints for programmers".
         so the alias has the name of the file, program or directory.
 
         Drag the alias file to the desktop if it's in any other location.
-        You can also copy and paste this to any location. 
+        You can also copy and paste this to any location.
 
         Every shortcut has a small arrow on the bottom left corner as a marker,
         that is not a program, a normal file or directory.
@@ -282,11 +282,11 @@ For more info see chapter "2. Hints for programmers".
         but an intermediate terminal started in the background,
         before the HWGUI application is running.
         After termination of the HWGUI program,
-        you must close the terminal manually. 
+        you must close the terminal manually.
 
 
 1.2 GTK 3
- 
+
  The port to GTK3 is not completed, there is some
  work to do.
  The Bugs appeared on LINUX and MacOS, so
@@ -294,21 +294,21 @@ For more info see chapter "2. Hints for programmers".
  If you found a solution, please create a ticket
  on sourceforge.net and send us the modified code.
  (TNX).
- 
- Please install all packages described in chapter above. 
- 
+
+ Please install all packages described in chapter above.
+
  - Install additional GTK3 by:
-        
+
             sudo /opt/local/bin/port install gtk3
-            
+
   - Recompile HWGUI:
      ./clean.sh
      ./make_macgtk3.sh
-            
+
   - Check for GTK2 and GTK3:
         /opt/local/bin/pkg-config --cflags gtk+-2.0
         /opt/local/bin/pkg-config --cflags gtk+-3.0
-     
+
    - Modify the *.hbp file of the sample program
     or your own application and compile it.
 
@@ -317,41 +317,41 @@ items, so lots of warnings appeared.
 Do not include it in your prg file,
 this is already done.
 
-           
+
 
 2. Hints for programmers
 ------------------------
 
 - Looking for a good editor to edit program code:
-   Ask your preferred search engine entering: 
-   "macos good text editor for programmers"  
+   Ask your preferred search engine entering:
+   "macos good text editor for programmers"
    and you will get a lot of suggestions.
    I prefer "CotEditor", it is like "Notepad++"
    on Windows [4] and Open Source.
    But for Clipper/Harbour there is no syntax file
    available [5].
-   
+
 - Expand PATH
   Many of the new products are installed in another path.
   You can extend the path of the system as follows:
-  - sudo bash 
+  - sudo bash
     vim /etc/paths
   - Insert line at the end:
     /opt/local/bin
     To do this, turn on the append mode with "A",
     and press <ENTER> for a new line.
-    After entering the new line 
-    exit insert mode with the <ESC> key  
-    and save by  
+    After entering the new line
+    exit insert mode with the <ESC> key
+    and save by
     wq!
   - Exit "root" mode with
     exit
-  - Restart the computer for the change to take effect. 
- 
+  - Restart the computer for the change to take effect.
+
 - Installing the Subversion command line client
    sudo /opt/local/bin/port install subversion
    Actions analogous to "7.) Install XQuartz",
-   but afterwards the "dbus-daemon" can 
+   but afterwards the "dbus-daemon" can
    be deactivated, because it is not needed.
    Do this in "System settings" (Systemeinstellungen),
    "Common" (Allgemein), "Login items" (Anmeldeobjekte)
@@ -359,53 +359,53 @@ this is already done.
    Check with
    svn --version
     whether the client starts.
-    
 
-- malloc.h is deprecated. 
+
+- malloc.h is deprecated.
   Now stdlib.h must be used instead
   (is not more part of ISO C99 standard).
- 
-  Inserted in  
+
+  Inserted in
    ==> source\gtk\inter.c
    ==> source\gtk\misc.c
 
   It depends of the Version of GCC,
   so set compiler switch -d__NOMALLOCH__,
-  if needed.  
-   
+  if needed.
+
   #ifdef __NOMALLOCH__
   #include <stdlib.h>
   #else
   #include <malloc.h>
-  #endif   
+  #endif
 
 - This compiler define for C selects automatically code for MacOS
   #ifdef __APPLE__
-   
-- MacOS has no file like windows.h, so 
+
+- MacOS has no file like windows.h, so
   windows_mac.h must be included instead.
 
   #ifdef __APPLE__
   #include "windows_mac.h"
   #else
   #include <windows.h>
-  #endif  
- 
-  also for io.h: 
+  #endif
+
+  also for io.h:
   #ifdef __APPLE__
           #include <sys/uio.h>
           #include <unistd.h>
   #else
           #include <io.h>
-  #endif 
- 
+  #endif
+
 - Detection of operating system:
   the command uname and the Harbour function
   OS() returns on MacOS the value
     "Darwin".
-    
- 
-  
+
+
+
 3. Some helpful internet links
 ------------------------------
 
@@ -417,8 +417,8 @@ this is already done.
     https://osxdaily.com/2014/02/12/install-command-line-tools-mac-os-x/
     (18. July 2024)
 
-[3] Project "CLLOG" based on Harbour and HWGUI for MS-DOS, Windows and LINUX 
-    and now MacOS:     
+[3] Project "CLLOG" based on Harbour and HWGUI for MS-DOS, Windows and LINUX
+    and now MacOS:
     https://sourceforge.net/projects/cllog/
 
 [4] CotEditor on GitHub:
@@ -429,12 +429,12 @@ this is already done.
     https://github.com/coteditor/CotEditor/wiki/Additional-Syntax-Styles
     (18. July 2024)
 
-[6] Download X11 server "XQuatz" for MacOS 
+[6] Download X11 server "XQuatz" for MacOS
     https://www.xquartz.org/
     (20. July 2024)
 
-[7] Download site for the MacPort packages 
+[7] Download site for the MacPort packages
     https://guide.macports.org/chunked/installing.macports.html
-    (18. July 2024) 
- 
+    (18. July 2024)
+
 =============== EOF of install-macos.txt ===================

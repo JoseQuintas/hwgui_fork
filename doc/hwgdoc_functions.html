@@ -54,13 +54,13 @@
 
   <br><strong>
   Attention !  </strong><br>
-All file and directory selection dialogs<br> 
+All file and directory selection dialogs<br>
 execute an internal change directory<br>
 (this is, where the selected file is locacted).<br>
 After opening the selected file or database<br>
 (FCREATE(),FOPEN(),USE xxx )<br>
 you must return to the previous directory,<br>
-also in case of a cancelled selection.<br> 
+also in case of a cancelled selection.<br>
 Here the sample code snippet:<br>
 <br>
 LOCAL fname, colddir, ctemp<br>
@@ -87,7 +87,7 @@ hwg_ChDir(hwg_CleanPathname(colddir))<br>
 Find this code also in "utils\devtools\dbfcompare.prg".<br>
 <br>
 
-   
+
 
 
    <br><strong class="subhead"> hwg_SelectFile( cDescript,cMask,[ cInitDir ], [ cTitle ] )</strong>
@@ -550,7 +550,7 @@ Find this code also in "utils\devtools\dbfcompare.prg".<br>
    <br>
    Function only for internal usage.<br>
    To save a bitmap object into a file,<br>
-   use FUNCTION hwg_oBitmap2file().<br> 
+   use FUNCTION hwg_oBitmap2file().<br>
    </p>
 
    <br><strong class="subhead"> hwg_StockBitmap( cName [,nSizeType] )</strong> (GTK only)
@@ -1147,7 +1147,7 @@ Find this code also in "utils\devtools\dbfcompare.prg".<br>
     For BROWSE of arrays:<br>
     Copies the array to browse into the<br>
     browse object.<br>
-    Usage see sample program "arraybrowse.prg".<br>
+    Usage see sample program "demobrowsearray.prg".<br>
     arr: an array with 2 dimensions, for example<br>
     al_DOKs :=  { {"1"} , {"2"} , {"3"} , {"4"} }<br>
     ...<br>
@@ -1267,7 +1267,7 @@ Find this code also in "utils\devtools\dbfcompare.prg".<br>
     &nbsp;Returns the selected date (type "D").<br>
     <br>
     For details see inline comments of sample programs<br>
-    "samples/datepicker.prg" and "samples/testget1.prg".<br>
+    "samples/demodatepicker.prg" and "samples/testget1.prg".<br>
     Here you find instructions to create a multiplatform substitute
     for the Windows only DATEPICKER.<br>
     <br>
@@ -1280,7 +1280,7 @@ Find this code also in "utils\devtools\dbfcompare.prg".<br>
     Datepicker substitute Windows all screens:<br>
     <img src="./image/Win_DatepickerSubst_full.png" align=center wborder=0 alt="Datepicker substitute Windows all screens"><br>
     <br>
-    Datepicker LINUX (Sample program datepicker.prg):<br>
+    Datepicker LINUX (Sample program demodatepicker.prg):<br>
     <img src="./image/Datepicker_LINUX.png" align=center wborder=0 alt="Datepicker LINUX"><br>
     <br>
     Windows MONTHCALENDAR command:<br>
@@ -1709,9 +1709,9 @@ See sample program "testspli.prg" for details.<br>
    argv[0]: The argv[0] argument passed to the main()<br>
    function contains the path and name of the executable file.<br>
    <br>
-    int main(int argc, char *argv[]) {<br> 
-        printf("Executable path: %s", argv[0]);<br> 
-        return 0;<br> 
+    int main(int argc, char *argv[]) {<br>
+        printf("Executable path: %s", argv[0]);<br>
+        return 0;<br>
     }<br>
     but this is reachable from Harbour and HWGUI by following sequence:<br>
     <br>
@@ -1720,9 +1720,9 @@ See sample program "testspli.prg" for details.<br>
     * Get the origin path and name<br>
     coriginp := hb_argV( 0 )<br>
     <br>
-    * Change to origin directory<br>  
+    * Change to origin directory<br>
     IF .NOT. EMPTY(coriginp)<br>
-     coriginchdir := hwg_Dirname(coriginp)<br> 
+     coriginchdir := hwg_Dirname(coriginp)<br>
      //ft_ChDir( coriginp )<br>
      hwg_CHDIR(coriginchdir)<br>
     ENDIF<br>
@@ -1733,7 +1733,7 @@ See sample program "testspli.prg" for details.<br>
     Go to the origin directory before opening files and databases in this directory,<br>
     now you can call the programm by using an absolute path !<br>
     <br>
-    This is checked on LINUX and MacOS with GCC,<br> 
+    This is checked on LINUX and MacOS with GCC,<br>
     Windows with MinGW and BCC.<br>
     Ignore warning with BCC:<br>
     Call to function 'chdir' with no prototype in function HB_FUN_HWG_CHDIR<br>
@@ -1784,17 +1784,17 @@ See sample program "testspli.prg" for details.<br>
    <br>
    Reverse strings with UTF-8<br>
    <br>
-   Reverses a string.<br> 
+   Reverses a string.<br>
    This is the equivalent strrev() function from the standard C library,<br>
    but extended to understand UTF-8.<br>
    cstring may not exceed 511 bytes, inclusive length of all<br>
    used UTF-8 characters.<br>
 
    <p></p>
-   
+
    <br><strong class="subhead">hwg_GetEpoch()</strong>
     <br>
-   Returns the recent value of<br> 
+   Returns the recent value of<br>
    SET EPOCH TO ...<br>
    as integer value.<br>
    This is helpful to recover a<br>
@@ -1812,14 +1812,14 @@ See sample program "testspli.prg" for details.<br>
    &nbsp; SET EPOCH TO &csetepoch<br>
    <br>
    Important advice for HWGUI programmers:<br>
-   Found this function in<br> 
+   Found this function in<br>
    source/common/procmisc/cfuncs.c:<br>
    The function hb_setGetEpoch() is existing in Harbour 3.2,<br>
    but not apearing in a *.h file of Harbour as prototype,<br>
    so need to include "hb_missing.h" in HWGUI.<br>
    <br>
    <p></p>
-   
+
    <br><strong class="subhead"> hwg_GetItemByName( arr, cName )</strong>
    <br>Returns an object from an array by its name, which is kept as :objname.
    <ul>
@@ -2148,7 +2148,7 @@ See sample program "testspli.prg" for details.<br>
       Example for Windows 10:<BR>
       C:\Users\&lt;user&gt;\AppData\Local\VirtualStore\Windows\HwGui.ini<BR>
       This is the directory, where the sample program<BR>
-      "samples\testini.prg" creates the ini file.<BR>
+      "samples\demoini.prg" creates the ini file.<BR>
       <BR>
       For multi platform use:<BR>
       Look into the Source code of Harbour:<BR>
@@ -2486,7 +2486,7 @@ See sample program "testspli.prg" for details.<br>
      ctestdirsep : Only for test purposes:<br>
      Modifies the directory separator, default<br>
      is the return value of function hwg_GetDirSep(),<br>
-     so it is assigned correct by the used operating system.<br>     
+     so it is assigned correct by the used operating system.<br>
      <br>
      Sample call: hwg_ProcFileExt("TEST.TXT","PRG")<br>
      returns the value "TEST.PRG"<br>
@@ -2547,7 +2547,7 @@ See sample program "testspli.prg" for details.<br>
    passes the value to usleep() in seconds.<br>
    <br>
    <p></p>
-   
+
    <br><strong class="subhead"> hwg_Sleep_C(n)</strong>
    <br>
    Delays a process.<br>
@@ -2561,11 +2561,11 @@ See sample program "testspli.prg" for details.<br>
    If the value of useconds is 0,<br>
    then the call has no effect.<br>
    The function usleep() is depricated and should be<br>
-   substituded by the modern timer functions.<br> 
-   
+   substituded by the modern timer functions.<br>
+
    <br>
-   
-   
+
+
    <p></p>
 
    <br><strong class="subhead"> hwg_SetScrollInfo( handle, nType, nRedraw, nHScrollPos , nPage, nHscrollMax )</strong> (Windows only)
@@ -2733,15 +2733,15 @@ See sample program "testspli.prg" for details.<br>
      <br>
      #pragma ENDDUMP<br>
      <br>
-     This is checked on LINUX and MacOS with GCC,<br> 
+     This is checked on LINUX and MacOS with GCC,<br>
      Windows with MinGW and BCC.<br>
      Ignore warning with BCC:<br>
-     Call to function 'chdir' with no prototype in function HB_FUN_HWG_CHDIR<br>     
+     Call to function 'chdir' with no prototype in function HB_FUN_HWG_CHDIR<br>
      Not checked on other Compilers (Pelles C, ...)<br>
      We will add the test results as soon as possible) <br>
-     ==&gt; find this sequence in sample program "testfunc.prg"<br>     
+     ==&gt; find this sequence in sample program "testfunc.prg"<br>
      and test program "test/test_origin_cons".<br>
-     </p> 
+     </p>
 
    <br><strong class="subhead"> hwg_ProcessRun( cCommand )</strong> (Windows only)
    <p></p>
@@ -2771,7 +2771,7 @@ See sample program "testspli.prg" for details.<br>
    1: Cannot create output pipe<br>
    2: Failure of: Ensure the read handle to the pipe for STDOUT is not inherited<br>
    3: Cannot create process<br>
-   otherwise:<br> 
+   otherwise:<br>
    Return code of GetExitCodeProcess() function call.<br>
    Attention !<br>
    Do not call internal commands of the command shell "cmd"<br>
@@ -2784,7 +2784,7 @@ See sample program "testspli.prg" for details.<br>
    -1: no file to run<br>
    <br>
    </p>
-   
+
     <br><strong class="subhead"> hwg_RunConsApp( cCommand )</strong> (GTK LINUX and MacOS only)
    <br>Executes a console or GUI program in async mode.
    <ul>
@@ -2803,7 +2803,7 @@ See sample program "testspli.prg" for details.<br>
 
    <br><strong class="subhead"> hwg_RunApp( cCommand [, nFlag] [, lAsync] )</strong><br>
    Runs an external program (async mode).<br>
-   On LINUX/GTK and MacOS/GTK the are some restrictions,<br> 
+   On LINUX/GTK and MacOS/GTK the are some restrictions,<br>
    for details read instructions in sample program tststconsapp.prg.<br>
    <br>
    <br> Parameter 1: command line (mandatory):
@@ -2813,9 +2813,9 @@ See sample program "testspli.prg" for details.<br>
     <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; use the functions hwg_GetDirSep() and Curdir()
     <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for combinding the recent directory + program file call.
     <br>
-    <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Calling a program by using a full path, we strictly recommend to use the 
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Calling a program by using a full path, we strictly recommend to use the
     <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ft_origin() functionality, described in this chapter at the beginnung.
-    <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Change to directory, were the EXE file is located, and than open files and databases in this directory. 
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Change to directory, were the EXE file is located, and than open files and databases in this directory.
     <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; For details read the comment line instructions of sample programs "testfunc.prg" and "tststconsapp.prg".
     <br>
     <br>
@@ -2859,7 +2859,7 @@ See sample program "testspli.prg" for details.<br>
    &nbsp; &nbsp;   CR&nbsp;&nbsp;   = 0x0D = CHR(13) (MacOS)<br>
    &nbsp; &nbsp;   LF&nbsp;&nbsp;   = 0x0A = CHR(10) (UNIX/LINUX)<br>
    &nbsp; (function is an equivalent to Pascal's Rdln() function )<br>
-   <br>  
+   <br>
    &nbsp;  nhandle : The file handle<br>
    <br>
    &nbsp; rembltab: If set .T. , the blanks and tab characters are removed<br>
@@ -2918,7 +2918,7 @@ See sample program "testspli.prg" for details.<br>
    &nbsp;  &nbsp;&nbsp;   * Process data read delivered in arrrea[1]<br>
    &nbsp;  &nbsp;&nbsp;   * ...<br>
    &nbsp;  &nbsp;   ENDIF<br>
-   &nbsp;  ENDDO<br>  
+   &nbsp;  ENDDO<br>
    &nbsp;  FCLOSE(handle)<br>
    &nbsp; * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
    </p>
@@ -2929,7 +2929,7 @@ See sample program "testspli.prg" for details.<br>
    Remove MacOS line ending (CR)<br>
    Only for internal use of hwg_RdLn()<br>
    <br>
-   <p></p>  
+   <p></p>
 
   <br><strong class="subhead"> hwg_RmBlTabs(xLine)</strong>
    <br>
@@ -2952,7 +2952,7 @@ See sample program "testspli.prg" for details.<br>
    a and b must be numeric values or dates<br>
    <br>
    <p></p>
-  
+
      <br><strong class="subhead"> hwg_FBINREAD(cfilename,nbufsize)( n )</strong>
    <br>
    Reads a binary file "cfilename"<br>
@@ -2966,7 +2966,7 @@ See sample program "testspli.prg" for details.<br>
    In case of an error, an empty string "" is<br>
    returned.<br>
    Check bytes read with LEN().<br>
-   
+
    <p></p>
 
 
@@ -3190,7 +3190,7 @@ See sample program "testspli.prg" for details.<br>
    <br>
    For type of D or N: forever use the PICTURE clause.<br>
    <br>
-   For usage see sample program "samples/testxml.prg".<br>
+   For usage see sample program "samples/demomenuxml.prg".<br>
    <p></p>
 
    <br><strong class="subhead"> hwg_StrDebNIL(xParchk)</strong>
@@ -3313,9 +3313,9 @@ See sample program "testspli.prg" for details.<br>
    But it is sometimes possible,<br>
    to handle the Euro currency sign<br>
    without support of Harbour.<br>
-   For details read instructions in<br> 
+   For details read instructions in<br>
    comment lines of sample program<br>
-   "samples\teststrrev.prg".<br> 
+   "samples\teststrrev.prg".<br>
    </p>
 
   <br><strong class="subhead"> hwg_GUIType()</strong>
@@ -3711,7 +3711,7 @@ See sample program "testspli.prg" for details.<br>
    This function regards daylight saving<br>
    time.<br>
    <p></p>
-   
+
     <br><strong class="subhead"> hwg_delEOFMarker(CBinrec)</strong><br>
     <br>
     Removes the EOF marker from a type C string.<br>
@@ -3722,21 +3722,21 @@ See sample program "testspli.prg" for details.<br>
     Reading this file with MEMOREAD() or hwg_FBINREAD(),<br>
     the EOF marker is also read, this can cause some trouble
     with processing  after it.<br>
-    
+
     <p></p>
-    
+
     <br><strong class="subhead"> hwg_is_object(oObj)</strong>
     <br>
     Returns .T., if oObj is a valid object<br>
-    
+
     <p></p>
-        
+
 
    <br><strong class="subhead"><a name="Functions83" href="hwgdoc_functions.html#_Functions83">
    5.8.3 Raw bitmap support and QR code.</a></strong><br>
    <p></p>
-   
- 
+
+
 
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
    Functions for raw bitmap support<br>
@@ -3784,10 +3784,10 @@ See sample program "testspli.prg" for details.<br>
    <br>
    For Details see inline comments of sample program "samples\testbmpcr.prg".<br>
    <p></p>
-   
+
    Binary string image of a bitmap may contain NULL bytes (0x00),<br>
    for Harbour string variables no problem.<br>
-   
+
    <p></p>
 
    <br><strong class="subhead">hwg_BPMinches_per_meter()</strong>
@@ -3942,8 +3942,8 @@ See sample program "testspli.prg" for details.<br>
     <br>
     The value for the bitmap name is valid<br>
     during a single program run.<br>
-    We recommend, to write the bitmap names in lower case.<br> 
-    A little helper for generating unique names is function<br> 
+    We recommend, to write the bitmap names in lower case.<br>
+    A little helper for generating unique names is function<br>
     hwg_BMPuniquename().<br>
 
     <p></p>
@@ -3969,11 +3969,11 @@ See sample program "testspli.prg" for details.<br>
     <br><strong class="subhead"> hwg_oBitmap2file(oBitmap,cbmpname,[outfilename]) </strong>
     <p>
     <br>
-    Save a bitmap in an bitmap object into a file.<br> 
+    Save a bitmap in an bitmap object into a file.<br>
     - oBitmap : The bitmap object<br>
     - coutfilename : The file into the bitmap saved,<br>
     cbmpname is the unique name of the bitmap written to file,<br>
-    Is mandatory, otherwise the bitmap is not processed.<br> 
+    Is mandatory, otherwise the bitmap is not processed.<br>
     Also the cbmpname is case sensitive.<br>
     We stricly recommend to use only pure ASCII charset and<br>
     lower case (UNIX/LINUX) for the cbmpname.<br>
@@ -3993,9 +3993,9 @@ See sample program "testspli.prg" for details.<br>
      Returns an array with 2 elements of numerical values (N) <br>
      [1]:   Width<br>
      [2]:   Height<br>
-     
+
      <p></p>
-    
+
      <br><strong class="subhead"> hwg_BMPuniquename(cprefix)</strong><br>
      <br>
       Returns a unique name following by a number<br>
@@ -4009,14 +4009,14 @@ See sample program "testspli.prg" for details.<br>
       Use it for creating masses of bitmaps,<br>
       like lot's of QR codes.<br>
       Some more alternative usages:<br>
-      - If cprefix is passed with an empty string "",<br> 
+      - If cprefix is passed with an empty string "",<br>
         &nbsp;&nbsp;&nbsp;  you can realize a simple counter, starting<br>
         &nbsp;&nbsp;&nbsp;  with 1 at program start.<br>
       - For debug purposes, count how often a function is called.<br>
       For usage see test program<br>
        &nbsp;&nbsp;&nbsp; test\testunique.prg<br>
       <br>
-    
+
     <p></p>
     <br><strong class="subhead"> hwg_Stretch_BMP_i(cbmp, clocname, nWidth, nHeight )</strong>
     <br>
@@ -4048,10 +4048,10 @@ See sample program "testspli.prg" for details.<br>
     so it is not useful for pure resizing of a bitmap.<br>
     <br>
     For lot's of details about resizing (stretching) of bitmaps,<br>
-    read the comment lines in sample program "stretch.prg". 
+    read the comment lines in sample program "stretch.prg".
     <br>
-    
-    <p></p>    
+
+    <p></p>
 
     <br><strong class="subhead"> hwg_bpmObj2String(obmp,cname)</strong>
     <br>
@@ -4065,9 +4065,9 @@ See sample program "testspli.prg" for details.<br>
     string (check for success by for example)<br>
     EMPTY(cBitmap)<br>
     <br>
-    
+
     <p></p>
-     
+
     <br><strong class="subhead"> hwg_BMPRename(oBitmap,cnamold,cnamnew)</strong>
     <br>
     Renames a bitmap in an bitmap object<br>
@@ -4084,38 +4084,38 @@ See sample program "testspli.prg" for details.<br>
     For details see sample program<br>
     "stretch.prg"<br>
     with lots of comments.<br>
-    <br>    
+    <br>
 
     <p></p>
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
     Some debug helpers for bitmap programming<br>
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
-    
+
      <p></p>
-     
-   
+
+
      <br><strong class="subhead">  hwg_bitmapTOC(oBitmap)</strong>
     <br>
     Returns a table of contents (TOC) of a bitmap object (name's) in an array<br>
     <br>
     <p></p>
-    
+
     <br><strong class="subhead"> BMPSize2Logfile(oBitmap,name</strong>)
     <br>
     Write the bmp size (height and width)in the log file a.log .<br>
     oBitmap : The bitmap object<br>
     name    : The bitmap name<br>
     <br>
-    
+
     <p></p>
-        
+
      <br><strong class="subhead"> hwg_Debug_logarrayC(acarray)</strong>
     <br>
     Only for debug purposes:<br>
-    Write a single dimension array with c values into logfile.<br>      
- 
+    Write a single dimension array with c values into logfile.<br>
+
     <p></p>
-    
+
     2.) Add this sample function code into your HWGUI application code:<br>
     <br>
     Write TOC of bitmap to logfile:<br>
@@ -4129,9 +4129,9 @@ See sample program "testspli.prg" for details.<br>
       hwg_MsgStop("oBmp is not an object!","Error")<br>
      ENDIF<br>
     <br>
-    
+
     <p></p>
-    
+
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
     End of Functions for raw bitmap support<br>
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
@@ -4141,7 +4141,7 @@ See sample program "testspli.prg" for details.<br>
     Advice:<br>
     QR codes are mainly standisized by  JIS X 0510 (Japanese Industrial Standard)<br>
     and ISO/IEC 18004:2006.<br>
-    
+
     QR codes are operating with UTF-8 charset.<br>
     On Windows, which not origin supports UTF-8,<br>
     use compiler switch to insert the translation <br>
@@ -4207,10 +4207,10 @@ See sample program "testspli.prg" for details.<br>
     The lines ends with a UNIX/LINUX line ending.<br>
     For example:<br>
     <img src="./image/qr_darc_text.bmp" align=center wborder=0 alt="Sample QR code"><br>
-    In this state, the image can be processes with the hwg_QR... functions.<br> 
+    In this state, the image can be processes with the hwg_QR... functions.<br>
     Finally, the QR code text image must be converted to a binary bimap image by<br>
     calling the function hwg_QRCodetxt2BPM().<br>
-    
+
     <br><strong class="subhead"> HWG_QRENCODE(ctext [, nzoomf] [,nboarder] )</strong>
     <br>
     Creates the QR code and convert it to bitmap binary image of type C.<br>
@@ -4226,12 +4226,12 @@ See sample program "testspli.prg" for details.<br>
      This value is strictly recommended for successfull scans.<br>
      <br>
      This function is not included in the main HWGUI source,<br>
-     find it in<br> 
+     find it in<br>
      contrib\qrencode\libqrencode.prg<br>
      <br>
-    
+
     <p></p>
-    
+
     <br><strong class="subhead"> hwg_CBmp2file(cbitmap,cbitmapfile)</strong>
     <br>
     Write the bitmap binary image of type C to file,<br>
@@ -4241,9 +4241,9 @@ See sample program "testspli.prg" for details.<br>
     <br>
     For compatibilty with UNIX/LINUX and MacOS,<br>
     use file name always in lower case.<br>
-    
+
     <p></p>
-    
+
     <br><strong class="subhead"> hwg_QRCodeTxtGen(ctext,&lt;border&gt;)</strong><br>
     Converts a string ctext into a<br>
     QR code text string,<br>

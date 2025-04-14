@@ -14,7 +14,7 @@ _________
 2.)    List of build scripts
 3.)    Sample Database
 4.)    List of sample programs
-5.)    Usage of resource files (*.rc) 
+5.)    Usage of resource files (*.rc)
 6.)    Resources compiled into exe files
 7.)    GTK3
 8.)    Set the  macro's
@@ -86,11 +86,11 @@ For beginners:
 
     Windows:
       makeallsam.bat
-      
+
     UNIX/LINUX/MacOS:
-     chmod 755 makeallsam.sh 
-     ./makeallsam.sh 
- 
+     chmod 755 makeallsam.sh
+     ./makeallsam.sh
+
 
 3.) Sample Database
     Contains 150 records with fields every type, open with a.prg or dbview.prg
@@ -128,7 +128,7 @@ For beginners:
 
     Compile forever with
      hbmk2 <prefix>.hbp
-     
+
     Alternative bat is
     hwmk.bat <programname>
 
@@ -196,12 +196,12 @@ For beginners:
 
     Ignore warning at build time:
       Unknown option -e
-      
+
 8.) Set the  macro's
 
 {linux}-stop="Windows only"
-{darwin}-stop="Windows only"    
-{unix}-stop="Windows only" 
+{darwin}-stop="Windows only"
+{unix}-stop="Windows only"
 
     at the beginning of the hbp file
     to suppress building of
@@ -211,12 +211,12 @@ For beginners:
 
    At the end of this file, the chapter
    "Some additional instructions for writing *.hbp files"
-   describes the usage of hbp macros.   
+   describes the usage of hbp macros.
 
 9.) MacOS
    All samples ready for GTK may also run
    on MacOS (tested on 14.4).
-   Use file "arraybrowse.hbp"
+   Use file "demobnrowsearray.hbp" and hbmk.hbm
    as template building your own HWGUI application.
    The hbp macro {darwin} activate options for MacOS.
    For details to MacOS read install instructions
@@ -228,22 +228,22 @@ For beginners:
  Sample program     GTK2    GTK3  NLS MinGW64 Purpose
  =================   ====   ====  === ======= =======
  a.prg   +) 9)       R       N    CN          Some HWGUI basics (Open DBF's, GET's, ...)
- arraybrowse.prg     Y                        Array BROWSE avoiding crashes because of bugs (see inline comments)
+ demobrowsearray.prg Y                        Array BROWSE avoiding crashes because of bugs (see inline comments)
  bindbf.prg 10)      Y                        Usage of images from Binary DBF container
  bincnts.prg 10) +)  Y                        Usage of images from Binary container
  bitmapbug.prg       Y                        Handle of bug in command @<x>,<y> BITMAP ... SHOW (Class HBITMAP)
  buildpelles.prg     N       N         Y      Build APP using Pelles C Compiler (*.bld file)
- checkbox.prg        Y                        Checkboxes and tabs
+ demo checkbox.prg   Y                        Checkboxes and tabs
  colrbloc.prg        Y                 Y      BROWSE: arrays and DBF's with colored lines and columns
- datepicker.prg      Y                        Multiplatform substitute of Windows only DATEPICKER
+ demodatepicker.prg  Y                        Multiplatform substitute of Windows only DATEPICKER
  dbview.prg          Y       Y         Y      DBF access (Browse, Indexing, Codepages, Structure, ... )
  demodbf.prg         Y                 Y      Demo for Edit using command NOEXIT
- demohlist.prg       S       S         Y      Demo for listbox
- demohlistsub.prg    Y                 Y      Multi platform substitute for listbox by BROWSE.
+ demolistbox.prg     S       S         Y      Demo for listbox
+ demolistboxsub.prg  Y                 Y      Multi platform substitute for listbox by BROWSE.
  Dialogboxes.prg     Y                        Demonstrates few ready to use dialog boxes (extract from tutor)
  escrita.prg   +)    Y       Y                Tool buttons with bitmaps ("Accent Test")
  fileselect.prg      Y                        Sample for file selection menues
- getupdown.prg       Y                        Usage of @ <x> <y> GET UPDOWN ..
+ demogetupdown.prg   Y                        Usage of @ <x> <y> GET UPDOWN ..
  GetWinVers.prg      Y                        Functions for get recent hwg_SaveFile() Windows version
  graph.prg           Y                        Paint graphs (Sinus, Bar diagram)
  grid_1.prg     +)   N       N         Y      Grid demo (HGrid class)
@@ -259,7 +259,6 @@ For beginners:
  htrack.prg          Y                        Demo of HTRACK class as substitute for Windows only HTRACKBAR
  icons.prg           Y                        Icons and background bitmaps
  icons2.prg          Y                        Icons and bitmaps using hex values
- iesample.prg 2) 5)  N       N                Sample of ActiveX container for the IE browser object.
  memocmp.prg.        Y                        Edit and compare memo's an get size
  menumod.prg         Y                        Handling menu items while run-time in dialogs.
  modtitle.prg        Y                        Sample for modifying a main window title in HWGUI
@@ -271,33 +270,31 @@ For beginners:
  pseudocm.prg        Y                        Pseudo context menu
  qrencode.prg 1) 2)  Y                        Encode QR code from string an convert to monochrome bitmap.
  qrencodedll.prg 1)  N       N                Encode QR code like qrencode.prg by using a DLL (for multi platform usage see contrib/qrencode)
- shadebtn.prg        N       N                Shade buttons (for multi platform usage take OWNERBUTTON)
+ demoshadebtn.prg    N       N                Shade buttons (for multi platform usage take OWNERBUTTON)
  simpleedit.prg      Y                        Simple text editor demonstrating hwg_Memoedit()
  stretch.prg         Y  #                     Sample for resizing bitmaps (background), some bugs (as test program)
  tab.prg             Y  #              -      Sample for Tabs
  tabs_toolt          Y                        Sample for tabs with tooltips (TNX Alain Aupeix)
- Testado.prg         N       N                Test program sample for ADO Browse (TNX Itamar M. Lins Jr.). For multi platform use BROWSE. 
+ Testado.prg         N       N                Test program sample for ADO Browse (TNX Itamar M. Lins Jr.). For multi platform use BROWSE.
  testalert.prg       N       N                Clipper style Alert() replacement, delivered by Alex Strickland (TNX !)
- test_bot.prg        P                        bOther Test: Press key, after key up the scan code is displayed.
+ demoonother.prg     P                        bOther Test: Press key, after key up the scan code is displayed.
  testbrw.prg         Y  #                     Another BROWSE test (bug on GTK see docu)
- testchild.prg       N  #    N         -      Create a child windows; child window not created ! command seems to be outdated.
  testget1.prg        Y                        Get system: Edit field, Checkboxes, Radio buttons, Combo box, Datepicker
  testget2.prg        Y       Y                Get system: Colored edit fields, time display, Tooltip ballon, HD serial number
  testfunc.prg        Y       Y         Y      Test and demo of standalone HWGUI (hwg_*) functions, enable/disable button.
- testhgt.prg         N       N                class HGT for combined usage of HWGUI control elements in Harbour gtwvg programs in multithread mode.
- testhmonth.prg      Y                 Y      Calendar, Datepicker, TOOLTIP
+ demomonthcal.prg    Y                 Y      Calendar, Datepicker, TOOLTIP
  testimage.prg       Y       Y                Displaying images and usage of FreeImage library (IMAGE, BITMAP).
- testini.prg         P                        Use INI file: create and read
+ demoini.prg         P                        Use INI file: create and read
  testmenubitmap.prg  P                        Menu with bitmaps
  testrtf.prg  1)     Y  #    N          -      Create Rich text files. Need some work, the created RTFs are not compatible with newest specifications. (TO-DO for Alexander Kresin)
- testsdi.prg         Y                        Tree control
+ demotreebox.prg     Y                        Tree control, Splitter, Tab
  teststrrev.prg      Y                        Function hwg_strrev() reverses a string for UTF-8 and handle Euro currency sign with GET
  testspli.prg        Y                        Split windows
  testtray.prg        Y                 Y      Tray Message : Be care of different behavior between WinAPI and GTK
  testtree.prg        Y                        Tree view control
- testxml.prg         Y                        reading/writing XML file and handling menu items while run-time (testxml.xml)
+ demomenuxml.prg     Y                        reading/writing XML file and handling menu items while run-time (testxml.xml)
  trackbar.prg        P                        Trackbar demo, horizontal und vertical.
- tstcombo.prg        Y                        Test Combobox, with preset and refresh.
+ democombobox.prg    Y                        Test Combobox, with preset and refresh.
  tstprdos.prg 3)     N       N                Print on LPT, outdated, see 3)
  tstscrlbar.prg      P                        Scrollbar (GTK: Compilable, but no scroll function, more info in comment lines)
  tstsplash.prg       P                        SPLASH Demo, displays image at start as logo for n millisecs: OK with WinAPI, compilable for GTK, but splash window is empty.
@@ -305,7 +302,12 @@ For beginners:
  TwoListbox.prg      S       S                Sample for select and move items between two listboxes.
  TwoLstSub.prg       Y                        Multi platform substitute for two listboxes by BROWSE windows.
  winprn.prg  3) 8)   Y            Y    Y      Printing via Windows GDI Interface (same sample in gtk_samples)
- xmltree.prg         Y                 YW     Show XML-Tree: Open "testxml.xml" for test.
+ demoxmltree.prg     Y                 YW     Show XML-Tree: Open "testxml.xml" for test.
+
+moved to test/samples/
+ iesample.prg 2) 5)  N       N                Sample of ActiveX container for the IE browser object.
+ testhgt.prg         N       N                class HGT for combined usage of HWGUI control elements in Harbour gtwvg programs in multithread mode.
+ testchild.prg       N  #    N         -      Create a child windows; child window not created ! command seems to be outdated.
 
 Directories:
 ============
@@ -409,8 +411,8 @@ Directories:
      This sample has bugs.
      A running multi platform sample is listed in chapter:
      13.1)  Progress bars
- 
- 
+
+
 11.) Some additional instructions for writing *.hbp files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -429,7 +431,7 @@ or write every option in an  extra line:
 {linux}-d__LINUX__
 {linux}-d__GTK__
 
-In case of 
+In case of
 {linux}-lm -static -d__LINUX__ -d__GTK__
 the options "-static -d__LINUX__ -d__GTK__"
 are passed to all other OS'es, for example
@@ -450,12 +452,12 @@ Windows:
 UNIX/LINUX/MacOS:
 
  chmod 755 clean.sh
- ./clean.sh 
- 
+ ./clean.sh
+
  13.) Special samples:
- 
+
  13.1) Progress bars
- 
+
     Direct support for progressbar is WinAPI only.
     For LINUX and MacOS an external tool "wmctrl" is needed to
     draw progress bars, while program is busy running FOR ... NEXT or

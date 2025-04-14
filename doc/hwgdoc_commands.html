@@ -174,11 +174,11 @@
      &nbsp;&nbsp;&nbsp;...<br>
      &nbsp;&nbsp;&nbsp;#ifdef __GTK__<br>
      &nbsp;&nbsp;&nbsp;SET KEY 0,VK_ESCAPE TO EDMSK_KEYESC(oDlg)<br>
-     &nbsp;&nbsp;&nbsp;#endif<br> 
+     &nbsp;&nbsp;&nbsp;#endif<br>
      &nbsp;&nbsp;&nbsp;...  * Your dialog<br>
      &nbsp;&nbsp;&nbsp;ACTIVATE DIALOG ...<br>
      &nbsp;&nbsp;&nbsp;#ifdef __GTK__ <br>
-     &nbsp;&nbsp;&nbsp;SET KEY 0,VK_ESCAPE TO<br> 
+     &nbsp;&nbsp;&nbsp;SET KEY 0,VK_ESCAPE TO<br>
      &nbsp;&nbsp;&nbsp;#endif<br>
      <br>
      <br>
@@ -412,7 +412,7 @@
        <li><a name="_drawnupdown" href="#drawnupdown"> @ &lt;x&gt;,&lt;y&gt; DRAWN UPDOWN</a>
        <li><a name="_drawnbrowse" href="#drawnbrowse"> @ &lt;x&gt;,&lt;y&gt; DRAWN BROWSE</a>
        <li><a name="_drawndate" href="#drawndate"> @ &lt;x&gt;,&lt;y&gt; DRAWN DATE</a>
-     </ul>	
+     </ul>
     <p>All the following commands creates the instances of classes, they
     are preprocessed into the New() method of appropriate class.</p>
     <br><a name="addstatus" href="#_addstatus"> ADD STATUS TO</a>
@@ -513,7 +513,7 @@
     ...<br>
     @ &lt;x&gt;,&lt;y&gt;  GET CHECKBOX &lt;oCheck&gt; VAR lCheckbox1 ;<br>
       CAPTION  &lt;caption&gt; SIZE &lt;width&gt;, &lt;height&gt;<br>
-    (See sample program \samples\checkbox.prg)<br>
+    (See sample program \samples\democheckbox.prg)<br>
     In this code snippet mentioned, it is mandatory to pre init the variable lCheckbox1<br>
     with .T. or .F. .<br>
     </p>
@@ -1019,7 +1019,7 @@
     <p>
     Supported image formats see documentation for CLASS HBITMAP.<br>
     <br>
-    The parameters &lt;oBmp&gt; SHOW and SIZE 
+    The parameters &lt;oBmp&gt; SHOW and SIZE
     are on GTK mandatory, otherwise the image does not appear !
     For details see sample program "bincnts.prg".<br>
     For the SIZE parameter pass the real size of the image to display.<br>
@@ -1034,7 +1034,7 @@
     So need to create the object variable new after usage !<br>
     For details look into sample program<br>
     samples/bitmapbug.prg<br>
-    and get information about handling !<br> 
+    and get information about handling !<br>
     <br>
     TRANSPARENT:<br>
     Is yet not usable on GTK !<br>
@@ -1222,7 +1222,7 @@
     (Windows only)<br>
     Because of a bug in GTK, the LISTBOX feature could not be ported to GTK.<br>
     For multi platform use the BROWSE class of an array instead.<br>
-    Look into samples "samples\demohlistsub.prg" and "samples\TwoLstSub.prg" for usage.<br>
+    Look into samples "samples\demolistboxsub.prg" and "samples\TwoLstSub.prg" for usage.<br>
     <pre class="code">
     @ &lt;x&gt;,&lt;y&gt; LISTBOX [ &lt;oList&gt; ITEMS ] &lt;aItems&gt;
          [ OF &lt;oWnd&gt; ]
@@ -1785,7 +1785,7 @@
     For more information about this item,<br>
     and storing this character in DBF's<br>
     look into source code of "CLLOG"<br>
-    (https://sourceforge.net/projects/cllog/)<br> 
+    (https://sourceforge.net/projects/cllog/)<br>
     <br>
     <b>Important:</b><br>
     <br>
@@ -1991,7 +1991,7 @@
      <ul>
        <li><a name="_initprinter" href="#initprinter"> INIT PRINTER</a>
        <li><a name="_initdefprinter" href="#initdefprinter"> INIT DEFAULT PRINTER</a>
-     </ul>	
+     </ul>
     <p>
     Attention !<br>
     Some trouble with printing of bitmaps, for details see class documentation of<br>
@@ -2019,7 +2019,7 @@
        <li><a name="_setresour" href="#setresour"> SET RESOURCES TO</a>
        <li><a name="_setrescont" href="#setrescont"> SET RESOURCES CONTAINER TO</a>
        <li><a name="_preparefont" href="#preparefont"> PREPARE FONT</a>
-     </ul>	
+     </ul>
 
     <br><a name="settimer" href="#_settimer"> SET TIMER</a>
     <p></p>

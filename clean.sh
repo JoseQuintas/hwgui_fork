@@ -2,16 +2,16 @@
 #
 # clean.sh
 #
-# 
+#
 # Removes all executeables, o files , libraries
 # and other temporary files of program runs
 # outside the makefile "clean".
 # (created by "hbmk2 allhbp.hbp)
-# 
+#
 delfi()
 {
  rm "$1" 2>/dev/null
-} 
+}
 
 # === Remove all HWGUI basic libraries ===
 #rm lib/*.a 2>/dev/null
@@ -49,8 +49,8 @@ rm samples/gtk_samples/pseudocm 2>/dev/null
 rm samples/gtk_samples/testget2 2>/dev/null
 rm samples/gtk_samples/winprn 2>/dev/null
 rm samples/gtk_samples/temp_a2.ps 2>/dev/null
-delfi samples/arraybrowse
-delfi samples/arraybrowse.c
+delfi samples/demobrowsearray
+delfi samples/demobrowsearray.c
 #
 # Samples for multi plattform (exe)
 # and optional generated C source file
@@ -58,12 +58,12 @@ rm samples/a 2>/dev/null
 rm samples/a.log 2>/dev/null
 rm samples/testget1 2>/dev/null
 rm samples/bincnts 2>/dev/null
-rm samples/datepicker 2>/dev/null
+rm samples/demodatepicker 2>/dev/null
 rm samples/bincnts 2>/dev/null
 delfi samples/GetWinVers
-delfi samples/getupdown
-delfi samples/demodbf
-delfi samples/demohlistsub
+delfi samples/demogetupdown
+delfi samples/demodbfdata
+delfi samples/demolistboxsub
 delfi samples/fileselect
 rm samples/stretch 2>/dev/null
 rm samples/escrita 2>/dev/null
@@ -74,16 +74,16 @@ rm samples/dbview.c 2>/dev/null
 rm samples/testfunc 2>/dev/null
 rm samples/winprn 2>/dev/null
 delfi samples/winprn.c
-rm samples/tstcombo.c  2>/dev/null
-rm samples/tstcombo  2>/dev/null
-rm samples/testxml 2>/dev/null
-rm samples/xmltree 2>/dev/null
+rm samples/democombobox.c  2>/dev/null
+rm samples/democombobox 2>/dev/null
+rm samples/demomenuxml 2>/dev/null
+rm samples/demoxmltree 2>/dev/null
 rm samples/colrbloc 2>/dev/null
 rm samples/testtree 2>/dev/null
 rm samples/bindbf 2>/dev/null
 rm samples/hexbincnt  2>/dev/null
 rm samples/imageview 2>/dev/null
-rm samples/checkbox 2>/dev/null
+rm samples/democheckbox 2>/dev/null
 rm samples/testbmpcr 2>/dev/null
 rm samples/qrencode 2>/dev/null
 rm samples/graph 2>/dev/null
@@ -155,7 +155,7 @@ rm test/testbmpcr 2>/dev/null
 rm test/template  2>/dev/null
 rm test/hello 2>/dev/null
 rm test/icon 2>/dev/null
-rm test/checkbox 2>/dev/null
+rm test/democheckbox 2>/dev/null
 rm test/Test_tab 2>/dev/null
 rm test/gtk3testvbox 2>/dev/null
 delfi test/Ticket113
