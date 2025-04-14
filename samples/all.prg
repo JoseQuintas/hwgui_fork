@@ -166,10 +166,13 @@ STATIC FUNCTION ExecuteExe( cFileName )
       IF ! hwg_MsgYesNo( cFileName + " not found, try create it?" )
          RETURN Nil
       ENDIF
-      hwg_RunApp( cBinHbmk + " " + cFileNoExt, .T. ) // hbmk2 will use hbp or prg
+
+      // hwg_RunApp( cBinHbmk + " " + cFileNoExt, .T. ) // hbmk2 will use hbp or prg
       // do not wait
+      RUN( cBinHbmk + " " + cFileNoExt, .T. ) // hbmk2 will use hbp or prg
+
       IF ! File( cBinName )
-         hwg_MsgInfo( "Can't create " + cBinName + ", or it is needed more time" )
+         hwg_MsgInfo( "Can't create " + cBinName )
          RETURN Nil
       ENDIF
    ENDIF
