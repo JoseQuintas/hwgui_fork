@@ -6,7 +6,7 @@
 
 -hblib
 
--o../../lib/qrcodegen
+-o../../../lib/qrcodegen
 
 -w3
 

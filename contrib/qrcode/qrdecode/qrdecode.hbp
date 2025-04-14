@@ -15,15 +15,15 @@
 {darwin}-d___MACOSX___
 
 
-{win}../../hwgui.hbc
+{win}../../../hwgui.hbc
 # GTK2
-{darwin}../../hwgui_mac.hbc
-{linux}../../hwgui.hbc
+{darwin}../../../hwgui_mac.hbc
+{linux}../../../hwgui.hbc
 
 # GTK3: Deactivate previous line
 # and activate following line
-#{linux}../../hwguiGTK3.hbc
-#{darwin}../../hwgui_mac_gtk3.hbc
+#{linux}../../../hwguiGTK3.hbc
+#{darwin}../../../hwgui_mac_gtk3.hbc
 
 
 
