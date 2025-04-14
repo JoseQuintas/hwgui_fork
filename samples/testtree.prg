@@ -23,7 +23,7 @@ FUNCTION Main()
 
 RETURN Nil
 
-FUNCTION DlgGet()
+STATIC FUNCTION DlgGet()
 
    LOCAL oDlg, oFont := HFont():Add( "MS Sans Serif",0,-13 )
    LOCAL oTree, oSplit, oSay, oPopup
@@ -42,16 +42,16 @@ FUNCTION DlgGet()
    @ 10,10 TREE oTree OF oDlg SIZE 200,280 ;
         EDITABLE ;
         BITMAP { "..\image\cl_fl.bmp","..\image\op_fl.bmp" } ;
-        ON SIZE {|o,x,y|o:Move(,,,y-20)}
+        ON SIZE { | o,x,y | (x), o:Move(,,,y - 20 ) }
 
    oTree:bRClick := {|ot,on|TreeMenuShow( ot, oPopup, on )}
 
    @ 214,10 SAY oSay CAPTION "" SIZE 206,280 STYLE WS_BORDER ;
-        ON SIZE {|o,x,y|o:Move(,,x-oSplit:nLeft-oSplit:nWidth-10,y-20)}
+        ON SIZE { | o,x,y | (x), o:Move(,,x - oSplit:nLeft - oSplit:nWidth - 10, y - 20 ) }
 
    @ 210,10 SPLITTER oSplit SIZE 4,260 ;
          DIVIDE {oTree} FROM {oSay} ;
-         ON SIZE {|o,x,y|o:Move(,,,y-20)}
+         ON SIZE { | o,x,y | (x), o:Move(,,, y - 20 ) }
 
    oSplit:bEndDrag := {||hwg_Redrawwindow( oSay:handle,RDW_ERASE+RDW_INVALIDATE+RDW_INTERNALPAINT+RDW_UPDATENOW)}
 
@@ -60,7 +60,7 @@ FUNCTION DlgGet()
 
 RETURN Nil
 
-FUNCTION BuildTree( oDlg,oTree,oSay )
+STATIC FUNCTION BuildTree( oDlg, oTree, oSay )
 
    LOCAL oNode
 
@@ -72,6 +72,8 @@ FUNCTION BuildTree( oDlg,oTree,oSay )
    INSERT NODE "Forth" TO oTree ON CLICK {||NodeOut(5,oSay)}
 
    oTree:bExpand := {||.T.}
+
+   (oDlg) // -w3 -es2
 
 RETURN Nil
 

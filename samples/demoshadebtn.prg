@@ -7,7 +7,7 @@
 #include "hwgui.ch"
 
 #ifdef __USING_MENU__
-   FUNCTION TestShadeBtn()
+   FUNCTION DemoShadeBtn()
 #else
    FUNCTION Main()
 #endif
@@ -18,7 +18,7 @@
 
    PREPARE FONT oFont NAME "Times New Roman" WIDTH 0 HEIGHT 20 WEIGHT 400
 
-   INIT WINDOW oMainWindow TITLE "TESTSHADEBTN - Shade Buttons" ;
+   INIT WINDOW oMainWindow TITLE "DEMOSHADEBTN - Shade Buttons" ;
      AT 200,0 SIZE 480,220 SYSCOLOR COLOR_3DLIGHT+1
 
    @ 10,10 SHADEBUTTON SIZE 100,36 TEXT "Metal" FONT oFont EFFECT SHS_METAL PALETTE PAL_METAL

@@ -16,7 +16,7 @@ FUNCTION Main()
    CHECK_FILE( cBitmap1 )
    CHECK_FILE( cbitmap2 )
 
-   INIT WINDOW oMainWindow MAIN TITLE "Example" ;
+   INIT WINDOW oMainWindow MAIN TITLE "DEMOXMLTREE - Show XML using Treebox" ;
      AT 200,0 SIZE 400,150
 
    MENU OF oMainWindow
@@ -44,10 +44,10 @@ STATIC FUNCTION DlgGet()
    IF ( oXmlDoc := HXMLDoc():Read( fname ) ) = Nil
    ENDIF
 
-   INIT DIALOG oDlg TITLE CutPath(fname)    ;
+   INIT DIALOG oDlg TITLE CutPath( fname )    ;
       AT 210,10  SIZE 430,300                  ;
       FONT oFont                               ;
-      ON INIT {||BuildTree(oTree,oXmlDoc:aItems,oSay)}
+      ON INIT { || BuildTree( oTree, oXmlDoc:aItems, oSay ) }
 
    @ 10,10 TREE oTree OF oDlg SIZE 200,280 ;
       EDITABLE ;
@@ -87,9 +87,9 @@ STATIC FUNCTION BuildTree( oParent,aItems,oSay )
          oNode:cargo := ""
          FOR j := 1 TO Len(aItems[i]:aAttr)
             IF ( cText := Utf82Ansi( aItems[i]:aAttr[j,2] ) ) != Nil
-               oNode:cargo += aItems[i]:aAttr[j,1]+" = "+cText+Chr(13)+Chr(10)
+               oNode:cargo += aItems[i]:aAttr[j,1] + " = " + cText + Chr(13) + Chr(10)
             ELSE
-               oNode:cargo += aItems[i]:aAttr[j,1]+" = "+aItems[i]:aAttr[j,2]+Chr(13)+Chr(10)
+               oNode:cargo += aItems[i]:aAttr[j,1] + " = " + aItems[i]:aAttr[j,2] + Chr(13) + Chr(10)
             ENDIF
          NEXT
          IF !Empty(aItems[i]:aItems)
@@ -110,7 +110,7 @@ STATIC FUNCTION NodeOut( o,oSay )
 
 RETURN Nil
 
-FUNCTION CHECK_FILE( cfi )
+STATIC FUNCTION CHECK_FILE( cfi )
 
    * Check, if file exist, otherwise terminate program
    IF .NOT. FILE( cfi )
@@ -333,4 +333,4 @@ HB_FUNC( ICONV_CLOSE )
 
 #endif
 
-* ======================================= EOF of xmltree.prg ===================================
+* ======================================= EOF of demoxmltree.prg ===================================

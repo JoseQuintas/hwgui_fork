@@ -1,5 +1,5 @@
 /*
- * $Id: testmenuxml.prg,v 1.2 2007/04/07 16:33:18 alkresin Exp $
+ * $Id: demomenuxml.prg,v 1.2 2007/04/07 16:33:18 alkresin Exp $
  *
  * This sample demonstrates reading/writing XML file and handling menu items
  * while run-time.
@@ -58,7 +58,7 @@ REQUEST HB_CODEPAGE_UTF8
 MEMVAR oXmlDoc, lIniChanged, nCurrentItem , oDlg, oFont
 
 #ifdef __USING_MENU__
-   FUNCTION TestMenuXml()
+   FUNCTION DemoMenuXml()
 #else
    FUNCTION Main()
 #endif
@@ -75,11 +75,11 @@ MEMVAR oXmlDoc, lIniChanged, nCurrentItem , oDlg, oFont
 #endif
    HB_LANGSELECT("DE")
 
-   oXmlDoc := HXMLDoc():Read( "testmenuxml.xml" )
+   oXmlDoc := HXMLDoc():Read( "demomenuxml.xml" )
 
    PREPARE FONT oFont NAME "Times New Roman" WIDTH 0 HEIGHT -17 && CHARSET 0 && 204 = Russian
 
-   INIT DIALOG oDlg TITLE "TESTMENUXML - XML Sample"  ;
+   INIT DIALOG oDlg TITLE "DEMOMENUXML - XML Sample"  ;
      ; // SYSCOLOR COLOR_3DLIGHT+1 ; // not valid for dialog
      AT 200,0 SIZE 600,300 ;
      ON EXIT {||SaveOptions()} ;
@@ -271,7 +271,7 @@ RETURN HXMLNode():New( "font", HBXML_TYPE_SINGLE, aAttr )
 FUNCTION SaveOptions()
 
    IF lIniChanged
-      oXmlDoc:Save( "testxml.xml" )
+      oXmlDoc:Save( "demomenuxml.xml" )
    ENDIF
    CLOSE ALL
 
@@ -293,4 +293,4 @@ STATIC FUNCTION p_about()
 
 RETURN Nil
 
-* ==================== EOF of testxml.prg ======================
+* ==================== EOF of demomenuxml.prg ======================
