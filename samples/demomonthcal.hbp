@@ -1,0 +1,10 @@
+#
+# $Id$
+#
+# auto included hbmk.hbm
+
+-odemomonthcal
+
+demomonthcal.prg
+
+# ==================== EOF of demomonthcal.hbp ===============

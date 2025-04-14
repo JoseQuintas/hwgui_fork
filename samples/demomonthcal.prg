@@ -18,7 +18,7 @@
 //================================================================//
 
 #ifdef __USING_MENU__
-   FUNCTION TestHMonth()
+   FUNCTION DemoMonthCal()
 #else
    FUNCTION Main()
 #endif
@@ -30,7 +30,7 @@
 
    hwg_Settooltipballoon(.t.)
 
-   INIT DIALOG oWnd TITLE "TESTHMONTH - Controle MonthCalendar" ;
+   INIT DIALOG oWnd TITLE "DEMOMONTHCAL - Controle MonthCalendar" ;
       AT 100,100 SIZE 640,480
 
    MENU OF oWnd
