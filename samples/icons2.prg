@@ -8,16 +8,16 @@
  * Sample for icons and bitmaps
  * using hex values
  *
- * Copyright 2021 Wilfried Brunken, DF7BE 
+ * Copyright 2021 Wilfried Brunken, DF7BE
  * https://sourceforge.net/projects/cllog/
- * 
+ *
  * For validating Ticket #61
  */
- 
+
     * Status:
     *  WinAPI   :  Yes
     *  GTK/Linux:  Yes
-    *  GTK/Win  :  Yes  
+    *  GTK/Win  :  Yes
 
 
 #include "hwgui.ch"
@@ -67,11 +67,11 @@ oImg_Dialog := HBitmap():AddString( "Dialog" , cVal_Dbmp )
    INIT WINDOW oMainWindow TITLE "Dialog icon test" ;
      AT 100,80 SIZE 300, 300 ICON oObj_Window
 
- 
+
   nMainX := oMainWindow:nLeft + 60
   nMainY := oMainWindow:nTop + 175
 
-   MENU OF oMainWindow  
+   MENU OF oMainWindow
       MENU TITLE "&Exit"
         MENUITEM "&Quit" ACTION oMainWindow:Close()
       ENDMENU
@@ -80,28 +80,28 @@ oImg_Dialog := HBitmap():AddString( "Dialog" , cVal_Dbmp )
       ENDMENU
    ENDMENU
 
-   @  20, 0 SAY cCmd SIZE 250,40   
+   @  20, 0 SAY cCmd SIZE 250,40
 
 
 #ifdef __GTK__
 /* Does not work on Windows (Format *.ico) */
-   @  50,60 BITMAP oObj_Window  
+   @  50,60 BITMAP oObj_Window
    @ 160,60 BITMAP oObj_Dialog
    && --------------------
    @  30, 150 SAY "Window icon" SIZE 80,32
-   @ 140, 150 SAY "Dialog icon" SIZE 80,32   
-#else 
+   @ 140, 150 SAY "Dialog icon" SIZE 80,32
+#else
 
-   @  50, 60 BITMAP oImg_Window 
-   @ 160, 60 BITMAP oImg_Dialog  
-   
+   @  50, 60 BITMAP oImg_Window
+   @ 160, 60 BITMAP oImg_Dialog
+
    @  30, 150 SAY "Window Bitmap" SIZE 80,32
    @ 140, 150 SAY "Dialog Bitmap" SIZE 80,32
 #endif
 
 
-   ACTIVATE WINDOW oMainWindow   
-   
+   ACTIVATE WINDOW oMainWindow CENTER
+
 RETURN NIL
 
 * --------------------------------------------
@@ -109,8 +109,8 @@ FUNCTION Test()
 * --------------------------------------------
 LOCAL cTitle := "Dialog icon", oDialog
 LOCAL ctext  := "-- Dialog --"
-LOCAL ctxt   := "icon displayed with @x,y Bitmap" 
-  
+LOCAL ctxt   := "icon displayed with @x,y Bitmap"
+
 //  INIT DIALOG oDialog TITLE cTitle AT oMainWindow:nLeft+60,oMainWindow:nTop+175  SIZE 400,400 ;
    INIT DIALOG oDialog TITLE cTitle AT nMainX, nMainY SIZE 400,400 ;
      ICON oObj_Dialog
@@ -118,7 +118,7 @@ LOCAL ctxt   := "icon displayed with @x,y Bitmap"
       @ 10 , 20  SAY ctext SIZE 270, 90
       @ 20 , 120 SAY ctxt  SIZE 180, 48
 
-  
+
 
 /*
   GTK: crashes here with core dump memory access violation,

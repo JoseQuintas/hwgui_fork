@@ -63,7 +63,7 @@ FUNCTION Main()
       ENDMENU
    ENDMENU
 
-   ACTIVATE WINDOW oMainWindow
+   ACTIVATE WINDOW oMainWindow CENTER
 
 RETURN Nil
 

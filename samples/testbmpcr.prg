@@ -34,7 +34,7 @@ FUNCTION Main()
       ON CLICK {|| oMainWindow:Close } ;
       SIZE 80,32
 
-   ACTIVATE WINDOW oMainWindow
+   ACTIVATE WINDOW oMainWindow CENTER
 
 RETURN Nil
 

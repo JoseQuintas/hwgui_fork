@@ -39,7 +39,7 @@ FUNCTION main()
       @ 0, i  say StrZero( i, 3 ) + "  -  " + "01234567890123456789012345678901234567890" + "  -  " + StrZero( i, 3 ) size 420, 20
    NEXT
 
-   ACTIVATE window oMain
+   ACTIVATE window oMain CENTER
 
 RETURN Nil
 

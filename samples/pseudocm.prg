@@ -50,7 +50,7 @@ FUNCTION Main()
    oBrw:aColumns[3]:length := 4
 
 
-   ACTIVATE WINDOW Form_Main
+   ACTIVATE WINDOW Form_Main CENTER
 
 RETURN Nil
 

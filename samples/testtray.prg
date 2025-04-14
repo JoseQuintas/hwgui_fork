@@ -75,7 +75,8 @@ FUNCTION Main()
       AT 200,0 SIZE 200,100 ;  && Needed for Ubuntu 16, otherwise not visible
       ICON oIcon1
 #else
-   INIT WINDOW oMainWindow MAIN TITLE "Example"
+   INIT WINDOW oMainWindow MAIN TITLE "Example" ;
+      AT 0, 0 SIZE 600, 400
 #endif
 
 #ifdef __GTK__
@@ -98,7 +99,7 @@ FUNCTION Main()
 #ifdef __GTK__
    ENDMENU
    oMainWindow:DEICONIFY()
-   ACTIVATE WINDOW oMainWindow
+   ACTIVATE WINDOW oMainWindow CENTER
 #else
    * InitTray( oNotifyIcon, bNotify, oNotifyMenu, cTooltip )
    oMainWindow:InitTray( oIcon1, oTrayMenu:aMenu[1,1,1], oTrayMenu, "TestTray" )

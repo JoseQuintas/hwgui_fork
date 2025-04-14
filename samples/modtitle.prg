@@ -50,7 +50,7 @@ FUNCTION Main()
          MENUITEM "&Name sorted title"  ACTION Titel2()
       ENDMENU
    ENDMENU
-   ACTIVATE WINDOW oWndMain
+   ACTIVATE WINDOW oWndMain CENTER
 
 RETURN Nil
 

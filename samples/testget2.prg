@@ -4,14 +4,14 @@
  * HwGUI Samples
  * testget2.prg - GET system and Timer in dialog box.
  */
- 
+
     * Status:
     *  WinAPI   :  Yes
     *  GTK/Linux:  Yes
     *  GTK/Win  :  No
-    
+
     * Port to GTK3 was successful
-    
+
 /*
   Some trouble on GTK.
   - The function hwg_SetColorinFocus() does not work correct.
@@ -24,7 +24,7 @@
     parameter MAXLENGTH defined, but they are not stored in the variable.
     Moving the focus to another input field and go back to the input field
     with the length rectricted field, the content is displayed with the defined MAXLENGTH.
-*/    
+*/
 
 #include "hwgui.ch"
 
@@ -45,7 +45,7 @@ FUNCTION Main()
       MENUITEM "&Hd Serial  " ACTION hwg_Msginfo( hwg_HdSerial( "C:\" ), "HD Serial number" )
    ENDMENU
 
-   ACTIVATE WINDOW oMainWindow
+   ACTIVATE WINDOW oMainWindow CENTER
 
 RETURN Nil
 
@@ -81,7 +81,7 @@ FUNCTION DlgGet( lColorInFocus )
 
    @ 20, 35  GET e1 PICTURE "XXXXXXXXXXXXXXX" SIZE 260, 26
 
-   @ 20, 65  GET oget6 VAR e6 MAXLENGTH 15 SIZE 260, 26 
+   @ 20, 65  GET oget6 VAR e6 MAXLENGTH 15 SIZE 260, 26
 
    @ 20, 95  GET e2  SIZE 260, 26
 
@@ -149,10 +149,10 @@ RETURN Nil
 
 FUNCTION MAXLEN_VALID(nlen,cstring)
  IF LEN(cstring) > nlen
-   hwg_MsgInfo("Entry field length exceeds " + ALLTRIM(STR(nlen)) ) 
+   hwg_MsgInfo("Entry field length exceeds " + ALLTRIM(STR(nlen)) )
    RETURN .F.
  ENDIF
-RETURN .T.   
+RETURN .T.
 
 
 * ============================= EOF of testget2.prg ================================================

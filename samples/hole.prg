@@ -72,7 +72,7 @@ FUNCTION Main()
 
    SET TIMER oTimer OF oMainWindow VALUE 200 ACTION {||TimerFunc()}
 
-   ACTIVATE WINDOW oMainWindow
+   ACTIVATE WINDOW oMainWindow CENTER
 
 RETURN Nil
 

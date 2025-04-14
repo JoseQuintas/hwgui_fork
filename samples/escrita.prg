@@ -248,9 +248,9 @@ FUNCTION Main()
 
 
 #ifdef __GTK__
-   ACTIVATE DIALOG oModDlg
+   ACTIVATE DIALOG oModDlg CENTER
 #else
-   ACTIVATE WINDOW oModDlg
+   ACTIVATE WINDOW oModDlg CENTER
 #endif
 
    hwg_Msginfo( meditbox , "Contents of variable meditbox")

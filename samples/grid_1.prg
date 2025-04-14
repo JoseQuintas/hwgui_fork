@@ -25,7 +25,7 @@ FUNCTION Main()
       MENUITEM "&Grid Demo" ACTION Test()
    ENDMENU
 
-   ACTIVATE WINDOW oMain
+   ACTIVATE WINDOW oMain CENTER
 
 RETURN Nil
 

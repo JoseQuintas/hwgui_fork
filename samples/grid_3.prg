@@ -36,7 +36,7 @@ FUNCTION Main()
       MENUITEM "&Demo" ACTION Test()
    ENDMENU
 
-   ACTIVATE WINDOW oMain
+   ACTIVATE WINDOW oMain CENTER
 
    res := PQexec( conn, 'CLOSE cursor_1' )
    PQclear(res)

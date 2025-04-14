@@ -42,7 +42,7 @@ FUNCTION Main()
    "Windows 10 : " + LOGICAL2STR(bwin10) + CHR(10) + ;
    "Major= " + ALLTRIM( STR( nmaj ) ) + CHR(10) + ;
    "Minor= " + ALLTRIM( STR( nmin ) ), "Windows Version" )
-  ACTIVATE WINDOW oMainWindow
+  ACTIVATE WINDOW oMainWindow CENTER
 
 RETURN Nil
 

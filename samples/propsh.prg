@@ -45,7 +45,7 @@ FUNCTION Main()
       MENUITEM "&Property Sheet" ACTION OpenConfig()
    ENDMENU
 
-   ACTIVATE WINDOW oMainWindow
+   ACTIVATE WINDOW oMainWindow CENTER
 
 RETURN Nil
 
@@ -108,7 +108,7 @@ FUNCTION OpenConfig()
 
      @ 18,83 CHECKBOX oCheckbox1 CAPTION "Checkbox" OF aDlg2 SIZE 80,22    ;
        FONT oFont
-    
+
      @ 18,150 SAY oSay3 CAPTION "Close sheet with <ESC>" OF aDlg2 SIZE 150,22
      @ 40,175 SAY oSay4 CAPTION "or <Alt> + F4"         OF aDlg2 SIZE 150,22
 

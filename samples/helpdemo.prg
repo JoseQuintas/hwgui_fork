@@ -13,7 +13,7 @@ FUNCTION Main()
       MENUITEM "&Help Dialog" ACTION Test()
    ENDMENU
 
-   ACTIVATE WINDOW oMain
+   ACTIVATE WINDOW oMain CENTER
 
 RETURN Nil
 

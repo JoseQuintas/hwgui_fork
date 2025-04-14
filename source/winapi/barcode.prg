@@ -98,7 +98,7 @@ FUNCTION main
 
    @ 163, 10 EDITBOX oEdit1 CAPTION oBC:InitEAN13()  SIZE 100, 20
 
-   ACTIVATE WINDOW oMainWindow
+   ACTIVATE WINDOW oMainWindow CENTER
 
    RETURN nil
 

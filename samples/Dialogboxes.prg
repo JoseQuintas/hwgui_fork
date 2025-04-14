@@ -44,7 +44,7 @@ FUNCTION Main()
       ENDMENU
    ENDMENU
 
-   oWinMain:Activate()
+   ACTIVATE WINDOW oWinMain CENTER
 
 RETURN Nil
 

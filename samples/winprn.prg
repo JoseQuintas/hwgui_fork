@@ -1,12 +1,12 @@
 /*
  * HWinPrn using sample
- * 
+ *
  * $Id$
  *
  * Copyright 2005 Alexander S.Kresin <alex@belacy.belgorod.su>
  * www - http://kresin.belgorod.su
  *
- * Modified by DF7BE: New parameter "nCharset" for 
+ * Modified by DF7BE: New parameter "nCharset" for
  * selecting international character sets
  * NLS and Main menu for more experiments
  *
@@ -27,22 +27,22 @@
     * - German    Wilfried Brunken, DF7BE
     * - Serbian   srdjankv (addition for QRCode printing with XHARBOUR)
     *             Need compiler switch #ifdef __XHARBOUR__
-    * 
+    *
     *
 * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 * We invite all other HWGUI developers to add more languages.
 * Try to add lines for Unicode support.
 * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-* 
+*
 * Steps for adding a new language:
 * 1. Create new function "FUNCTION hwg_HPrinter_LangArray_xx()", where "xx" ist
-*    the short abbreviation of the language.  
-*    Use "FUNCTION hwg_HPrinter_LangArray_DE()" as a template. 
+*    the short abbreviation of the language.
+*    Use "FUNCTION hwg_HPrinter_LangArray_DE()" as a template.
 *    The original english texts are commented with "&&" for better orientation
 *    Optional for codepage mapping from UTF-8 to Windows create a function
 *    FUNCTION XWIN_xx(clang)
 *    where "xx" is the shorte abbreviation, see above, for example "SR" for serbian
-*    Set in the function call for of or HB_TRANSLATE() to the required codepages.  
+*    Set in the function call for of or HB_TRANSLATE() to the required codepages.
 * 2. Add requests for new languages in REQUEST section;
 * 3. Add entry in PUBLIC array for new language.
 *    Function Main :
@@ -73,7 +73,7 @@
      0 : Print immediately (show no print preview). Default, old behavior.
      1 : Show print preview and start printing with button press
      2 : Show print preview and hide print button
- 
+
     Test for METHOD NewLine()
     Charsets for LINUX: METHOD New()
     The option nPrCharset is Windows only and ignored on GTK/LINUX
@@ -89,10 +89,10 @@
 
 /*
   Instruction activation QR code encoding.
-  
+
   For details to build the QR encode library see file
   contrib\qrencode\Readme.txt
-  
+
   The last page can be filled with a QR code image.
   Follow the instructions:
 
@@ -100,7 +100,7 @@
       cQR in Function Main().
       Encoding must be UTF-8, use function HB_TRANSLATE()
       to convert at your opinion.
-  
+
   2.) Library setting:
       DLL: copy the DLL "qrcodegen.dll" into the
       directory running the program (here: samples).
@@ -108,12 +108,12 @@
       in contrib\qrencode\Readme.txt
       or download a "ready to use" dll from the "Files"
       section of the HWGUI project site at sourgeforge.net.
-  
+
       Static link:
       Be shure, that the following libraries are available in directory "lib":
        libhbqrencode.a
        libqrcodegen.a
-      
+
    3.)Edit "winprn.hbp" to select the mode:
       # QR encode linking
       # -dWITH_QRENCDLL   ==> activate for DLL usage (Windows only)
@@ -125,23 +125,23 @@
         ==> must be done, if activated "-dWITH_QRENCST"
    4.) Compile this sample:
        hbmk2 winprn.hbp
-  
+
    5.) Run this sample:
        winprn.exe (or LINUX: ./winprn)
-   
+
        The QR code appeared in the last page.
        Use the "(+)" Button to zoom and check the QR code
        for example with your smartphone.
-   
+
    The properitary DLL as alternative can be download from:
    https://github.com/VFPX/FoxBarcodeQR
-   
+
 */
 
 /*
  Special hint for editing:
  Some troubles with Windows characters: we suggest to use the CHR() function
- to assign windows characters unique. 
+ to assign windows characters unique.
  */
 
 
@@ -168,7 +168,7 @@ REQUEST HB_CODEPAGE_RU1251
 * === German ===
 * Data Codepage (in DBFs)
 REQUEST HB_CODEPAGE_DE858
-* Windows codepage 
+* Windows codepage
 REQUEST HB_CODEPAGE_DEWIN
 
 * === Serbian ===
@@ -195,18 +195,18 @@ MEMVAR nmode , lPreview , lprbutton, aMessages
 * ---------------------------------------------
 Function Main
 * ---------------------------------------------
- LOCAL oMainWindow 
+ LOCAL oMainWindow
  LOCAL cDirSep := hwg_GetDirSep()
- 
+
  PUBLIC nmode , lPreview , lprbutton
  PUBLIC aMainMenu , aLanguages , aPriCharSets , att_priprev, clangset, cIniFile, cTitle
  PUBLIC nPrCharset, nchrs , cImageDir
  PUBLIC cHexAstro , cValAstro , oBitmap1 , oBitmap2
- 
+
  PRIVATE cQR
  // cQR:= "https://suf.purs.gov.rs/v/?vl=A0FVRVM0RllGQVVFUzRGWUYDAAAAAgAAAJCfiEIAAAAAAAABgjsBiWkAAAA8cNJI%2FbGxx11DlHJlGtKZGtRuq4NHcwg%2BKztPLN1bogOyAyHaj4xt5XCaRxE9jtqE0Rg12mLYgasUenuR1hBowZyUgTA%2F3jIbDAZkROSOqlnVpaJ4bDV4JH66ddL0YKiAwyOmW65IeXUcVamb3ZiGDw5RcGggRfi9iO%2B1uZRrBCnQImPFWYRD9DOkcNr%2Frmkr78J4cNsK1B8rfIGHGb028lJjd9SJJCoRAxm4mo9sUKEZuyKXZm%2BnM12kXS1r5jicRiM%2B1niB44jg8BU%2F8fjSp1sxgEErV5DHEGzgsrgS1iQPWidElHV7wmaydSFfqyEUuweCuNy5NTg%2FrcJvpHNWDfpl58E27SvTZ2k5BdrDSsveSh3ioh1UW2uAKYhemoA5pWCWsu4XYL0bV0DYMY0ePUlSnXqiQr5bmUyUl7lTDvY3KLziTjSLzNRyY8Oxn%2B1%2F8lV5GwUIslxjLzh9Wq7lM%2FAfZLpx4GcP%2F19pQC7shi4k%2F2zOcAT8MQVMUzljMkOFYK73pxunbitupzKocTy4z2FonLuSCeQOJeCQF9hVmtQAZ2K1m%2FiUqbD5NnAdEfPZrmdsblD8EW%2FRsUL5n7FTmwpUIFtdP%2B1mEy4mWEU8Jrb3XTiB%2F8fSJUUt%2Bg%2Bz4S0ncApxLI0ZgjGk3LwtLFz5h0ymFMumxhfPc1FgLhPBl0fvq%2BQSUCxo6UCMCh2cOsU%3D"
  cQR := "https:www.darc.de/distrikte"
-   /* Names of supported languages, use only ANSI charset, displayed in language selection dialog */ 
+   /* Names of supported languages, use only ANSI charset, displayed in language selection dialog */
    aLanguages := { "English", "Deutsch", "Serbian" }
    //   cIniFile := "language.ini"
 
@@ -216,7 +216,7 @@ Function Main
    nmode := 0
    nPrCharset := 0
    nchrs := 1 /* Item in COMBOXBOX */
-   clangset := "English" 
+   clangset := "English"
    aMainMenu := { "&Exit", "&Quit" , "&Print" , "&Start printing" , "&Settings" , ;
        "&Printer Char Set" , "&Language" }
    cTitle := "Demo for Winprn Class"
@@ -226,49 +226,49 @@ Function Main
 * Ask user for startup language setting combobox
 * and set to new language, if modified
  Select_LangDia(aLanguages)
- 
+
 #ifndef __PLATFORM__WINDOWS
-* This setting causes error no printing of German Umlaute and Euro currency sign  
-IF ( clangset != "Deutsch") .AND. ( clangset != "English")  
+* This setting causes error no printing of German Umlaute and Euro currency sign
+IF ( clangset != "Deutsch") .AND. ( clangset != "English")
  hb_SetCodepage( "UTF8" )
 END
 // hb_SetCodepage( "UTF8EX" )
-#endif 
- 
+#endif
+
 * ==== Handle Resources ====
 
 * Fill variables with hex values
  Init_Hexvars()
- 
+
 #ifdef __GTK__
 * cImageDir := ".." + cDirSep + ".." + cDirSep + "image" + cDirSep
   cImageDir := ".." + cDirSep  + "image" + cDirSep
-#else 
+#else
  cImageDir := ".." + cDirSep + "image" + cDirSep
-#endif 
- 
+#endif
+
  CHECK_FILE(cImageDir + "hwgui.bmp")  && 301 x 160 pixel
- 
+
  * Convert them all to binary.
  cValAstro := hwg_cHex2Bin ( cHexAstro )
 
  * Load contents from hex resources into image objects.
  * astro.bmp
  oBitmap1 := HBitmap():AddString( "astro", cValAstro )  && original size (Width x Height): 107 x 90 Pixel
- 
+
  // not working yet:
  // oBitmap2 := HBitmap():AddString( "astro", cValAstro , 428 , 360) && resized x 4
- 
+
  // Test
  // oBitmap1:OBMP2FILE( "test.bmp" , "astro" )
- 
-* Main Menu 
+
+* Main Menu
 
    INIT WINDOW oMainWindow MAIN TITLE cTitle ;
      AT 0,0 SIZE hwg_Getdesktopwidth(), hwg_Getdesktopheight() - 28
 
-   // MENUITEM in main menu on GTK/Linux does not start the desired action 
-   // Submenu needed 
+   // MENUITEM in main menu on GTK/Linux does not start the desired action
+   // Submenu needed
    MENU OF oMainWindow
       MENU TITLE aMainMenu[1]  /* Exit */
         MENUITEM aMainMenu[2] ACTION oMainWindow:Close() /* Quit */
@@ -283,11 +283,11 @@ END
       ENDMENU
    ENDMENU
 
-   ACTIVATE WINDOW oMainWindow
- 
- 
- 
- 
+   ACTIVATE WINDOW oMainWindow CENTER
+
+
+
+
 RETURN NIL
 
 
@@ -333,7 +333,7 @@ LOCAL cCross, cvert, chori, ctl, ctr, ctd, clr , crl, cbl, cbr, cbo
 LOCAL nRet, nScale := 7.2
 #ifdef __XHARBOUR__
  Local hZebra := hb_zebra_create_qrcode( cQR, HB_ZEBRA_FLAG_QR_LEVEL_M )
-#endif 
+#endif
 LOCAL nLineWidth := 1*nScale, nLineHeight := nLineWidth
 LOCAL nY := 130*nScale, nX:= 300*nScale
 LOCAL cFile
@@ -356,26 +356,26 @@ LOCAL cFile
 
   IF lprbutton == NIL
      lprbutton := .T.
-  ENDIF 
+  ENDIF
 
   IF cname == NIL ; cname := "English" ; ENDIF
   IF EMPTY(cname) ; cname := "English" ; ENDIF
 
-/* ===========================================  
+/* ===========================================
    + Initialize sequences for printer class  +
    ===========================================
-*/   
+*/
 
 * Method  StartDoc(): If the first parameter is set to .T., the print preview dialog appeared,
 * otherwise the print action starts immediately (.F. or left empty).
 * Set the 3rd parameter to .F., if you want to hide the "Print" button, the default is .T.
-* 
+*
 
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 * Add new block for every new supported language
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   DO CASE
-  
+
    * =============== German =================
    CASE cname == "Deutsch"  && Germany @ Euro
 
@@ -394,7 +394,7 @@ LOCAL cFile
 //   oWinPrn := HWinPrn():New( ,"DE858","DEWIN", , nPrCharset)
    /* This displays the Euro currency sign CHR(128) correct, but not
       all of the Umlaute ! */
-//   oWinPrn := HWinPrn():New( ,,, , nPrCharset )   
+//   oWinPrn := HWinPrn():New( ,,, , nPrCharset )
    oWinPrn:aTooltips := hwg_HPrinter_LangArray_DE()
 *   oWinPrn:StartDoc( .T. )
 //   oWinPrn:StartDoc( .T.,"temp_a2.pdf" )
@@ -402,12 +402,12 @@ LOCAL cFile
 #endif
 
 
- 
+
    *  =============== Serbian ==================
-*  Hello srdjankv, i think this is your job.   
+*  Hello srdjankv, i think this is your job.
   CASE cname == "Serbian"
 #ifndef __PLATFORM__WINDOWS
-   oWinPrn := HWinPrn():New( ,"RU866","RUKOI8" , , nPrCharset ) 
+   oWinPrn := HWinPrn():New( ,"RU866","RUKOI8" , , nPrCharset )
       oWinPrn:aTooltips := hwg_HPrinter_LangArray_SR()
  *  oWinPrn:StartDoc( .T.,"temp_a2.ps" )
    oWinPrn:StartDoc( lpreview,"temp_a2.ps" , lprbutton )
@@ -419,15 +419,15 @@ LOCAL cFile
 //   Hwg_MsgInfo("nCharset=" + STR(oWinPrn:nCharset),"Serbian" )
 *   oWinPrn:StartDoc( .T. )
 *   oWinPrn:StartDoc( .T.,"temp_a2.pdf" )
-   oWinPrn:StartDoc( lpreview,"temp_a2.pdf" , lprbutton)   
+   oWinPrn:StartDoc( lpreview,"temp_a2.pdf" , lprbutton)
 #endif
 
 
 /*
 
-  CASE cname == "Russian"  
+  CASE cname == "Russian"
    *  =============== Russian ==================
-*  Hello Alexander, i think this is your job.   
+*  Hello Alexander, i think this is your job.
   CASE cname == "Russian"
 #ifndef __PLATFORM__WINDOWS
    oWinPrn := HWinPrn():New( ,"RU866","RUKOI8" , , nPrCharset ) && 204
@@ -441,12 +441,12 @@ LOCAL cFile
 //   Hwg_MsgInfo("nCharset=" + STR(oWinPrn:nCharset),"Russian" )
 *   oWinPrn:StartDoc( .T. )
 *   oWinPrn:StartDoc( .T.,"temp_a2.pdf" )
-   oWinPrn:StartDoc( lpreview,"temp_a2.pdf" , lprbutton)   
+   oWinPrn:StartDoc( lpreview,"temp_a2.pdf" , lprbutton)
 #endif
 */
 
  OTHERWISE
-/* ============== Default EN/USA ==================*/ 
+/* ============== Default EN/USA ==================*/
 #ifndef __PLATFORM__WINDOWS
    oWinPrn := HWinPrn():New( ,,, , nPrCharset)
 //   oWinPrn:StartDoc( .T.,"temp_a2.ps" )
@@ -457,10 +457,10 @@ LOCAL cFile
 //   oWinPrn:StartDoc( .T.,"temp_a2.pdf" )
     oWinPrn:StartDoc( lpreview ,"temp_a2.pdf" , lprbutton )
 #endif
- 
+
  ENDCASE
- 
-// #ifndef __PLATFORM__WINDOWS 
+
+// #ifndef __PLATFORM__WINDOWS
 // __objAddMethod(oWinPrn, "FillRect", @myFillRect())
 
 
@@ -475,21 +475,21 @@ LOCAL cFile
    + End of Printer initialization    +
    ====================================
 */
-   
+
 *  DOS Test German Umlaute and sharp "S" + mue + Euro
    ctest1 := CHR(142) + CHR(153) + CHR(154) + CHR(132) + CHR(148) + CHR(129) + CHR(225) + CHR(230) + CHR(213)
 *  Windows
    ctest2 := CHR(196) + CHR(214) + CHR(220) + CHR(228) + CHR(246) + CHR(252) + CHR(223) + CHR(181) + CHR(128)
 
 
-* Euro = 0xE2 0x82 0xAC = CHR(226) + CHR(130) + CHR(172)   
-   cEuroUTF8 := CHR(226) + CHR(130) + CHR(172)       && "€" 
- 
+* Euro = 0xE2 0x82 0xAC = CHR(226) + CHR(130) + CHR(172)
+   cEuroUTF8 := CHR(226) + CHR(130) + CHR(172)       && "€"
+
    cEuroDOS := CHR(128)
-   
- *  UTF-8   
-   ctest3 := "ÄÖÜäöüßµ" + cEuroUTF8     && €  
-  
+
+ *  UTF-8
+   ctest3 := "ÄÖÜäöüßµ" + cEuroUTF8     && €
+
   * Page 1 :  print all chars over ASCII with decimal values (128 ... 190)
   FOR j := 128 TO 190
    oWinPrn:PrintLine(ALLTRIM(STR(j)) + ": " + CHR(j) )
@@ -501,7 +501,7 @@ LOCAL cFile
   NEXT
   * Page 3: Several character sizes and block grafics
    oWinPrn:NextPage()
-   
+
    oWinPrn:PrintLine( oWinPrn:oFont:name + " " + Str(oWinPrn:oFont:height) + " " + Str(oWinPrn:nCharW) + " " + Str(oWinPrn:nLineHeight) )
    oWinPrn:PrintLine( "A123456789012345678901234567890123456789012345678901234567890123456789012345678Z" )
 /*
@@ -536,19 +536,19 @@ LOCAL cFile
    oWinPrn:PrintLine(ctest1)
 #else
    oWinPrn:PrintLine(ctest1)    && ctest3 (UTF-8) not working here
-#endif   
- 
+#endif
+
    oWinPrn:PrintLine( "abcdefghijklmnopqrstuvwxyz" )
    oWinPrn:PrintLine( "ABCDEFGHIJKLMNOPQRSTUVWXYZ" )
-  
+
    oWinPrn:PrintLine( ctl + REPLICATE(cvert,9) + ctd + REPLICATE(cvert, 15) + ctr )
    oWinPrn:PrintLine( chori + "   129.54" + chori + "           0.00" + chori )
    oWinPrn:PrintLine( clr + REPLICATE(cvert,9) + cCross + REPLICATE(cvert, 15) + crl )
    oWinPrn:PrintLine( chori + "    17.88" + chori + "      961014.21" + chori )
-   oWinPrn:PrintLine( cbl + REPLICATE(cvert,9) + cbo + REPLICATE(cvert, 15) + cbr )   
+   oWinPrn:PrintLine( cbl + REPLICATE(cvert,9) + cbo + REPLICATE(cvert, 15) + cbr )
    oWinPrn:PrintLine()
    oWinPrn:PrintLine( ctl + REPLICATE(cvert,9) + ctd + REPLICATE(cvert, 15) + ctr )
-   oWinPrn:PrintLine( cbl + REPLICATE(cvert,9) + cbo + REPLICATE(cvert, 15) + cbr )   
+   oWinPrn:PrintLine( cbl + REPLICATE(cvert,9) + cbo + REPLICATE(cvert, 15) + cbr )
 //   oWinPrn:PrintLine( "ÚÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿" )
 //   oWinPrn:PrintLine( "ÀÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ" )
 
@@ -578,7 +578,7 @@ LOCAL cFile
    FOR i := 1 TO 80
       oWinPrn:PrintLine( Padl( i,3 ) + " --------" )
    NEXT
-   
+
    * Page 6:
    * Test 10 lines forward
    oWinPrn:NextPage()
@@ -588,7 +588,7 @@ LOCAL cFile
      IF hwg__isUnicode()
       oWinPrn:PrintLine("Линија 11")
      ELSE
-      oWinPrn:PrintLine(XWIN_SR("Линија 11")) 
+      oWinPrn:PrintLine(XWIN_SR("Линија 11"))
      ENDIF
    ELSE
      oWinPrn:PrintLine("Line 11")
@@ -600,18 +600,18 @@ LOCAL cFile
       oWinPrn:PrintLine("Срђан Драгојловић у реду број 13")
      ELSE
       oWinPrn:PrintLine(XWIN_SR("Срђан Драгојловић у реду број 13"))
-     ENDIF 
+     ENDIF
    ELSE
     oWinPrn:PrintLine("Line 13")
    ENDIF
-   
-   
+
+
    * Page 7
    * Print a bitmap in several ways
    oWinPrn:NextPage()
    oWinPrn:PrintLine("From file >hwgui.bmp<")
    oWinPrn:PrintBitmap( cImageDir + "hwgui.bmp" )
-   * astro.bmp   
+   * astro.bmp
    oWinPrn:PrintLine("From Hex value")
    oWinPrn:PrintBitmap( oBitmap1 , , "astro")
    oWinPrn:PrintLine("Center align")
@@ -637,14 +637,14 @@ LOCAL cFile
    oWinPrn:PrintText(" ... and normal again")
    oWinPrn:Newline()
 #ifdef __PLATFORM__WINDOWS
-* Windows   
+* Windows
    oWinPrn:SetMode( , , , , , , , 1 )
-   oWinPrn:PrintText("German Umlaute: " + ctest2 +  " Recent charset is " + ALLTRIM(STR(oWinPrn:nCharset)) )    
+   oWinPrn:PrintText("German Umlaute: " + ctest2 +  " Recent charset is " + ALLTRIM(STR(oWinPrn:nCharset)) )
    * Change charset, so that the Euro currency sign appeared
    oWinPrn:SetMode( , , , , , , , 0 )
    oWinPrn:PrintText(" Euro : " + CHR(128) )
    oWinPrn:Newline()
-   oWinPrn:PrintText("Stroked zero : " + CHR(216) )   
+   oWinPrn:PrintText("Stroked zero : " + CHR(216) )
 #else
 * LINUX
    oWinPrn:SetCP("EN")
@@ -653,16 +653,16 @@ LOCAL cFile
    oWinPrn:SetCP("EN")       && Only this settings to have Euro sign
    oWinPrn:SetCDPin("UTF8")
    oWinPrn:PrintText(" Euro : " + cEuroUTF8 )
-   oWinPrn:Newline()        && Reset to "EN","EN" ; otherwise the newline not printed 
+   oWinPrn:Newline()        && Reset to "EN","EN" ; otherwise the newline not printed
    oWinPrn:SetCP("EN")
    oWinPrn:SetCDPin("EN")
    oWinPrn:SetCDPin("UTF8")
    * Stroked zero: UTF-8 : 0xC3 = 195 , 0x98 = 152
    oWinPrn:PrintText("Stroked zero : " + CHR(195) + CHR(152) )
-   
-   
-* Use the following sequence to look for desired characters and codepages   
-/*   
+
+
+* Use the following sequence to look for desired characters and codepages
+/*
    oWinPrn:Newline()
    FOR i := 128 TO 190
     oWinPrn:PrintText(CHR(i))
@@ -671,11 +671,11 @@ LOCAL cFile
    FOR i := 191 TO 255
     oWinPrn:PrintText(CHR(i))
    NEXT
-*/   
-    
-#endif   
+*/
 
-#ifdef __XHARBOUR__   
+#endif
+
+#ifdef __XHARBOUR__
      IF hZebra != NIL
         IF hb_zebra_geterror( hZebra ) == 0
            hb_zebra_draw( hZebra, {|x,y,w,h| oWinPrn:oPrinter:box(Int( x + .5 ), Int( y + .5 ),;
@@ -697,7 +697,7 @@ LOCAL cFile
         ENDIF
 *    #endif
 #endif
-   
+
    oWinPrn:End()
 
 Return Nil
@@ -719,13 +719,13 @@ FUNCTION CreateQRtoBMP( cStr, cFile )
    * Some trouble on Windows 11 with the created temporary file !
 //   ctxtfi := hwg_CreateTempfileName("QR","*.txt")
     ctxtfi := "QRCodetemp.txt"
-// hwg_msginfo("DLL")   
+// hwg_msginfo("DLL")
    * Properitary libraray
-   * IF CHECK_FILE2("QRCodelib.Dll")   
+   * IF CHECK_FILE2("QRCodelib.Dll")
    *  qrDLL := DLLLoad("QRCodelib.Dll" )
    *  DllCall(qrDLL,0x0020,"FastQRCode",cStr,cFile)
    *  DLLUnload(qrDLL)
-   * ELSE 
+   * ELSE
    *  cFile:= ""
    * ENDIF
 
@@ -757,10 +757,10 @@ FUNCTION CreateQRtoBMP( cStr, cFile )
  cFile := IIF(HB_ISNIL(cFile),hwg_CreateTempfileName("QR","*.bmp"), cFile )
  cqrc := hwg_QRCodeTxtGen(cStr,1)
 * If desired to zoom
-  cqrc := hwg_QRCodeZoom( cqrc, 4 ) 
+  cqrc := hwg_QRCodeZoom( cqrc, 4 )
   cbitmap := hwg_QRCodetxt2BPM( cqrc )
 * Store to bitmap file
-   MEMOWRIT( cFile, cbitmap ) 
+   MEMOWRIT( cFile, cbitmap )
 RETURN cFile
 #endif
 #endif
@@ -775,10 +775,10 @@ FUNCTION CreateQRtoBMP( cStr, cFile )
  cFile := IIF(HB_ISNIL(cFile),hwg_CreateTempfileName("QR","*.bmp"), cFile )
  cqrc := hwg_QRCodeTxtGen(cStr,1)
 * If desired to zoom
-  cqrc := hwg_QRCodeZoom( cqrc, 4 ) 
+  cqrc := hwg_QRCodeZoom( cqrc, 4 )
   cbitmap := hwg_QRCodetxt2BPM( cqrc )
 * Store to bitmap file
-   MEMOWRIT( cFile, cbitmap ) 
+   MEMOWRIT( cFile, cbitmap )
 RETURN cFile
 
 #endif
@@ -809,22 +809,22 @@ FUNCTION NLS_SetLang(cname,omain)
 *  IF hwg__isUnicode()
 *  * UTF-8 (without BOM)
 *   ....
-*  ELSE  
+*  ELSE
 *   && Windows
 *   && Use CHR(n) function for encoding character
 *   ....
-*  ENDIF 
+*  ENDIF
   LOCAL bmn
   bmn := .F.
   IF omain != NIL ; bmn := .T. ; ENDIF
-    
+
 /* Add case block for every new language */
   DO CASE
     * ~~~~~~~~~~~~ Serbian ~~~~~~~~~~~
     CASE cname == "Serbian"
       clangset := "Serbian"
      IF hwg__isUnicode()
-         * UTF-8 (without BOM) 
+         * UTF-8 (without BOM)
       aMainMenu := { "Излаз", "&Заврши са радом" , "&Штампај" , "Покрени штампу" , "Подешавање", "Кодна страна штампача" , "&Jезик" , ;
       "&Диалог-Модус" }
         cTitle := "Демо за Winprn класу"
@@ -838,7 +838,7 @@ FUNCTION NLS_SetLang(cname,omain)
       ENDIF
       * Set title of main windows
       IF bmn ; Set_Maintitle(omain,cTitle) ; ENDIF
-    * ~~~~~~~~~~~~ German DE ~~~~~~~~~~~  
+    * ~~~~~~~~~~~~ German DE ~~~~~~~~~~~
     CASE cname == "Deutsch"  && Germany @ Euro
       clangset := "Deutsch"
       aMainMenu := { "E&nde", "&Quit" , "&Drucken" , "&Druck starten" , "&Einstellungen" , ;
@@ -852,7 +852,7 @@ FUNCTION NLS_SetLang(cname,omain)
       ENDIF
       * Set title of main windows
       IF bmn ; Set_Maintitle(omain,cTitle) ; ENDIF
-   * ~~~~~~~~~~~~ German AT ~~~~~~~~~~~ 
+   * ~~~~~~~~~~~~ German AT ~~~~~~~~~~~
    CASE cname == "Deutsch-OE"  && Austria: German @ Euro
       aMainMenu := { "E&nde", "&Quit" , "&Drucken" , "&Druck starten" , "&Einstellungen" , ;
        "Drucker &Zeichensatz" , "&Sprache" , "&Dialog-Modus" }
@@ -871,10 +871,10 @@ FUNCTION NLS_SetLang(cname,omain)
      clangset := "English"
      cTitle := "Demo for Winprn Class"
       * Set title of main windows
-     IF bmn ; Set_Maintitle(omain,cTitle) ; ENDIF 
+     IF bmn ; Set_Maintitle(omain,cTitle) ; ENDIF
  ENDCASE
- 
-RETURN NIL 
+
+RETURN NIL
 
 
 * ---------------------------------------------
@@ -890,19 +890,19 @@ LOCAL result, achrit, csel , nchrs
   nchrs := result - 1 /* Position in COMBOBOX */
   * Copy results to public
    nmode := nchrs
-/*   
+/*
    0 : Print immediately (show no print preview). Default, old behavior.
    1 : Show print preview and start printing with print button press.
    2 : Show print preview and hide print button.
-*/  
+*/
    lPreview := IIF ( nmode > 0 , .T. , .F.)
    lprbutton :=  IIF ( nmode > 1 , .F. , .T. )
-   
+
    hwg_MsgInfo("Preview: " + Bool2string(lPreview) + CHR(10) + ;
    "Print Button in preview: " + Bool2string(lprbutton),"Dialog mode settting")
-RETURN NIL 
- 
-* --------------------------------------------- 
+RETURN NIL
+
+* ---------------------------------------------
 FUNCTION Bool2string(lval)
 * ---------------------------------------------
 IF lval
@@ -922,13 +922,13 @@ LOCAL result, achrit, csel
  IF result != 0
   * set to new value, if modified
   nchrs := result /* Position in COMBOBOX */
-  csel := achrit[result] 
+  csel := achrit[result]
   * Get the number of printer char set before ":"
   nPrCharset := VAL(SUBSTR(csel,1,AT(":",csel) - 1 ) )
   hwg_MsgInfo("Character Set is now: " + ALLTRIM(STR(nchrs)) + " Name: " + csel , ;
           "Printer Character Set")
  ENDIF
-RETURN NIL 
+RETURN NIL
 
 
 * ---------------------------------------------
@@ -938,7 +938,7 @@ FUNCTION hwg_HPrinter_LangArray_SR()
 /* Returns array with captions for titles and controls of print preview dialog
   in serbian language.
   Use this code snippet as template to set to your own desired language. */
-  
+
   LOCAL aTooltips := {}
   LOCAL cEuro
 
@@ -973,7 +973,7 @@ FUNCTION hwg_HPrinter_LangArray_SR()
   /* 20 */ AAdd(aTooltips,"Прекини" )         && Button                    "Cancel"
   /* 21 */ AAdd(aTooltips,"Унеси опсег страна") && Tooltip         "Enter range of pages"
   /* 22 */ AAdd(aTooltips,"Грешка")                                        && Error
-  
+
   ELSE
   * Windows
    /* 1  */ AAdd(aTooltips,XWIN_SR("Излаз из прегледа") )          && Exit Preview
@@ -1000,9 +1000,9 @@ FUNCTION hwg_HPrinter_LangArray_SR()
   /* 20 */ AAdd(aTooltips,XWIN_SR("Прекини" ) )        && Button                    "Cancel"
   /* 21 */ AAdd(aTooltips,XWIN_SR("Унеси опсег страна") ) && Tooltip         "Enter range of pages"
   /* 22 */ AAdd(aTooltips,XWIN_SR("Грешка") )                                        && Error
-  
+
   ENDIF
-  
+
 RETURN aTooltips
 
 * ---------------------------------------------
@@ -1012,7 +1012,7 @@ FUNCTION hwg_HPrinter_LangArray_DE()
 /* Returns array with captions for titles and controls of print preview dialog
   in german language.
   Use this code snippet as template to set to your own desired language. */
-  
+
   LOCAL aTooltips
   * For special characters: Umlaute, sharp "S" and Euro Currency sign
   LOCAL CAGUML, COGUML, CUGUML, CAKUML, COKUML, CUKUML, CSZUML, cEuro
@@ -1066,8 +1066,8 @@ FUNCTION hwg_HPrinter_LangArray_DE()
   /* 19 */ AAdd(aTooltips,"Drucken")         && Button                    "Print"
   /* 20 */ AAdd(aTooltips,"Abbruch" )        && Button                    "Cancel"
   /* 21 */ AAdd(aTooltips,"Seitenbereich(e) eingeben") && Tooltip         "Enter range of pages"
-  /* 22 */ AAdd(aTooltips,"Fehler")                                        && Error 
-  
+  /* 22 */ AAdd(aTooltips,"Fehler")                                        && Error
+
 RETURN aTooltips
 
 * ---------------------------------------------
@@ -1122,18 +1122,18 @@ FUNCTION __frm_CcomboSelect(apItems, cpTitle, cpLabel, npOffset, cpOK, cpCancel,
 * cpOK     : Button caption   ("OK")
 * cpCancel : Button caption   ("Cancel")
 * cpHelp   : Button caption   ("Help")
-* cpHTopic : HELP() : Topic   ("") 
+* cpHTopic : HELP() : Topic   ("")
 * cpHVar   : HELP() : Variable Name ("")
-* npreset  : Preser position (1) 
+* npreset  : Preser position (1)
 *
 * Sample call :
 *
 * LOCAL result,acItems
-* acItems := {"One","Two","Three"} 
+* acItems := {"One","Two","Three"}
 * result := __frm_CcomboSelect(acItems,"Combo selection","Please Select an item", ;
 *  0 , "OK" , "Cancel", "Help" , "Need Help : " , "HELP !" )
 * returns: index number of item, if cancel: 0
-* ============================================ 
+* ============================================
 LOCAL oDlgcCombo1
 LOCAL aITEMS , cTitle, cLabel, nOffset, cOK, cCancel, cHelp , cHTopic , cHVar
 LOCAL oLabel1, oCombobox1, oButton1, oButton2, oButton3 , nType , yofs, bcancel ,nRetu
@@ -1148,11 +1148,11 @@ LOCAL oLabel1, oCombobox1, oButton1, oButton2, oButton3 , nType , yofs, bcancel 
  cHTopic := ""
  cHVar   := ""
  nRetu   := 0
- 
+
 aITEMS := {}
 IF .NOT. apItems == NIL
  aITEMS := apItems
-ENDIF 
+ENDIF
 IF .NOT. cpTitle == NIL
  cTitle := cpTitle
 ENDIF
@@ -1166,7 +1166,7 @@ IF .NOT. cpOK == NIL
  cOK  :=  cpOK
 ENDIF
 IF .NOT. cpCancel == NIL
- cCancel :=  cpCancel 
+ cCancel :=  cpCancel
 ENDIF
 IF .NOT. cpHelp == NIL
  cHelp :=  cpHelp
@@ -1185,9 +1185,9 @@ ENDIF
 bcancel := .T.
 yofs := nOffset + 120
 * y positions of elements:
-* Label1       : 44  
-* Buttons      : 445  : ==> yofs   
-* Combobox     : 84   : 
+* Label1       : 44
+* Buttons      : 445  : ==> yofs
+* Combobox     : 84   :
 * Dialog size  : 565  : ==> yofs + 60
 *
   INIT DIALOG oDlgcCombo1 TITLE cTitle ;
@@ -1196,21 +1196,21 @@ yofs := nOffset + 120
 
 
    @ 67,44 SAY oLabel1 CAPTION cLabel SIZE 378,22 ;
-        STYLE SS_CENTER   
-   @ 66,84 GET COMBOBOX oCombobox1 VAR nType ITEMS aITEMS SIZE 378,96   
+        STYLE SS_CENTER
+   @ 66,84 GET COMBOBOX oCombobox1 VAR nType ITEMS aITEMS SIZE 378,96
    @ 58 , yofs  BUTTON oButton1 CAPTION cOK SIZE 80,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ON CLICK { || nRetu := nType , bcancel := .F. , oDlgcCombo1:Close() }  
+        STYLE WS_TABSTOP+BS_FLAT ON CLICK { || nRetu := nType , bcancel := .F. , oDlgcCombo1:Close() }
    @ 175, yofs  BUTTON oButton2 CAPTION cCancel SIZE 80,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ON CLICK { || oDlgcCombo1:Close() }  
+        STYLE WS_TABSTOP+BS_FLAT ON CLICK { || oDlgcCombo1:Close() }
    @ 375, yofs  BUTTON oButton3 CAPTION cHelp SIZE 80,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ON CLICK { || HELP( cHTopic ,PROCLINE(), cHVar ) }  
+        STYLE WS_TABSTOP+BS_FLAT ON CLICK { || HELP( cHTopic ,PROCLINE(), cHVar ) }
 
    ACTIVATE DIALOG oDlgcCombo1
 * RETURN oDlgcCombo1:lresult
 RETURN nRetu
- 
+
 * --------------------------------------------
-FUNCTION acdiamode() 
+FUNCTION acdiamode()
 * Returns array with valid dialog modes
 * as strings.
 * Format : n : string
@@ -1218,14 +1218,14 @@ FUNCTION acdiamode()
 * --------------------------------------------
 LOCAL aps := {}
 
-IF (clangset == NIL) .OR. EMPTY(clangset) 
+IF (clangset == NIL) .OR. EMPTY(clangset)
    AAdd (aps, "0")
    AAdd (aps, "1")
    AAdd (aps, "2")
    RETURN aps  && Avoid crash
- ENDIF 
- 
- IF clangset == "Serbian" 
+ ENDIF
+
+ IF clangset == "Serbian"
   IF hwg__isUnicode()
    AAdd (aps, "0 : Print immediately (show no print preview). Default, old behavior.")
    AAdd (aps, "1 : Show print preview and start printing with print button press")
@@ -1238,10 +1238,10 @@ IF (clangset == NIL) .OR. EMPTY(clangset)
    AAdd (aps, "0 : Print immediately (show no print preview). Default, old behavior.")
    AAdd (aps, "1 : Show print preview and start printing with print button press")
    AAdd (aps, "2 : Show print preview and hide print button")
-  ENDIF && IF UTF-8 
+  ENDIF && IF UTF-8
 ENDIF   && Serbian
- 
- 
+
+
 
  IF clangset == "Deutsch"
    AAdd (aps, "0 : Sofortiger Ausdruck (keine Vorschau). Default, altes Verhalten.")
@@ -1255,13 +1255,13 @@ ENDIF   && Serbian
   AAdd (aps, "2 : Show print preview and hide print button")
  ENDIF
 
-  
-RETURN aps 
+
+RETURN aps
 
 * --------------------------------------------
 FUNCTION acPr_Charsets
 * Returns array with valid printer charsets
-* as Strings 
+* as Strings
 * See als include file "prncharsets.ch"
 * For COMBOBOX selection dialog.
 * Format : n : string
@@ -1270,18 +1270,18 @@ LOCAL aps := {}
 
 
  AAdd (aps, "0  : ANSI (CP1252, ansi-0, iso8859-{1,15})")
- AAdd (aps, "1  : DEFAULT")    
- AAdd (aps, "2  : SYMBOL")   
- AAdd (aps, "77 : MAC")   
+ AAdd (aps, "1  : DEFAULT")
+ AAdd (aps, "2  : SYMBOL")
+ AAdd (aps, "77 : MAC")
  AAdd (aps, "128: SHIFTJIS (CP932)")
  AAdd (aps, "129: HANGEUL(CP949, ksc5601.1987-0")
- AAdd (aps, "129: HANGUL")      
+ AAdd (aps, "129: HANGUL")
  AAdd (aps, "130: JOHAB (korean (johab) CP1361)")
  AAdd (aps, "134: GB2312 (CP936, gb2312.1980-0)")
  AAdd (aps, "136: CHINESEBIG5 (CP950, big5.et-0)")
  AAdd (aps, "161: GREEK (CP1253)")
  AAdd (aps, "162: TURKISH (CP1254, -iso8859-9)")
- AAdd (aps, "163: VIETNAMESE (CP1258)") 
+ AAdd (aps, "163: VIETNAMESE (CP1258)")
  AAdd (aps, "177: HEBREW (CP1255, -iso8859-8)")
  AAdd (aps, "178: ARABIC (CP1256, -iso8859-6)")
  AAdd (aps, "186: BALTIC (CP1257, -iso8859-13)")
@@ -1290,8 +1290,8 @@ LOCAL aps := {}
  AAdd (aps, "238: EAST_EUROPE (EE_CHARSET)")
  AAdd (aps, "255: OEM")
 RETURN aps
- 
- 
+
+
 * --------------------------------------------
 FUNCTION HELP(cTopic,nproc,cvar)
 * Display help window
@@ -1307,7 +1307,7 @@ LOCAL result
    200 , "OK" , "Cancel", "Help" , "Need Help : " , "HELP !" )
  IF result != 0
   * set to new language, if modified
-  clangset := aLanguages[result] 
+  clangset := aLanguages[result]
   NLS_SetLang(clangset)
   hwg_MsgInfo("Language set to " + clangset,"Language Setting")
  ENDIF
@@ -1321,7 +1321,7 @@ FUNCTION CHECK_FILE ( cfi )
  IF .NOT. FILE( cfi )
   Hwg_MsgStop("File >" + cfi + "< not found, program terminated","File ERROR !")
   QUIT
- ENDIF 
+ ENDIF
 RETURN Nil
 
 * --------------------------------------------
@@ -1331,7 +1331,7 @@ FUNCTION CHECK_FILE2 ( cfi )
 * --------------------------------------------
  IF FILE( cfi )
   RETURN .T.
- ENDIF 
+ ENDIF
 RETURN .F.
 
 * ========================================================
@@ -1372,6 +1372,6 @@ RETURN .F.
    // Use CHR(n) to code non ASCII characters (n > 127) to avoid errors with LINUX text editor (for example "gedit")
    // Sample:
    //  /* 1  */ AAdd(aTooltips,CHR(nnn) + CHR(mmm) + CHR(ooo) + ...  )      && Exit Preview
-// ENDIF   
+// ENDIF
 
 * ============================= EOF of winprn.prg =========================================

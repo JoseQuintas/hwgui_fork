@@ -1,4 +1,4 @@
-#require "rddsql" 
+#require "rddsql"
 #require "sddodbc" //SQLMIX
 
 #include "hwgui.ch"
@@ -17,29 +17,29 @@ MEMVAR lAdd
 
 Function Test
    Local oMain
-   
+
 
    INIT WINDOW oMain MAIN TITLE "GRUD DBF - MariaDB" AT 100, 100 SIZE 400, 300
-   
+
    MENU OF oMain
-   
+
       MENU TITLE "&Files"
-         MENUITEM "&Contacts DBF" ACTION Contacts_DBF() 
+         MENUITEM "&Contacts DBF" ACTION Contacts_DBF()
          SEPARATOR
          MENUITEM "&Contacts MariaDB" ACTION Contacts_MariaDB()
          SEPARATOR
 
-      MENUITEM "&Exit" ACTION oMain:Close()   
+      MENUITEM "&Exit" ACTION oMain:Close()
       ENDMENU
-      
+
       MENU TITLE "&Help"
          MENUITEM "&About" ACTION hwg_Msginfo( HwG_Version(), "About" )
       ENDMENU
-      
+
    ENDMENU
-   
-   ACTIVATE WINDOW oMain
-  
+
+   ACTIVATE WINDOW oMain CENTER
+
 Return Nil
 
 Function Contacts_DBF
@@ -49,15 +49,15 @@ Function Contacts_DBF
 
    Private nIdContact, cName, cPhantom := space(1)  //Fields of DataBase
    Private lAdd := .F.
- 
+
    rddSetDefault("DBFCDX")
-   Set Autopen On 
+   Set Autopen On
    hb_cdpSelect("UTF8EX")
 
    aStructure := { { "idcontact" ,"+",04,0} ,; //Auto increment
                    { "name"      ,"c",60,0} }
 
-   If !hb_vfexists("contacts.dbf")      
+   If !hb_vfexists("contacts.dbf")
       If dbcreate("contacts.dbf",aStructure,"DBFCDX",.t.,"ctc") //Create and open with shared mode
          index on field->name tag tgName
          ctc->( dbappend() )
@@ -69,7 +69,7 @@ Function Contacts_DBF
          ctc->( dbappend() )
          ctc->name := "POPEYE"
          ctc->(DbDelete())
-          
+
          ctc->( dbCloseArea() )
       Else
          hwg_MsgStop("Error Creating DBF")
@@ -102,9 +102,9 @@ INIT DIALOG oDlg CLIPPER NOEXIT TITLE "Contacts Via DBFCDX" AT 0,0 size 1024,500
       BEGIN PAGE "Contacts" of oTab
 
          FieldsGet()
-         
+
          @ 010,010 GroupBox "ID" size 120,60
-         @ 020,030 Get oIdContact var nIdContact Picture "9999999999" size 090,30 STYLE ES_RIGHT 
+         @ 020,030 Get oIdContact var nIdContact Picture "9999999999" size 090,30 STYLE ES_RIGHT
 
          @ 010,080 GroupBox "Name" size 500,60
          @ 020,100 Get oName var cName size 470,30 //ToolTip "Name of contact"
@@ -121,18 +121,18 @@ INIT DIALOG oDlg CLIPPER NOEXIT TITLE "Contacts Via DBFCDX" AT 0,0 size 1024,500
 oDlg:Activate()
 
 ctc->( dbCloseArea() )
-Return nil 
+Return nil
 
 Static Function MakeVars()
    nIdContact := 0 //Auto increment
    cName      := space(60)
-return .T. 
+return .T.
 
 Static Function FieldsGet()
    nIdContact := ctc->idcontact
    cName      := ctc->name
    lAdd       := .F.
-return .T. 
+return .T.
 
 Static function RefreshGets()
    oIdContact : Refresh()
@@ -145,14 +145,14 @@ Static function UpdateGets()
 return .T.
 
 Static function DelContact(oDlg,lSQL)
-Local cSQl 
+Local cSQl
 
    If lSQL
-      cSQL := "DELETE FROM contacts WHERE idcontact = " + hb_ntos(ctc->idcontact)  
-      If rddInfo( RDDI_EXECUTE, cSQL ) 
+      cSQL := "DELETE FROM contacts WHERE idcontact = " + hb_ntos(ctc->idcontact)
+      If rddInfo( RDDI_EXECUTE, cSQL )
          Hwg_msgInfo("Record deleted.")
          ctc->(dbCloseArea())
-         dbUseArea( .T., , "SELECT * FROM contacts", "ctc" )         
+         dbUseArea( .T., , "SELECT * FROM contacts", "ctc" )
       Else
          Hwg_MsgStop("Fail erase record.")
       EndIf
@@ -191,18 +191,18 @@ Local cSQL
       hwg_msgStop("Please enter with a name")
       oName:SetFocus()
       hwg_edit_SetPos( oName:Handle, 1 ) //Set 1 position edit of get
-      return .t.        
+      return .t.
    EndIf
 
-   If lAdd 
+   If lAdd
 
       If lSQL
 
          cSQL := "INSERT INTO contacts (name) values ('" + cName + "')"
-         If rddInfo( RDDI_EXECUTE, cSQL  )   
+         If rddInfo( RDDI_EXECUTE, cSQL  )
             ctc->(dbCloseArea())  //Close table contact
             dbUseArea( .T., , "SELECT * FROM contacts", "ctc" ) //need open contacts table becouse new data.
-         Else   
+         Else
             hwg_msginfo('Fail to add data')
          EndIF
 
@@ -212,40 +212,40 @@ Local cSQL
          If NetErr()
             hwg_MsgStop("Error on append.")
             return .F.
-         EndIf   
+         EndIf
 
       EndIf
 
    Else
 
-      If lSQL 
-      Else   
+      If lSQL
+      Else
          If !ctc->(dbRLock())
             hwg_MsgStop("Error on replace.")
          EndIf
       EndIf
 
    EndIf
-      
+
    If lSQL
       If lAdd
       Else
-         cSQL := "UPDATE contacts SET name = '" + cName + "' WHERE idcontact = " + hb_ntos(ctc->idcontact) 
-         If rddInfo( RDDI_EXECUTE, cSQL  )   
+         cSQL := "UPDATE contacts SET name = '" + cName + "' WHERE idcontact = " + hb_ntos(ctc->idcontact)
+         If rddInfo( RDDI_EXECUTE, cSQL  )
             Hwg_MsgInfo("contact: " + hb_ntos(ctc->idcontact) + " updated.")
             ctc->(dbCloseArea())
             dbUseArea( .T., , "SELECT * FROM contacts", "ctc" )
          Else
             Hwg_MsgStop("Fail contact update.")
          EndIf
-      EndIf   
+      EndIf
    Else
       ctc->name := cName
    EndIf
 
    lAdd := .F.
    oDlg:oBrw:Refresh()
-   
+
 return .T.
 
 Static Function DelOnOff(oDlg)
@@ -264,14 +264,14 @@ Function Contacts_MariaDB
 
    rddSetDefault( "SQLMIX" )
    nConnection := rddInfo( RDDI_CONNECT, { "ODBC", "Server=127.0.0.1;Driver={MariaDB};dsn=;User=itamar;password=@itamar;database=test;" } )
-   
+
    IF nConnection == 0
       hwg_msgstop("Unable connect to server" +hb_eol() + rddInfo( RDDI_ERRORNO ) + hb_eol() + rddInfo( RDDI_ERROR ) )
       RETURN .F.
    ENDIF
-   
+
     //hwg_msginfo("Number of conection:" + hb_ntos(nConnection))
-    If !rddInfo( RDDI_EXECUTE, "CREATE DATABASE IF NOT EXISTS `test`" )      
+    If !rddInfo( RDDI_EXECUTE, "CREATE DATABASE IF NOT EXISTS `test`" )
        Hwg_msginfo("Fail to create database test of MariaDB")
     EndIf
     If !rddInfo( RDDI_EXECUTE, "USE `test`" )
@@ -282,12 +282,12 @@ Function Contacts_MariaDB
     nTab := rs->nTot
     rs->(dbCloseArea())
 
-    If nTab > 0 
+    If nTab > 0
        If hwg_MsgYesNo("Erase table contacts ?")
           If rddInfo( RDDI_EXECUTE, "DROP TABLE contacts" )
              nTab := 0
-          Else  
-             hwg_MsgStop("Fail to erase table contacts.")             
+          Else
+             hwg_MsgStop("Fail to erase table contacts.")
           EndIF
        EndIf
     EndIf
@@ -295,7 +295,7 @@ Function Contacts_MariaDB
     If empty(nTab) //make table contacts
        If rddInfo( RDDI_EXECUTE, "CREATE TABLE contacts ( idcontact MEDIUMINT NOT NULL AUTO_INCREMENT, NAME CHAR(60) NOT NULL, PRIMARY KEY (idcontact) )" )
           Hwg_msginfo("Table contacts create on MariaDB")
-       Else 
+       Else
           Hwg_msginfo("Fail to make table contacts")
        EndIf
 
@@ -305,15 +305,15 @@ Function Contacts_MariaDB
           Hwg_MsgInfo("Fail to add data.")
        EndIf
     EndIf
-    
+
     dbUseArea( .T., , "SELECT * FROM contacts", "ctc" )
 
    PREPARE FONT oFontDlg NAME "Z003" Width 0 Height 16
    PREPARE FONT oFontBrw NAME "Courier" Width 0 Height 14
 
-INIT DIALOG oDlg CLIPPER NOEXIT TITLE "Contacts using SQLMIX and MariaDB" AT 0,0 size 1024,500 Font oFontDlg STYLE DS_CENTER 
+INIT DIALOG oDlg CLIPPER NOEXIT TITLE "Contacts using SQLMIX and MariaDB" AT 0,0 size 1024,500 Font oFontDlg STYLE DS_CENTER
 
-   @ 10,080 browse oBrw DataBase Of oDlg size 360,400 Font oFontBrw ;   
+   @ 10,080 browse oBrw DataBase Of oDlg size 360,400 Font oFontBrw ;
    On PosChange {|| UpdateGets() }
 
    oBrw:Alias:="ctc"
@@ -332,9 +332,9 @@ INIT DIALOG oDlg CLIPPER NOEXIT TITLE "Contacts using SQLMIX and MariaDB" AT 0,0
       BEGIN PAGE "Contacts" of oTab
 
          FieldsGet()
-         
+
          @ 010,010 GroupBox "ID" size 120,60
-         @ 020,030 Get oIdContact var nIdContact Picture "9999999999" size 090,30 STYLE ES_RIGHT 
+         @ 020,030 Get oIdContact var nIdContact Picture "9999999999" size 090,30 STYLE ES_RIGHT
 
          @ 010,080 GroupBox "Name" size 500,60
          @ 020,100 Get oName var cName size 470,30 //ToolTip "Name of contact"
@@ -353,4 +353,4 @@ INIT DIALOG oDlg CLIPPER NOEXIT TITLE "Contacts using SQLMIX and MariaDB" AT 0,0
 oDlg:Activate()
 
 ctc->( dbCloseArea() )
-Return nil 
+Return nil

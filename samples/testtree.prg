@@ -19,7 +19,7 @@ FUNCTION Main()
       MENUITEM "&Tree" ACTION DlgGet()
    ENDMENU
 
-   ACTIVATE WINDOW oMainWindow
+   ACTIVATE WINDOW oMainWindow CENTER
 
 RETURN Nil
 

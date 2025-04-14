@@ -34,7 +34,7 @@ FUNCTION Main()
       MENUITEM "&Browse DBF" ACTION DlgDBF()
    ENDMENU
 
-   ACTIVATE WINDOW oMainWindow
+   ACTIVATE WINDOW oMainWindow CENTER
 
 RETURN Nil
 

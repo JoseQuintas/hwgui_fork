@@ -315,7 +315,7 @@ FUNCTION MAIN()
    oButton8:Disable()
 #endif
 
-   ACTIVATE WINDOW Testfunc
+   ACTIVATE WINDOW Testfunc CENTER
 
 RETURN Nil
 

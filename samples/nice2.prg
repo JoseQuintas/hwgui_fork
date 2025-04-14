@@ -77,7 +77,7 @@ STATIC FUNCTION _Testen()
 
 //   ACTIVATE DIALOG odlg   && ==> this causes the crash above listed,
 //   it is obscure !!!!!
-    ACTIVATE WINDOW odlg
+    ACTIVATE WINDOW odlg CENTER
 
 RETURN Nil
 

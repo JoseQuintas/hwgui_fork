@@ -1,12 +1,12 @@
 * Sample program for tabs with tooltips
-* TNX to Alain Aupeix 
+* TNX to Alain Aupeix
 
 
 * Support ticket #54 "Tooltip for tabs ?"
 
 /*
  * $Id$
- * 
+ *
  * Copyright 2022 Alain Aupeix
  */
 
@@ -40,24 +40,24 @@ INIT WINDOW oMainWindow MAIN TITLE "Test tabs with tooltip" AT 168,50 SIZE 400,2
         COLOR hwg_ColorC2N("#FF0000") Tooltip "Quit ?"
 
   @ 10, 35 TAB oTab ITEMS {} SIZE 380, 190
-  
+
 
 
   BEGIN PAGE "Tab 1" of oTab Tooltip cTooltip1
-        @ 20,50 SAY "This is the tab 1" SIZE 150,22  && Need more space for Windows old: SIZE 100,22 
+        @ 20,50 SAY "This is the tab 1" SIZE 150,22  && Need more space for Windows old: SIZE 100,22
   END PAGE of oTab
 
   BEGIN PAGE "Tab 2" of oTab Tooltip cTooltip2
         @ 20,50 SAY "This is the tab 2" SIZE 150,22
   END PAGE of oTab
-  
+
   #ifndef __GTK__
    * On WinAPI, the correct tooltip must be synchronized with the shown first tab
    * at program start.
    oTab:ChangePage(1)
-  #endif  
+  #endif
 
-ACTIVATE WINDOW oMainWindow
+ACTIVATE WINDOW oMainWindow CENTER
 
 return nil
 

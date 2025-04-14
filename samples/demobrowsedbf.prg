@@ -37,7 +37,7 @@
       ON CLICK { || hwg_EndDialog() } // will close all
 
 
-   ACTIVATE DIALOG oDlg
+   ACTIVATE DIALOG oDlg CENTER
    CLOSE DATABASES
 
    RETURN Nil

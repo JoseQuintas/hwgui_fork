@@ -97,7 +97,7 @@ FUNCTION MAIN()
         ON CLICK {|| oDlg:Close()}
    ENDIF
 
-   ACTIVATE WINDOW oDlg
+   ACTIVATE WINDOW oDlg CENTER
 
 RETURN Nil
 

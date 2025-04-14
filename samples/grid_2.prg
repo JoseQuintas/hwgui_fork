@@ -31,7 +31,7 @@ FUNCTION Main()
       MENUITEM "&Demo" ACTION Test()
    ENDMENU
 
-   ACTIVATE WINDOW oMain
+   ACTIVATE WINDOW oMain CENTER
 
    oServer:Close()
 

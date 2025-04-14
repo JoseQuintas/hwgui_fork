@@ -34,7 +34,7 @@ FUNCTION Main()
 
    @ 100,100 SAY oSay CAPTION "5" SIZE 40,40
 
-   ACTIVATE WINDOW oWnd
+   ACTIVATE WINDOW oWnd CENTER
 
 RETURN Nil
 
@@ -95,7 +95,7 @@ RETURN Nil
 
 FUNCTION UpdateSayDlg2()
 
-   oSayDlg2:SetText( ALLTRIM(str( oTB2:Value )) ) 
+   oSayDlg2:SetText( ALLTRIM(str( oTB2:Value )) )
 
 RETURN Nil
 

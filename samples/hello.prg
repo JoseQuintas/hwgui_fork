@@ -191,7 +191,7 @@ FUNCTION Main()
    hwg_BuildMenu( aMenu,hWnd,aMainWindow )
 */
 
-   ACTIVATE WINDOW oMainWindow
+   ACTIVATE WINDOW oMainWindow CENTER
 
 RETURN Nil
 

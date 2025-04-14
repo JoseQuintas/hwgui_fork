@@ -70,7 +70,7 @@ FUNCTION Main()
 
 * Start select file dialog
 
-   oFormMain:Activate()
+   ACTIVATE WINDOW oFormMain CENTER
 
 RETURN Nil
 

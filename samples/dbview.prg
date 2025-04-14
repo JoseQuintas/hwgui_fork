@@ -226,7 +226,7 @@ FUNCTION Main()
    hwg_Enablemenuitem( ,31030,.F. )
    hwg_Enablemenuitem( ,31040,.F. )
 
-   ACTIVATE WINDOW oWndMain
+   ACTIVATE WINDOW oWndMain CENTER
 
 RETURN Nil
 

@@ -57,7 +57,7 @@ LOCAL oMain , oFontMain, oIcon , cDirSep
 
    INIT WINDOW oMain MAIN TITLE "Sample for static help text" ;
       FONT oFontMain SIZE 200, 100 ;
-      ICON oIcon   
+      ICON oIcon
 
 * Main Menu
    MENU OF oMain
@@ -69,7 +69,7 @@ LOCAL oMain , oFontMain, oIcon , cDirSep
          MENUITEM "&Modal" ACTION display_Help(.F.)
       ENDMENU
    ENDMENU
-   ACTIVATE WINDOW oMain
+   ACTIVATE WINDOW oMain CENTER
 
 RETURN Nil
 

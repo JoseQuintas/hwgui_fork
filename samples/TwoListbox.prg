@@ -54,7 +54,7 @@ FUNCTION Main()
       MENUITEM "&Show Result" ACTION ShowR(aResult)
    ENDMENU
 
-   ACTIVATE WINDOW oMainWindow
+   ACTIVATE WINDOW oMainWindow CENTER
 
 RETURN Nil
 

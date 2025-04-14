@@ -25,82 +25,82 @@ PROCEDURE Main
    LOCAL lIsAvailable, lIsEXE
    LOCAL aList := { ;
        ; // NAME,                  WIN, LINUX, MACOS, DESCRIPTION
-       { "A.EXE",                  .T., .F., .F., "Tab, checkbox, editbox, combobox, browse array, others" }, ;
+       { "a.prg",                  .T., .F., .F., "Tab, checkbox, editbox, combobox, browse array, others" }, ;
        ;
        { "",                       .F., .F., .F., "" }, ;
        ;
        ; // controls
-       { "DEMOGETUPDOWN.EXE",      .T., .T., .T., "Get UpDown" }, ;
-       { "DEMOBROWSEARR.EXE",      .T., .T., .T., "browse array editable" }, ;
-       { "DEMOBROWSEDBF.EXE",      .T., .T., .T., "Browse DBF"  }, ;
-       { "DEMOCHECKBOX.EXE",       .T., .T., .T., "Checkbox and tab" }, ;
-       { "DEMOCOMBOBOX.EXE",       .T., .T., .T., "Combobox" }, ;
-       { "DEMODATEPICKER.EXE",     .T., .T., .T., "Date Picker" }, ;
-       { "DEMOLISTBOX.EXE",        .T., .F., .F., "Listbox" }, ;
-       { "DEMOLISTBOXSUB.EXE",     .T., .T., .T., "Listbox Substitute" }, ;
-       { "DEMOMONTHCAL.EXE",       .T., .T., .T., "Month Calendar" }, ;
-       { "DEMOONOTHER.EXE",        .T., .F., .F., "ON OTHER MESSAGES" }, ;
-       { "DEMOTREEBOX.EXE",        .T., .T., .T., "Treebox, Splitter and tab" }, ;
+       { "demogetupdown.prg",      .T., .T., .T., "Get UpDown" }, ;
+       { "demobrowsearr.prg",      .T., .T., .T., "browse array editable" }, ;
+       { "demobrowsedbf.prg",      .T., .T., .T., "Browse DBF"  }, ;
+       { "democheckbox.prg",       .T., .T., .T., "Checkbox and tab" }, ;
+       { "democombobox.prg",       .T., .T., .T., "Combobox" }, ;
+       { "demodatepicker.prg",     .T., .T., .T., "Date Picker" }, ;
+       { "demolistbox.prg",        .T., .F., .F., "Listbox" }, ;
+       { "demolistboxsub.prg",     .T., .T., .T., "Listbox Substitute" }, ;
+       { "demomonthcal.prg",       .T., .T., .T., "Month Calendar" }, ;
+       { "demoonother.prg",        .T., .F., .F., "ON OTHER MESSAGES" }, ;
+       { "demotreebox.prg",        .T., .T., .T., "Treebox, Splitter and tab" }, ;
        ;
        { "",                       .F., .F., .F., "" }, ;
        ;
        ; // demo with more than controls
-       { "DEMODBFDATA.EXE",        .T., .T., .T., "DBF data using tab" }, ;
-       { "DEMOGETDESKTOPSIZE.EXE", .T., .T., .T., "Menu using desktop Size" }, ;
-       { "DEMOINI.,EXE",           .T., .F., .F., "Read/write Ini" }, ;
-       { "DEMOMENUXML.EXE",        .T., .T., .T., "Setup menu from XML ***error on new item***" }, ;
-       { "DEMOXMLTREE.EXE",        .T., .T., .T., "Show XML using hxmldoc and tree" }, ;
+       { "demodbfdata.prg",        .T., .T., .T., "DBF data using tab" }, ;
+       { "demogetdesktopsize.prg", .T., .T., .T., "Menu using desktop Size" }, ;
+       { "demoini.prg",           .T., .F., .F., "Read/write Ini" }, ;
+       { "demomenuxml.prg",        .T., .T., .T., "Setup menu from XML ***error on new item***" }, ;
+       { "demoxmltree.prg",        .T., .T., .T., "Show XML using hxmldoc and tree" }, ;
        ;
        { "",                       .F., .F., .F., "" }, ;
        ;
        ; // not recommended. Move to contrib ?
-       { "DEMOSHADEBTN.EXE",        .T., .F., .F., "Shade button" }, ;
+       { "demoshadebtn.prg",        .T., .F., .F., "Shade button" }, ;
        ;
        { "",                        .f., .f., .f., "" }, ;
        { "",                       .F., .F., .F., "" }, ;
        ;
        ; // first review
-       { "NICE.EXE",               .T., .F., .F., "Nice button" }, ;
-       { "NICE2.EXE",              .T., .F., .F., "Nice button 2 ***?***" }, ;
+       { "nice.prg",               .T., .F., .F., "Nice button" }, ;
+       { "nice2.prg",              .T., .F., .F., "Nice button 2 ***?***" }, ;
        ;
        { "",                       .F., .F., .F., "" }, ;
        ;
        ; // next review
-       { "COLRBLOC.EXE",           .T., .T., .T., "Color Block" }, ;
-       { "DBVIEW.EXE",             .T., .T., .T., "DBView" }, ;
-       { "DIALOGBOXES.EXE",        .T., .T., .T., "Dialogboxes" }, ;
-       { "ESCRITA.EXE",            .T., .T., .T., "Escrita" }, ;
-       { "FILESELECT.EXE",         .T., .T., .T., "File Select" }, ;
-       { "GRAPH.EXE",              .T., .T., .T., "Graph" }, ;
-       { "GRID_1.EXE",             .T., .F., .F., "Grid1" }, ;
-       { "GRID_2.EXE",             .F., .F., .F., "Grid2 PostGres" }, ;
-       { "GRID_3.EXE",             .F., .F., .F., "Grid3 PostGres" }, ;
-       { "GRID_4.EXE",             .T., .F., .F., "Grid4" }, ;
-       { "GRID_5.EXE",             .T., .F., .F., "Grid5" }, ;
-       { "HELLO.EXE",              .T., .F., .F., "RichEdit, Tab, Combobox" }, ;
-       { "HELPSTATIC.EXE",         .T., .T., .T., "Help Static" }, ;
-       { "HTRACK.EXE",             .T., .T., .T., "HTrack" }, ;
-       { "ICONS.EXE",              .T., .T., .T., "Icons" }, ;
-       { "ICONS2.EXE",             .T., .T., .T., "Icons2" }, ;
-       { "TAB.EXE",                .T., .F., .F., "Tab, checkbox, editbox, combobox, browse array" }, ;
-       { "TESTADO.EXE",            .T., .F., .F., "Test ADO" }, ;
-       { "TESTALERT.EXE",          .T., .F., .F., "Test Alert" }, ;
-       { "TESTBRW.EXE",            .T., .F., .F., "Test browse" }, ;
-       { "TESTGET1.EXE",           .T., .F., .F., "Test Get 1" }, ;
-       { "TESTGET2.EXE",           .T., .F., .F., "Test Get 2" }, ;
-       { "TESTMENUBITMAP.EXE",     .T., .F., .F., "Test Menu Bitmap" }, ;
-       { "TESTREE.EXE",            .T., .F., .F., "Treebox Editable *** error on edit***" }, ;
-       { "TESTRTF.EXE",            .T., .F., .F., "Test RTF" }, ;
-       { "TSTSCRLBAR.EXE",         .T., .T., .T., "Scrollbar" }, ;
-       { "TSTSPLASH.EXE",          .T., .F., .F., "Test Splash" }, ;
-       { "TWOLISTBOX.EXE",         .T., .F., .F., "Two List Box" }, ;
-       { "HELPDEMO.EXE",           .T., .T., .T., "Help Demo ***outdated***" }, ;
-       { "HOLE.EXE",               .T., .F., .F., "Ole ***error***" }, ;
-       { "PROPSH.EXE",             .T., .F., .F., "Propsheet ***error***" }, ;
-       { "TESTTRAY.EXE",           .T., .F., .F., "Test Tray ***Error***" }, ;
-       { "TSTPRDOS.EXE",           .T., .F., .F., "test DOS ***outdated***" }, ;
+       { "colrbloc.prg",           .T., .T., .T., "Color Block" }, ;
+       { "dbview.prg",             .T., .T., .T., "DBView" }, ;
+       { "dialogboxes.prg",        .T., .T., .T., "Dialogboxes" }, ;
+       { "escrita.prg",            .T., .T., .T., "Escrita" }, ;
+       { "fileselect.prg",         .T., .T., .T., "File Select" }, ;
+       { "graph.prg",              .T., .T., .T., "Graph" }, ;
+       { "grid_1.prg",             .T., .F., .F., "Grid1" }, ;
+       { "grid_2.prg",             .F., .F., .F., "Grid2 PostGres" }, ;
+       { "grid_3.prg",             .F., .F., .F., "Grid3 PostGres" }, ;
+       { "grid_4.prg",             .T., .F., .F., "Grid4" }, ;
+       { "grid_5.prg",             .T., .F., .F., "Grid5" }, ;
+       { "hello.prg",              .T., .F., .F., "RichEdit, Tab, Combobox" }, ;
+       { "helpstatic.prg",         .T., .T., .T., "Help Static" }, ;
+       { "htrack.prg",             .T., .T., .T., "HTrack" }, ;
+       { "icons.prg",              .T., .T., .T., "Icons" }, ;
+       { "icons2.prg",             .T., .T., .T., "Icons2" }, ;
+       { "tab.prg",                .T., .F., .F., "Tab, checkbox, editbox, combobox, browse array" }, ;
+       { "testado.prg",            .T., .F., .F., "Test ADO" }, ;
+       { "testalert.prg",          .T., .F., .F., "Test Alert" }, ;
+       { "testbrwq.prg",            .T., .F., .F., "Test browse" }, ;
+       { "testget1.prg",           .T., .F., .F., "Test Get 1" }, ;
+       { "testget2.prg",           .T., .F., .F., "Test Get 2" }, ;
+       { "testmenubitmap.prg",     .T., .F., .F., "Test Menu Bitmap" }, ;
+       { "testtree.prg",            .T., .F., .F., "Treebox Editable *** error on edit***" }, ;
+       { "testrtf.prg",            .T., .F., .F., "Test RTF" }, ;
+       { "tstscrlbar.prg",         .T., .T., .T., "Scrollbar" }, ;
+       { "tstspach.prg",          .T., .F., .F., "Test Splash" }, ;
+       { "twolistbox.prg",         .T., .F., .F., "Two List Box" }, ;
+       { "helpdemo.prg",           .T., .T., .T., "Help Demo ***outdated***" }, ;
+       { "hole.prg",               .T., .F., .F., "Ole ***error***" }, ;
+       { "propsh.prg",             .T., .F., .F., "Propsheet ***error***" }, ;
+       { "testtray.prg",           .T., .F., .F., "Test Tray ***Error***" }, ;
+       { "tstprdos.prg",           .T., .F., .F., "test DOS ***outdated***" }, ;
        { "",                       .F., .F., .F., "" }, ;
-       { "NOTEXIST",               .F., .F., .F., "Test for menu, about not available" } }
+       { "notexist",               .F., .F., .F., "Test for menu, about not available" } }
 
    INIT WINDOW oDlg MAIN TITLE "ALL - Samples list-------------------------------------" ;
      AT 0,0 SIZE 600, 400
@@ -118,7 +118,7 @@ PROCEDURE Main
                LOOP
             ENDIF
             lIsAvailable := aItem[ __IS_AVAILABLE ]
-            lIsExe       := Right( aItem[ 1 ], 4 ) == ".EXE"
+            lIsExe       := Right( aItem[ 1 ], 4 ) == ".prg"
             IF lIsAvailable
                IF lIsExe
                   MENUITEM aItem[ 1 ] + " - " + aItem[ 5 ] ACTION { || ExecuteExe( aItem[ 1 ] ) }
@@ -151,16 +151,28 @@ TODO: Adjust for Linux and MacOS
 
 STATIC FUNCTION ExecuteExe( cFileName )
 
-   IF ! File( cFileName )
+   LOCAL cFileNoExt, cBinName, cBinHbmk
+
+   cFileNoExt := Left( cFileName, At( ".", cFileName ) - 1 )
+#ifdef __LINUX__
+   cBinName := cFileName
+   cBinHbmk := "hbmk2"
+#else
+   cBinName := cFileNoExt + ".exe"
+   cBinHbmk := "hbmk2.exe"
+#endif
+
+   IF ! File( cBinName )
       IF ! hwg_MsgYesNo( cFileName + " not found, try create it?" )
          RETURN Nil
       ENDIF
-      RUN ( "hbmk2 " + Left( cFileName, At( ".", cFileName ) - 1 ) )
-      IF ! File( cFileName )
-         hwg_MsgInfo( "Can't create " + cFileName )
+      hwg_RunApp( cBinHbmk + " " + cFileNoExt, .T. ) // hbmk2 will use hbp or prg
+      // do not wait
+      IF ! File( cBinName )
+         hwg_MsgInfo( "Can't create " + cBinName + ", or it is needed more time" )
          RETURN Nil
       ENDIF
    ENDIF
-   RUN ( "cmd /c start " + cFileName )
+   HWG_RunApp( cBinName )
 
    RETURN Nil
