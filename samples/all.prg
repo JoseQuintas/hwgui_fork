@@ -154,9 +154,9 @@ STATIC FUNCTION ExecuteExe( cFileName )
    LOCAL cFileNoExt, cBinName, cBinHbmk
 
    cFileNoExt := Left( cFileName, At( ".", cFileName ) - 1 )
-#ifdef __LINUX__
-   cBinName := cFileName
-   cBinHbmk := "hbmk2"
+#ifdef __GTK__
+   cBinName := cFileNoExt
+   cBinHbmk := "./hbmk2"
 #else
    cBinName := cFileNoExt + ".exe"
    cBinHbmk := "hbmk2.exe"
