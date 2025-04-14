@@ -46,6 +46,8 @@ FUNCTION Main()
    //oSplash := HSplash():Create( "Hwgui.bmp",2000)
    SPLASH oSplash TO csplashimg TIME 2000
 
-   ACTIVATE WINDOW oMainWindow
+   ACTIVATE WINDOW oMainWindow CENTER
+
+   (oSplash) // -w3 -es2
 
 RETURN Nil

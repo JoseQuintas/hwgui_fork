@@ -9,7 +9,7 @@
     *  GTK/Linux:  Yes
     *  GTK/Win  :  No
 
-* Note: The function hwg_Shellabout() is Windows only and 
+* Note: The function hwg_Shellabout() is Windows only and
 * is substituted by a simple hwg_MsgInfo().
 * MDI is also Windows only
 
@@ -61,13 +61,13 @@ FUNCTION TestRtf()
    LOCAL cOutFile, oRtf, anchos, i
    LOCAL j, aMarca, lFormato := .F.
    LOCAL cTexto
-   
+
 
 #ifdef __GTK__
    LOCAL cPath
    cPath := Curdir()
    cOutFile := hwg_Selectfile( {"RTF files( *.rtf )"}, ;
-      {"*.rtf" }, cPath ) 
+      {"*.rtf" }, cPath )
 #else
    cOutFile := hwg_Savefile( "*.rtf","RTF files( *.rtf )","*.rtf" )
 #endif
@@ -224,8 +224,7 @@ STATIC FUNCTION SetupRTF(cOutFile)
    * 01/28/1997   TRM         Creation
    *********************************************************************
 
-   LOCAL oRTF,i,nWidth:=0,lLandScape:=.F.
-   LOCAL  ancpag
+   LOCAL oRTF
 
    MEMVAR nom_hosp1,nom_hosp2,nom_ser
    MEMVAR cNomUser

@@ -148,7 +148,7 @@ FUNCTION TestDialog()
    @ 21,50 BROWSE oBrwArr ARRAY ;
       STYLE WS_VSCROLL + WS_HSCROLL   SIZE 100,170
 
-	/* See arraybrowse.prg */
+	/* See demobrowsearray.prg */
    hwg_CREATEARLIST(oBrwArr,al_DOKs)
    oBrwArr:acolumns[1]:heading := "DOKs"  // Header string
    oBrwArr:acolumns[1]:length := 50
