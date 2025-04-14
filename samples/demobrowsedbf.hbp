@@ -1,0 +1,10 @@
+#
+# $Id$
+#
+# auto included hbmk.hbm
+
+-odemobrowsedbf
+
+demobrowsedbf.prg
+
+# ==================== EOF of demobrowsedbf.hbp ===============

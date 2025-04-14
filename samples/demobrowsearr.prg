@@ -1,6 +1,6 @@
 /*
  *
- * arraybrowse.prg
+ * demobrowsearr.prg
  *
  * $Id$
  *
@@ -52,7 +52,7 @@ FUNCTION Main()
    LOCAL oWinMain
 
    INIT WINDOW oWinMain MAIN  ;
-      TITLE "TESTBROWSEARR - Sample BROWSE arrays" AT 100, 100 SIZE 600,400;
+      TITLE "DEMOBROWSEARR - Sample BROWSE arrays" AT 100, 100 SIZE 600,400;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
    MENU OF oWinMain
@@ -228,5 +228,5 @@ STATIC FUNCTION BrwArrayGetElem( oBrow, cgetf )
 
 RETURN clgetf
 
-* ============================ EOF of arraybrowse.prg ==============================
+* ============================ EOF of ademobnrowsearray.prg ==============================
 

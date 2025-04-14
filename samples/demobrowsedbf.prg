@@ -1,12 +1,12 @@
 /*
- * testbrowsedbf.prg
+ * demobrowsedbf.prg
  * browse dbf
 */
 
 #include "hwgui.ch"
 
 #ifdef __USING_MENU__
-   FUNCTION TestBrowseDbf( nCont )
+   FUNCTION DemoBrowseDbf( nCont )
 #else
    FUNCTION Main( nCont )
 #endif
@@ -24,7 +24,7 @@
       { "Name",   { || field->Name } }, ;
       { "Adress", { || field->Address } } }
 
-   INIT DIALOG oDlg TITLE "TESTBROWSEDBF - BROWSE DBF " + Ltrim( Str( nCont ) ) AT 0,0 SIZE 1024,600
+   INIT DIALOG oDlg TITLE "DEMOBROWSEDBF - BROWSE DBF " + Ltrim( Str( nCont ) ) AT 0,0 SIZE 1024,600
 
 
    @ 20,10 BROWSE oBrowse DATABASE SIZE 780, 500 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL

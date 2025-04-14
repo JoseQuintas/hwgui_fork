@@ -16,8 +16,6 @@ MEMVAR Gt_Cod, Gt_Name, Gt_Adress, Gt_Fone, Gt_e_Mail
 MEMVAR oCod, oName, oAdress, oFone, oe_Mail
 MEMVAR oOper
 MEMVAR oBotNew, oBotEdit,oBotRet, oBotNext, oBotSave, oBottop, oBotBott, oBotDelete, oBotClose, oBotPrint
-// MEMVAR COD  && contains a database name, but nowhere initialized ??
-// why "demodbf.prg(313) Warning W0001  Ambiguous reference 'COD'" ??
 
 FUNCTION Main()
 
@@ -37,7 +35,7 @@ FUNCTION Main()
 
    //   PREPARE FONT oFontBtn NAME "MS Sans Serif" WIDTH 0 HEIGHT -12
 
-   INIT WINDOW Form_Main MAIN TITLE "HwGUI Harbour Win32 Gui" ;
+   INIT WINDOW Form_Main MAIN TITLE "DEMODBFDATA - HwGUI Harbour Win32 Gui" ;
       AT 0, 0 SIZE 600, 400
 
    MENU OF Form_Main

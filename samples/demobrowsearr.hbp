@@ -3,6 +3,8 @@
 #
 # auto included hbmk.hbm
 
-testbrowsearr.prg
+-odemobrowsearr
+
+demobrowsearr.prg
 
 # ==================== EOF of browsearray.hbp ===============
