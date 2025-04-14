@@ -24,68 +24,85 @@ PROCEDURE Main
    LOCAL oDlg, aItem, nIndex := 1, lCloseMenu := .F., nCont
    LOCAL lIsAvailable, lIsEXE
    LOCAL aList := { ;
-       ; // NAME,             WIN, LINUX, MACOS, DESCRIPTION
-       { "A.EXE",             .T., .F., .F., "Tab, checkbox, editbox, combobox, browse array, others" }, ;
-       { "TESTDEMODBF.EXE",   .T., .T., .T., "DBF data using tab" }, ;
-       { "TESTBROWSEARR.EXE", .T., .T., .T., "browse array editable" }, ;
-       { "TESTBROWSEDBF",     .T., .T., .T., "Browse DBF"  }, ;
-       { "TESTCHECKBOX",      .T., .T., .T., "Checkbox and tab" }, ;
-       { "TESTHMONTH",        .T., .T., .T., "Month Calendar" }, ;
-       { "TESTINI.,EXE",      .T., .F., .F., "Read/write Ini" }, ;
-       { "TESTXMLTREE.EXE",   .T., .T., .T., "Show XML using hxmldoc and tree" }, ;
+       ; // NAME,                  WIN, LINUX, MACOS, DESCRIPTION
+       { "A.EXE",                  .T., .F., .F., "Tab, checkbox, editbox, combobox, browse array, others" }, ;
        ;
+       { "",                       .F., .F., .F., "" }, ;
        ;
+       ; // controls
+       { "DEMOGETUPDOWN.EXE",      .T., .T., .T., "Get UpDown" }, ;
+       { "DEMOBROWSEARR.EXE",      .T., .T., .T., "browse array editable" }, ;
+       { "DEMOBROWSEDBF.EXE",      .T., .T., .T., "Browse DBF"  }, ;
+       { "DEMOCHECKBOX.EXE",       .T., .T., .T., "Checkbox and tab" }, ;
+       { "DEMOCOMBOBOX.EXE",       .T., .T., .T., "Combobox" }, ;
+       { "DEMODATEPICKER.EXE",     .T., .T., .T., "Date Picker" }, ;
+       { "DEMOLISTBOX.EXE",        .T., .F., .F., "Listbox" }, ;
+       { "DEMOLISTBOXSUB.EXE",     .T., .T., .T., "Listbox Substitute" }, ;
+       { "DEMOMONTHCAL.EXE",       .T., .T., .T., "Month Calendar" }, ;
+       { "DEMOONOTHER.EXE",        .T., .F., .F., "ON OTHER MESSAGES" }, ;
+       { "DEMOTREEBOX.EXE",        .T., .T., .T., "Treebox, Splitter and tab" }, ;
        ;
-       { "COLRBLOC.EXE",      .T., .T., .T., "Color Block" }, ;
-       { "DBVIEW.EXE",        .T., .T., .T., "DBView" }, ;
-       { "DEMOHLIST.EXE",     .T., .F., .F., "HList" }, ;
-       { "DEMOHLISTSUB.EXE",  .T., .T., .T., "HList Sub" }, ;
-       { "DIALOGBOXES.EXE",   .T., .T., .T., "Dialogboxes" }, ;
-       { "TESTCOMBOBOX",      .T., .T., .T., "Combobox" }, ;
-       { "TESTDATEPICK",      .T., .T., .T., "Date Picker" }, ;
-       { "DLGBOT",            .T., .F., .F., "ON OTHER MESSAGES" }, ;
-       { "DLGSHADEBTN",       .T., .F., .F., "Shade button" }, ;
-       { "TESTSPLIT",         .T., .T., .T., "Splitter" }, ;
-       { "TESTMENUXML",       .T., .T., .T., "Setup from XML ***error on new item***" }, ;
-       { "TESTMENU1",         .T., .T., .T., "Menu using desktop Size" }, ;
-       { "ESCRITA.EXE",       .T., .T., .T., "Escrita" }, ;
-       { "FILESELECT.EXE",    .T., .T., .T., "File Select" }, ;
-       { "GETUPDOWN",         .T., .T., .T., "Get UpDown" }, ;
-       { "GRAPH.EXE",         .T., .T., .T., "Graph" }, ;
-       { "GRID_1.EXE",        .T., .F., .F., "Grid1" }, ;
-       { "GRID_2.EXE",        .F., .F., .F., "Grid2 PostGres" }, ;
-       { "GRID_3.EXE",        .F., .F., .F., "Grid3 PostGres" }, ;
-       { "GRID_4.EXE",        .T., .F., .F., "Grid4" }, ;
-       { "GRID_5.EXE",        .T., .F., .F., "Grid5" }, ;
-       { "HELLO.EXE",         .T., .F., .F., "RichEdit, Tab, Combobox" }, ;
-       { "HELPSTATIC.EXE",    .T., .T., .T., "Help Static" }, ;
-       { "HTRACK.EXE",        .T., .T., .T., "HTrack" }, ;
-       { "NICE.EXE",          .T., .F., .F., "Nice button" }, ;
-       { "ICONS.EXE",         .T., .T., .T., "Icons" }, ;
-       { "ICONS2.EXE",        .T., .T., .T., "Icons2" }, ;
-       { "TAB.EXE",           .T., .F., .F., "Tab, checkbox, editbox, combobox, browse array" }, ;
-       { "TESTADO.EXE",       .T., .F., .F., "Test ADO" }, ;
-       { "TESTALERT.EXE",     .T., .F., .F., "Test Alert" }, ;
-       { "TESTBRW.EXE",       .T., .F., .F., "Test browse" }, ;
-       { "TESTGET1.EXE",      .T., .F., .F., "Test Get 1" }, ;
-       { "TESTGET2.EXE",      .T., .F., .F., "Test Get 2" }, ;
-       { "TESTHGT.EXE",       .T., .T., .T., "Test HGT" }, ;
-       { "TESTMENUBITMAP.EXE",.T.,.F.,.F., "Test Menu Bitmap" }, ;
-       { "TESTRTF.EXE",       .T., .F., .F., "Test RTF" }, ;
-       { "TESTSDI.EXE",       .T., .T., .T., "Menu, Tree and Splitter" }, ;
-       { "TSTSCRLBAR.EXE",    .T., .T., .T., "Scrollbar" }, ;
-       { "TSTSPLASH.EXE",     .T., .F., .F., "Test Splash" }, ;
-       { "TWOLISTBOX.EXE",    .T., .F., .F., "Two List Box" }, ;
-       { "HELPDEMO.EXE",      .T., .T., .T., "Help Demo ***outdated***" }, ;
-       { "HOLE.EXE",          .T., .F., .F., "Ole ***error***" }, ;
-       { "NICE2.EXE",         .T., .F., .F., "Nice button 2 ***error***" }, ;
-       { "PROPSH.EXE",        .T., .F., .F., "Propsheet ***error***" }, ;
-       { "TESTCHILD.EXE",     .T., .F., .F., "Test Child ***error***" }, ;
-       { "TESTTRAY.EXE",      .T., .F., .F., "Test Tray ***Error***" }, ;
-       { "TSTPRDOS.EXE",      .T., .F., .F., "test DOS ***outdated***" }, ;
-       { "NOTEXIST",          .F., .F., .F., "Test for menu, about not available" } }
+       { "",                       .F., .F., .F., "" }, ;
+       ;
+       ; // demo with more than controls
+       { "DEMODBFDATA.EXE",        .T., .T., .T., "DBF data using tab" }, ;
+       { "DEMOGETDESKTOPSIZE.EXE", .T., .T., .T., "Menu using desktop Size" }, ;
+       { "DEMOINI.,EXE",           .T., .F., .F., "Read/write Ini" }, ;
+       { "DEMOMENUXML.EXE",        .T., .T., .T., "Setup menu from XML ***error on new item***" }, ;
+       { "DEMOXMLTREE.EXE",        .T., .T., .T., "Show XML using hxmldoc and tree" }, ;
+       ;
+       { "",                       .F., .F., .F., "" }, ;
+       ;
+       ; // not recommended. Move to contrib ?
+       { "DEMOSHADEBTN.EXE",        .T., .F., .F., "Shade button" }, ;
+       ;
+       { "",                        .f., .f., .f., "" }, ;
+       { "",                       .F., .F., .F., "" }, ;
+       ;
+       ; // first review
+       { "NICE.EXE",               .T., .F., .F., "Nice button" }, ;
+       { "NICE2.EXE",              .T., .F., .F., "Nice button 2 ***?***" }, ;
+       ;
+       { "",                       .F., .F., .F., "" }, ;
+       ;
+       ; // next review
+       { "COLRBLOC.EXE",           .T., .T., .T., "Color Block" }, ;
+       { "DBVIEW.EXE",             .T., .T., .T., "DBView" }, ;
+       { "DIALOGBOXES.EXE",        .T., .T., .T., "Dialogboxes" }, ;
+       { "ESCRITA.EXE",            .T., .T., .T., "Escrita" }, ;
+       { "FILESELECT.EXE",         .T., .T., .T., "File Select" }, ;
+       { "GRAPH.EXE",              .T., .T., .T., "Graph" }, ;
+       { "GRID_1.EXE",             .T., .F., .F., "Grid1" }, ;
+       { "GRID_2.EXE",             .F., .F., .F., "Grid2 PostGres" }, ;
+       { "GRID_3.EXE",             .F., .F., .F., "Grid3 PostGres" }, ;
+       { "GRID_4.EXE",             .T., .F., .F., "Grid4" }, ;
+       { "GRID_5.EXE",             .T., .F., .F., "Grid5" }, ;
+       { "HELLO.EXE",              .T., .F., .F., "RichEdit, Tab, Combobox" }, ;
+       { "HELPSTATIC.EXE",         .T., .T., .T., "Help Static" }, ;
+       { "HTRACK.EXE",             .T., .T., .T., "HTrack" }, ;
+       { "ICONS.EXE",              .T., .T., .T., "Icons" }, ;
+       { "ICONS2.EXE",             .T., .T., .T., "Icons2" }, ;
+       { "TAB.EXE",                .T., .F., .F., "Tab, checkbox, editbox, combobox, browse array" }, ;
+       { "TESTADO.EXE",            .T., .F., .F., "Test ADO" }, ;
+       { "TESTALERT.EXE",          .T., .F., .F., "Test Alert" }, ;
+       { "TESTBRW.EXE",            .T., .F., .F., "Test browse" }, ;
+       { "TESTGET1.EXE",           .T., .F., .F., "Test Get 1" }, ;
+       { "TESTGET2.EXE",           .T., .F., .F., "Test Get 2" }, ;
+       { "TESTMENUBITMAP.EXE",     .T., .F., .F., "Test Menu Bitmap" }, ;
+       { "TESTREE.EXE",            .T., .F., .F., "Treebox Editable *** error on edit***" }, ;
+       { "TESTRTF.EXE",            .T., .F., .F., "Test RTF" }, ;
+       { "TSTSCRLBAR.EXE",         .T., .T., .T., "Scrollbar" }, ;
+       { "TSTSPLASH.EXE",          .T., .F., .F., "Test Splash" }, ;
+       { "TWOLISTBOX.EXE",         .T., .F., .F., "Two List Box" }, ;
+       { "HELPDEMO.EXE",           .T., .T., .T., "Help Demo ***outdated***" }, ;
+       { "HOLE.EXE",               .T., .F., .F., "Ole ***error***" }, ;
+       { "PROPSH.EXE",             .T., .F., .F., "Propsheet ***error***" }, ;
+       { "TESTTRAY.EXE",           .T., .F., .F., "Test Tray ***Error***" }, ;
+       { "TSTPRDOS.EXE",           .T., .F., .F., "test DOS ***outdated***" }, ;
+       { "",                       .F., .F., .F., "" }, ;
+       { "NOTEXIST",               .F., .F., .F., "Test for menu, about not available" } }
 
-   INIT WINDOW oDlg MAIN TITLE "ALL - Samples without own hbp" ;
+   INIT WINDOW oDlg MAIN TITLE "ALL - Samples list-------------------------------------" ;
      AT 0,0 SIZE 600, 400
 
    MENU OF oDlg
@@ -96,6 +113,10 @@ PROCEDURE Main
             lCloseMenu := .T.
          ENDIF
          FOR EACH aItem IN { aList[ nCont ] } // for/each isolate aItem to codeblock
+            IF Empty( aItem[ 1 ] )
+               SEPARATOR
+               LOOP
+            ENDIF
             lIsAvailable := aItem[ __IS_AVAILABLE ]
             lIsExe       := Right( aItem[ 1 ], 4 ) == ".EXE"
             IF lIsAvailable
@@ -140,6 +161,6 @@ STATIC FUNCTION ExecuteExe( cFileName )
          RETURN Nil
       ENDIF
    ENDIF
-   RUN ( cFileName )
+   RUN ( "cmd /c start " + cFileName )
 
    RETURN Nil
