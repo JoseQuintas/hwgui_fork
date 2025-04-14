@@ -3,7 +3,7 @@
  *
  * HWGUI - Harbour Win32 and Linux (GTK) GUI library
  *
- *  demohlistsub.prg
+ *  demolistboxsub.prg
  *
  * Sample for substite of listbox usage:
  * Use BROWSE of an array instead for
@@ -11,7 +11,7 @@
  *
  * Copyright 2020 Wilfried Brunken, DF7BE
  * https://sourceforge.net/projects/cllog/
- * Copied from sample "demohlist.prg".
+ * Copied from sample "demolistbox.prg".
  */
 
    * Status:
@@ -22,13 +22,12 @@
 #include "hwgui.ch"
 // #include "listbox.ch"
 
-
 FUNCTION Main()
 
    LOCAL oMainWindow
 
-   INIT WINDOW oMainWindow MAIN TITLE "Example" ;
-      AT 0,0 SIZE hwg_Getdesktopwidth(), hwg_Getdesktopheight() - 28
+   INIT WINDOW oMainWindow MAIN TITLE "DEMOLISTBOXSUB - Listbox substitute" ;
+      AT 0,0 SIZE 600, 400
    // MENUITEM in main menu on GTK/Linux does not start the desired action
    // Submenu needed
    MENU OF oMainWindow
@@ -40,11 +39,11 @@ FUNCTION Main()
       ENDMENU
    ENDMENU
 
-   ACTIVATE WINDOW oMainWindow
+   ACTIVATE WINDOW oMainWindow CENTER
 
 RETURN Nil
 
-FUNCTION Teste()
+STATIC FUNCTION Teste()
 
    LOCAL oModDlg, oFont, obrowsbox1, nPosi, cResult
    LOCAL oList, oItemso := { { "Item01" } , { "Item02" } , { "Item03" } , { "Item04" } }
@@ -71,7 +70,7 @@ FUNCTION Teste()
    obrowsbox1:active := .T.
 
    @  10,280 BUTTON "Ok" ID IDOK  SIZE 50, 32
-   ACTIVATE DIALOG oModDlg
+   ACTIVATE DIALOG oModDlg CENTER
    oFont:Release()
 
    // Get result
@@ -94,4 +93,4 @@ STATIC FUNCTION ConvItems( ap )
 
 RETURN a
 
-* ==================== EOF of demohlistsub.prg =========================
+* ==================== EOF of demolistboxsub.prg =========================

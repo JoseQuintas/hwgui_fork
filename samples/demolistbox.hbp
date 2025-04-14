@@ -7,8 +7,8 @@
 {darwin}-stop="Windows only"
 {unix}-stop="Windows only"
 
--odemohlist
+-odemolistbox
 
-demohlist.prg
+demolistbox.prg
 
-# ==================== EOF of demohlist.hbp ===============
+# ==================== EOF of demolistbox.hbp ===============
