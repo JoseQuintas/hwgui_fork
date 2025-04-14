@@ -1,5 +1,5 @@
  *
- * checkbox.prg
+ * democheckbox.prg
  *
  * $Id$
  *
@@ -24,7 +24,7 @@
 #endif
 
 #ifdef __USING_MENU__
-   FUNCTION TestCheckBox()
+   FUNCTION DemoCheckBox()
 #else
    FUNCTION Main()
 #endif
@@ -41,7 +41,7 @@
    lCheckbox5 := .F.
    lCheckbox6 := .F.
 
-  INIT DIALOG oDlg TITLE "TESTCHECKBOX - Checkboxes and tabs" ;
+  INIT DIALOG oDlg TITLE "DEMOCHECKBOX - Checkboxes and tabs" ;
      AT 390,197 SIZE 516,323 ;
      STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
 

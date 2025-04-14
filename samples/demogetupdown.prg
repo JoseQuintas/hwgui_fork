@@ -34,7 +34,7 @@ FUNCTION Main()
    n_Key2 := 3000
    o_Number := 10
 
-   INIT WINDOW o_TAB_1 MAIN TITLE "Ticket #19"  ;
+   INIT WINDOW o_TAB_1 MAIN TITLE "DEMOGETUPDOWN - Ticket #19"  ;
       AT 200,100 SIZE 500,500 ;
       ON EXIT { || hwg_MsgYesNo( "OK to quit ?" ) }
 
@@ -48,7 +48,7 @@ FUNCTION Main()
    o_get:Value(o_Number)
    o_get:Refresh()
 
-   ACTIVATE WINDOW o_TAB_1
+   ACTIVATE WINDOW o_TAB_1 CENTER
    * after some code execution
    * I put this istruction to see the value
    * nValue := o_Number:Value()
@@ -69,4 +69,4 @@ RETURN Nil
  *   at this point o_Number:Value()  should return 2
  *   but the value of the o_Number is 1
 
-* ====== EOF of getupdown.prg ======
+* ====== EOF of demogetupdown.prg ======

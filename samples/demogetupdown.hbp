@@ -1,0 +1,12 @@
+#
+# $Id$
+#
+# auto included hbmk.hbm
+
+-n
+
+-odemogetupdown
+
+demogetupdown.prg
+
+# ==================== EOF of demogetupdown.hbp ===============
