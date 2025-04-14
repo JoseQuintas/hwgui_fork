@@ -1,5 +1,5 @@
 #
-# $Id$
+# $Id$ demomenumt.prg
 #
 # auto included hbmk.hbm
 
@@ -7,20 +7,20 @@
 # experimental
 #
 # Instructions:
-# dlgbrwdbf can be compiled standalone
-# dlgmenumt menu using multithread and dlgbrwdbf
 # CAUTION: make your own tests, use at you own risk
 #
 # Before build, build libgtwvt.a
 #
 
+-odemomenumt
+
 {win}-gtwvt
 {linux}-gtwvt
 {darwin}-gtwvt
 -D__USING_MENU__
-testmenumt.prg
-testbrowsedbf.prg
+demomenumt.prg
+demobrowsedbf.prg
 
 -mt
 
-# ================================= EOF of dlgmenumt.hbp ================================
+# ================================= EOF of demomenumt.hbp ================================

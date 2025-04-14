@@ -1,7 +1,7 @@
 /*
- testmenumt.prg
+ demomenumt.prg
  menu using multithread
- need testbrowsedbf.prg
+ need demobrowsedbf.prg
  compile using -mt
 
 CAUTION
@@ -48,7 +48,7 @@ STATIC FUNCTION DoMt( nCont )
 
    hb_gtReload( hb_gtInfo( HB_GTI_VERSION ) )
    hwg_initProc() // init hwgui on thread
-   TestBrowseDBF( nCont )
+   DemoBrowseDBF( nCont )
 
    RETURN Nil
 
