@@ -1,3 +1,10 @@
+#
+# $Id$
+#
+# auto included hbmk.hbm
+
 -stop={!win}
+
+-oa
 
 a.prg

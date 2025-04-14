@@ -50,12 +50,12 @@ FUNCTION Main()
       ENDMENU
    ENDMENU
 
-//   oWinMain:Activate()
-ACTIVATE WINDOW oWinMain
+   //   oWinMain:Activate()
+   ACTIVATE WINDOW oWinMain CENTER
 
 RETURN Nil
 
-FUNCTION _Testen()
+STATIC FUNCTION _Testen()
 
    LOCAL odlg
    //LOCAL o1

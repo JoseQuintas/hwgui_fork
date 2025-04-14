@@ -14,6 +14,8 @@ xhb.hbc
 #-lqrcodegen
 #-lhbqrencode
 
+-w1
+
 -owinprn
 
 winprn.prg

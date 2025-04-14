@@ -122,7 +122,7 @@ PROCEDURE main
       MENUITEM "E&xit" ACTION { || hwg_Alert("Goodbye;;BTW I'm centered on the app window"), oMainWindow:Close() }
    ENDMENU
 
-   ACTIVATE WINDOW oMainWindow
+   ACTIVATE WINDOW oMainWindow CENTER
 
    // Hwg_DestroyWindow (when app ends) does not invoke EndDialog so "ON EXIT" is not called
    // for a non-modal alert that is hanging around.

@@ -13,17 +13,19 @@
 
 MEMVAR oFont, cImageDir, nColor
 
-Function Main
-Local oMainWindow,oPanel
+FUNCTION Main
+
+LOCAL oMainWindow,oPanel
+
 * DF7BE: Causes Warning W0001  Ambiguous reference ...
 * Private oFont := Nil, cImageDir := "/"+Curdir()+"/../../image/"
 
-Private oBmp2
+   PRIVATE oBmp2
 
 * DF7BE: Init MEMVAR's, otherwise crash because of non existing variables
-  oFont := Nil
-  cImageDir := "/"+Curdir()+"/../../image/"
-  ncolor := NIL
+   oFont := Nil
+   cImageDir := "/"+Curdir()+"/../../image/"
+   ncolor := NIL
 
    INIT WINDOW oMainWindow MAIN TITLE "Example" ;
      AT 200,0 SIZE 400,150
@@ -61,25 +63,26 @@ Private oBmp2
 
    ENDMENU
 
-   ACTIVATE WINDOW oMainWindow
+   ACTIVATE WINDOW oMainWindow CENTER
 
 return nil
 
-Function FileOpen
-Local oModDlg, oBrw
-Local fname
-Local nId
+STATIC FUNCTION FileOpen
+
+   LOCAL oModDlg, oBrw
+   LOCAL fname
+   LOCAL nId
 #ifndef __GTK__
    LOCAL mypath, cDirSep
 #endif
 
 
 #ifdef __GTK__
-fname := hwg_SelectFileEx(,,{{"Dbf Files","*.dbf"},{"All files","*"}} )
+   fname := hwg_SelectFileEx(,,{{"Dbf Files","*.dbf"},{"All files","*"}} )
 #else
-cdirSep := hwg_GetDirSep()
-mypath := cdirSep + CURDIR() + IIF( EMPTY( CURDIR() ), "", cdirSep )
-fname := hwg_Selectfile("Dbf Files" , "*.dbf", mypath )
+   cdirSep := hwg_GetDirSep()
+   mypath := cdirSep + CURDIR() + IIF( EMPTY( CURDIR() ), "", cdirSep )
+   fname := hwg_Selectfile("Dbf Files" , "*.dbf", mypath )
 #endif
 
    IF !Empty( fname )
@@ -113,37 +116,45 @@ fname := hwg_Selectfile("Dbf Files" , "*.dbf", mypath )
 
       ACTIVATE DIALOG oModDlg NOMODAL
    ENDIF
-Return Nil
 
-Function FileClose( oDlg )
-   Local oBrw := oDlg:FindControl( 111 )
+RETURN Nil
+
+STATIC FUNCTION FileClose( oDlg )
+
+   LOCAL oBrw := oDlg:FindControl( 111 )
+
    dbSelectArea( oBrw:alias )
    dbCloseArea()
-Return .T.
 
-function printdos
-Local han := fcreate( "LPT1",0 )
-  if han != -1
-     fwrite( han, Chr(10)+Chr(13)+"Example of dos printing ..."+Chr(10)+Chr(13) )
-     fwrite( han, "Line 2 ..."+Chr(10)+Chr(13) )
-     fwrite( han, "---------------------------"+Chr(10)+Chr(13)+Chr(12) )
-     fclose( han )
-  else
-     hwg_Msgstop("Can't open printer port!")
-  endif
-return nil
+RETURN .T.
 
-Function DialogFromPrg()
-Local cTitle := "Dialog from prg", cText := "Input something"
-Local oModDlg, oFont := HFont():Add( "Serif",0,-13 ), oTab
-Local aCombo := { "First","Second" }, oEdit, vard := "Monday"
+STATIC FUNCTION printdos
+
+   LOCAL han := fcreate( "LPT1",0 )
+
+   IF han != -1
+      fwrite( han, Chr(10)+Chr(13)+"Example of dos printing ..."+Chr(10)+Chr(13) )
+      fwrite( han, "Line 2 ..."+Chr(10)+Chr(13) )
+      fwrite( han, "---------------------------"+Chr(10)+Chr(13)+Chr(12) )
+      fclose( han )
+   ELSE
+      hwg_Msgstop("Can't open printer port!")
+   ENDIF
+
+RETURN nil
+
+STATIC FUNCTION DialogFromPrg()
+
+   LOCAL cTitle := "Dialog from prg", cText := "Input something"
+   LOCAL oModDlg, oFont := HFont():Add( "Serif",0,-13 ), oTab
+   LOCAL aCombo := { "First","Second" }, oEdit, vard := "Monday"
 
    hwg_CheckMenuItem( ,1001, !hwg_IsCheckedMenuItem( ,1001 ) )
 
-   INIT DIALOG oModDlg TITLE cTitle           ;
-   AT 210,10  SIZE 300,300                    ;
-   FONT oFont                                 ;
-   ON EXIT {||hwg_Msgyesno("Really exit ?")}
+   INIT DIALOG oModDlg TITLE cTitle ;
+      AT 210,10  SIZE 300,300 ;
+      FONT oFont ;
+      ON EXIT { || hwg_Msgyesno( "Really exit ?" ) }
 
    @ 20,10 SAY cText SIZE 260, 22
    @ 20,35 EDITBOX oEdit CAPTION ""    ;
@@ -183,49 +194,50 @@ Local aCombo := { "First","Second" }, oEdit, vard := "Monday"
    @ 180,240 BUTTON "Cancel" OF oModDlg ID IDCANCEL  ;
         SIZE 100, 32
 
-   ACTIVATE DIALOG oModDlg
+   ACTIVATE DIALOG oModDlg CENTER
    oFont:Release()
 
-Return Nil
+RETURN Nil
 
-Function TestTab()
+STATIC FUNCTION TestTab()
 
-Local oDlg, oTAB
-Local oGet1, oGet2, oVar1:="1", oVar2:="2"
-Local oGet3, oGet4, oVar3:="3", oVar4:="4", oGet5, oVar5 := "5"
+   LOCAL oDlg, oTAB
+   LOCAL oGet1, oGet2, oVar1:="1", oVar2:="2"
+   LOCAL oGet3, oGet4, oVar3:="3", oVar4:="4", oGet5, oVar5 := "5"
 
-INIT DIALOG oDlg CLIPPER NOEXIT AT 0, 0 SIZE 200, 200 ;
-   ON INIT  {||hwg_Setfocus(oDlg:getlist[1]:handle)}
+   INIT DIALOG oDlg CLIPPER NOEXIT AT 0, 0 SIZE 200, 200 ;
+      ON INIT  {||hwg_Setfocus(oDlg:getlist[1]:handle)}
 
-@ 10, 10 TAB oTab ITEMS {} SIZE 180, 180 ;
-   ON LOSTFOCUS {||hwg_Msginfo("Lost Focus")}
+   @ 10, 10 TAB oTab ITEMS {} SIZE 180, 180 ;
+      ON LOSTFOCUS { || hwg_Msginfo( "Lost Focus" ) }
 
 
-BEGIN PAGE "Page 01" of oTab
+   BEGIN PAGE "Page 01" OF oTab
 
-  @ 30, 60 Get oGet1 VAR oVar1 SIZE 100, 26
-  @ 30, 90 Get oGet2 VAR oVar2 SIZE 100, 26
-  @ 30,120 Get oGet3 VAR oVar3 SIZE 100, 26
-  @ 30,150 Get oGet4 VAR oVar4 SIZE 100, 26
+      @ 30, 60 GET oGet1 VAR oVar1 SIZE 100, 26
+      @ 30, 90 GET oGet2 VAR oVar2 SIZE 100, 26
+      @ 30,120 GET oGet3 VAR oVar3 SIZE 100, 26
+      @ 30,150 GET oGet4 VAR oVar4 SIZE 100, 26
 
-END PAGE of oTab
+   END PAGE OF oTab
 
-BEGIN PAGE "Page 02" of oTab
+   BEGIN PAGE "Page 02" of oTab
 
-  @ 30, 60 Get oGet5 VAR oVar5 SIZE 100, 26
+      @ 30, 60 GET oGet5 VAR oVar5 SIZE 100, 26
 
-END PAGE of oTab
+   END PAGE of oTab
 
-ACTIVATE DIALOG oDlg
+   ACTIVATE DIALOG oDlg
 
-return nil
+RETURN nil
 
-Function PrnTest
-Local oPrinter, oFont
+STATIC FUNCTION PrnTest
+
+   LOCAL oPrinter, oFont
 
    INIT PRINTER oPrinter
    IF oPrinter == Nil
-      Return Nil
+      RETURN Nil
    ENDIF
 
    oFont := oPrinter:AddFont( "sans",10 )
@@ -246,7 +258,7 @@ Local oPrinter, oFont
    oPrinter:Preview()
    oPrinter:End()
 
-Return Nil
+RETURN Nil
 
 * ================== EOF of a.prg =====================
 
