@@ -1,5 +1,5 @@
 /*
- * testonother.prg
+ * demoonother.prg
  *
  * HWGUI sample display key codes
  *
@@ -12,10 +12,10 @@
  *
 */
 
-#INCLUDE "hwgui.CH"
+#INCLUDE "hwgui.ch"
 
 #ifdef __USING_MENU__
-   FUNCTION TestOnOther()
+   FUNCTION DemoOnOther()
 #else
    FUNCTION Main()
 #endif
@@ -23,11 +23,11 @@
    LOCAL oDlg
 
    INIT DIALOG oDlg ;
-      TITLE "TESTONOTHER - ON OTHER MESSAGES"  ;
+      TITLE "DEMOONOTHER - ON OTHER MESSAGES"  ;
       SIZE 500, 500 ;
       ON OTHER MESSAGES { | a, b, c, d | OnOtherMessages( a, b, c, d ) }
 
-   oDlg:activate()
+   ACTIVATE DIALOG oDlg CENTER
 
 RETURN Nil
 
@@ -51,5 +51,5 @@ STATIC FUNCTION OnOtherMessages( Sender, WinMsg, WParam, LParam )
 
 RETURN -1
 
-* ============================ EOF of test_bot.prg ==========================
+* ============================ EOF of demoonother.prg ==========================
 

@@ -1,0 +1,10 @@
+#
+# $Id$
+#
+# auto included hbmk.hbm
+
+-stop={!win}
+
+-odemoonother
+
+demoonother.prg
