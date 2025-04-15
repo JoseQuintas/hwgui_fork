@@ -996,79 +996,54 @@ HB_FUNC( HWG_OPENIMAGE )
 
    if( iString )
    {
-   /* Load image from GDK pixbuffer */
-      guint8 *buf = (guint8 *) hb_parc(1);
-      short int iOk;
-      GdkPixbufLoader * loader = gdk_pixbuf_loader_new();
+      /* Load image from GDK pixbuffer */
+       guint8 *buf = (guint8 *) hb_parc(1);
+       short int iOk;
+       GdkPixbufLoader * loader = gdk_pixbuf_loader_new();
 
-/*
-Resize from string:
-void
-gdk_pixbuf_loader_set_size (
-  GdkPixbufLoader* loader,
-  int width,
-  int height
-)
-*/ 
-
-      /* Both size parameters must have a value greater 0 */
-//     if ( ( width > 0 ) &&  ( height > 0) )
-//     {
-       // hwg_writelog(NULL,"Resize\n"); 
-       /* This function call no effect, only the bitmap with original size is returned.
-        See Addfile() method of cLass HIcon:
-        the the bitmap in a temporary file and reload it:
-        See drawwidg.prg
-       */
-       // gdk_pixbuf_loader_set_size(loader, width, height);
-//     }    
-  
-//      iOk = gdk_pixbuf_loader_write( loader, buf, 0,  NULL );
-      iOk = gdk_pixbuf_loader_write( loader, buf, hb_parclen(1), NULL );
-      gdk_pixbuf_loader_close( loader, NULL );
-      if( iOk )
-         handle = gdk_pixbuf_loader_get_pixbuf( loader );
- //    } /* With size parameters */
+       iOk = gdk_pixbuf_loader_write( loader, buf, hb_parclen(1), NULL );
+       gdk_pixbuf_loader_close( loader, NULL );
+       if( iOk )
+          handle = gdk_pixbuf_loader_get_pixbuf( loader );
    }
    else
    {
-     /* Load image from file */
- 
-     /* Both size parameters must have a value greater 0 */
-     if ( (width > 0 ) &&  ( height > 0) )
-     {
-     
-      /* with size parameters
-       DF7BE 2025-03-01 :
-       GdkPixbuf*
-       gdk_pixbuf_new_from_file_at_scale (
-       const char* filename,
-       int width,
-       int height,
-       gboolean preserve_aspect_ratio,
-       GError** error
-       )
-       Return value: Type=GdkPixbuf A newly-created pixbuf.
-       height, width: -1 to not constrain the width or height.
-       preserve_aspect_ratio: Type: gboolean  TRUE to preserve the image’s aspect ratio.
-      */
+      /* Load image from file */
   
-       handle = gdk_pixbuf_new_from_file_at_scale( hb_parc(1), width, height, TRUE , NULL );
+      /* Both size parameters must have a value greater 0 */
+      if ( (width > 0 ) &&  ( height > 0) )
+      {
+      
+       /* with size parameters
+        DF7BE 2025-03-01 :
+        GdkPixbuf*
+        gdk_pixbuf_new_from_file_at_scale (
+        const char* filename,
+        int width,
+        int height,
+        gboolean preserve_aspect_ratio,
+        GError** error
+        )
+        Return value: Type=GdkPixbuf A newly-created pixbuf.
+        height, width: -1 to not constrain the width or height.
+        preserve_aspect_ratio: Type: gboolean  TRUE to preserve the image’s aspect ratio.
+       */
+   
+        handle = gdk_pixbuf_new_from_file_at_scale( hb_parc(1), width, height, TRUE , NULL );
      }
      else
      {
-       handle = gdk_pixbuf_new_from_file( hb_parc(1), NULL );
-     }  /* Size parameters */
-     
-     if( handle )
-     {
-        hpix = (PHWGUI_PIXBUF) hb_xgrab( sizeof(HWGUI_PIXBUF) );
-        hpix->type = HWGUI_OBJECT_PIXBUF;
-        hpix->handle = handle;
-        hpix->trcolor = -1;
-        HB_RETHANDLE( hpix );
-     }  /* if handle */
+        handle = gdk_pixbuf_new_from_file( hb_parc(1), NULL );
+     }  /* Size parameters */   
    } /* if String/file */
+   if( handle )
+   {
+      hpix = (PHWGUI_PIXBUF) hb_xgrab( sizeof(HWGUI_PIXBUF) );
+      hpix->type = HWGUI_OBJECT_PIXBUF;
+      hpix->handle = handle;
+      hpix->trcolor = -1;
+      HB_RETHANDLE( hpix );
+   }  /* if handle */
 }
 
 HB_FUNC( HWG_DRAWICON )
