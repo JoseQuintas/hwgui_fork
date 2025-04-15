@@ -15,6 +15,13 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-15 14:45 UTC+0300 Alexander Kresin <alex@belacy.ru>
+  * utils/hwbuild/hwb.prg
+    * Renamed to hwbc.prg and synchronized with HwBuilder main repository on gitflic.
+  * utils/hwbuild/hwbuild.hbp
+  * utils/hwbuild/hwbuildc.hbp
+    * Updated due to hwb.prg renaming
+
 2025-04-15 10:00 UTC+0300 Alexander Kresin <alex@belacy.ru>
   * source/gtk/draw.c
     ! hwg_OpenImage() fixed and cleaned

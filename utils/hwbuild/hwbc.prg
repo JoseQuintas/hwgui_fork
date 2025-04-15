@@ -6,12 +6,12 @@
  * www - http://www.kresin.ru
  */
 
-#ifndef __CONSOLE
+#ifdef __GUI
 #include "hwgui.ch"
 #endif
 #include "hbclass.ch"
 
-#define HWB_VERSION  "1.15"
+#define HWB_VERSION  "1.16"
 
 #define COMP_ID      1
 #define COMP_EXE     2
@@ -89,7 +89,7 @@ STATIC cLibsHrb := "hbvm hbrtl gtgui gtwin hbcpage hblang hbrdd hbmacro hbpp rdd
 #endif
 STATIC cLibsHwGUI := ""
 
-#ifndef __CONSOLE
+#ifdef __GUI
 STATIC oFontMain, oDlgBar
 #endif
 STATIC cFontMain := "", lProgressOn := .T., cExtView := ""
@@ -224,7 +224,7 @@ FUNCTION Main( ... )
       ENDIF
    NEXT
 
-#ifdef __CONSOLE
+#ifndef __GUI
    IF Empty( aFiles ) .OR. lErr
       OutStd( "HwBuild - HwGUI Builder " + HWB_VERSION )
       FOR i := 1 TO Len( aHelp )
@@ -245,7 +245,7 @@ FUNCTION Main( ... )
    nPrj := Ascan( aFiles, {|a|Lower(hb_fnameExt(a[1]))==".hwprj"} )
    // Lower( hb_fnameExt( aFiles[1,1] ) ) == ".hwprj" )
    IF Empty( aParams ) .OR. ( lGui .AND. nPrj > 0 .AND. Len( aFiles ) == 1  )
-#ifndef __CONSOLE
+#ifdef __GUI
       StartGUI( Iif( Empty( aFiles ), Nil, aFiles[1,1] ) )
 #endif
    ELSEIF !Empty( aFiles )
@@ -259,14 +259,14 @@ FUNCTION Main( ... )
          oPrg:Build( lClean )
       ENDIF
    ELSE
-#ifndef __CONSOLE
+#ifdef __GUI
      _MsgStop( "No files" )
 #endif
    ENDIF
 
    RETURN Nil
 
-#ifndef __CONSOLE
+#ifdef __GUI
 STATIC FUNCTION ShowResult( cOut )
 
    LOCAL oDlg, oFont := HFont():Add( "Georgia",0,20 ), oEdit, oBoard, oBtnSwi
@@ -284,8 +284,7 @@ STATIC FUNCTION ShowResult( cOut )
       RETURN .T.
    }
    LOCAL bSwi := {||
-      LOCAL i, j, cLastHea := "", lLastHea := .F., cc
-      (J) // -w3 -es2
+      LOCAL i, cLastHea := "", lLastHea := .F., cc
       lFull := !lFull
       oBtnSwi:SetText( Iif( lFull, 'Short log', 'Full log' ) )
       IF lFull
@@ -937,7 +936,8 @@ STATIC FUNCTION CheckOptions( oProject, cLine )
 
    IF ( nDef := Ascan( HCompiler():aDef, {|a|a[COMP_ID] == oComp:id} ) ) > 0
       IF !oProject:lLib .AND. cGuiId == "hwgui" .AND. ( Empty( cPathHwguiLib ) .OR. ;
-         !File( cPathHwguiLib + hb_ps() + HCompiler():aDef[nDef,COMP_HWG] ) )
+         ( !File( cPathHwguiLib + hb_ps() + HCompiler():aDef[nDef,COMP_HWG] ) .AND. ;
+         !File( cPathHwguiLib + hb_ps() + oComp:id + hb_ps() + HCompiler():aDef[nDef,COMP_HWG] ) ) )
          cLine := "Empty or wrong hwgui libraries path"
          RETURN 2
       ENDIF
@@ -981,7 +981,7 @@ STATIC FUNCTION FindHarbour()
 
 STATIC FUNCTION ReadIni( cFile )
 
-   LOCAL cPath, hIni, aIni, arr, nSect, aSect, cTmp, i, key, nPos, cFam, oComp, oGui // j
+   LOCAL cPath, hIni, aIni, arr, nSect, aSect, cTmp, i, key, nPos, cFam, oComp, oGui
    LOCAL aEnv, aMsvc := Array(4), aEnvM
 
 #ifdef __PLATFORM__UNIX
@@ -1186,7 +1186,7 @@ STATIC FUNCTION ReadIni( cFile )
       ENDIF
    NEXT
 #endif
-#ifndef __CONSOLE
+#ifdef __GUI
    IF Empty( cFontMain )
       oFontMain := HFont():Add( "Georgia", 0, 18,, 204 )
       cFontMain := oFontMain:SaveToStr()
@@ -1426,15 +1426,15 @@ STATIC FUNCTION _AddFromFile( cFile, l2Line )
 
 #ifdef __PLATFORM__UNIX
 STATIC FUNCTION _RunApp( cLine, cOut )
-   RETURN hwg_RunConsoleApp( cLine + " 2>&1",, @cOut )
+   RETURN _RunConsoleApp( cLine + " 2>&1",, @cOut )
 #else
 STATIC FUNCTION _RunApp( cLine, cOut )
-   RETURN hwg_RunConsoleApp( cLine,, @cOut )
+   RETURN _RunConsoleApp( cLine,, @cOut )
 #endif
 
 STATIC FUNCTION _ShowProgress( cText, nAct, cTitle, cFull )
 
-#ifdef __CONSOLE
+#ifndef __GUI
    HB_SYMBOL_UNUSED( cFull )
    IF !lQ .OR. nAct == 2 .OR. "warning" $ Lower(cText) .OR. "error" $ Lower(cText)
       IF !Empty( cTitle )
@@ -1474,7 +1474,7 @@ STATIC FUNCTION _ShowProgress( cText, nAct, cTitle, cFull )
 
 STATIC FUNCTION _MsgStop( cText, cTitle )
 
-#ifdef __CONSOLE
+#ifndef __GUI
    IF !Empty( cTitle )
       OutStd( hb_eol() + cTitle )
    ENDIF
@@ -1486,7 +1486,7 @@ STATIC FUNCTION _MsgStop( cText, cTitle )
 
 STATIC FUNCTION _MsgInfo( cText, cTitle )
 
-#ifdef __CONSOLE
+#ifndef __GUI
    IF !Empty( cTitle )
       OutStd( hb_eol() + cTitle )
    ENDIF
@@ -1741,9 +1741,6 @@ METHOD New( aFiles, oComp, cGtLib, cLibsDop, cLibsPath, cFlagsPrg, cFlagsC, ;
       IF lNoGui
          ::lGuiLib := .F.
       ENDIF
-      IF ::lGuiLib
-         ::lGuiLinkFlag := .T.
-      ENDIF
       FOR i := 1 TO Len( ::aFiles )
          IF Lower( hb_fnameExt( ::aFiles[i,1] ) ) == ".prg"
            ::lHarbour := .T.
@@ -1983,21 +1980,6 @@ METHOD Open( xSource, oComp, aUserPar, aFiles, aParentVars ) CLASS HwProject
       ENDIF
    NEXT
 
-   ::lBuildRes := ::lGuiLib
-   IF !Empty( ::cGtLib )
-      ::lBuildRes := .F.
-      IF !( ::cGtLib == "gthwg" )
-         ::lGuiLib := .F.
-      ENDIF
-      ::cFlagsPrg += " -d__" + Upper( ::cGtLib ) + "__"
-      IF ::cGtLib $ "gttrm;gtwvt;gtxwc;gtwvg;gtwvw;gthwg"
-         ::lGuiLinkFlag := .T.
-      ENDIF
-   ENDIF
-   IF ::lGuiLib
-      ::lGuiLinkFlag := .T.
-   ENDIF
-
    IF !Empty( ::aProjects ) .AND. Empty( ::aFiles ) .AND. !::lLib
       lLib := .T.
       FOR i := 1 TO Len( ::aProjects )
@@ -2025,11 +2007,26 @@ METHOD Open( xSource, oComp, aUserPar, aFiles, aParentVars ) CLASS HwProject
 
 METHOD Build( lClean, lSub ) CLASS HwProject
 
-   LOCAL i, cCmd, cLine, cOut, cFullOut := "", lErr := .F., to, tc // cComp
+   LOCAL i, cCmd, cLine, cOut, cFullOut := "", lErr := .F., to, tc
    LOCAL cObjs := "", cFile, cExt, cBinary, cObjFile, cObjPath
    LOCAL aLibs, cLibs := "", a4Delete := {}, tStart := hb_DtoT( Date(), Seconds()-1 )
    LOCAL aEnv, cResFile, cResList := ""
    LOCAL cCompPath, cCompHrbLib, cCompGuiLib
+
+   ::lBuildRes := ::lGuiLib
+   IF !Empty( ::cGtLib )
+      ::lBuildRes := .F.
+      IF !( ::cGtLib == "gthwg" )
+         ::lGuiLib := .F.
+      ENDIF
+      ::cFlagsPrg += " -d__" + Upper( ::cGtLib ) + "__"
+      IF ::cGtLib $ "gttrm;gtwvt;gtxwc;gtwvg;gtwvw;gthwg"
+         ::lGuiLinkFlag := .T.
+      ENDIF
+   ENDIF
+   IF ::lGuiLib
+      ::lGuiLinkFlag := .T.
+   ENDIF
 
    IF Empty( lSub ) .AND. Empty( lClean ) .AND. !Empty( i := CheckOptions( Self, @cLine ) )
       IF !( i == 2 .AND. !::lGuiLib )
@@ -2089,7 +2086,7 @@ METHOD Build( lClean, lSub ) CLASS HwProject
       ENDIF
    NEXT
 
-#ifndef __CONSOLE
+#ifdef __GUI
    IF lProgressOn
       to := 0
       FOR i := 1 TO Len( ::aFiles )
@@ -2158,8 +2155,9 @@ METHOD Build( lClean, lSub ) CLASS HwProject
    IF !lErr
       // Compile C sources with C compiler
       cOut := Nil
-      cCmd := StrTran( StrTran( StrTran( ::oComp:cCmdComp, "{hi}", _EnvVarsTran(cPathHrbInc) ), ;
-         "{gi}", Iif( ::lGuiLib.AND.::lHarbour, cPathHwguiInc, "." ) ), "{path}", cCompPath )
+      cCmd := StrTran( StrTran( StrTran( ::oComp:cCmdComp, "{hi}", ;
+         Iif( ::lLib.OR.::lHarbour,_EnvVarsTran(cPathHrbInc),"." ) ), ;
+         "{gi}", Iif( ::lGuiLib.AND.::lHarbour,cPathHwguiInc,"." ) ), "{path}", cCompPath )
 
       FOR i := 1 TO Len( ::aFiles )
          cFile := _PS( ::aFiles[i,1] )
@@ -2253,6 +2251,12 @@ METHOD Build( lClean, lSub ) CLASS HwProject
       // Link the app
       cBinary := Iif( Empty( ::cOutName ), hb_fnameNameExt( ::aFiles[1,1] ), ::cOutName )
       cOut := Nil
+      IF hb_Ascan( hb_ATokens( ::cFlagsPrg ), "-b",,, .T. ) > 0
+         aLibs := { "hwgdebug", "hbdebug" }
+         FOR i := 1 TO Len( aLibs )
+            cLibs += " " + StrTran( ::oComp:cTmplLib, "{l}", aLibs[i] )
+         NEXT
+      ENDIF
       IF ::lGuiLib .AND. ::lHarbour
          aLibs := hb_ATokens( cLibsHwGUI, " " )
          FOR i := 1 TO Len( aLibs )
@@ -2325,3 +2329,206 @@ METHOD Build( lClean, lSub ) CLASS HwProject
    NEXT
 
    RETURN Iif( Empty( lSub ), Nil, cFullOut )
+
+
+#pragma BEGINDUMP
+
+#include <stdio.h>
+#include "hbapi.h"
+#include "hbapiitm.h"
+#include "hbapicdp.h"
+
+#define BUFSIZE  16384
+
+#if defined( HB_OS_UNIX )
+
+#include <unistd.h>
+
+HB_FUNC( _RUNCONSOLEAPP )
+{
+   /* Ensure that output of command does interfere with stdout */
+   fflush( stdin );
+   FILE *cmd_file = ( FILE * ) popen( hb_parc( 1 ), "r" );
+   FILE *hOut;
+   char buf[BUFSIZE], *pOut;
+   int bytes_read, read_all = 0, iOutExist = 0, iOutFirst = 1, iExitCode;
+
+   if( !cmd_file )
+   {
+      hb_retni( -1 );
+      return;
+   }
+
+   if( !HB_ISNIL( 2 ) )
+   {
+      hOut = fopen( hb_parc( 2 ), "w" );
+      iOutExist = 1;
+   }
+   else if( HB_ISBYREF( 3 ) )
+      iOutExist = 2;
+
+   do
+   {
+      bytes_read = fread( buf, sizeof( char ), BUFSIZE, cmd_file );
+      if( iOutExist == 1 )
+         fwrite( buf, 1, bytes_read, hOut );
+      else if( iOutExist == 2 )
+      {
+         read_all += bytes_read;
+         if( iOutFirst )
+         {
+            pOut = (char*) hb_xgrab( bytes_read + 1 );
+            memcpy( pOut, buf, bytes_read );
+            iOutFirst = 0;
+         }
+         else
+         {
+            pOut = ( char * ) hb_xrealloc( pOut, read_all + 1 );
+            memcpy( pOut+read_all-bytes_read, buf, bytes_read );
+         }
+      }
+   }
+   while( bytes_read == BUFSIZE );
+
+   iExitCode = pclose( cmd_file );
+   if( iOutExist == 1 )
+      fclose( hOut );
+   else if( iOutExist == 2 )
+      hb_storclen_buffer( pOut, read_all, 3 );
+
+   hb_retni( iExitCode );
+}
+
+#else
+
+#include "windows.h"
+#define CMDLENGTH  4096
+
+HB_FUNC( _RUNCONSOLEAPP )
+{
+   SECURITY_ATTRIBUTES sa;
+   HANDLE g_hChildStd_OUT_Rd = NULL;
+   HANDLE g_hChildStd_OUT_Wr = NULL;
+   PROCESS_INFORMATION pi;
+   STARTUPINFO si;
+   BOOL bSuccess;
+   int iOutExist = 0, read_all = 0, iOutFirst = 1;
+   DWORD dwRead, dwWritten, dwExitCode;
+   CHAR chBuf[BUFSIZE], *pOut;
+
+   HANDLE hOut = NULL;
+#ifdef UNICODE
+   TCHAR wc1[CMDLENGTH], wc2[CMDLENGTH];
+#endif
+
+   sa.nLength = sizeof( SECURITY_ATTRIBUTES );
+   sa.bInheritHandle = TRUE;
+   sa.lpSecurityDescriptor = NULL;
+
+   // Create a pipe for the child process's STDOUT.
+   if( !CreatePipe( &g_hChildStd_OUT_Rd, &g_hChildStd_OUT_Wr, &sa, 32768 ) )
+   {
+      hb_retni( 1 );
+      return;
+   }
+
+   // Ensure the read handle to the pipe for STDOUT is not inherited.
+   if( !SetHandleInformation( g_hChildStd_OUT_Rd, HANDLE_FLAG_INHERIT, 0 ) )
+   {
+      hb_retni( 2 );
+      return;
+   }
+
+   // Set up members of the PROCESS_INFORMATION structure.
+   ZeroMemory( &pi, sizeof( PROCESS_INFORMATION ) );
+
+   // Set up members of the STARTUPINFO structure.
+   // This structure specifies the STDIN and STDOUT handles for redirection.
+   ZeroMemory( &si, sizeof( si ) );
+   si.cb = sizeof( si );
+
+   si.wShowWindow = SW_HIDE;
+   si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+   si.hStdOutput = g_hChildStd_OUT_Wr;
+   si.hStdError = g_hChildStd_OUT_Wr;
+
+#ifdef UNICODE
+   MultiByteToWideChar( GetACP(), 0, hb_parc(1), -1, wc1, CMDLENGTH );
+   bSuccess = CreateProcess( NULL, wc1, NULL, NULL,
+         TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi );
+#else
+   bSuccess = CreateProcess( NULL, ( LPTSTR ) hb_parc( 1 ), NULL, NULL,
+         TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi );
+#endif
+   if( !bSuccess )
+   {
+      hb_retni( 3 );
+      return;
+   }
+
+   //WaitForSingleObject( pi.hProcess, 8000 ); //INFINITE );
+   GetExitCodeProcess( pi.hProcess, &dwExitCode );
+   CloseHandle( pi.hProcess );
+   CloseHandle( pi.hThread );
+   CloseHandle( g_hChildStd_OUT_Wr );
+
+   if( !HB_ISNIL( 2 ) )
+   {
+#ifdef UNICODE
+      MultiByteToWideChar( GetACP(), 0, hb_parc(2), -1, wc2, CMDLENGTH );
+      hOut = CreateFile( wc2, GENERIC_WRITE, 0, 0,
+            CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0 );
+#else
+      hOut = CreateFile( ( LPTSTR )hb_parc( 2 ), GENERIC_WRITE, 0, 0,
+            CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0 );
+#endif
+      iOutExist = 1;
+   }
+   else if( HB_ISBYREF( 3 ) )
+      iOutExist = 2;
+
+   while( 1 )
+   {
+      bSuccess =
+            ReadFile( g_hChildStd_OUT_Rd, chBuf, BUFSIZE, &dwRead, NULL );
+      if( !bSuccess || dwRead == 0 )
+         break;
+
+      if( iOutExist == 1 )
+      {
+         bSuccess = WriteFile( hOut, chBuf, dwRead, &dwWritten, NULL );
+         if( !bSuccess )
+            break;
+      }
+      else if( iOutExist == 2 && dwRead > 0 )
+      {
+         read_all += (int) dwRead;
+         if( iOutFirst )
+         {
+            pOut = (char*) hb_xgrab( (int)dwRead + 1 );
+            memcpy( pOut, chBuf, (int)dwRead );
+            iOutFirst = 0;
+         }
+         else
+         {
+            pOut = ( char * ) hb_xrealloc( pOut, read_all + 1 );
+            memcpy( pOut+read_all-(int)dwRead, chBuf, (int)dwRead );
+         }
+      }
+   }
+
+   if( iOutExist == 1 )
+      CloseHandle( hOut );
+   else if( iOutExist == 2 )
+   {
+      if( read_all > 0 )
+         hb_storclen_buffer( pOut, read_all, 3 );
+      else
+         hb_storc( "", 3 );
+   }
+   CloseHandle( g_hChildStd_OUT_Rd );
+
+   hb_retni( ( int ) dwExitCode );
+}
+#endif
+#pragma ENDDUMP
