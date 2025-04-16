@@ -3,6 +3,6 @@
 #
 # auto included hbmk.hbm
 
--odemocombobox
+-odemodatepicker
 
-democombobox.prg
+demodatepicker.prg
