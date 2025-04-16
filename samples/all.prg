@@ -5,6 +5,11 @@ menu for standard samples
 First test
 Only samples without own hbp
 Remember to change all.hbp about Windows, Linux, MacOS
+
+DF7BE:
+This seems to be a bug in Harbour:
+all.prg(182) Warning W0032  Variable 'CBINHBMK' is assigned but not used in function 'EXECUTEEXE(159)'
+
 */
 
 #ifdef __LINUX__
@@ -154,9 +159,10 @@ STATIC FUNCTION ExecuteExe( cFileName )
    LOCAL cFileNoExt, cBinName, cBinHbmk
 
    cFileNoExt := Left( cFileName, At( ".", cFileName ) - 1 )
-#ifdef __GTK__
-   cBinName := cFileNoExt
-   cBinHbmk := "./hbmk2"
+
+#ifndef __PLATFORM__WINDOWS
+   cBinName := "./" + cFileNoExt
+   cBinHbmk := "hbmk2"
 #else
    cBinName := cFileNoExt + ".exe"
    cBinHbmk := "hbmk2.exe"
@@ -169,7 +175,9 @@ STATIC FUNCTION ExecuteExe( cFileName )
 
       // hwg_RunApp( cBinHbmk + " " + cFileNoExt, .T. ) // hbmk2 will use hbp or prg
       // do not wait
-      RUN( cBinHbmk + " " + cFileNoExt, .T. ) // hbmk2 will use hbp or prg
+      * See bug in Harbour, not recognized,that CBINHBMK is used here! 
+      // RUN( CBINHBMK + " " + cFileNoExt, .T. ) // hbmk2 will use hbp or prg
+      hwg_RunConsoleApp(CBINHBMK + " " + cFileNoExt, , .T.)
 
       IF ! File( cBinName )
          hwg_MsgInfo( "Can't create " + cBinName )
@@ -179,3 +187,5 @@ STATIC FUNCTION ExecuteExe( cFileName )
    HWG_RunApp( cBinName )
 
    RETURN Nil
+   
+* ================================= EOF of all.prg =========================== 

@@ -5,24 +5,20 @@
 #
 
 all.prg
-#
-# they will return to be EXE later
-# group samples on a single EXE was a bad thing
-# one wrong sample can break all
-# No problem, samples can be compiled standalone with no changes
-# It is only to change on all.prg and add ".EXE" to name
-#
-#demobrowsedbf.prg
-#{win}demoonother.prg
-#democombobox.prg
-#demodatepicker.prg
-#demogetdesktopsize.prg
-#demomonthcal.prg
-#{win}demoshadebtn.prg
-#testsplit.prg
-#democheckbox.prg
-#demomenuxml.prg
+# testbrowsedbf.prg
+# demobrowsedbf.prg
+{win}testonother.prg
+# testcombobox.prg
+# testdatepick.prg
+demobrowsedbf.prg
+# testmenu1.prg
+# testhmonth.prg
+{win}testshadebtn.prg
+testsplit.prg
+# testcheckbox.prg
+# testmenuxml.prg
 
 -d__USING_MENU__
 
-# ================================= EOF of all_1.hbp ================================
+
+# ================================= EOF of all.hbp ================================
