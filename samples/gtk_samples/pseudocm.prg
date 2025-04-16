@@ -16,11 +16,18 @@ FUNCTION Main
    LOCAL oBmp
    LOCAL oBrw, Form_Main
    // LOCAL oFontBtn
+   LOCAL cdirsep, cimagedir
+   
+   cdirsep := hwg_GetDirSep()
+   
+   cimagedir := ".." + cdirsep + ".." + "image" + cdirsep
 
    PUBLIC aSample := { { .T. ,"Line 1",10 }, { .T. ,"Line 2",22 }, { .F. ,"Line 3",40 } }
 
    // Not used
    // PREPARE FONT oFontBtn NAME "MS Sans Serif" WIDTH 0 HEIGHT - 12
+   
+   oBmp := HBitmap():Addfile(cimagedir + "new.bmp")
 
    INIT WINDOW Form_Main MAIN TITLE "HwGUI Sample Pseudo Context Menu in BROWSE" SIZE 360, 300
 
@@ -40,7 +47,7 @@ FUNCTION Main
 
    @ 160, 10 BROWSE oBrw ARRAY SIZE 180, 180 ;
       STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL ;
-      ON RIGHTCLICK { |o, nrow, ncol| SUBMNU_BRW( ncol, nrow ) }
+      ON RIGHTCLICK { |o, nrow, ncol| HB_SYMBOL_UNUSED(o) , SUBMNU_BRW( ncol, nrow ) }
 
    hwg_CREATEARLIST( oBrw, aSample )
 
@@ -61,6 +68,7 @@ FUNCTION Main
    // ====================================
 
 FUNCTION SUBMNU_BRW( nCol, nRow )
+   HB_SYMBOL_UNUSED(nRow)
 
    IF nCol > 0 .AND. nCol <= Len( aSample )
       nrp := ncol

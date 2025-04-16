@@ -15,6 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-16 16:30 UTC+0200 Wilfried Brunken DF7BE
+  * samples/gtk_samples/pseudocm.prg
+    ! Compile error on LINUX fixed,
+    ! reported by Jose Quintas
+
 2025-04-15 14:45 UTC+0300 Alexander Kresin <alex@belacy.ru>
   * utils/hwbuild/hwb.prg
     * Renamed to hwbc.prg and synchronized with HwBuilder main repository on gitflic.
