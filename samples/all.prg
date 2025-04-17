@@ -170,7 +170,7 @@ STATIC FUNCTION ExecuteExe( cFileName )
       // do not wait
       * See bug in Harbour, not recognized,that CBINHBMK is used here!
       // RUN( CBINHBMK + " " + cFileNoExt, .T. ) // hbmk2 will use hbp or prg
-      hwg_RunConsoleApp(CBINHBMK + " " + cFileNoExt, , .T.)
+      hwg_RunConsoleApp( CBINHBMK + " " + cFileNoExt, , .T. )
 
       IF ! File( cBinName )
          hwg_MsgInfo( "Can't create " + cBinName )

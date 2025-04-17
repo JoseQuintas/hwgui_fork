@@ -6,7 +6,11 @@ on source code, divide commands on more lines to a best view of parameters/optio
 
 #include "hwgui.ch"
 
-FUNCTION DemoBasic()
+#ifdef __GTK__
+   #include "gtk.ch"
+#endif
+
+FUNCTION Main()
 
 
    LOCAL oTab, oDlg, oBtn1, oBtn2, oBtn3, oBrowse, oDate, oCombo
@@ -16,7 +20,7 @@ FUNCTION DemoBasic()
       { "Victor", 42, 1600 }, ;
       { "John",   31, 15000 } }
 
-#ifndef __GTK__
+#ifndef __PLATFORM__WINDOWS
    LOCAL oCombo2
 #endif
 
@@ -24,6 +28,7 @@ FUNCTION DemoBasic()
       AT    0, 0 ;
       SIZE  600, 400 ;
       FONT  HFont():Add( "MS Sans Serif",0,-15 )
+      // STYLE DS_CENTER + WS_VISIBLE + WS_POPUP + WS_CAPTION + WS_SYSMENU
 
    @ 0, 10 OWNERBUTTON oBtn1 ;
       OF       oDlg ;
@@ -47,18 +52,18 @@ FUNCTION DemoBasic()
       ITEMS {} ;
       SIZE  500, 300
 
-   BEGIN PAGE "SAY" ;
+   BEGIN PAGE "say" ;
       OF oTab
 
       @ 10, 50 SAY "a text" ;
          SIZE 80, 30
 
-      @ 50, 100 SAY "Need SIZE (*)" ;
+      @ 10, 100 SAY "Need SIZE (*)" ;
          SIZE 300, 30
 
    END PAGE OF oTab
 
-   BEGIN PAGE "DATESELECT" ;
+   BEGIN PAGE "dateselect" ;
       OF oTab
 
       @ 10, 50 SAY "Date" ;
@@ -69,31 +74,30 @@ FUNCTION DemoBasic()
 
    END PAGE OF oTab
 
-   BEGIN PAGE "COMBOBOX" ;
+   BEGIN PAGE "combobox" ;
       OF oTab
 
 #ifndef __PLATFORM__WINDOWS
       @ 10, 50 COMBOBOX oCombo ;
          ITEMS aComboList ;
-         SIZE  100, 25
+         SIZE  100, 25              // size for GTK
 #else
       @ 10, 50 COMBOBOX oCombo ;
          ITEMS aComboList ;
-         SIZE  100, 100
+         SIZE  100, 100             // size for GTK
 
       @ 100, 50 COMBOBOX oCombo ;
          ITEMS   aComboList ;
          SIZE    100, 100 ;
-         EDIT ;
-         TOOLTIP "Type any thing here"
+         EDIT                       // crash on GTK
 #endif
 
-      @ 150, 100 SAY "size height include list height on win" ;
+      @ 10, 200 SAY "size height include list height on win" ;
          SIZE 300, 30
 
    END PAGE OF oTab
 
-   BEGIN PAGE "BROWSE" ;
+   BEGIN PAGE "browse array" ;
       OF oTab
 
       @ 10, 30 BROWSE oBrowse ARRAY ;
@@ -112,12 +116,11 @@ FUNCTION DemoBasic()
    ADD STATUS PANEL ;
       TO     oDlg ;
       HEIGHT 30 ;
-      PARTS  80, 80, 0
-//       FONT   oDlg:oFont ==> Warning W0001  Ambiguous reference 'DLG', Variable 'ODLG' declared but not used in function 'DEMOBASIC(12)'
+      PARTS  80, 200, 0
 
-   hwg_WriteStatus( oDlg, 1, "Part1", .F. )
-   hwg_WriteStatus( oDlg, 2, "Part2", .F. )
-   hwg_WriteStatus( oDlg, 3, "More on hwgui tutorial", .F. )
+   hwg_WriteStatus( oDlg, 1, "hello", .F. )
+   hwg_WriteStatus( oDlg, 2, hwg_Version(), .F. )
+   hwg_WriteStatus( oDlg, 3, "See more on hwgui tutorial", .F. )
 
    ACTIVATE DIALOG oDlg ;
       CENTER
@@ -133,3 +136,5 @@ STATIC FUNCTION ShowValues( oBrowse, oDate, oCombo )
       )
 
    RETURN Nil
+
+* ============================== EOF of demobasic.prg ========================

@@ -228,6 +228,7 @@ For beginners:
  Sample program     GTK2    GTK3  NLS MinGW64 Purpose
  =================   ====   ====  === ======= =======
  a.prg   +) 9)       R       N    CN          Some HWGUI basics (Open DBF's, GET's, ...)
+ demobasic.prg       ?       ?    ?           Tab, owner button, combobox, dateselect, status panel
  demobrowsearray.prg Y                        Array BROWSE avoiding crashes because of bugs (see inline comments)
  bindbf.prg 10)      Y                        Usage of images from Binary DBF container
  bincnts.prg 10) +)  Y                        Usage of images from Binary container
@@ -294,7 +295,6 @@ For beginners:
  testtree.prg        Y                        Tree view control
  demomenuxml.prg     Y                        reading/writing XML file and handling menu items while run-time (testxml.xml)
  trackbar.prg        P                        Trackbar demo, horizontal und vertical.
- democombobox.prg    Y                        Test Combobox, with preset and refresh.
  tstprdos.prg 3)     N       N                Print on LPT, outdated, see 3)
  tstscrlbar.prg      P                        Scrollbar (GTK: Compilable, but no scroll function, more info in comment lines)
  tstsplash.prg       P                        SPLASH Demo, displays image at start as logo for n millisecs: OK with WinAPI, compilable for GTK, but splash window is empty.

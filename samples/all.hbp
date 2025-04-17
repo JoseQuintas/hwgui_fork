@@ -4,20 +4,10 @@
 # auto included hbmk.hbm
 #
 
+-oall
+
 all.prg
-# demobrowsedbf.prg
-# demobrowsedbf.prg
-#{win}demoonother.prg
-# democombobox.prg
-# demodatepick.prg
-# testmenu1.prg
-# demomonthcal.prg
-#{win}demoshadebtn.prg
-#demosplitter.prg
-# democheckbox.prg
-# demomenuxml.prg
 
 -d__USING_MENU__
-
 
 # ================================= EOF of all.hbp ================================

@@ -15,6 +15,20 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-17 12:00 UTC-0200 Jose Quintas jmcquintas-gmail.com
+   * samples/all.prg
+   - samples/democombobox.prg
+   - samples/democombobox.hbp
+   - samples/makeallsam.sh
+   - clean.sh
+   - samples
+     ! removed democombobox.prg, added demobasic.prg
+   * samples/demobasic.hbp
+   * samples/demobasic.prg
+     ! added gtk.ch and notes, found on democombobox.prg
+   NOTE: dialog style is commented, can be removed if not needed on GTK
+   TODO: update readme.txt about demobasic.prg status
+
 2025-04-17 15:50 UTC+0200 Wilfried Brunken DF7BE
  * samples/all.prg
  * samples/demobasic.prg
@@ -23,7 +37,7 @@
    ! all.prg(105) Error E0030  Syntax error "syntax error at ','"
    ! demobasic.prg(115) Warning W0001  Ambiguous reference 'DLG'
    ! all.prg now OK for LINUX.
-   ! (to be continued)  
+   ! (to be continued)
 
 2025-04-16 23:50 UTC-0200 Jose Quintas jmcquintas-gmail.com
    * all.prg
