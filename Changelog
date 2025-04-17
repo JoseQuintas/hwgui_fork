@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-16 23:50 UTC-0200 Jose Quintas jmcquintas-gmail.com
+   * all.prg
+     ! Small fix
+   * datepicker.hbp
+     ! Wrong name
+   + demobasic.prg
+   + demobasic.hbp
+     ! to replace others samples, using already existing code
+     ! and trying to use a friendly source code
+
 2025-04-16 12:32 UTC-0200 Jose Quintas jmcquintas-gmail.com
   ! Anything wrong on my commits
   ! I rewrite history but main local position was wrong

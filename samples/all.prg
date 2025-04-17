@@ -1,10 +1,6 @@
 /*
 all.prg
-menu for standard samples
-
-First test
-Only samples without own hbp
-Remember to change all.hbp about Windows, Linux, MacOS
+menu for samples on samples/ folder
 
 DF7BE:
 This seems to be a bug in Harbour:
@@ -35,6 +31,7 @@ PROCEDURE Main
        { "",                       .F., .F., .F., "" }, ;
        ;
        ; // controls
+       { "demobasic.prg",          .T., .T., .T., "Tab, browse array, combobox, status panel, owner button"
        { "demogetupdown.prg",      .T., .T., .T., "Get UpDown" }, ;
        { "demobrowsearr.prg",      .T., .T., .T., "browse array editable" }, ;
        { "demobrowsedbf.prg",      .T., .T., .T., "Browse DBF"  }, ;
@@ -150,10 +147,6 @@ PROCEDURE Main
 
    RETURN
 
-/*
-TODO: Adjust for Linux and MacOS
-*/
-
 STATIC FUNCTION ExecuteExe( cFileName )
 
    LOCAL cFileNoExt, cBinName, cBinHbmk
@@ -175,7 +168,7 @@ STATIC FUNCTION ExecuteExe( cFileName )
 
       // hwg_RunApp( cBinHbmk + " " + cFileNoExt, .T. ) // hbmk2 will use hbp or prg
       // do not wait
-      * See bug in Harbour, not recognized,that CBINHBMK is used here! 
+      * See bug in Harbour, not recognized,that CBINHBMK is used here!
       // RUN( CBINHBMK + " " + cFileNoExt, .T. ) // hbmk2 will use hbp or prg
       hwg_RunConsoleApp(CBINHBMK + " " + cFileNoExt, , .T.)
 
@@ -187,5 +180,5 @@ STATIC FUNCTION ExecuteExe( cFileName )
    HWG_RunApp( cBinName )
 
    RETURN Nil
-   
-* ================================= EOF of all.prg =========================== 
+
+* ================================= EOF of all.prg ===========================

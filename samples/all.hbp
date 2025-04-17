@@ -5,18 +5,17 @@
 #
 
 all.prg
-# testbrowsedbf.prg
 # demobrowsedbf.prg
-{win}testonother.prg
-# testcombobox.prg
-# testdatepick.prg
-demobrowsedbf.prg
+# demobrowsedbf.prg
+#{win}demoonother.prg
+# democombobox.prg
+# demodatepick.prg
 # testmenu1.prg
-# testhmonth.prg
-{win}testshadebtn.prg
-testsplit.prg
-# testcheckbox.prg
-# testmenuxml.prg
+# demomonthcal.prg
+#{win}demoshadebtn.prg
+#demosplitter.prg
+# democheckbox.prg
+# demomenuxml.prg
 
 -d__USING_MENU__
 
