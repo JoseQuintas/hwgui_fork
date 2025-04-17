@@ -35,8 +35,11 @@ FUNCTION Main()
 
    //   PREPARE FONT oFontBtn NAME "MS Sans Serif" WIDTH 0 HEIGHT -12
 
-   INIT WINDOW Form_Main MAIN TITLE "DEMODBFDATA - HwGUI Harbour Win32 Gui" ;
-      AT 0, 0 SIZE 600, 400
+   INIT WINDOW Form_Main ;
+      MAIN ;
+      TITLE "DEMODBFDATA - HwGUI Harbour Win32 Gui" ;
+      AT 0, 0 ;
+      SIZE 600, 400
 
    MENU OF Form_Main
       MENU TITLE "&Demo"
@@ -66,7 +69,12 @@ STATIC FUNCTION Cadastro()
 
    PREPARE FONT oFontBtn NAME "Arial" WIDTH 0 HEIGHT -12
 
-   INIT DIALOG Tel_Ferramentas CLIPPER NOEXIT TITLE Titulo SIZE 530, 320 Font oFontBtn
+   INIT DIALOG Tel_Ferramentas ;
+      CLIPPER ;
+      NOEXIT ;
+      TITLE Titulo ;
+      SIZE 530, 320 ;
+      Font oFontBtn
 
    OpenDbf()
 
@@ -77,45 +85,69 @@ STATIC FUNCTION Cadastro()
 
    CreateGets()
 
-   @  2,3 OWNERBUTTON oBotNew OF Tel_Ferramentas  ON CLICK {|| CreateVariable(), CloseBotons(), Gt_Cod:Setfocus()  } ;
-       SIZE 44,38 FLAT ;
-       TEXT "New"
+   @  2,3 OWNERBUTTON oBotNew ;
+      OF Tel_Ferramentas  ;
+      ON CLICK {|| CreateVariable(), CloseBotons(), Gt_Cod:Setfocus()  } ;
+      SIZE 44,38 FLAT ;
+      TEXT "New"
 
-   @  46,3 OWNERBUTTON oBotEdit OF Tel_Ferramentas ON CLICK {||EditRecord()} ;
-       SIZE 44,38 FLAT ;
-       TEXT "Edit"
+   @  46,3 OWNERBUTTON oBotEdit ;
+      OF Tel_Ferramentas ;
+      ON CLICK {||EditRecord()} ;
+      SIZE 44,38 FLAT ;
+      TEXT "Edit"
 
-   @  89,3 OWNERBUTTON oBotSave OF Tel_Ferramentas ON CLICK {||OpenBotons(),SaveTab()} ;
-       SIZE 44,38 FLAT ;
-       TEXT "Save"
+   @  89,3 OWNERBUTTON oBotSave ;
+      OF Tel_Ferramentas ;
+      ON CLICK {||OpenBotons(),SaveTab()} ;
+      SIZE 44,38 FLAT ;
+      TEXT "Save"
 
-   @ 132,3 OWNERBUTTON oBotRet OF Tel_Ferramentas  ON CLICK {||SkipTab(1)} ;
-       SIZE 44,38 FLAT ;
-       TEXT "<--"
+   @ 132,3 OWNERBUTTON oBotRet ;
+      OF Tel_Ferramentas  ;
+      ON CLICK {||SkipTab(1)} ;
+      SIZE 44,38 FLAT ;
+      TEXT "<--"
 
-   @ 175,3 OWNERBUTTON oBotNext OF Tel_Ferramentas  ON CLICK {||SkipTab(2)} ;
-       SIZE 44,38 FLAT ;
-       TEXT "-->"
+   @ 175,3 OWNERBUTTON oBotNext ;
+      OF Tel_Ferramentas  ;
+      ON CLICK {||SkipTab(2)} ;
+      SIZE 44,38 FLAT ;
+      TEXT "-->"
 
-   @ 218,3 OWNERBUTTON oBotTop OF Tel_Ferramentas  ON CLICK {||SkipTab(3)} ;
-       SIZE 44,38 FLAT ;
-       TEXT "<-|"
+   @ 218,3 OWNERBUTTON oBotTop ;
+      OF Tel_Ferramentas  ;
+      ON CLICK {||SkipTab(3)} ;
+      SIZE 44,38 ;
+      FLAT ;
+      TEXT "<-|"
 
-   @ 261,3 OWNERBUTTON oBotBott OF Tel_Ferramentas  ON CLICK {||SkipTab(4)} ;
-       SIZE 44,38 FLAT ;
-       TEXT "|->"
+   @ 261,3 OWNERBUTTON oBotBott ;
+      OF Tel_Ferramentas  ;
+      ON CLICK {||SkipTab(4)} ;
+      SIZE 44,38 ;
+      FLAT ;
+      TEXT "|->"
 
-   @ 304,3 OWNERBUTTON oBotprint OF Tel_Ferramentas  ON CLICK {||hwg_Msginfo("In development")} ;
-       SIZE 44,38 FLAT ;
-       TEXT "Print"
+   @ 304,3 OWNERBUTTON oBotprint ;
+      OF Tel_Ferramentas  ;
+      ON CLICK {||hwg_Msginfo("In development")} ;
+      SIZE 44,38 ;
+      FLAT ;
+      TEXT "Print"
 
-   @ 347,3 OWNERBUTTON oBotDelete OF Tel_Ferramentas ON CLICK {||DeleteRecord()} ;
-       SIZE 44,38 FLAT ;
-       TEXT "Delete"
+   @ 347,3 OWNERBUTTON oBotDelete ;
+      OF Tel_Ferramentas ;
+      ON CLICK {||DeleteRecord()} ;
+      SIZE 44,38 FLAT ;
+      TEXT "Delete"
 
-   @ 390,3 OWNERBUTTON oBotClose OF Tel_Ferramentas  ON CLICK {||hwg_EndDialog()} ;
-       SIZE 44,38 FLAT ;
-       TEXT "Close"
+   @ 390,3 OWNERBUTTON oBotClose ;
+      OF Tel_Ferramentas  ;
+      ON CLICK {||hwg_EndDialog()} ;
+      SIZE 44,38 ;
+      FLAT ;
+      TEXT "Close"
 
    ACTIVATE DIALOG Tel_Ferramentas CENTER
 
@@ -154,19 +186,47 @@ RETURN Nil
 FUNCTION CreateGets()
 
    @  2, 60 Say "Cod"  SIZE 40,20
-   @ 65, 60 Get Gt_Cod VAR oCod PICTURE "999" STYLE WS_DISABLED  SIZE 100, 20
+   @ 65, 60 Get Gt_Cod ;
+      VAR oCod ;
+      PICTURE "999" ;
+      STYLE WS_DISABLED  ;
+      SIZE 100, 20
 
-   @  2,85 Say "Name" SIZE 50, 20
-   @ 65,85 Get Gt_Name VAR oName  PICTURE REPLICATE("X",50)  STYLE WS_DISABLED  SIZE 310, 20
+   @  2,85 Say "Name" ;
+      SIZE 50, 20
 
-   @  2,110 Say "Adress" SIZE 50, 20
-   @ 65,110 Get Gt_Adress VAR oAdress  PICTURE REPLICATE("X",50) STYLE WS_DISABLED SIZE 310, 20
+   @ 65,85 Get Gt_Name ;
+      VAR oName  ;
+      PICTURE REPLICATE("X",50)  ;
+      STYLE WS_DISABLED  ;
+      SIZE 310, 20
 
-   @  2,135 Say "Fone" SIZE 50, 20
-   @ 65,135 Get Gt_Fone VAR oFone PICTURE REPLICATE("X",50) STYLE WS_DISABLED  SIZE 310, 20
+   @  2,110 Say "Adress" ;
+      SIZE 50, 20
 
-   @  2,160 Say "e_Mail" SIZE 50, 20
-   @ 65,160 Get Gt_e_Mail VAR oe_Mail PICTURE REPLICATE("X",30)  STYLE WS_DISABLED  SIZE 190, 20
+   @ 65,110 Get Gt_Adress ;
+      VAR oAdress  ;
+      PICTURE REPLICATE("X",50) ;
+      STYLE WS_DISABLED ;
+      SIZE 310, 20
+
+   @  2,135 Say "Fone" ;
+      SIZE 50, 20
+
+   @ 65,135 Get Gt_Fone ;
+      VAR oFone ;
+      PICTURE REPLICATE("X",50) ;
+      STYLE WS_DISABLED  ;
+      SIZE 310, 20
+
+   @  2,160 Say "e_Mail" ;
+      SIZE 50, 20
+
+   @ 65,160 Get Gt_e_Mail ;
+      VAR oe_Mail ;
+      PICTURE REPLICATE("X",30)  ;
+      STYLE WS_DISABLED  ;
+      SIZE 190, 20
 
 RETURN Nil
 

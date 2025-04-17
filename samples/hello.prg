@@ -146,9 +146,15 @@ FUNCTION Main()
    oTree:AddNode( "Forth" )
 
 #ifdef __GTK__
-   @ 250,300 BUTTON "Close"  SIZE 150,30  ON CLICK {||hwg_EndWindow()} ON SIZE ANCHOR_BOTTOMABS
+   @ 250,300 BUTTON "Close"  ;
+      SIZE 150,30  ;
+      ON CLICK {||hwg_EndWindow()} ;
+      ON SIZE ANCHOR_BOTTOMABS
 #else
-   @ 100,180 BUTTON "Close"  SIZE 150,30  ON CLICK {||hwg_EndWindow()} ON SIZE ANCHOR_BOTTOMABS
+   @ 100,180 BUTTON "Close"  ;
+      SIZE 150,30  ;
+      ON CLICK {||hwg_EndWindow()} ;
+      ON SIZE ANCHOR_BOTTOMABS
 #endif
 
    MENU OF oMainWindow
@@ -234,12 +240,23 @@ FUNCTION PS1( oWnd )
 
    LOCAL oDlg1, oDlg2
 
-   INIT DIALOG oDlg1 TITLE "PAGE_1" STYLE WS_CHILD + WS_VISIBLE + WS_BORDER
-   @ 20,15 EDITBOX "" SIZE 160, 26 STYLE WS_BORDER
+   INIT DIALOG oDlg1 ;
+      TITLE "PAGE_1" ;
+      STYLE WS_CHILD + WS_VISIBLE + WS_BORDER
+
+   @ 20,15 EDITBOX "" ;
+      SIZE 160, 26 ;
+      STYLE WS_BORDER
+
    @ 10,50 LINE  LENGTH 200
 
-   INIT DIALOG oDlg2 TITLE "PAGE_2" STYLE WS_CHILD + WS_VISIBLE + WS_BORDER
-   @ 20,35 EDITBOX "" SIZE 160, 26 STYLE WS_BORDER
+   INIT DIALOG oDlg2 ;
+      TITLE "PAGE_2" ;
+      STYLE WS_CHILD + WS_VISIBLE + WS_BORDER
+
+   @ 20,35 EDITBOX "" ;
+      SIZE 160, 26 ;
+      STYLE WS_BORDER
 
    hwg_MsgIsNIL(hwg_Getactivewindow() )
 

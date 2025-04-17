@@ -30,8 +30,16 @@ PROCEDURE Main
        ;
        { "",                       .F., .F., .F., "" }, ;
        ;
-       ; // controls
        { "demobasic.prg",          .T., .T., .T., "Tab, browse array, combobox, status panel, owner button" } , ;
+       { "demodbfdata.prg",        .T., .T., .T., "DBF data using tab" }, ;
+       { "demoini.prg",           .T., .F., .F., "Read/write Ini" }, ;
+       { "demomenuxml.prg",        .T., .T., .T., "Setup menu from XML ***error on new item***" }, ;
+       { "demoxmltree.prg",        .T., .T., .T., "Show XML using hxmldoc and tree" }, ;
+       { "hello.prg",              .T., .F., .F., "RichEdit, Tab, Combobox" }, ;
+       { "tab.prg",                .T., .F., .F., "Tab, checkbox, editbox, combobox, browse array" }, ;
+       ;
+       ; // controls
+       ;
        { "demogetupdown.prg",      .T., .T., .T., "Get UpDown" }, ;
        { "demobrowsearr.prg",      .T., .T., .T., "browse array editable" }, ;
        { "demobrowsedbf.prg",      .T., .T., .T., "Browse DBF"  }, ;
@@ -43,15 +51,7 @@ PROCEDURE Main
        { "demomonthcal.prg",       .T., .T., .T., "Month Calendar" }, ;
        { "demoonother.prg",        .T., .F., .F., "ON OTHER MESSAGES" }, ;
        { "demotreebox.prg",        .T., .T., .T., "Treebox, Splitter and tab" }, ;
-       ;
-       { "",                       .F., .F., .F., "" }, ;
-       ;
-       ; // demo with more than controls
-       { "demodbfdata.prg",        .T., .T., .T., "DBF data using tab" }, ;
        { "demogetdesktopsize.prg", .T., .T., .T., "Menu using desktop Size" }, ;
-       { "demoini.prg",           .T., .F., .F., "Read/write Ini" }, ;
-       { "demomenuxml.prg",        .T., .T., .T., "Setup menu from XML ***error on new item***" }, ;
-       { "demoxmltree.prg",        .T., .T., .T., "Show XML using hxmldoc and tree" }, ;
        ;
        { "",                       .F., .F., .F., "" }, ;
        ;
@@ -79,12 +79,10 @@ PROCEDURE Main
        { "grid_3.prg",             .F., .F., .F., "Grid3 PostGres" }, ;
        { "grid_4.prg",             .T., .F., .F., "Grid4" }, ;
        { "grid_5.prg",             .T., .F., .F., "Grid5" }, ;
-       { "hello.prg",              .T., .F., .F., "RichEdit, Tab, Combobox" }, ;
        { "helpstatic.prg",         .T., .T., .T., "Help Static" }, ;
        { "htrack.prg",             .T., .T., .T., "HTrack" }, ;
        { "icons.prg",              .T., .T., .T., "Icons" }, ;
        { "icons2.prg",             .T., .T., .T., "Icons2" }, ;
-       { "tab.prg",                .T., .F., .F., "Tab, checkbox, editbox, combobox, browse array" }, ;
        { "testado.prg",            .T., .F., .F., "Test ADO" }, ;
        { "testalert.prg",          .T., .F., .F., "Test Alert" }, ;
        { "testbrwq.prg",            .T., .F., .F., "Test browse" }, ;

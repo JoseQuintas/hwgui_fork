@@ -30,8 +30,11 @@ FUNCTION Main()
 
     ENDIF
 
-   INIT WINDOW oMainWindow MAIN TITLE "DEMOINI - Example" ;
-     AT 200,0 SIZE 400,150
+   INIT WINDOW oMainWindow ;
+      MAIN ;
+      TITLE "DEMOINI - Example" ;
+      AT 200,0 ;
+      SIZE 400,150
 
    MENU OF oMainWindow
       MENUITEM "&Exit" ACTION hwg_EndWindow()

@@ -102,7 +102,7 @@ FUNCTION Main()
 
       @ 10, 30 BROWSE oBrowse ARRAY ;
          SIZE  450, 250 ;
-         STYLE WS_BORDER + WS_VSCROLL
+         STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
 
       // array stored on browse aArray, and codeblocks using it
       oBrowse:aArray := aBrowseList

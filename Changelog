@@ -15,6 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2023-04-17 14:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/a.prg
+   * samples/demobasic.prg
+   * samples/demodbfdata.prg
+   * samples/demoini.prg
+   * samples/demomenuxml.prg
+   * samples/hello.prg
+   * samples/tab.prg
+     ! no change, format source code only to visibility of used options
+   * samples/all.prg
+     ! change menu order
+
 2025-04-17 12:00 UTC-0200 Jose Quintas jmcquintas-gmail.com
    * samples/all.prg
    - samples/democombobox.prg

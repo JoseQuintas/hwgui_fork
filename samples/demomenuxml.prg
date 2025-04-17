@@ -79,9 +79,11 @@ MEMVAR oXmlDoc, lIniChanged, nCurrentItem , oDlg, oFont
 
    PREPARE FONT oFont NAME "Times New Roman" WIDTH 0 HEIGHT -17 && CHARSET 0 && 204 = Russian
 
-   INIT DIALOG oDlg TITLE "DEMOMENUXML - XML Sample"  ;
+   INIT DIALOG oDlg ;
+      TITLE "DEMOMENUXML - XML Sample"  ;
      ; // SYSCOLOR COLOR_3DLIGHT+1 ; // not valid for dialog
-     AT 200,0 SIZE 600,300 ;
+     AT 200,0 ;
+     SIZE 600,300 ;
      ON EXIT {||SaveOptions()} ;
      FONT oFont
 
@@ -143,27 +145,44 @@ STATIC FUNCTION NewItem( nItem )
    cName := hwg_GET_Helper(cName,30)
    cInfo := hwg_GET_Helper(cInfo,CINFOLEN)
 
-   INIT DIALOG oDlg TITLE Iif( nItem==0,"New item","Change item" )  ;
-   AT 210,10  SIZE 700,150 FONT oFont  && old SIZE 300,150
+   INIT DIALOG oDlg ;
+      TITLE Iif( nItem==0,"New item","Change item" )  ;
+      AT 210,10  ;
+      SIZE 700,150 ;
+      FONT oFont  && old SIZE 300,150
 
-   @ 20,20 SAY "Name:" SIZE 60, 22
+   @ 20,20 SAY "Name:" ;
+      SIZE 60, 22
 
    /*
    @ 80,20 GET cName SIZE 150, 26    STYLE WS_BORDER
    */
 
-   @ 80,20 GET oGet1 VAR cName SIZE 500, 26 ;  && old SIZE 150, 26
-     STYLE WS_BORDER
+   @ 80,20 GET oGet1 ;
+      VAR cName ;
+      SIZE 500, 26 ;  && old SIZE 150, 26
+      STYLE WS_BORDER
 
    * Old position: 240,20
-   @ 600,15  BUTTON "Font" SIZE 40, 32 ON CLICK {||oFontNew:=HFont():Select(oItemFont)}
+   @ 600,15  BUTTON "Font" ;
+      SIZE 40, 32 ;
+      ON CLICK {||oFontNew:=HFont():Select(oItemFont)}
 
-   @ 20,50 SAY "Info:" SIZE 60, 22
-   @ 80,50 GET oGet2 VAR cInfo SIZE 550, 26 ;  && old SIZE 150, 26
-     STYLE WS_BORDER
+   @ 20,50 SAY "Info:" ;
+      SIZE 60, 22
 
-   @ 20,110  BUTTON "Ok" SIZE 100, 32 ON CLICK {||oDlg:lResult:=.T.,hwg_EndDialog()}
-   @ 180,110 BUTTON "Cancel" ID IDCANCEL SIZE 100, 32
+   @ 80,50 GET oGet2 ;
+      VAR cInfo ;
+      SIZE 550, 26 ;  && old SIZE 150, 26
+      STYLE WS_BORDER
+
+   @ 20,110  BUTTON "Ok" ;
+      SIZE 100, 32 ;
+      ON CLICK {||oDlg:lResult:=.T.,hwg_EndDialog()}
+
+   @ 180,110 BUTTON "Cancel" ;
+      ID IDCANCEL ;
+      SIZE 100, 32
 
    ACTIVATE DIALOG oDlg
 
