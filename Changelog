@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-17 15:50 UTC+0200 Wilfried Brunken DF7BE
+ * samples/all.prg
+ * samples/demobasic.prg
+   ! Test on Ubuntu LINUX (1), fixes following:
+   ! all.prg(34) Error E0020  Incomplete statement or unbalanced delimiters
+   ! all.prg(105) Error E0030  Syntax error "syntax error at ','"
+   ! demobasic.prg(115) Warning W0001  Ambiguous reference 'DLG'
+   ! all.prg now OK for LINUX.
+   ! (to be continued)  
+
 2025-04-16 23:50 UTC-0200 Jose Quintas jmcquintas-gmail.com
    * all.prg
      ! Small fix

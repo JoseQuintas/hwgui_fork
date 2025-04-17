@@ -31,7 +31,7 @@ PROCEDURE Main
        { "",                       .F., .F., .F., "" }, ;
        ;
        ; // controls
-       { "demobasic.prg",          .T., .T., .T., "Tab, browse array, combobox, status panel, owner button"
+       { "demobasic.prg",          .T., .T., .T., "Tab, browse array, combobox, status panel, owner button" } , ;
        { "demogetupdown.prg",      .T., .T., .T., "Get UpDown" }, ;
        { "demobrowsearr.prg",      .T., .T., .T., "browse array editable" }, ;
        { "demobrowsedbf.prg",      .T., .T., .T., "Browse DBF"  }, ;
@@ -162,7 +162,7 @@ STATIC FUNCTION ExecuteExe( cFileName )
 #endif
 
    IF ! File( cBinName )
-      IF ! hwg_MsgYesNo( cFileName + " not found, try create it?" )
+      IF ! hwg_MsgYesNo( cBinName + " not found, try create it?" )  && DF7BE: cFileName ==> cBinName
          RETURN Nil
       ENDIF
 

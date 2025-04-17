@@ -8,6 +8,7 @@ on source code, divide commands on more lines to a best view of parameters/optio
 
 FUNCTION DemoBasic()
 
+
    LOCAL oTab, oDlg, oBtn1, oBtn2, oBtn3, oBrowse, oDate, oCombo
    LOCAL aComboList  := { "White", "Blue", "Red", "Black" }
    LOCAL aBrowseList := { ;
@@ -109,10 +110,10 @@ FUNCTION DemoBasic()
 
    // A STATUS PANEL may be used instead of a standard STATUS control
    ADD STATUS PANEL ;
-      TO     Dlg ;
+      TO     oDlg ;
       HEIGHT 30 ;
-      FONT   oDlg:oFont ;
       PARTS  80, 80, 0
+//       FONT   oDlg:oFont ==> Warning W0001  Ambiguous reference 'DLG', Variable 'ODLG' declared but not used in function 'DEMOBASIC(12)'
 
    hwg_WriteStatus( oDlg, 1, "Part1", .F. )
    hwg_WriteStatus( oDlg, 2, "Part2", .F. )
