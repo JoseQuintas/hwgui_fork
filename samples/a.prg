@@ -40,7 +40,7 @@ FUNCTION dlgMDI()
 
    INIT WINDOW oMainWindow ;
       MDI ;
-      TITLE "A - MDI Sample and more" ;
+      TITLE "a.prg - MDI Sample and more" ;
       SIZE 800,500 ;
       MENUPOS 3 ;
       BACKCOLOR 16744703
@@ -73,7 +73,7 @@ FUNCTION dlgMDI()
          MENUITEM "&Exit" ACTION hwg_EndWindow()
       ENDMENU
       MENU TITLE "&Samples"
-         MENUITEM "&Checked" ID 1001 ;
+         MENUITEM "&Check on Menu Option" ID 1001 ;
                ACTION hwg_Checkmenuitem( ,1001, ! hwg_Ischeckedmenuitem( ,1001 ) )
          SEPARATOR
          MENUITEM "&Test Tab" ACTION TestTab()
