@@ -91,11 +91,13 @@ FUNCTION Main()
       DBUSEAREA(.T., "DBFCDX", "tstbrw", "TSTB")
    ENDIF
 
-   INIT WINDOW oWinMain MAIN  ;
-      TITLE "Teste" AT 0, 0 SIZE 600,400;
+   INIT WINDOW oWinMain ;
+      MAIN  ;
+      TITLE "Teste" ;
+      AT 0, 0 ;
+      SIZE 600,400;
       FONT HFont():Add( 'Arial',0,-13,400,,,) ;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
-
 
    MENU OF oWinMain
       MENU TITLE "&File"   && "&Arquivo"
@@ -131,13 +133,18 @@ STATIC FUNCTION BrwDbs( lEdit, lZebra )
    nLast := LASTREC()
    dbGoTop()
 
-   INIT DIALOG oDlg TITLE "Browse DataBase" ;
-      AT 0,0 SIZE 600, 500 NOEXIT ;
+   INIT DIALOG oDlg ;
+      TITLE "Browse DataBase" ;
+      AT 0,0 ;
+      SIZE 600, 500 ;
+      NOEXIT ;
       FONT HFont():Add( 'Arial',0,-13,400,,,) ;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
    IF lEdit
-      @ 10 ,10 BROWSE oBrwDb DATABASE SIZE 580, 385  ;
+      @ 10 ,10 BROWSE oBrwDb ;
+         DATABASE ;
+         SIZE 580, 385  ;
          STYLE  WS_VSCROLL + WS_HSCROLL ;
          AUTOEDIT ;
          APPEND ;
@@ -145,46 +152,68 @@ STATIC FUNCTION BrwDbs( lEdit, lZebra )
          ON KEYDOWN {|oBrwDb, nKey| BrowseDbKey(oBrwDb, nKey, @nLast, oLbl2, "") } ;
          ON POSCHANGE {|| BrowseMove(oBrwDb, "NIL", oEdGoto, "Dbs" ) }
    ELSE
-      @ 10 ,10 BROWSE oBrwDb DATABASE SIZE 580, 385  ;
+      @ 10 ,10 BROWSE oBrwDb ;
+         DATABASE ;
+         SIZE 580, 385  ;
          STYLE  WS_VSCROLL + WS_HSCROLL ;
          ON UPDATE {|| oBrwDb:REFRESH() } ;
          ON KEYDOWN {|oBrwDb, nKey| BrowseDbKey(oBrwDb, nKey, @nLast, oLbl2, "") } ;
          ON POSCHANGE {|| BrowseMove(oBrwDb, "NIL", oEdGoto, "Dbs" ) }
    ENDIF
 
-   @ 260,410 BUTTON oBtn1 CAPTION "OK " SIZE 80,26 ; && "&OK " does not work correct on GTK
-         ON CLICK {|| hwg_EndDialog()}
+   @ 260,410 BUTTON oBtn1 ;
+      CAPTION "OK " ;
+      SIZE 80,26 ; && "&OK " does not work correct on GTK
+      ON CLICK {|| hwg_EndDialog()}
 
    @ 0, 445 PANEL oTbar1 SIZE 600, 26
 
-   @ 17,10 SAY oLbl1 CAPTION "Records :" OF oTbar1 SIZE 70,22
+   @ 17,10 SAY oLbl1 ;
+      CAPTION "Records :" ;
+      OF oTbar1 ;
+      SIZE 70,22
 
-   @ 85,5 OWNERBUTTON o_Obtn1 OF oTbar1 SIZE 20,20     ;
-        BITMAP cImgTop ;// TRANSPARENT COORDINATES 0,2,0,0 ;  && Home.bmp
-        ON CLICK {|| BrowseMove(oBrwDb, "Home", oEdGoto, "Dbs" ) };
-        TOOLTIP "First Record"
+   @ 85,5 OWNERBUTTON o_Obtn1 ;
+      OF oTbar1 ;
+      SIZE 20,20     ;
+      BITMAP cImgTop ;// TRANSPARENT COORDINATES 0,2,0,0 ;  && Home.bmp
+      ON CLICK {|| BrowseMove(oBrwDb, "Home", oEdGoto, "Dbs" ) };
+      TOOLTIP "First Record"
 
-   @ 105,5 OWNERBUTTON o_Obtn2 OF oTbar1 SIZE 20,20    ;
-        BITMAP cImgPrev ;// TRANSPARENT COORDINATES 0,2,0,0 ;  && Up.bmp
-        ON CLICK {|| BrowseMove(oBrwDb, "Up", oEdGoto, "Dbs" ) } ;
-        TOOLTIP "Prior"
+   @ 105,5 OWNERBUTTON o_Obtn2 ;
+      OF oTbar1 ;
+      SIZE 20,20    ;
+      BITMAP cImgPrev ;// TRANSPARENT COORDINATES 0,2,0,0 ;  && Up.bmp
+      ON CLICK {|| BrowseMove(oBrwDb, "Up", oEdGoto, "Dbs" ) } ;
+      TOOLTIP "Prior"
 
-   @ 130,4 GET oEdGoto VAR nRec OF oTbar1 SIZE 80,22 ;
-        MAXLENGTH 09 PICTURE "999999999" ;
-        STYLE WS_BORDER + ES_LEFT ;
+   @ 130,4 GET oEdGoto ;
+      VAR nRec ;
+      OF oTbar1 ;
+      SIZE 80,22 ;
+      MAXLENGTH 09 ;
+      PICTURE "999999999" ;
+      STYLE WS_BORDER + ES_LEFT ;
         VALID {||GoToRec(oBrwDb, @nRec, nLast, "Dbs")}
 
-   @ 270,7 SAY oLbl2 CAPTION " of  " + ALLTRIM(STR(nLast)) OF oTbar1 SIZE 70,22
+   @ 270,7 SAY oLbl2 ;
+      CAPTION " of  " + ALLTRIM(STR(nLast)) ;
+      OF oTbar1 ;
+      SIZE 70,22
 
-   @ 215,5 OWNERBUTTON o_Obtn3 OF oTbar1 SIZE 20,20   ;
+   @ 215,5 OWNERBUTTON o_Obtn3 ;
+      OF oTbar1 ;
+      SIZE 20,20   ;
         BITMAP cImgNext ;// TRANSPARENT COORDINATES 0,2,0,0 ; && Down.bmp
         ON CLICK {|| BrowseMove(oBrwDb, "Down", oEdGoto, "Dbs" ) } ;
         TOOLTIP "Next"
 
-   @ 235,5 OWNERBUTTON o_Obtn4 OF oTbar1 SIZE 20,20   ;
-        BITMAP cImgBottom ;// TRANSPARENT COORDINATES 0,2,0,0 ; && End.bmp
-        ON CLICK {|| BrowseMove(oBrwDb, "End", oEdGoto, "Dbs" ) } ;
-        TOOLTIP "Last Record"
+   @ 235,5 OWNERBUTTON o_Obtn4 ;
+      OF oTbar1 ;
+      SIZE 20,20   ;
+      BITMAP cImgBottom ;// TRANSPARENT COORDINATES 0,2,0,0 ; && End.bmp
+      ON CLICK {|| BrowseMove(oBrwDb, "End", oEdGoto, "Dbs" ) } ;
+      TOOLTIP "Last Record"
 
    oBrwDb:bcolorSel := x_DARKBLUE
    oBrwDb:alias := 'TSTB'

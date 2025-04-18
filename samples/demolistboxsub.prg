@@ -26,8 +26,11 @@ FUNCTION Main()
 
    LOCAL oMainWindow
 
-   INIT WINDOW oMainWindow MAIN TITLE "DEMOLISTBOXSUB - Listbox substitute" ;
-      AT 0,0 SIZE 600, 400
+   INIT WINDOW oMainWindow ;
+      MAIN ;
+      TITLE "DEMOLISTBOXSUB - Listbox substitute" ;
+      AT 0,0 ;
+      SIZE 600, 400
    // MENUITEM in main menu on GTK/Linux does not start the desired action
    // Submenu needed
    MENU OF oMainWindow
@@ -55,8 +58,10 @@ STATIC FUNCTION Teste()
    PREPARE FONT oFont NAME "Sans" WIDTH 0 HEIGHT 12 && vorher 13
 #endif
 
-   INIT DIALOG oModDlg TITLE "Test"  ;
-      AT 0,0  SIZE 450,350   ;
+   INIT DIALOG oModDlg ;
+      TITLE "Test"  ;
+      AT 0,0  ;
+      SIZE 450,350   ;
       FONT oFont
 
    // Please dimensionize size of BROWSE window so that it is enough space to display
@@ -69,8 +74,12 @@ STATIC FUNCTION Teste()
    obrowsbox1:lDispHead := .F. // No Header
    obrowsbox1:active := .T.
 
-   @  10,280 BUTTON "Ok" ID IDOK  SIZE 50, 32
+   @  10,280 BUTTON "Ok" ;
+      ID IDOK  ;
+      SIZE 50, 32
+
    ACTIVATE DIALOG oModDlg CENTER
+
    oFont:Release()
 
    // Get result

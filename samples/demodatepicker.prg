@@ -40,8 +40,10 @@
    * Remember old date
    daltdatum := d1
 
-   INIT DIALOG oModDlg TITLE "DEMODATEPICKER - Datepicker"  ;
-      AT 210,10  SIZE 350,300                  ;
+   INIT DIALOG oModDlg ;
+      TITLE "DEMODATEPICKER - Datepicker"  ;
+      AT 210,10  ;
+      SIZE 350,300                  ;
       FONT oFont NOEXIT
 
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -49,20 +51,24 @@
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 *  v==> These are the original coordinates of DATEPICKER command
-   @ 160,170 GET odGet VAR d1  ;
-        STYLE WS_DLGFRAME   ;
-        SIZE 80, 20 COLOR hwg_ColorC2N("FF0000")
-*            ^==> This is the original size of DATEPICKER command
+   @ 160,170 GET odGet ;
+      VAR d1  ;
+      STYLE WS_DLGFRAME   ;
+      SIZE 80, 20 ;
+      COLOR hwg_ColorC2N("FF0000")
+*     ^==> This is the original size of DATEPICKER command
 
 *    v==>  x = 160 + 81 (x value of GET + width of GET + 1 )
    @ 241, 170 OWNERBUTTON oDateOwb  ;
-   ON CLICK { | | d1 := hwg_pCalendar(d1) , odGet:Value(d1) } ;
-   SIZE 12,12  ;            && Size of image + 1
-   BITMAP hwg_oDatepicker_bmp() ;
-   TRANSPARENT  COORDINATES 0,0,11,11 ;
-   TOOLTIP "Pick date from calendar"
+      ON CLICK { | | d1 := hwg_pCalendar(d1) , odGet:Value(d1) } ;
+      SIZE 12,12  ;            && Size of image + 1
+      BITMAP hwg_oDatepicker_bmp() ;
+      TRANSPARENT  COORDINATES 0,0,11,11 ;
+      TOOLTIP "Pick date from calendar"
 
-   @ 150,250 BUTTON "Close" ON CLICK {|| oModDlg:Close() } SIZE 100,40
+   @ 150,250 BUTTON "Close" ;
+      ON CLICK {|| oModDlg:Close() } ;
+      SIZE 100,40
 
    ACTIVATE DIALOG oModDlg CENTER
    oFont:Release()

@@ -34,11 +34,15 @@ FUNCTION Main()
    n_Key2 := 3000
    o_Number := 10
 
-   INIT WINDOW o_TAB_1 MAIN TITLE "DEMOGETUPDOWN - Ticket #19"  ;
+   INIT WINDOW o_TAB_1 ;
+      MAIN ;
+      TITLE "demogetupdown.prg - Ticket #19"  ;
       AT 200,100 SIZE 500,500 ;
       ON EXIT { || hwg_MsgYesNo( "OK to quit ?" ) }
 
-   @ 200, 50 GET UPDOWN o_get VAR o_Number RANGE 1, n_Key2 OF o_TAB_1 ;
+   @ 200, 50 GET UPDOWN o_get ;
+      VAR o_Number ;
+      RANGE 1, n_Key2 OF o_TAB_1 ;
       ID 100 ;
       SIZE 80, 30 ;
       STYLE WS_BORDER ;

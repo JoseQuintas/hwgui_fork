@@ -118,7 +118,8 @@ FUNCTION Main()
 
    INIT WINDOW oMainW  ;
       FONT oFontMain  ;
-      TITLE "Bitmap container sample" AT 0,0 SIZE 500 , 500 ;
+      TITLE "Bitmap container sample" AT 0,0 ;
+      SIZE 500 , 500 ;
       ICON oIcon STYLE WS_POPUP +  WS_CAPTION + WS_SYSMENU
 
 * GTK + Toolbar : If used, the Ownerbuttons are not visible !

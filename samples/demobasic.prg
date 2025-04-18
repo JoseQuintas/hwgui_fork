@@ -24,7 +24,8 @@ FUNCTION Main()
    LOCAL oCombo2
 #endif
 
-   INIT DIALOG oDlg TITLE "demobasic.prg" ;
+   INIT DIALOG oDlg ;
+      TITLE "demobasic.prg" ;
       AT    0, 0 ;
       SIZE  600, 400 ;
       FONT  HFont():Add( "MS Sans Serif",0,-15 )
@@ -100,7 +101,8 @@ FUNCTION Main()
    BEGIN PAGE "browse array" ;
       OF oTab
 
-      @ 10, 30 BROWSE oBrowse ARRAY ;
+      @ 10, 30 BROWSE oBrowse ;
+         ARRAY ;
          SIZE  450, 250 ;
          STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
 

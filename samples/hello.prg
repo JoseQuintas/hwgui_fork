@@ -76,20 +76,20 @@ FUNCTION Main()
    INIT WINDOW oMainWindow ;
       MAIN ;
       TITLE "Example"  ;
-     SYSCOLOR COLOR_3DLIGHT+1 ;
-     AT 200,0 ;
-     SIZE 600,400 ;
-     FONT oFont ;
-     ON EXIT {||hwg_Msgyesno("Really want to quit ?")}
+      SYSCOLOR COLOR_3DLIGHT+1 ;
+      AT 200,0 ;
+      SIZE 600,400 ;
+      FONT oFont ;
+      ON EXIT {||hwg_Msgyesno("Really want to quit ?")}
 #else
    INIT WINDOW oMainWindow ;
       MAIN ;
       TITLE "Example"  ;
-     SYSCOLOR COLOR_3DLIGHT+1 ;
-     AT 200,0 ;
-     SIZE 420,300 ;
-     FONT oFont ;
-     ON EXIT {||hwg_Msgyesno("Really want to quit ?")}
+      SYSCOLOR COLOR_3DLIGHT+1 ;
+      AT 200,0 ;
+      SIZE 420,300 ;
+      FONT oFont ;
+      ON EXIT {||hwg_Msgyesno("Really want to quit ?")}
 #endif
 
 #ifndef __GTK__

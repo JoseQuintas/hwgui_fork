@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-18 13:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   - samples/demogetdesktopsize.prg
+   - samples/demogetdesktopsize.hbp
+      ! removed, there are more samples using it
+   - samples/*.prg
+     ! on new samples add source code name on dialog caption
+     ! no other change
+     ! end of single format
+     ! test hbmk2 *.hbp on win11 ok
+
 2025-04-18 11:10 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/a.prg
      ! menu caption changed, one menu option caption changed

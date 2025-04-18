@@ -23,7 +23,7 @@
    LOCAL oDlg
 
    INIT DIALOG oDlg ;
-      TITLE "DEMOONOTHER - ON OTHER MESSAGES"  ;
+      TITLE "demoonother.prg - ON OTHER MESSAGES"  ;
       SIZE 500, 500 ;
       ON OTHER MESSAGES { | a, b, c, d | OnOtherMessages( a, b, c, d ) }
 

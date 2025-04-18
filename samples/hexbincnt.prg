@@ -111,7 +111,8 @@ oastropng := HBitmap():AddString( "astro", cValAstro )
 INIT WINDOW oMainW  ;
    FONT oFontMain  ;
    TITLE "Bitmap Hex container sample" AT 0,0 SIZE 400 , 400 ;
-   ICON oIcon STYLE WS_POPUP +  WS_CAPTION + WS_SYSMENU ;
+   ICON oIcon ;
+   STYLE WS_POPUP +  WS_CAPTION + WS_SYSMENU ;
 
 * @ 0, 0 TOOLBAR oToolbar OF oMainW SIZE  299 , 50
  @ 0,0 PANEL oToolbar ;
@@ -122,7 +123,8 @@ INIT WINDOW oMainW  ;
 @ htab+(nbut*32), 3 OWNERBUTTON oFileOpen ;
    OF oToolbar ;
    ON CLICK { | | FileOpen()} ;
-   SIZE 28,24 FLAT ;
+   SIZE 28,24 ;
+   FLAT ;
    BITMAP oBitmap ;
    TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ;
    TOOLTIP "Open File"

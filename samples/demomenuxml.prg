@@ -80,7 +80,7 @@ MEMVAR oXmlDoc, lIniChanged, nCurrentItem , oDlg, oFont
    PREPARE FONT oFont NAME "Times New Roman" WIDTH 0 HEIGHT -17 && CHARSET 0 && 204 = Russian
 
    INIT DIALOG oDlg ;
-      TITLE "DEMOMENUXML - XML Sample"  ;
+      TITLE "demomenuxml.prg - XML Sample"  ;
      ; // SYSCOLOR COLOR_3DLIGHT+1 ; // not valid for dialog
      AT 200,0 ;
      SIZE 600,300 ;

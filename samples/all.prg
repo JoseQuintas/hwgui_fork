@@ -26,13 +26,13 @@ PROCEDURE Main
    LOCAL lIsAvailable, lIsEXE
    LOCAL aList := { ;
        ; // NAME,                  WIN, LINUX, MACOS, DESCRIPTION
-       { "a.prg",                  .T., .F., .F., "Tab, checkbox, editbox, combobox, browse array, others" }, ;
+       { "a.prg",                  .T., .F., .F., "MDI, Tab, checkbox, combobox, browse array, others" }, ;
        ;
        { "",                       .F., .F., .F., "" }, ;
        ;
        { "demobasic.prg",          .T., .T., .T., "Tab, browse array, combobox, status panel, owner button" } , ;
        { "demodbfdata.prg",        .T., .T., .T., "DBF data using tab" }, ;
-       { "demoini.prg",           .T., .F., .F., "Read/write Ini" }, ;
+       { "demoini.prg",            .T., .F., .F., "Read/write Ini" }, ;
        { "demomenuxml.prg",        .T., .T., .T., "Setup menu from XML ***error on new item***" }, ;
        { "demoxmltree.prg",        .T., .T., .T., "Show XML using hxmldoc and tree" }, ;
        { "hello.prg",              .T., .F., .F., "RichEdit, Tab, Combobox" }, ;
@@ -51,14 +51,13 @@ PROCEDURE Main
        { "demomonthcal.prg",       .T., .T., .T., "Month Calendar" }, ;
        { "demoonother.prg",        .T., .F., .F., "ON OTHER MESSAGES" }, ;
        { "demotreebox.prg",        .T., .T., .T., "Treebox, Splitter and tab" }, ;
-       { "demogetdesktopsize.prg", .T., .T., .T., "Menu using desktop Size" }, ;
        ;
        { "",                       .F., .F., .F., "" }, ;
        ;
        ; // not recommended. Move to contrib ?
        { "demoshadebtn.prg",        .T., .F., .F., "Shade button" }, ;
        ;
-       { "",                        .f., .f., .f., "" }, ;
+       { "",                       .F., .F., .F., "" }, ;
        { "",                       .F., .F., .F., "" }, ;
        ;
        ; // first review
@@ -85,14 +84,14 @@ PROCEDURE Main
        { "icons2.prg",             .T., .T., .T., "Icons2" }, ;
        { "testado.prg",            .T., .F., .F., "Test ADO" }, ;
        { "testalert.prg",          .T., .F., .F., "Test Alert" }, ;
-       { "testbrwq.prg",            .T., .F., .F., "Test browse" }, ;
+       { "testbrwq.prg",           .T., .F., .F., "Test browse" }, ;
        { "testget1.prg",           .T., .F., .F., "Test Get 1" }, ;
        { "testget2.prg",           .T., .F., .F., "Test Get 2" }, ;
        { "testmenubitmap.prg",     .T., .F., .F., "Test Menu Bitmap" }, ;
-       { "testtree.prg",            .T., .F., .F., "Treebox Editable *** error on edit***" }, ;
+       { "testtree.prg",           .T., .F., .F., "Treebox Editable *** error on edit***" }, ;
        { "testrtf.prg",            .T., .F., .F., "Test RTF" }, ;
        { "tstscrlbar.prg",         .T., .T., .T., "Scrollbar" }, ;
-       { "tstspach.prg",          .T., .F., .F., "Test Splash" }, ;
+       { "tstspach.prg",           .T., .F., .F., "Test Splash" }, ;
        { "twolistbox.prg",         .T., .F., .F., "Two List Box" }, ;
        { "helpdemo.prg",           .T., .T., .T., "Help Demo ***outdated***" }, ;
        { "hole.prg",               .T., .F., .F., "Ole ***error***" }, ;
@@ -102,8 +101,11 @@ PROCEDURE Main
        { "",                       .F., .F., .F., "" }, ;
        { "notexist",               .F., .F., .F., "Test for menu, about not available" } }
 
-   INIT WINDOW oDlg MAIN TITLE "ALL - Samples list-------------------------------------" ;
-     AT 0,0 SIZE 600, 400
+   INIT WINDOW oDlg ;
+      MAIN ;
+      TITLE "ALL - Samples list-------------------------------------" ;
+      AT 0,0 ;
+      SIZE 600, 400
 
    MENU OF oDlg
       FOR nCont = 1 TO Len( aList ) // not sure about Xharbour for/each

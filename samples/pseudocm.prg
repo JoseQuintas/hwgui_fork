@@ -22,7 +22,10 @@ FUNCTION Main()
 
    // PREPARE FONT oFontBtn NAME "MS Sans Serif" WIDTH 0 HEIGHT - 12
 
-   INIT WINDOW Form_Main MAIN TITLE "HwGUI Sample Pseudo Context Menu in BROWSE" SIZE 360, 300
+   INIT WINDOW Form_Main ;
+      MAIN ;
+      TITLE "HwGUI Sample Pseudo Context Menu in BROWSE" ;
+      SIZE 360, 300
 
    MENU OF Form_Main
       MENU TITLE "&File"

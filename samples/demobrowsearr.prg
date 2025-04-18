@@ -51,8 +51,9 @@ FUNCTION Main()
 
    LOCAL oWinMain
 
-   INIT WINDOW oWinMain MAIN  ;
-      TITLE "DEMOBROWSEARR - Sample BROWSE arrays" AT 100, 100 SIZE 600,400;
+   INIT WINDOW oWinMain ;
+      MAIN  ;
+      TITLE "demobrowsearr.prg - Sample BROWSE arrays" AT 100, 100 SIZE 600,400;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
    MENU OF oWinMain
@@ -87,15 +88,19 @@ STATIC FUNCTION BrwArr()
    al_DOKs :=  { {"1"} , {"2"} , {"3"} , {"4"} }
 
 
-   INIT DIALOG oDlg TITLE "Browse Array" ;
-      AT 0,0 SIZE 600, 500 NOEXIT ;
+   INIT DIALOG oDlg ;
+      TITLE "Browse Array" ;
+      AT 0,0 ;
+      SIZE 600, 500 ;
+      NOEXIT ;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
 /*
   Do not use parameters AUTOEDIT and APPEND, they are buggy.
 */
 
-   @ 21,29 BROWSE oBrwArr ARRAY ;
+   @ 21,29 BROWSE oBrwArr ;
+      ARRAY ;
       ON CLICK { | | BrwArrayEditElem(oBrwArr) };
       STYLE WS_VSCROLL + WS_HSCROLL   SIZE 341,170
       * Pressing ENTER starts editing of element, too
@@ -107,14 +112,27 @@ STATIC FUNCTION BrwArr()
    * FONT setting is mandatory, otherwise crashes with "Not exported method PROPS2ARR"
    oBrwArr:ofont := oFont && HFont():Add( 'Arial',0,-12 )
 
-   @ 10,  410 BUTTON oBtn1 CAPTION "Edit"    SIZE 60,25  ON CLICK {|| BrwArrayEditElem(oBrwArr) } ;
+   @ 10,  410 BUTTON oBtn1 ;
+      CAPTION "Edit"    ;
+      SIZE 60,25  ;
+      ON CLICK {|| BrwArrayEditElem(oBrwArr) } ;
       TOOLTIP "or ENTER: Edit element under cursor"
-   @ 70,  410 BUTTON oBtn2 CAPTION "Add"     SIZE 60,25  ON CLICK {|| BrwArrayAddElem(oBrwArr) } ;
+
+   @ 70,  410 BUTTON oBtn2 ;
+      CAPTION "Add"     ;
+      SIZE 60,25  ;
+      ON CLICK {|| BrwArrayAddElem(oBrwArr) } ;
       TOOLTIP "Add element"
-   @ 140, 410 BUTTON oBtn3 CAPTION "Delete"  SIZE 60,25  ON CLICK {|| BrwArrayDelElem(oBrwArr) } ;
+
+   @ 140, 410 BUTTON oBtn3 ;
+      CAPTION "Delete"  ;
+      SIZE 60,25  ;
+      ON CLICK {|| BrwArrayDelElem(oBrwArr) } ;
       TOOLTIP "Delete element under cursor"
 
-   @ 260,410 BUTTON oBtn4 CAPTION "OK " SIZE 80,26 ;
+   @ 260,410 BUTTON oBtn4 ;
+      CAPTION "OK " ;
+      SIZE 80,26 ;
       ON CLICK {|| hwg_EndDialog()}
 
    oDlg:Activate()
@@ -201,23 +219,39 @@ STATIC FUNCTION BrwArrayGetElem( oBrow, cgetf )
 
    clgetf := cgetf
 
-   INIT DIALOG oDlg TITLE "Edit array element" ;
-      AT 437,74 SIZE 635,220 ;
+   INIT DIALOG oDlg ;
+      TITLE "Edit array element" ;
+      AT 437,74 ;
+      SIZE 635,220 ;
       CLIPPER STYLE WS_POPUP + WS_VISIBLE + WS_CAPTION + WS_SYSMENU + WS_SIZEBOX + DS_CENTER
 
 
-   @ 38,12 SAY oLabel1 CAPTION "Record number:"  SIZE 136,22
-   @ 188,12 SAY oLabel2 CAPTION ALLTRIM(STR(oBrow:nCurrent))  SIZE 155,22
-   @ 38,46 GET oGet1 VAR clgetf SIZE 534,24 ;
-        STYLE WS_BORDER
-   @ 38,100 BUTTON oButton1 CAPTION "Save"   SIZE 80,32 ;
-        STYLE WS_TABSTOP + BS_FLAT ;
-        ON CLICK { | | oDlg:Close() } ;
-        TOOLTIP "Save changes and return to array browse list"
-   @ 169,100 BUTTON oButton2 CAPTION "Cancel"   SIZE 80,32 ;
-        STYLE WS_TABSTOP + BS_FLAT ;
-        ON CLICK { | | lcancel := .T. , oDlg:Close() } ;
-        TOOLTIP "Return to array browse list without saving modifications"
+   @ 38,12 SAY oLabel1 ;
+      CAPTION "Record number:"  ;
+      SIZE 136,22
+
+   @ 188,12 SAY oLabel2 ;
+      CAPTION ALLTRIM(STR(oBrow:nCurrent))  ;
+      SIZE 155,22
+
+   @ 38,46 GET oGet1 ;
+      VAR clgetf ;
+      SIZE 534,24 ;
+      STYLE WS_BORDER
+
+   @ 38,100 BUTTON oButton1 ;
+      CAPTION "Save"   ;
+      SIZE 80,32 ;
+      STYLE WS_TABSTOP + BS_FLAT ;
+      ON CLICK { | | oDlg:Close() } ;
+      TOOLTIP "Save changes and return to array browse list"
+
+   @ 169,100 BUTTON oButton2 ;
+      CAPTION "Cancel"   ;
+      SIZE 80,32 ;
+      STYLE WS_TABSTOP + BS_FLAT ;
+      ON CLICK { | | lcancel := .T. , oDlg:Close() } ;
+      TOOLTIP "Return to array browse list without saving modifications"
 
    ACTIVATE DIALOG oDlg
 

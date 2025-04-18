@@ -22,7 +22,9 @@ FUNCTION Main()
 
    ConnectGrid()
 
-   INIT WINDOW oMain MAIN TITLE "Grid Postgres Sample Using TPostgres" ;
+   INIT WINDOW oMain ;
+      MAIN ;
+      TITLE "Grid Postgres Sample Using TPostgres" ;
       AT 0,0 ;
       SIZE hwg_Getdesktopwidth(), hwg_Getdesktopheight() - 28
 
@@ -41,9 +43,13 @@ FUNCTION Test()
 
    PREPARE FONT oFont NAME "Courier New" WIDTH 0 HEIGHT -11
 
-   INIT DIALOG oForm CLIPPER NOEXIT TITLE "Postgres Sample";
+   INIT DIALOG oForm ;
+      CLIPPER ;
+      NOEXIT ;
+      TITLE "Postgres Sample";
       FONT oFont ;
-      AT 0, 0 SIZE 700, 425 ;
+      AT 0, 0 ;
+      SIZE 700, 425 ;
       STYLE DS_CENTER + WS_VISIBLE + WS_POPUP + WS_VISIBLE + WS_CAPTION + WS_SYSMENU
 
    @ 10,10 GRID oGrid OF oForm SIZE 680,375;
@@ -56,7 +62,9 @@ FUNCTION Test()
    ADD COLUMN TO GRID oGrid HEADER "Column 2" WIDTH 200
    ADD COLUMN TO GRID oGrid HEADER "Column 3" WIDTH 100
 
-   @ 620, 395 BUTTON 'Close' SIZE 75,25 ON CLICK { || oForm:Close() }
+   @ 620, 395 BUTTON 'Close' ;
+      SIZE 75,25 ;
+      ON CLICK { || oForm:Close() }
 
    ACTIVATE DIALOG oForm
 

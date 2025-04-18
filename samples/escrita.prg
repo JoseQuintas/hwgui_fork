@@ -90,19 +90,31 @@ FUNCTION Main()
 * ON INIT crashes with "No exported method: REFRESH"
 */
 /* But this works fime */
-   INIT DIALOG oModDlg TITLE cTitle ;
-      AT 210, 10  SIZE 300, 300 ON INIT { ||otool:refresh(), hwg_Enablewindow( oTool:aItem[2,11], .F. ) }
+   INIT DIALOG oModDlg ;
+      TITLE cTitle ;
+      AT 210, 10  ;
+      SIZE 300, 300 ;
+      ON INIT { ||otool:refresh(), hwg_Enablewindow( oTool:aItem[2,11], .F. ) }
 #else
-   INIT WINDOW oModDlg TITLE  cTitle ;
-      AT 210, 10  SIZE 501, 300
+   INIT WINDOW oModDlg ;
+   TITLE  cTitle ;
+   AT 210, 10  ;
+   SIZE 501, 300
 #endif
 
 #ifdef __GTK__
    * Commands TOOLBAR and TOOLBUTTON are "GTK only"
-   @ 0, 0 toolbar oTool of oModDlg size 50, 100 ID 700
+   @ 0, 0 toolbar oTool ;
+      of oModDlg ;
+      size 50, 100 ;
+      ID 700
 #else
   * On Windows, the size must have other values (old 50 , 100)
-  @ 0, 0 PANEL oTool OF oModDlg SIZE 500 , 60 ID 70 ON SIZE ANCHOR_TOPABS + ANCHOR_LEFTABS + ANCHOR_RIGHTABS
+  @ 0, 0 PANEL oTool ;
+     OF oModDlg ;
+     SIZE 500 , 60 ;
+     ID 70 ;
+     ON SIZE ANCHOR_TOPABS + ANCHOR_LEFTABS + ANCHOR_RIGHTABS
 #endif
 
 #ifdef __GTK__
@@ -168,7 +180,8 @@ FUNCTION Main()
 
 * "new.bmp"
 
-   @ htab+(nbut * nlowb), 3 OWNERBUTTON oFileOpen  OF oTool  ;
+   @ htab+(nbut * nlowb), 3 OWNERBUTTON oFileOpen  ;
+      OF oTool  ;
       SIZE nxowb,nyowb ;
       ON CLICK { | | hwg_Msginfo( "ola" )  }  ;
       TEXT "teste1"  ;
@@ -180,7 +193,8 @@ FUNCTION Main()
 
 * "book.bmp"
 
-   @ htab+(nbut * nlowb), 3 OWNERBUTTON oBook  OF oTool  ;
+   @ htab+(nbut * nlowb), 3 OWNERBUTTON oBook  ;
+      OF oTool  ;
       SIZE nxowb,nyowb ;
       ON CLICK { | | hwg_Msginfo( "ola1" )  }  ;
       TEXT "teste2"  ;
@@ -193,7 +207,8 @@ FUNCTION Main()
 
 * "ok.ico"
 
-   @ htab+(nbut * nlowb), 3 OWNERBUTTON oBook  OF oTool  ;
+   @ htab+(nbut * nlowb), 3 OWNERBUTTON oBook  ;
+      OF oTool  ;
       SIZE nxowb,nyowb ;
       ON CLICK { | | hwg_Msginfo( "ola2" )  }  ;
       TEXT "asdsa"  ;
@@ -205,7 +220,8 @@ FUNCTION Main()
 
 * "door.bmp"
 
-   @ htab+(nbut * nlowb), 3 OWNERBUTTON oBook  OF oTool  ;
+   @ htab+(nbut * nlowb), 3 OWNERBUTTON oBook  ;
+      OF oTool  ;
       SIZE nxowb,nyowb ;
       ON CLICK { | | hwg_Msginfo( "ola4" )  }  ;
       TEXT "teste2"  ;
@@ -217,7 +233,8 @@ FUNCTION Main()
 
 * "cancel.ico"
 
-   @ htab+(nbut * nlowb), 3 OWNERBUTTON oBook  OF oTool  ;
+   @ htab+(nbut * nlowb), 3 OWNERBUTTON oBook  ;
+      OF oTool  ;
       SIZE nxowb,nyowb ;
       ON CLICK { | | hwg_Msginfo( "ola5" )  }  ;
       TEXT "teste2"  ;
@@ -238,13 +255,18 @@ FUNCTION Main()
    noffset := 55
 #endif
 
-   @ 20 , 35 + noffset EDITBOX oEditbox CAPTION ""    ;
-      STYLE WS_DLGFRAME              ;
+   @ 20 , 35 + noffset EDITBOX oEditbox ;
+      CAPTION ""    ;
+      STYLE WS_DLGFRAME ;
       SIZE 260, 26
 
-   @ 20 , 75  + noffset GET onome VAR mnome SIZE 260, 26
+   @ 20 , 75  + noffset GET onome ;
+      VAR mnome ;
+      SIZE 260, 26
 
-   @ 20 , 105  + noffset progressbar obar size 260, 26  barwidth 100
+   @ 20 , 105  + noffset progressbar obar ;
+      size 260, 26  ;
+      barwidth 100
 
 
 #ifdef __GTK__

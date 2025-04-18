@@ -42,7 +42,7 @@
    lCheckbox6 := .F.
 
   INIT DIALOG oDlg ;
-     TITLE "DEMOCHECKBOX - Checkboxes and tabs" ;
+     TITLE "democheckbox.prg - Checkboxes and tabs" ;
      AT 390,197 ;
      SIZE 516,323 ;
      STYLE WS_SYSMENU + WS_SIZEBOX + WS_VISIBLE

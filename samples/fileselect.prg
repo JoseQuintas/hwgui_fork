@@ -49,10 +49,14 @@ FUNCTION Main()
 #endif
 
    * The background image was tiled, if size is smaller than window.
-   INIT WINDOW oFormMain MAIN  ;
+   INIT WINDOW oFormMain ;
+      MAIN  ;
       FONT oFontMain;
-      TITLE "Hwgui sample for File Selection" AT 0,0 SIZE 300,200 ;
+      TITLE "Hwgui sample for File Selection" ;
+      AT 0,0 ;
+      SIZE 300,200 ;
       STYLE WS_POPUP +  WS_CAPTION + WS_SYSMENU
+
    MENU OF oFormMain
       MENU TITLE "&Exit"
          MENUITEM "&Quit" ACTION oFormMain:Close()

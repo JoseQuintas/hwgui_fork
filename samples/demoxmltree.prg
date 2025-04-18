@@ -16,8 +16,10 @@ FUNCTION Main()
    CHECK_FILE( cBitmap1 )
    CHECK_FILE( cbitmap2 )
 
-   INIT WINDOW oMainWindow MAIN TITLE "DEMOXMLTREE - Show XML using Treebox" ;
-     AT 200,0 SIZE 400,150
+   INIT WINDOW oMainWindow ;
+      MAIN TITLE "DEMOXMLTREE - Show XML using Treebox" ;
+      AT 200,0 ;
+      SIZE 400,150
 
    MENU OF oMainWindow
       MENUITEM "&Exit" ACTION hwg_EndWindow()
@@ -44,24 +46,35 @@ STATIC FUNCTION DlgGet()
    IF ( oXmlDoc := HXMLDoc():Read( fname ) ) = Nil
    ENDIF
 
-   INIT DIALOG oDlg TITLE CutPath( fname )    ;
-      AT 210,10  SIZE 430,300                  ;
+   INIT DIALOG oDlg ;
+      TITLE CutPath( fname )    ;
+      AT 210,10  ;
+      SIZE 430,300                  ;
       FONT oFont                               ;
       ON INIT { || BuildTree( oTree, oXmlDoc:aItems, oSay ) }
 
-   @ 10,10 TREE oTree OF oDlg SIZE 200,280 ;
+   @ 10,10 TREE oTree ;
+      OF oDlg ;
+      SIZE 200,280 ;
       EDITABLE ;
       BITMAP { cBitmap1, cbitmap2 } ;
       ON SIZE {|o,x,y| (x), o:Move(,,,y-20)}
 
-   @ 214,10 SAY oSay CAPTION "" SIZE 206,280 STYLE WS_BORDER ;
+   @ 214,10 SAY oSay ;
+      CAPTION "" ;
+      SIZE 206,280 ;
+      STYLE WS_BORDER ;
       ON SIZE {|o,x,y|o:Move(,,x-oSplit:nLeft-oSplit:nWidth-10,y-20)}
 
-   @ 214,10 EDITBOX oSay CAPTION "" SIZE 206,280 STYLE WS_VSCROLL+WS_HSCROLL+ES_MULTILINE+ES_READONLY ;
+   @ 214,10 EDITBOX oSay ;
+      CAPTION "" ;
+      SIZE 206,280 ;
+      STYLE WS_VSCROLL+WS_HSCROLL+ES_MULTILINE+ES_READONLY ;
       ON SIZE {|o,x,y|o:Move(,,x-oSplit:nLeft-oSplit:nWidth-10,y-20)} ;
       ON GETFOCUS {||hwg_Sendmessage(oSay:handle,EM_SETSEL,0,0)}
 
-   @ 210,10 SPLITTER oSplit SIZE 4,260 ;
+   @ 210,10 SPLITTER oSplit ;
+      SIZE 4,260 ;
       DIVIDE {oTree} FROM {oSay} ;
       ON SIZE {|o,x,y| (x), o:Move(,,,y-20)}
 

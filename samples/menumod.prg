@@ -59,7 +59,6 @@ FUNCTION _menudialog()
       SIZE 600,300                       ;
       FONT oFont
 
-
    MENU OF oDialg
       MENU TITLE "Menu"
          MENUITEM "New item" ACTION NewItem(0)

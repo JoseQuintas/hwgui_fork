@@ -33,8 +33,11 @@ FUNCTION Main()
    nmin    := hwg_GetWinMinorVers()
    nmaj    := hwg_GetWinMajorVers()
 
-   INIT WINDOW oMainWindow MAIN TITLE "Windows Version" ;
-     AT 0,0 SIZE 100,100
+   INIT WINDOW oMainWindow ;
+      MAIN ;
+      TITLE "Windows Version" ;
+      AT 0,0 ;
+      SIZE 100,100
 
    hwg_MsgInfo( ;
    "Windows    : " + LOGICAL2STR(bwin)   + CHR(10) + ;
@@ -42,6 +45,7 @@ FUNCTION Main()
    "Windows 10 : " + LOGICAL2STR(bwin10) + CHR(10) + ;
    "Major= " + ALLTRIM( STR( nmaj ) ) + CHR(10) + ;
    "Minor= " + ALLTRIM( STR( nmin ) ), "Windows Version" )
+
   ACTIVATE WINDOW oMainWindow CENTER
 
 RETURN Nil

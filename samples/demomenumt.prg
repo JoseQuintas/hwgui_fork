@@ -30,8 +30,10 @@ FUNCTION Main()
 
    LOCAL oDlg, nCont := 1
 
-   INIT DIALOG oDlg TITLE "TESTMENUMT - Menu using Multithread" ;
-     AT 200,0 SIZE 400,150
+   INIT DIALOG oDlg ;
+      TITLE "demomenumt.prg - Menu using Multithread" ;
+      AT 200,0 ;
+      SIZE 400,150
 
    MENU OF oDlg
       MENUITEM "&Exit" ACTION hwg_EndDialog()

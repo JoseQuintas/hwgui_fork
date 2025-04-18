@@ -16,7 +16,9 @@ STATIC oMain, oForm, oFont, oGrid
 
 FUNCTION Main()
 
-   INIT WINDOW oMain MAIN TITLE "Grid Sample" ;
+   INIT WINDOW oMain ;
+      MAIN ;
+      TITLE "Grid Sample" ;
       AT 0,0 ;
       SIZE hwg_Getdesktopwidth(), hwg_Getdesktopheight() - 28
 
@@ -33,9 +35,13 @@ FUNCTION Test()
 
    PREPARE FONT oFont NAME "Courier New" WIDTH 0 HEIGHT -11
 
-   INIT DIALOG oForm CLIPPER NOEXIT TITLE "Grid Demo" ;
+   INIT DIALOG oForm ;
+      CLIPPER ;
+      NOEXIT ;
+      TITLE "Grid Demo" ;
       FONT oFont ;
-      AT 0, 0 SIZE 700, 425 ;
+      AT 0, 0 ;
+      SIZE 700, 425 ;
       STYLE DS_CENTER + WS_VISIBLE + WS_POPUP + WS_VISIBLE + WS_CAPTION + WS_SYSMENU
 
       @ 10,10 GRID oGrid OF oForm SIZE 680,375 ;

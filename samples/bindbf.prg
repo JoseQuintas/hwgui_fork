@@ -126,14 +126,21 @@ FUNCTION Main()
 
    INIT WINDOW oMainW  ;
       FONT oFontMain  ;
-      TITLE "Bitmap container sample" AT 0,0 SIZE 500 , 500 ;
+      TITLE "Bitmap container sample" ;
+      AT 0,0 ;
+      SIZE 500 , 500 ;
       ICON oIcon STYLE WS_POPUP +  WS_CAPTION + WS_SYSMENU
 
    * GTK + Toolbar : If used, the Ownerbuttons are not visible !
 #ifdef __GTK__
-   @ 0, 0 TOOLBAR oToolbar OF oMainW SIZE  499 , 50
+   @ 0, 0 TOOLBAR oToolbar ;
+      OF oMainW ;
+      SIZE  499 , 50
 #else
-   @ 0, 0 PANEL oToolbar OF oMainW SIZE 499 , 50 ON SIZE ANCHOR_TOPABS + ANCHOR_LEFTABS + ANCHOR_RIGHTABS
+   @ 0, 0 PANEL oToolbar ;
+      OF oMainW ;
+      SIZE 499 , 50 ;
+      ON SIZE ANCHOR_TOPABS + ANCHOR_LEFTABS + ANCHOR_RIGHTABS
 #endif
 
    * For ownerbuttons:
@@ -166,7 +173,8 @@ FUNCTION Main()
 
    * If "OF oToolbar" is not added, the ON CLICK function does not work !
 
-   @ htab+(nbut * nlowb), 3 OWNERBUTTON oFileOpen  OF oToolbar  ;
+   @ htab+(nbut * nlowb), 3 OWNERBUTTON oFileOpen  ;
+      OF oToolbar  ;
       ON CLICK { | | FileOpen()} ;
       SIZE nxowb,nyowb  FLAT  ;
       BITMAP oBitmap ;
@@ -175,7 +183,8 @@ FUNCTION Main()
 
    nbut += 1
 
-   @ htab+(nbut * nlowb),3 OWNERBUTTON oQuit OF oToolbar  ;
+   @ htab+(nbut * nlowb),3 OWNERBUTTON oQuit ;
+      OF oToolbar  ;
       ON CLICK { | | oMainW:Close()} ;
       SIZE nxowb,nyowb /* FLAT */ ;
       BITMAP oBMPExit ;
@@ -210,9 +219,11 @@ FUNCTION Main()
       TOOLTIP "JPEG image"
 #else
 
-   @ htab+(nbut * nlowb),3 OWNERBUTTON oBtnjpeg  OF oToolbar  ;
+   @ htab+(nbut * nlowb),3 OWNERBUTTON oBtnjpeg  ;
+      OF oToolbar  ;
       ON CLICK { | | ClickJpeg()} ;
-      SIZE nxowb,nyowb  FLAT  ;
+      SIZE nxowb,nyowb  ;
+      FLAT  ;
       BITMAP ojpeg ;
       TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ;
       TOOLTIP "JPEG image"
@@ -233,11 +244,17 @@ FUNCTION Main()
    * are on GTK mandatory, otherwise the image does not appear !
 
    @ 60 , 100 SAY "astro.png" SIZE 100, 20
-   @ 60 , 150 BITMAP oSayImg1 SHOW oastropng OF oMainW SIZE nx1, ny1 && 100, 20
+   @ 60 , 150 BITMAP oSayImg1 ;
+      SHOW oastropng ;
+      OF oMainW ;
+      SIZE nx1, ny1 && 100, 20
 
    @ 60 , 300 SAY "astro2.bmp" SIZE 100, 20
    // @ 60 , 350 BITMAP oastrobmp && not displayed
-   @ 60 , 350 BITMAP oSayImg2 SHOW oastrobmp OF oMainW SIZE nx2, ny2
+   @ 60 , 350 BITMAP oSayImg2 ;
+      SHOW oastrobmp ;
+      OF oMainW ;
+      SIZE nx2, ny2
 #else
 
    nx1 := 0

@@ -14,8 +14,12 @@ FUNCTION Main()
    LOCAL oTree, oSplit, oTab
    LOCAL oGet
 
-   INIT WINDOW oMainWindow MAIN TITLE "DEMOTREEBOX - Example" ;
-     AT 200,0 SIZE 600, 400 FONT oFont
+   INIT WINDOW oMainWindow ;
+      MAIN ;
+      TITLE "DEMOTREEBOX - Example" ;
+      AT 200,0 ;
+      SIZE 600, 400 ;
+      FONT oFont
 
    MENU OF oMainWindow
       MENU TITLE "&File"
@@ -28,24 +32,34 @@ FUNCTION Main()
       ENDMENU
    ENDMENU
 
-   @ 10,10 TREE oTree OF oMainWindow SIZE 200,280 ;
-        EDITABLE ;
-        BITMAP { "..\image\cl_fl.bmp","..\image\op_fl.bmp" } ;
-        ON SIZE { | o, x, y | (x), o:Move( ,,, y - 20 ) }
+   @ 10,10 TREE oTree ;
+      OF oMainWindow ;
+      SIZE 200,280 ;
+      EDITABLE ;
+      BITMAP { "..\image\cl_fl.bmp","..\image\op_fl.bmp" } ;
+      ON SIZE { | o, x, y | (x), o:Move( ,,, y - 20 ) }
 
-   @ 214,10 EDITBOX oGet CAPTION "Command" SIZE 106, 20 COLOR hwg_ColorC2N( "FF0000" ) ;
-        ON SIZE { | o, x, y | (y), o:Move(,, x-oSplit:nLeft - oSplit:nWidth - 50 ) }
+   @ 214,10 EDITBOX oGet ;
+      CAPTION "Command" ;
+      SIZE 106, 20 ;
+      COLOR hwg_ColorC2N( "FF0000" ) ;
+      ON SIZE { | o, x, y | (y), o:Move(,, x-oSplit:nLeft - oSplit:nWidth - 50 ) }
 
-   @ 214,35 TAB oTab ITEMS {} SIZE 206, 280 ;
-        ON SIZE { | o, x, y | o:Move( ,, x-oSplit:nLeft - oSplit:nWidth - 10, y - 20 ) } ;
-        ON CHANGE { | o | hwg_Msginfo( str( len( o:aPages ) ) ) }
+   @ 214,35 TAB oTab ;
+      ITEMS {} ;
+      SIZE 206, 280 ;
+      ON SIZE { | o, x, y | o:Move( ,, x-oSplit:nLeft - oSplit:nWidth - 10, y - 20 ) } ;
+      ON CHANGE { | o | hwg_Msginfo( str( len( o:aPages ) ) ) }
 
-   @ 414,10 BUTTON "X" SIZE 24, 24 ON CLICK { || hwg_Msginfo( "Delete " + str( oTab:GetActivePage() ) ), oTab:DeletePage( oTab:GetActivePage() ) } ;
-        ON SIZE { | o, x, y | (x), (y), o:Move( oTab:nLeft + oTab:nWidth - 26 ) } ;
+   @ 414,10 BUTTON "X" ;
+      SIZE 24, 24 ;
+      ON CLICK { || hwg_Msginfo( "Delete " + str( oTab:GetActivePage() ) ), oTab:DeletePage( oTab:GetActivePage() ) } ;
+      ON SIZE { | o, x, y | (x), (y), o:Move( oTab:nLeft + oTab:nWidth - 26 ) } ;
 
-   @ 210,10 SPLITTER oSplit SIZE 4,260 ;
-         DIVIDE { oTree } FROM { oTab, oGet } ;
-         ON SIZE { | o, x, y | (x), o:Move(,,, y - 20 ) }
+   @ 210,10 SPLITTER oSplit ;
+      SIZE 4,260 ;
+      DIVIDE { oTree } FROM { oTab, oGet } ;
+      ON SIZE { | o, x, y | (x), o:Move(,,, y - 20 ) }
 
    oSplit:bEndDrag := { || hwg_Redrawwindow( oTab:handle, RDW_ERASE + RDW_INVALIDATE + RDW_INTERNALPAINT + RDW_UPDATENOW ) }
 

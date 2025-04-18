@@ -34,35 +34,101 @@ FUNCTION Main()
    //oStylePressed := HStyle():New( {0x7b7680}, 1,, 2, CLR_WHITE )
    //oStyleOver := HStyle():New( {0x7b7680}, 1 )
 
-   INIT WINDOW oMain MAIN TITLE "Example" AT 200, 0 SIZE 400, 320 ;
-      BACKCOLOR 0x3C3940 FONT oFont STYLE WND_NOTITLE + WND_NOSIZEBOX
+   INIT WINDOW oMain ;
+      MAIN ;
+      TITLE "Example" ;
+      AT 200, 0 ;
+      SIZE 400, 320 ;
+      BACKCOLOR 0x3C3940 ;
+      FONT oFont ;
+      STYLE WND_NOTITLE + WND_NOSIZEBOX
 
-   ADD HEADER PANEL oPaneHea HEIGHT 32 TEXTCOLOR 0xFFFFFF BACKCOLOR 0x2F343F ;
-      FONT oFont TEXT "Graphs" COORS 20 BTN_CLOSE BTN_MINIMIZE
+   ADD HEADER PANEL oPaneHea ;
+      HEIGHT 32 ;
+      TEXTCOLOR 0xFFFFFF ;
+      BACKCOLOR 0x2F343F ;
+      FONT oFont TEXT "Graphs" ;
+      COORS 20 BTN_CLOSE BTN_MINIMIZE
 
    oPaneHea:SetSysbtnColor( 0xffffff, 0x7b7680 )
 
-   @ 30, 50 GRAPH oGraph DATA Nil SIZE 340, 250 COLOR 65280
+   @ 30, 50 GRAPH oGraph ;
+      DATA Nil ;
+      SIZE 340, 250 ;
+      COLOR 65280
 
-   @ 4, 4 DRAWN oPaneDrawn OF oGraph SIZE 96, 180 COLOR CLR_WHITE BACKCOLOR CLR_BLACK ;
+   @ 4, 4 DRAWN oPaneDrawn ;
+      OF oGraph ;
+      SIZE 96, 180 ;
+      COLOR CLR_WHITE ;
+      BACKCOLOR CLR_BLACK ;
       ON CHANGESTATE {|o,n|o:lHide:=(n==0),o:Refresh(),-1}
 
-   @ 12, 12 DRAWN RADIO OF oPaneDrawn GROUP "m" SIZE 20, 30 COLOR CLR_WHITE BACKCOLOR CLR_BLACK ;
-      HSTYLES aStyles TEXT 'X' FONT oFont ON CLICK {|| Graph1() }
-   @ 12, 56 DRAWN RADIO OF oPaneDrawn GROUP "m" SIZE 20, 30 COLOR CLR_WHITE BACKCOLOR CLR_BLACK ;
-      HSTYLES aStyles TEXT 'X' FONT oFont ON CLICK {|| Graph2() }
-   @ 12, 96 DRAWN RADIO OF oPaneDrawn GROUP "m" SIZE 20, 30 COLOR CLR_WHITE BACKCOLOR CLR_BLACK ;
-      HSTYLES aStyles TEXT 'X' FONT oFont ON CLICK {|| Graph3() }
+   @ 12, 12 DRAWN RADIO ;
+      OF oPaneDrawn ;
+      GROUP "m" ;
+      SIZE 20, 30 ;
+      COLOR CLR_WHITE ;
+      BACKCOLOR CLR_BLACK ;
+      HSTYLES aStyles ;
+      TEXT 'X' ;
+      FONT oFont ;
+      ON CLICK {|| Graph1() }
 
-   @ 36, 12 DRAWN OF oPaneDrawn SIZE 20, 30 COLOR CLR_WHITE BACKCOLOR CLR_BLACK ;
-      TEXT '1' FONT oFont
-   @ 36, 56 DRAWN OF oPaneDrawn SIZE 20, 30 COLOR CLR_WHITE BACKCOLOR CLR_BLACK ;
-      TEXT '2' FONT oFont
-   @ 36, 96 DRAWN OF oPaneDrawn SIZE 20, 30 COLOR CLR_WHITE BACKCOLOR CLR_BLACK ;
-      TEXT '3' FONT oFont
+   @ 12, 56 DRAWN RADIO ;
+      OF oPaneDrawn ;
+      GROUP "m" ;
+      SIZE 20, 30 ;
+      COLOR CLR_WHITE ;
+      BACKCOLOR CLR_BLACK ;
+      HSTYLES aStyles TEXT 'X' ;
+      FONT oFont ;
+      ON CLICK {|| Graph2() }
 
-   @ 12, 136 DRAWN OF oPaneDrawn SIZE 40, 30 COLOR CLR_WHITE BACKCOLOR CLR_BLACK ;
-      HSTYLES aStyles TEXT 'Exit' FONT oFont ON CLICK {|| hwg_EndWindow() }
+   @ 12, 96 DRAWN RADIO ;
+      OF oPaneDrawn ;
+      GROUP "m" ;
+      SIZE 20, 30 ;
+      COLOR CLR_WHITE ;
+      BACKCOLOR CLR_BLACK ;
+      HSTYLES aStyles ;
+      TEXT 'X' ;
+      FONT oFont ;
+      ON CLICK {|| Graph3() }
+
+   @ 36, 12 DRAWN ;
+      OF oPaneDrawn ;
+      SIZE 20, 30 ;
+      COLOR CLR_WHITE ;
+      BACKCOLOR CLR_BLACK ;
+      TEXT '1' ;
+      FONT oFont
+
+   @ 36, 56 DRAWN ;
+      OF oPaneDrawn ;
+      SIZE 20, 30 ;
+      COLOR CLR_WHITE ;
+      BACKCOLOR CLR_BLACK ;
+      TEXT '2' ;
+      FONT oFont
+
+   @ 36, 96 DRAWN ;
+      OF oPaneDrawn ;
+      SIZE 20, 30 ;
+      COLOR CLR_WHITE ;
+      BACKCOLOR CLR_BLACK ;
+      TEXT '3' ;
+      FONT oFont
+
+   @ 12, 136 DRAWN ;
+      OF oPaneDrawn ;
+      SIZE 40, 30 ;
+      COLOR CLR_WHITE ;
+      BACKCOLOR CLR_BLACK ;
+      HSTYLES aStyles ;
+      TEXT 'Exit' ;
+      FONT oFont ;
+      ON CLICK {|| hwg_EndWindow() }
 
    ACTIVATE WINDOW oMain CENTER
 

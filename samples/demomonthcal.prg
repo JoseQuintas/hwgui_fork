@@ -30,8 +30,10 @@
 
    hwg_Settooltipballoon(.t.)
 
-   INIT DIALOG oWnd TITLE "DEMOMONTHCAL - Controle MonthCalendar" ;
-      AT 100,100 SIZE 640,480
+   INIT DIALOG oWnd ;
+      TITLE "demomonthcal.prg - Controle MonthCalendar" ;
+      AT 100,100 ;
+      SIZE 640,480
 
    MENU OF oWnd
       MENUITEM "&Calendário 1" ACTION Dlg1()
@@ -49,8 +51,10 @@ STATIC FUNCTION Dlg1()
    LOCAL oMC
    LOCAL oFont
 
-   INIT DIALOG oDlg TITLE "Calendário - Exemplo 1" ;
-      AT 20,20 SIZE 500,300
+   INIT DIALOG oDlg ;
+      TITLE "Calendário - Exemplo 1" ;
+      AT 20,20 ;
+      SIZE 500,300
 
    PREPARE FONT oFont NAME "Arial" WIDTH 0 HEIGHT -12
 
@@ -63,8 +67,13 @@ STATIC FUNCTION Dlg1()
       FONT oFont ;
       TOOLTIP "MonthCalendar - NoToday - NoTodayCircle - WeekNumbers"
 
-   @ 300,20 BUTTON "Get Date" ON CLICK { || hwg_Msginfo( dtoc( oMC:Value ) ) } SIZE 100,40
-   @ 300,60 BUTTON "Set Date" ON CLICK { || oMC:Value := Date() } SIZE 100,40
+   @ 300,20 BUTTON "Get Date" ;
+      ON CLICK { || hwg_Msginfo( dtoc( oMC:Value ) ) } ;
+      SIZE 100,40
+
+   @ 300,60 BUTTON "Set Date" ;
+   ON CLICK { || oMC:Value := Date() } ;
+   SIZE 100,40
 
    ACTIVATE DIALOG oDlg
 
@@ -76,8 +85,10 @@ STATIC FUNCTION Dlg2()
    LOCAL oMC
    LOCAL oFont
 
-   INIT DIALOG oDlg TITLE "Calendário - Exemplo 2" ;
-      AT 20,20 SIZE 500,300
+   INIT DIALOG oDlg ;
+      TITLE "Calendário - Exemplo 2" ;
+      AT 20,20 ;
+      SIZE 500,300
 
    PREPARE FONT oFont NAME "Courier New" WIDTH 0 HEIGHT -12
 
@@ -86,8 +97,13 @@ STATIC FUNCTION Dlg2()
       INIT Date() ;
       FONT oFont
 
-   @ 300,20 BUTTON "Get Date" ON CLICK {||hwg_Msginfo(dtoc(oMC:Value))} SIZE 100,40
-   @ 300,60 BUTTON "Set Date" ON CLICK {||oMC:Value := Date()} SIZE 100,40
+   @ 300,20 BUTTON "Get Date" ;
+      ON CLICK {||hwg_Msginfo(dtoc(oMC:Value))} ;
+      SIZE 100,40
+
+   @ 300,60 BUTTON "Set Date" ;
+      ON CLICK {||oMC:Value := Date()} ;
+      SIZE 100,40
 
    ACTIVATE DIALOG oDlg
 

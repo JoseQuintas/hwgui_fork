@@ -67,9 +67,12 @@ LOAD_HEX_RES()
 oBMPCancel := HBitmap():AddString( "cancel", cBMPCancel )
 
 
-  INIT WINDOW oFormMain MAIN  ;
-       TITLE "Hwgui sample for handling bitmap bug" AT 0,0 SIZE 300,200 ;
-      STYLE WS_POPUP +  WS_CAPTION + WS_SYSMENU
+  INIT WINDOW oFormMain ;
+     MAIN  ;
+     TITLE "Hwgui sample for handling bitmap bug" ;
+     AT 0,0 ;
+     SIZE 300,200 ;
+     STYLE WS_POPUP +  WS_CAPTION + WS_SYSMENU
 
    MENU OF oFormMain
       MENU TITLE "&Exit"
@@ -98,12 +101,15 @@ MEMVAR ncalls
 
   ncalls := ncalls + 1
 
-  INIT DIALOG Display_bitmap TITLE "Display Bitmap (Bug)" ;
-    AT 467,236 SIZE 304,248 ;
+  INIT DIALOG Display_bitmap ;
+     TITLE "Display Bitmap (Bug)" ;
+     AT 467,236 ;
+     SIZE 304,248 ;
      STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
 
-    @ 10 , 10 SAY olabel1 CAPTION "Number of calls: " + ALLTRIM(STR(ncalls)) ;
-                SIZE 150, 30
+    @ 10 , 10 SAY olabel1 ;
+       CAPTION "Number of calls: " + ALLTRIM(STR(ncalls)) ;
+       SIZE 150, 30
 
   IF opbitmap != NIL
 
@@ -115,23 +121,22 @@ MEMVAR ncalls
 #ifdef __GTK__
 
    @ 100,40 BITMAP oBitmap1 ; && OF Display_bitmap ;
-        SHOW opbitmap  ;
-         SIZE nflx, nfly
+      SHOW opbitmap  ;
+      SIZE nflx, nfly
 #else
    @ 100,40 BITMAP oBitmap1  ;
-        SHOW opbitmap  ;
-         SIZE nflx, nfly
+      SHOW opbitmap  ;
+      SIZE nflx, nfly
 
 #endif
    @ 107,124 BUTTON oButton1 CAPTION "OK"   SIZE 80,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ;
-        ON CLICK {|| Display_bitmap:Close() }
+      STYLE WS_TABSTOP+BS_FLAT ;
+      ON CLICK {|| Display_bitmap:Close() }
   ELSE
-    hwg_MsgInfo("opbitmap is NIL")
+     hwg_MsgInfo("opbitmap is NIL")
   ENDIF
 
    ACTIVATE DIALOG Display_bitmap
-
 
 RETURN NIL
 
@@ -146,10 +151,11 @@ LOCAL oBitmap2, oButton1 , nflx , nfly , olbitmap
 * That's it: create object new before every usage !!!!
 olbitmap := HBitmap():AddString( "cancel", cBMPCancel )
 
-  INIT DIALOG Display_bitmap TITLE "Display Bitmap (OK)" ;
-    AT 467,236 SIZE 304,248 ;
+  INIT DIALOG Display_bitmap ;
+     TITLE "Display Bitmap (OK)" ;
+     AT 467,236 ;
+     SIZE 304,248 ;
      STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
-
 
   IF olbitmap != NIL
 
@@ -159,24 +165,25 @@ olbitmap := HBitmap():AddString( "cancel", cBMPCancel )
 //   hwg_MsgInfo("nflx=" + ALLTRIM(STR(nflx)) + " nfly=" + ALLTRIM(STR(nfly)) )
 
 #ifdef __GTK__
-  @ 100,40 BITMAP oBitmap2 ; && OF Display_bitmap ;
-        SHOW olbitmap  ;
-         SIZE nflx, nfly
+   @ 100,40 BITMAP oBitmap2 ; && OF Display_bitmap ;
+      SHOW olbitmap  ;
+      SIZE nflx, nfly
 #else
    @ 100,40 BITMAP oBitmap2  ;
-        SHOW olbitmap  ;
-         SIZE nflx, nfly
+      SHOW olbitmap  ;
+      SIZE nflx, nfly
 #endif
 
-   @ 107,124 BUTTON oButton1 CAPTION "OK"  SIZE 80,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ;
-        ON CLICK {|| Display_bitmap:Close() }
-  ELSE
-    hwg_MsgInfo("olbitmap is NIL")
-  ENDIF
+   @ 107,124 BUTTON oButton1 ;
+      CAPTION "OK"  ;
+      SIZE 80,32 ;
+      STYLE WS_TABSTOP+BS_FLAT ;
+      ON CLICK {|| Display_bitmap:Close() }
+   ELSE
+      hwg_MsgInfo("olbitmap is NIL")
+   ENDIF
 
    ACTIVATE DIALOG Display_bitmap
-
 
 RETURN NIL
 

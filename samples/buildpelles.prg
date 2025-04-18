@@ -53,12 +53,20 @@ FUNCTION Main()
 
    PREPARE FONT oFont NAME "MS Sans Serif" WIDTH 0 HEIGHT -12
 
-   INIT DIALOG oDlg CLIPPER NOEXIT TITLE "HwGUI Build For Pelles C Compiler" ;
-        AT 213,195 SIZE 513,265  font oFont
+   INIT DIALOG oDlg ;
+      CLIPPER ;
+      NOEXIT ;
+      TITLE "HwGUI Build For Pelles C Compiler" ;
+      AT 213,195 ;
+      SIZE 513,265  ;
+      font oFont
 
-   @ 14,16 TAB oTAB ITEMS {} SIZE 391,242
+   @ 14,16 TAB oTAB ;
+      ITEMS {} ;
+      SIZE 391,242
 
    BEGIN PAGE "Config" Of oTAB
+
       @  20,44 SAY oLabel1 CAPTION "Exe Name" SIZE 80,22
       @ 136,44 GET oExeName VAR vGt1 ID ID_EXENAME  SIZE 206,24
 
@@ -95,14 +103,20 @@ FUNCTION Main()
 
    END PAGE of oTAB
    BEGIN PAGE "C (Files)" of oTAB
-      @ 21,29 BROWSE oBrowse2 ARRAY of oTAB ON CLICK {||SearchFile(oBrowse2, "*.c")};
-             STYLE WS_VSCROLL + WS_HSCROLL   SIZE 341,170
+      @ 21,29 BROWSE oBrowse2 ;
+         ARRAY ;
+         of oTAB ;
+         ON CLICK {||SearchFile(oBrowse2, "*.c")};
+         STYLE WS_VSCROLL + WS_HSCROLL   SIZE 341,170
+
       hwg_CREATEARLIST(oBrowse2,aFiles2)
       obrowse2:acolumns[1]:heading := "File Names"
       obrowse2:acolumns[1]:length := 50
       oBrowse2:bcolorSel := hwg_ColorC2N( "800080" )
       oBrowse2:ofont := HFont():Add( 'Arial',0,-12 )
+
       @ 10, 205 BUTTON "Add"     SIZE 60,25  on click {||SearchFile(oBrowse2, "*.c")}
+
       @ 70, 205 BUTTON "Delete"  SIZE 60,25  on click {||Adel(oBrowse1:aArray, oBrowse2:nCurrent),oBrowse2:Refresh()}
    END PAGE of oTAB
    BEGIN PAGE "Lib (Files)" of oTAB

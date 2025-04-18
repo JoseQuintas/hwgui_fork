@@ -24,16 +24,22 @@
       { "Name",   { || field->Name } }, ;
       { "Adress", { || field->Address } } }
 
-   INIT DIALOG oDlg TITLE "DEMOBROWSEDBF - BROWSE DBF " + Ltrim( Str( nCont ) ) AT 0,0 SIZE 1024,600
+   INIT DIALOG oDlg ;
+      TITLE "demobrowsedbf.prg - BROWSE DBF " + Ltrim( Str( nCont ) ) ;
+      AT 0,0 ;
+      SIZE 1024,600
 
-
-   @ 20,10 BROWSE oBrowse DATABASE SIZE 780, 500 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
+   @ 20,10 BROWSE oBrowse ;
+      DATABASE ;
+      SIZE 780, 500 ;
+      STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
 
    FOR EACH aItem IN aList
       ADD COLUMN aItem[ 2 ] TO oBrowse HEADER aItem[ 1 ] LENGTH 30
    NEXT
 
-   @ 500,540 BUTTON "Close" SIZE 180,36 ;
+   @ 500,540 BUTTON "Close" ;
+      SIZE 180,36 ;
       ON CLICK { || hwg_EndDialog() } // will close all
 
 
