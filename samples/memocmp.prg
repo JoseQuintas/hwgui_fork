@@ -57,8 +57,11 @@ FUNCTION Main()
    mmemo1 := ""
    mmemo2 := ""
 
-   INIT WINDOW oWinMain MAIN  ;
-      TITLE "Sample program Memo edit and compare" AT 100, 100 SIZE 600,400;
+   INIT WINDOW oWinMain ;
+      MAIN  ;
+      TITLE "Sample program Memo edit and compare" ;
+      AT 100, 100 ;
+      SIZE 600,400;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
    MENU OF oWinMain

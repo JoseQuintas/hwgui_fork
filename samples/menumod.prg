@@ -20,9 +20,12 @@ FUNCTION Main()
 
    PRIVATE aItems
 
-   INIT WINDOW oWinMain MAIN  ;
+   INIT WINDOW oWinMain ;
+      MAIN  ;
       SYSCOLOR COLOR_3DLIGHT+1 ;
-      TITLE "Sample program handling menu items" AT 0, 0 SIZE 600,400;
+      TITLE "Sample program handling menu items" ;
+      AT 0, 0 ;
+      SIZE 600,400;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
    MENU OF oWinMain
@@ -50,8 +53,10 @@ FUNCTION _menudialog()
 
    PREPARE FONT oFont NAME "Times New Roman" WIDTH 0 HEIGHT -17
 
-   INIT DIALOG oDialg TITLE "Menu Sample"  ;
-      AT 200,0 SIZE 600,300                       ;
+   INIT DIALOG oDialg ;
+      TITLE "Menu Sample"  ;
+      AT 200,0 ;
+      SIZE 600,300                       ;
       FONT oFont
 
 
@@ -95,19 +100,27 @@ FUNCTION NewItem( nItem )
     cName := hwg_GET_Helper(cName,30)
 
 
-   INIT DIALOG oDlg TITLE Iif( nItem==0,"New item","Change item" )  ;
-   AT 210,10  SIZE 700,150 FONT oFont
+   INIT DIALOG oDlg TITLE ;
+      Iif( nItem==0,"New item","Change item" )  ;
+      AT 210,10  ;
+      SIZE 700,150 ;
+      FONT oFont
 
-   @ 20,20 SAY "Name:" SIZE 60, 22
+   @ 20,20 SAY "Name:" ;
+      SIZE 60, 22
 
+   @ 80,20 GET oGet1 ;
+      VAR cName ;
+      SIZE 500, 26 ;
+      STYLE WS_BORDER
 
-   @ 80,20 GET oGet1 VAR cName SIZE 500, 26 ;
-     STYLE WS_BORDER
+   @ 20,110  BUTTON "Ok" ;
+      SIZE 100, 32 ;
+      ON CLICK {||oDlg:lResult:=.T.,hwg_EndDialog()}
 
-
-
-   @ 20,110  BUTTON "Ok" SIZE 100, 32 ON CLICK {||oDlg:lResult:=.T.,hwg_EndDialog()}
-   @ 180,110 BUTTON "Cancel" ID IDCANCEL SIZE 100, 32
+   @ 180,110 BUTTON "Cancel" ;
+      ID IDCANCEL ;
+      SIZE 100, 32
 
    ACTIVATE DIALOG oDlg
 

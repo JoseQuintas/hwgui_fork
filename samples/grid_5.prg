@@ -39,7 +39,9 @@ STATIC oMain, oForm, oBrowse
 
 FUNCTION Main()
 
-   INIT WINDOW oMain MAIN TITLE "Grid Edition Sample" ;
+   INIT WINDOW oMain ;
+      MAIN ;
+      TITLE "Grid Edition Sample" ;
       AT 0,0 ;
       SIZE hwg_Getdesktopwidth(), hwg_Getdesktopheight() - 28
 
@@ -86,13 +88,19 @@ FUNCTION Test()
    ADD COLUMN TO GRIDEDIT aItems FIELD "Field_4" LABEL "Date"
    ADD COLUMN TO GRIDEDIT aItems FIELD "Field_5" LABEL "Memo"
 
-   INIT DIALOG oForm CLIPPER NOEXIT TITLE "Grid Edit";
-        AT 0, 0 SIZE 700, 425 ;
-        FONT oFont ;
-        STYLE DS_CENTER + WS_VISIBLE + WS_POPUP + WS_VISIBLE + WS_CAPTION + WS_SYSMENU
+   INIT DIALOG oForm ;
+      CLIPPER ;
+      NOEXIT ;
+      TITLE "Grid Edit";
+      AT 0, 0 ;
+      SIZE 700, 425 ;
+      FONT oFont ;
+      STYLE DS_CENTER + WS_VISIBLE + WS_POPUP + WS_VISIBLE + WS_CAPTION + WS_SYSMENU
 
 
-   @ 10,10 GRID oGrid OF oForm SIZE 680,375;
+   @ 10,10 GRID oGrid ;
+      OF oForm ;
+      SIZE 680,375;
       ITEMCOUNT LastRec() ;
       ON KEYDOWN {|oCtrl, key| OnKey(oCtrl, key, aItems,oGrid) } ;
       ON CLICK {|oCtrl| OnClick(oCtrl, aItems) } ;
@@ -177,7 +185,9 @@ FUNCTION GridEdit( cAlias, aFields, lAppend, bChange )
    nRow := 10
    nCol := nSay * nGetSize
 
-   INIT DIALOG oForm CLIPPER TITLE "Teste" ;
+   INIT DIALOG oForm ;
+      CLIPPER ;
+      TITLE "Teste" ;
       AT 0, 0 ;
       SIZE Min( hwg_Getdesktopwidth() - 50, (nSay + nGet) * nGetSize + nGetSize ), ;
          Min( hwg_Getdesktopheight() - 28, nheight ) ;
@@ -186,7 +196,8 @@ FUNCTION GridEdit( cAlias, aFields, lAppend, bChange )
 
 
    FOR i := 1 TO len(aFields)
-      @   10, nRow SAY aFields[i, GET_LABEL] SIZE len(aFields[i, GET_LABEL]) * nGetSize, 25
+      @   10, nRow SAY aFields[i, GET_LABEL] ;
+         SIZE len(aFields[i, GET_LABEL]) * nGetSize, 25
 
       cType  := Fieldtype(Fieldpos(aFields[i, GET_FIELD]))
 

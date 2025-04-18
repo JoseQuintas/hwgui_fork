@@ -50,13 +50,23 @@ FUNCTION MAIN()
 
    IF inilNightDesign
 
-      INIT WINDOW oDlg TITLE "" BACKCOLOR 0x3C3940 ;
-            AT 0, 0 SIZE 380, 400 STYLE WND_NOTITLE &&  + WND_NOSIZEBOX ;
+      INIT WINDOW oDlg ;
+         TITLE "" ;
+         BACKCOLOR 0x3C3940 ;
+         AT 0, 0 SIZE 380, 400 ;
+         STYLE WND_NOTITLE &&  + WND_NOSIZEBOX ;
 		   // MENUPOS 33
 
 		   // Add a header panel with predefined buttons
-      ADD HEADER PANEL oPanel HEIGHT 32 TEXTCOLOR 0xFFFFFF BACKCOLOR 0x2F343F ;
-         FONT oFont TEXT cTitle  COORS 0 BTN_CLOSE BTN_MAXIMIZE BTN_MINIMIZE
+      ADD HEADER PANEL oPanel ;
+         HEIGHT 32 ;
+         TEXTCOLOR 0xFFFFFF ;
+         BACKCOLOR 0x2F343F ;
+         FONT oFont ;
+         TEXT cTitle  COORS 0 ;
+         BTN_CLOSE ;
+         BTN_MAXIMIZE ;
+         BTN_MINIMIZE
 
       // Set colors of predefined buttons to correspond panel color.
       // "btnClose" is a predefined name of a close button, "btnMax" and
@@ -64,8 +74,11 @@ FUNCTION MAIN()
       oPanel:SetSysbtnColor( 0xffffff, 0x7b7680 )
    ELSE
 
-      INIT WINDOW oDlg TITLE cTitle ;
-      AT 0, 0 SIZE 380, 400 STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
+      INIT WINDOW oDlg ;
+         TITLE cTitle ;
+         AT 0, 0 ;
+         SIZE 380, 400 ;
+         STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
    ENDIF
 
    // The menu is fix connected to the main bar,
@@ -86,13 +99,18 @@ FUNCTION MAIN()
 
    IF inilNightDesign
 
-      @ 140,260 OWNERBUTTON SIZE 100,32 TEXT "Close" COLOR 0xffffff ;
-            HSTYLES oStyleNormal, oStylePressed, oStyleOver ;
-            ON SIZE ANCHOR_LEFTABS + ANCHOR_RIGHTABS + ANCHOR_BOTTOMABS ;
-            ON CLICK {|| oDlg:Close()}
+      @ 140,260 OWNERBUTTON ;
+         SIZE 100,32 ;
+         TEXT "Close" ;
+         COLOR 0xffffff ;
+         HSTYLES oStyleNormal, oStylePressed, oStyleOver ;
+         ON SIZE ANCHOR_LEFTABS + ANCHOR_RIGHTABS + ANCHOR_BOTTOMABS ;
+         ON CLICK {|| oDlg:Close()}
    ELSE
 
-     @ 140,260 BUTTON oButton CAPTION "Close" SIZE 100,32 ;
+     @ 140,260 BUTTON oButton ;
+        CAPTION "Close" ;
+        SIZE 100,32 ;
         STYLE WS_TABSTOP+BS_FLAT ;
         ON CLICK {|| oDlg:Close()}
    ENDIF
@@ -109,22 +127,40 @@ FUNCTION TestDialog()
 
    al_DOKs :=  { {"1"} , {"2"} , {"3"} , {"4"} }
 
-   INIT DIALOG oDlg TITLE "" BACKCOLOR 0x3C3940 ;
-         AT 200, 200 SIZE 380, 400 STYLE WND_NOTITLE &&  + WND_NOSIZEBOX ;
+   INIT DIALOG oDlg ;
+      TITLE "" ;
+      BACKCOLOR 0x3C3940 ;
+      AT 200, 200 ;
+      SIZE 380, 400 ;
+      STYLE WND_NOTITLE &&  + WND_NOSIZEBOX ;
 
    IF inilNightDesign
 
-      INIT DIALOG oDlg TITLE "" BACKCOLOR 0x3C3940 ;
-            AT 0, 0 SIZE 380, 400 STYLE WND_NOTITLE
+      INIT DIALOG oDlg ;
+         TITLE "" ;
+         BACKCOLOR 0x3C3940 ;
+         AT 0, 0 ;
+         SIZE 380, 400 ;
+         STYLE WND_NOTITLE
 
-      ADD HEADER PANEL oPanel HEIGHT 32 TEXTCOLOR 0xFFFFFF BACKCOLOR 0x2F343F ;
-         FONT oFont TEXT cTitle  COORS 0 BTN_CLOSE BTN_MAXIMIZE BTN_MINIMIZE
+      ADD HEADER PANEL oPanel ;
+         HEIGHT 32 ;
+         TEXTCOLOR 0xFFFFFF ;
+         BACKCOLOR 0x2F343F ;
+         FONT oFont ;
+         TEXT cTitle  COORS 0 ;
+         BTN_CLOSE ;
+         BTN_MAXIMIZE ;
+         BTN_MINIMIZE
 
       oPanel:SetSysbtnColor( 0xffffff, 0x7b7680 )
    ELSE
 
-      INIT DIALOG oDlg TITLE cTitle ;
-         AT 0, 0 SIZE 380, 400 STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE+DS_CENTER
+      INIT DIALOG oDlg ;
+         TITLE cTitle ;
+         AT 0, 0 ;
+         SIZE 380, 400 ;
+         STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE+DS_CENTER
 
    ENDIF
 
@@ -145,8 +181,10 @@ FUNCTION TestDialog()
    * For you to do at your own needs : change colors of browse,
    * see sample program "colrbloc.prg"
 
-   @ 21,50 BROWSE oBrwArr ARRAY ;
-      STYLE WS_VSCROLL + WS_HSCROLL   SIZE 100,170
+   @ 21,50 BROWSE oBrwArr ;
+      ARRAY ;
+      STYLE WS_VSCROLL + WS_HSCROLL   ;
+      SIZE 100,170
 
 	/* See demobrowsearray.prg */
    hwg_CREATEARLIST(oBrwArr,al_DOKs)
@@ -158,12 +196,18 @@ FUNCTION TestDialog()
 
    IF inilNightDesign
 
-      @ 200,260 OWNERBUTTON SIZE 100,32 TEXT "Close" COLOR 0xffffff ;
+      @ 200,260 OWNERBUTTON ;
+         SIZE 100,32 ;
+         TEXT "Close" ;
+         COLOR 0xffffff ;
          HSTYLES oStyleNormal, oStylePressed, oStyleOver ;
          ON CLICK {|| oDlg:Close(oDlg) }
          * ON SIZE ANCHOR_LEFTABS + ANCHOR_RIGHTABS + ANCHOR_BOTTOMABS ;
 
-      @ 39,260 OWNERBUTTON SIZE 100,64 TEXT "Change header text" COLOR 0xffffff ;
+      @ 39,260 OWNERBUTTON ;
+         SIZE 100,64 ;
+         TEXT "Change header text" ;
+         COLOR 0xffffff ;
          HSTYLES oStyleNormal, oStylePressed, oStyleOver ;
          ON CLICK {|| ChangeHeader(oPanel,.T.) }
       * ON SIZE ANCHOR_LEFTABS + ANCHOR_RIGHTABS + ANCHOR_BOTTOMABS ;

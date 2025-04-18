@@ -64,8 +64,11 @@ oObj_Dialog := HIcon():AddString( "Dialog" , cVal_DIco )
 oImg_Window := HBitmap():AddString( "Window" , cVal_Wbmp )
 oImg_Dialog := HBitmap():AddString( "Dialog" , cVal_Dbmp )
 
-   INIT WINDOW oMainWindow TITLE "Dialog icon test" ;
-     AT 100,80 SIZE 300, 300 ICON oObj_Window
+   INIT WINDOW oMainWindow ;
+      TITLE "Dialog icon test" ;
+      AT 100,80 ;
+      SIZE 300, 300 ;
+      ICON oObj_Window
 
 
   nMainX := oMainWindow:nLeft + 60
@@ -112,13 +115,13 @@ LOCAL ctext  := "-- Dialog --"
 LOCAL ctxt   := "icon displayed with @x,y Bitmap"
 
 //  INIT DIALOG oDialog TITLE cTitle AT oMainWindow:nLeft+60,oMainWindow:nTop+175  SIZE 400,400 ;
-   INIT DIALOG oDialog TITLE cTitle AT nMainX, nMainY SIZE 400,400 ;
+   INIT DIALOG oDialog ;
+      TITLE cTitle AT nMainX, nMainY ;
+      SIZE 400,400 ;
      ICON oObj_Dialog
 
       @ 10 , 20  SAY ctext SIZE 270, 90
       @ 20 , 120 SAY ctxt  SIZE 180, 48
-
-
 
 /*
   GTK: crashes here with core dump memory access violation,
@@ -130,8 +133,9 @@ LOCAL ctxt   := "icon displayed with @x,y Bitmap"
       @ 210, 118 BITMAP   oImg_Dialog
 #endif
 
-      @ 150,350 BUTTON "OK" SIZE 100, 32 ON CLICK {|| oDialog:Close() }
-
+      @ 150,350 BUTTON "OK" ;
+         SIZE 100, 32 ;
+         ON CLICK {|| oDialog:Close() }
 
    ACTIVATE DIALOG oDialog
 

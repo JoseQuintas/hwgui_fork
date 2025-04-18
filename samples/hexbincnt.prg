@@ -113,12 +113,14 @@ INIT WINDOW oMainW  ;
    TITLE "Bitmap Hex container sample" AT 0,0 SIZE 400 , 400 ;
    ICON oIcon STYLE WS_POPUP +  WS_CAPTION + WS_SYSMENU ;
 
-
 * @ 0, 0 TOOLBAR oToolbar OF oMainW SIZE  299 , 50
- @ 0,0 PANEL oToolbar OF oMainW SIZE 300 , 50 ON SIZE ANCHOR_TOPABS + ANCHOR_LEFTABS + ANCHOR_RIGHTABS
+ @ 0,0 PANEL oToolbar ;
+    OF oMainW ;
+    SIZE 300 , 50 ;
+    ON SIZE ANCHOR_TOPABS + ANCHOR_LEFTABS + ANCHOR_RIGHTABS
 
-
-@ htab+(nbut*32), 3 OWNERBUTTON oFileOpen OF oToolbar ;
+@ htab+(nbut*32), 3 OWNERBUTTON oFileOpen ;
+   OF oToolbar ;
    ON CLICK { | | FileOpen()} ;
    SIZE 28,24 FLAT ;
    BITMAP oBitmap ;
@@ -127,7 +129,8 @@ INIT WINDOW oMainW  ;
 
    nbut += 1
 
-@ htab+(nbut*32),3 OWNERBUTTON oQuit OF oToolbar ;
+@ htab+(nbut*32),3 OWNERBUTTON oQuit ;
+   OF oToolbar ;
    ON CLICK { | | oMainW:Close()} ;
    SIZE 28,24 FLAT ;
    BITMAP oBMPExit ;
@@ -139,7 +142,8 @@ INIT WINDOW oMainW  ;
    nbut += 1
 
 * !!!!! PNG not supported
-@ htab+(nbut*32),3 OWNERBUTTON oBtnDoor OF oToolbar ;
+@ htab+(nbut*32),3 OWNERBUTTON oBtnDoor ;
+   OF oToolbar ;
    ON CLICK { | | OpenDoor()} ;
    SIZE 28,24 FLAT ;
    BITMAP oPNGDoor ;
@@ -148,24 +152,32 @@ INIT WINDOW oMainW  ;
 
   nbut += 1
 
-@ htab+(nbut*32),3 OWNERBUTTON oBtnjpeg OF oToolbar ;
+@ htab+(nbut*32),3 OWNERBUTTON oBtnjpeg ;
+   OF oToolbar ;
    ON CLICK { | | ClickJpeg()} ;
-   SIZE 28,24 FLAT ;
+   SIZE 28,24 ;
+   FLAT ;
    BITMAP ojpeg ;
    TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ;
    TOOLTIP "JPEG image"
 
 nbut+=1
 
-   @ htab+(nbut*32), 3 BUTTON obttontest CAPTION "Show Bmp"  OF oToolbar SIZE 80,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ;
-        ON CLICK { || showbitmap(cValopen,"open") }
+   @ htab+(nbut*32), 3 BUTTON obttontest ;
+      CAPTION "Show Bmp"  ;
+      OF oToolbar ;
+      SIZE 80,32 ;
+      STYLE WS_TABSTOP+BS_FLAT ;
+      ON CLICK { || showbitmap(cValopen,"open") }
 
 nbut+=1
 
-   @ htab+( (nbut*32)  + 48 ), 3 BUTTON obttontest2  CAPTION "Show bmp2" OF oToolbar SIZE 80,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ;
-        ON CLICK { || showbitmap(cValAstro,"astro") }
+   @ htab+( (nbut*32)  + 48 ), 3 BUTTON obttontest2  ;
+      CAPTION "Show bmp2" ;
+      OF oToolbar ;
+      SIZE 80,32 ;
+      STYLE WS_TABSTOP+BS_FLAT ;
+      ON CLICK { || showbitmap(cValAstro,"astro") }
 
 * Attention:
 * This crashes with core dump
@@ -219,16 +231,29 @@ IF ny > 640
   ny := 640
 ENDIF
 
-  INIT DIALOG frm_bitmap TITLE "Bitmap Image" ;
-    AT 20,20 SIZE 1324,772 ;
+  INIT DIALOG frm_bitmap ;
+     TITLE "Bitmap Image" ;
+     AT 20,20 ;
+     SIZE 1324,772 ;
      STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
 
-   @ 747,667 SAY oLabel1 CAPTION "Size:  x:"  SIZE 87,22 ;
-        STYLE SS_RIGHT
-   @ 866,667 SAY oLabel2 CAPTION ALLTRIM(STR(nx))  SIZE 80,22
-   @ 988,667 SAY oLabel3 CAPTION "y:"  SIZE 80,22 ;
-        STYLE SS_RIGHT
-   @ 1130,667 SAY oLabel4 CAPTION ALLTRIM(STR(ny))  SIZE 80,22
+   @ 747,667 SAY oLabel1 ;
+      CAPTION "Size:  x:"  ;
+      SIZE 87,22 ;
+      STYLE SS_RIGHT
+
+   @ 866,667 SAY oLabel2 ;
+      CAPTION ALLTRIM(STR(nx))  ;
+      SIZE 80,22
+
+   @ 988,667 SAY oLabel3 ;
+      CAPTION "y:"  ;
+      SIZE 80,22 ;
+      STYLE SS_RIGHT
+
+   @ 1130,667 SAY oLabel4 ;
+      CAPTION ALLTRIM(STR(ny))  ;
+      SIZE 80,22
 
 
 #ifdef __GTK__
@@ -241,9 +266,10 @@ ENDIF
 #endif
 
 
-   @ 590,663 BUTTON oButton1 CAPTION "OK"   SIZE 80,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ;
-        ON CLICK { || frm_bitmap:Close() }
+   @ 590,663 BUTTON oButton1 CAPTION "OK"   ;
+      SIZE 80,32 ;
+      STYLE WS_TABSTOP+BS_FLAT ;
+      ON CLICK { || frm_bitmap:Close() }
 
    ACTIVATE DIALOG frm_bitmap
 

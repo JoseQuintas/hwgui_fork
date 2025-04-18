@@ -73,16 +73,22 @@ FUNCTION Main()
 
 #ifdef __GTK__
    * increased size of main window
-   INIT WINDOW oMainWindow MAIN TITLE "Example"  ;
-     SYSCOLOR COLOR_3DLIGHT+1                    ;
-     AT 200,0 SIZE 600,400                       ;
-     FONT oFont                                  ;
+   INIT WINDOW oMainWindow ;
+      MAIN ;
+      TITLE "Example"  ;
+     SYSCOLOR COLOR_3DLIGHT+1 ;
+     AT 200,0 ;
+     SIZE 600,400 ;
+     FONT oFont ;
      ON EXIT {||hwg_Msgyesno("Really want to quit ?")}
 #else
-   INIT WINDOW oMainWindow MAIN TITLE "Example"  ;
-     SYSCOLOR COLOR_3DLIGHT+1                    ;
-     AT 200,0 SIZE 420,300                       ;
-     FONT oFont                                  ;
+   INIT WINDOW oMainWindow ;
+      MAIN ;
+      TITLE "Example"  ;
+     SYSCOLOR COLOR_3DLIGHT+1 ;
+     AT 200,0 ;
+     SIZE 420,300 ;
+     FONT oFont ;
      ON EXIT {||hwg_Msgyesno("Really want to quit ?")}
 #endif
 
@@ -97,40 +103,63 @@ FUNCTION Main()
 * Functions for rich text format in source code file
 * source\winapi\richedit.c
 
-   @ 20,10 RICHEDIT oEdit TEXT "Hello, world !"  SIZE 200,30
+   @ 20,10 RICHEDIT oEdit ;
+      TEXT "Hello, world !"  ;
+      SIZE 200,30
 
    hwg_Re_setcharformat( oEdit:handle, { { 1,6,,,,.T. }, { 8,13,255,,,,,.T. } } )
 #else
-     @ 20,10 EDITBOX oEdit CAPTION "Hello, world !"  SIZE 200,30
+     @ 20,10 EDITBOX oEdit ;
+        CAPTION "Hello, world !"  ;
+        SIZE 200,30
 #endif
 
 #ifdef __GTK__
-   @ 470,10 COMBOBOX oCombo ITEMS aCombo SIZE 100, 150 TOOLTIP "Combobox"
+   @ 470,10 COMBOBOX oCombo ;
+      ITEMS aCombo ;
+      SIZE 100, 150 ;
+      TOOLTIP "Combobox"
 #else
-   @ 270,10 COMBOBOX oCombo ITEMS aCombo SIZE 100, 150 TOOLTIP "Combobox"
+   @ 270,10 COMBOBOX oCombo ;
+      ITEMS aCombo ;
+      SIZE 100, 150 ;
+      TOOLTIP "Combobox"
 #endif
 
    @ 20,50 LINE LENGTH 100
 
 #ifndef __GTK__
-   @ 20,60 TAB oTab ITEMS aTabs SIZE 140,100      ;
-         STYLE TCS_FIXEDWIDTH+TCS_FORCELABELLEFT  ;
-         ON CHANGE {|o,n|ChangeTab(o,oGetTab,n)}
+   @ 20,60 TAB oTab ;
+      ITEMS aTabs ;
+      SIZE 140,100      ;
+      STYLE TCS_FIXEDWIDTH+TCS_FORCELABELLEFT  ;
+      ON CHANGE {|o,n|ChangeTab(o,oGetTab,n)}
    // @ 20,60 TAB oTab ITEMS aTabs SIZE 90,100 STYLE TCS_FIXEDWIDTH+TCS_VERTICAL+TCS_FORCELABELLEFT+WS_CLIPSIBLINGS  // +TCS_RIGHT
 
    hwg_Settabsize( oTab:handle,20,20 )
 
-   @ 10,30 RICHEDIT oGetTab TEXT "" OF oTab SIZE 120,60 ;
-          STYLE ES_MULTILINE
+   @ 10,30 RICHEDIT oGetTab ;
+      TEXT "" ;
+      OF oTab ;
+      SIZE 120,60 ;
+      STYLE ES_MULTILINE
 #else
-   @ 20,60 TAB oTab ITEMS aTabs SIZE 340,100      ;
-        STYLE TCS_FIXEDWIDTH+TCS_FORCELABELLEFT
+   @ 20,60 TAB oTab ;
+      ITEMS aTabs ;
+      SIZE 340,100      ;
+      STYLE TCS_FIXEDWIDTH+TCS_FORCELABELLEFT
 #endif
 
 #ifdef __GTK__
-   @ 280,15 SAY "" SIZE 70,22 STYLE WS_BORDER BACKCOLOR 12507070
+   @ 280,15 SAY "" ;
+      SIZE 70,22 ;
+      STYLE WS_BORDER ;
+      BACKCOLOR 12507070
 #else
-   @ 180,60 SAY "" SIZE 70,22 STYLE WS_BORDER BACKCOLOR 12507070
+   @ 180,60 SAY "" ;
+      SIZE 70,22 ;
+      STYLE WS_BORDER ;
+      BACKCOLOR 12507070
 #endif
 
 #ifdef __GTK__

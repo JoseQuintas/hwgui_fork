@@ -37,9 +37,12 @@ FUNCTION Main()
 *   Parameter            Font Name,Breite,Hoehe
    //oFont := HFont():Add( "Courier", 0, -14 )
 
-   INIT WINDOW oWndMain MAIN TITLE "Default title"  ;
-     AT 200,100 SIZE 500,500 ;
-     ON EXIT { || hwg_MsgYesNo("OK to quit ?" ) }
+   INIT WINDOW oWndMain ;
+      MAIN ;
+      TITLE "Default title"  ;
+      AT 200,100 ;
+      SIZE 500,500 ;
+      ON EXIT { || hwg_MsgYesNo("OK to quit ?" ) }
 
    MENU OF oWndMain
       MENU TITLE "&File"

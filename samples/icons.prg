@@ -19,7 +19,7 @@
  * This line returns invalid handle:
  *   PHB_ITEM pBmp = GetObjectVar( pObject, "OBMP" );
  *
- * Runs best on Windows 11 
+ * Runs best on Windows 11
  */
 
     * Status:
@@ -71,9 +71,13 @@ FUNCTION Main()
 #endif
 
 * The background image was tiled, if size is smaller than window.
-   INIT WINDOW oFormMain MAIN APPNAME "Hwgui sample" ;
+   INIT WINDOW oFormMain ;
+      MAIN ;
+      APPNAME "Hwgui sample" ;
       FONT oFontMain BACKGROUND BITMAP oBmp ;   && HBitmap():AddFile( cImageMain ) ;
-      TITLE "Icon sample" AT 0,0 SIZE nPosX,nPosY - 30 ;
+      TITLE "Icon sample" ;
+      AT 0,0 ;
+      SIZE nPosX,nPosY - 30 ;
       ICON oIconEXE STYLE WS_POPUP +  WS_CAPTION + WS_SYSMENU
 
    hwg_msginfo( cImageMain + CHR(10)+  cImagepath + "ok.ico" )
@@ -82,7 +86,7 @@ FUNCTION Main()
       MENU TITLE "&Exit"
          MENUITEM "&Quit" ACTION oFormMain:Close()
       ENDMENU
-#ifdef __PLATFORM__WINDOWS      
+#ifdef __PLATFORM__WINDOWS
       MENU TITLE "&Dialog"
          MENUITEM "&With Background" ACTION Teste( cImagepath )  && Bug GTK
       ENDMENU
@@ -97,27 +101,29 @@ RETURN Nil
 FUNCTION Teste( cimgpfad )
 
    LOCAL oModDlg, obg , obitmap , oIcon , cbitmap
-   
-   cbitmap := "astro.bmp" 
-   
+
+   cbitmap := "astro.bmp"
+
    obitmap := HBitmap():AddFile(cimgpfad + cbitmap )
    oIcon := HIcon():AddFile( cimgpfad + "hwgui_24x24.ico" )
-   
+
      hwg_msginfo( cimgpfad + cbitmap + CHR(10) +  cimgpfad + "hwgui_24x24.ico" )
 
 
    obg := NIL
-   
+
    IF .NOT. FILE( cimgpfad + "astro.bmp" )
       hwg_msgStop( "File " + cimgpfad + "astro.bmp" + " not found" )
    ENDIF
-   
+
    IF .NOT. FILE( cimgpfad + "hwgui_24x24.ico" )
       hwg_msgStop( "File " + cimgpfad + "hwgui_24x24.ico" + " not found" )
-   ENDIF   
+   ENDIF
 
-   INIT DIALOG oModDlg TITLE "Dialog with background image" ;
-      AT 210,10  SIZE 300,300 ;
+   INIT DIALOG oModDlg ;
+      TITLE "Dialog with background image" ;
+      AT 210,10  ;
+      SIZE 300,300 ;
       ICON oIcon ;
       BACKGROUND BITMAP obitmap  && HBitmap():AddFile(cimgpfad + "astro.bmp" )
 

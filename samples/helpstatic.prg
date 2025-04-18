@@ -55,8 +55,11 @@ LOCAL oMain , oFontMain, oIcon , cDirSep
 
    oIcon := HIcon():AddFile("." + cDirSep + "image" + cDirSep + "hwgui_32x32.ico")
 
-   INIT WINDOW oMain MAIN TITLE "Sample for static help text" ;
-      FONT oFontMain SIZE 200, 100 ;
+   INIT WINDOW oMain ;
+      MAIN ;
+      TITLE "Sample for static help text" ;
+      FONT oFontMain ;
+      SIZE 200, 100 ;
       ICON oIcon
 
 * Main Menu

@@ -264,8 +264,11 @@ END
 
 * Main Menu
 
-   INIT WINDOW oMainWindow MAIN TITLE cTitle ;
-     AT 0,0 SIZE hwg_Getdesktopwidth(), hwg_Getdesktopheight() - 28
+   INIT WINDOW oMainWindow ;
+      MAIN ;
+      TITLE cTitle ;
+      AT 0,0 ;
+      SIZE hwg_Getdesktopwidth(), hwg_Getdesktopheight() - 28
 
    // MENUITEM in main menu on GTK/Linux does not start the desired action
    // Submenu needed
@@ -284,9 +287,6 @@ END
    ENDMENU
 
    ACTIVATE WINDOW oMainWindow CENTER
-
-
-
 
 RETURN NIL
 
@@ -400,7 +400,6 @@ LOCAL cFile
 //   oWinPrn:StartDoc( .T.,"temp_a2.pdf" )
    oWinPrn:StartDoc( lpreview ,"temp_a2.pdf" , lprbutton)
 #endif
-
 
 
    *  =============== Serbian ==================

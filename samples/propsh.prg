@@ -37,8 +37,11 @@ FUNCTION Main()
 
    LOCAL oMainWindow
 
-   INIT WINDOW oMainWindow MAIN TITLE "Example" ;
-      AT 200,0 SIZE 650,400
+   INIT WINDOW oMainWindow ;
+      MAIN ;
+      TITLE "Example" ;
+      AT 200,0 ;
+      SIZE 650,400
 
    MENU OF oMainWindow
       MENUITEM "&Exit" ACTION hwg_EndWindow()
@@ -70,53 +73,86 @@ FUNCTION OpenConfig()
    // INIT DIALOG aDlg1 FROM RESOURCE  "PAGE_1" ON EXIT {||hwg_Msginfo("Exit"),.T.}
    // REDEFINE GET e1 ID 103
 
-    INIT DIALOG aDlg1 TITLE "Config1" ;
-       AT 10,10 SIZE 262,249 ;   && 210,297
+    INIT DIALOG aDlg1 ;
+       TITLE "Config1" ;
+       AT 10,10 ;
+       SIZE 262,249 ;   && 210,297
        STYLE  WS_VISIBLE + WS_BORDER ;   && WS_CHILD freezes program
        FONT oFont ;
        ON EXIT {||hwg_Msginfo("Exit"),.T.}
 
-   @ 40,26 CHECKBOX "Checkbox" OF aDlg1 SIZE 120,22 ;
-            FONT oFont
+   @ 40,26 CHECKBOX "Checkbox" ;
+      OF aDlg1 ;
+      SIZE 120,22 ;
+      FONT oFont
+
    * not allowed :
    *           STYLE BS_AUTOCHECKBOX + WS_TABSTOP ;
    *           FONT oFont
 
-   @ 40,59 CHECKBOX "Checkbox" OF aDlg1 SIZE 80,22 ;
-            FONT oFont
+   @ 40,59 CHECKBOX "Checkbox" ;
+      OF aDlg1 ;
+      SIZE 80,22 ;
+      FONT oFont
 
    @ 40,96 GET oEditbox1 VAR e1 ;
-        OF aDlg1 SIZE 80,24 ;
+        OF aDlg1 ;
+        SIZE 80,24 ;
         STYLE WS_CHILD + WS_VISIBLE + WS_BORDER ;
         FONT oFont
 
-   @ 40,150 SAY oSay1 CAPTION "Close sheet with <ESC>" OF aDlg1 SIZE 150,22
-   @ 40,175 SAY oSay2 CAPTION "or <Alt> + F4"         OF aDlg1 SIZE 150,22
+   @ 40,150 SAY oSay1 ;
+      CAPTION "Close sheet with <ESC>" ;
+      OF aDlg1 ;
+      SIZE 150,22
+
+   @ 40,175 SAY oSay2 ;
+      CAPTION "or <Alt> + F4" ;
+      OF aDlg1 ;
+      SIZE 150,22
 
    * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    // INIT DIALOG aDlg2 FROM RESOURCE  "PAGE_2" ON EXIT {||.T.}
-     INIT DIALOG aDlg2 TITLE "Config2" ;
-     AT 282,10  SIZE 346,249 ;  && 295,329
-     STYLE WS_VISIBLE + WS_CAPTION ;
-     FONT oFont ;
-     ON EXIT {||.T.}
+     INIT DIALOG aDlg2 ;
+        TITLE "Config2" ;
+        AT 282,10  ;
+        SIZE 346,249 ;  && 295,329
+        STYLE WS_VISIBLE + WS_CAPTION ;
+        FONT oFont ;
+        ON EXIT {||.T.}
 
    // REDEFINE COMBOBOX aCombo ID 101
-     @ 18,47 COMBOBOX oCombobox1  ITEMS aCombo OF aDlg2 SIZE 63,80 ;
-       STYLE CBS_DROPDOWNLIST + WS_TABSTOP ;
-       FONT oFont
+     @ 18,47 COMBOBOX oCombobox1 ;
+        ITEMS aCombo ;
+        OF aDlg2 ;
+        SIZE 63,80 ;
+        STYLE CBS_DROPDOWNLIST + WS_TABSTOP ;
+        FONT oFont
 
-     @ 18,83 CHECKBOX oCheckbox1 CAPTION "Checkbox" OF aDlg2 SIZE 80,22    ;
-       FONT oFont
+     @ 18,83 CHECKBOX oCheckbox1 ;
+        CAPTION "Checkbox" ;
+        OF aDlg2 ;
+        SIZE 80,22    ;
+        FONT oFont
 
-     @ 18,150 SAY oSay3 CAPTION "Close sheet with <ESC>" OF aDlg2 SIZE 150,22
-     @ 40,175 SAY oSay4 CAPTION "or <Alt> + F4"         OF aDlg2 SIZE 150,22
+     @ 18,150 SAY oSay3 ;
+        CAPTION "Close sheet with <ESC>" ;
+        OF aDlg2 ;
+        SIZE 150,22
+
+     @ 40,175 SAY oSay4 ;
+        CAPTION "or <Alt> + F4" ;
+        OF aDlg2 ;
+        SIZE 150,22
 
 
    // REDEFINE BROWSE oBrw1 ARRAY ID 104
    // REDEFINE BROWSE oBrw2 ARRAY ID 105
 
-   @ 103,17 BROWSE oBrw1 ARRAY OF aDlg2 SIZE 97,106 ;
+   @ 103,17 BROWSE oBrw1 ;
+      ARRAY ;
+      OF aDlg2 ;
+      SIZE 97,106 ;
       STYLE WS_CHILD + WS_VISIBLE + WS_BORDER + WS_VSCROLL + WS_HSCROLL + WS_TABSTOP ;
       FONT oFont
 
@@ -129,7 +165,10 @@ FUNCTION OpenConfig()
     *- FIM DE oBrowse1
 */
 
-   @ 213,17 BROWSE oBrw2 ARRAY OF aDlg2 SIZE 97,106 ;
+   @ 213,17 BROWSE oBrw2 ;
+      ARRAY ;
+      OF aDlg2 ;
+      SIZE 97,106 ;
       STYLE WS_CHILD + WS_VISIBLE + WS_BORDER + WS_VSCROLL + WS_HSCROLL + WS_TABSTOP ;
       FONT oFont
 

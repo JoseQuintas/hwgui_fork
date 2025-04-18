@@ -42,9 +42,12 @@ FUNCTION Main()
 
    PREPARE FONT oFont NAME "Times New Roman" WIDTH 0 HEIGHT -17 CHARSET 204
 
-   INIT WINDOW oMainWindow MAIN TITLE "Example"  ;
+   INIT WINDOW oMainWindow ;
+      MAIN ;
+      TITLE "Example"  ;
      SYSCOLOR COLOR_3DLIGHT+1                    ;
-     AT 200,0 SIZE 600,380                       ;
+     AT 200,0 ;
+     SIZE 600,380                       ;
      FONT oFont
 
    oAgent := TOleAuto():New("Agent.Control.2")
@@ -57,20 +60,35 @@ FUNCTION Main()
       IF Empty( oChar ) .OR. Empty( oChar:hObj )
          cText := "No default character !"
       ELSE
-         @ 480,20 BUTTON oBtnSpeak CAPTION "Speak!" SIZE 100,32  ON CLICK {||SpeakIt(oEdit)}
-         @ 480,60 BUTTON oBtnPause CAPTION "Pause"  SIZE 100,32 ;
-               ON CLICK {||SetPause()}
+         @ 480,20 BUTTON oBtnSpeak ;
+            CAPTION "Speak!" ;
+            SIZE 100,32  ;
+            ON CLICK {||SpeakIt(oEdit)}
+
+         @ 480,60 BUTTON oBtnPause ;
+            CAPTION "Pause"  ;
+            SIZE 100,32 ;
+            ON CLICK {||SetPause()}
          // @ 480,100 UPDOWN oUpDown INIT 10 RANGE 2,100 SIZE 100,30
       ENDIF
-      @ 480,250 BUTTON "Set Default"  SIZE 100,32  ON CLICK {||oAgent:showDefaultCharacterProperties()}
+      @ 480,250 BUTTON "Set Default"  ;
+         SIZE 100,32  ;
+         ON CLICK {||oAgent:showDefaultCharacterProperties()}
    ENDIF
 
-   @ 12,20 EDITBOX oEdit CAPTION hwg_Getclipboardtext() SIZE 460,310 ;
+   @ 12,20 EDITBOX oEdit ;
+      CAPTION hwg_Getclipboardtext() ;
+      SIZE 460,310 ;
       STYLE ES_MULTILINE+ES_AUTOVSCROLL
 
-   @ 480,300 BUTTON "Close"  SIZE 100,32  ON CLICK {||hwg_EndWindow()}
+   @ 480,300 BUTTON "Close"  ;
+      SIZE 100,32  ;
+      ON CLICK {||hwg_EndWindow()}
 
-   SET TIMER oTimer OF oMainWindow VALUE 200 ACTION {||TimerFunc()}
+   SET TIMER oTimer ;
+      OF oMainWindow ;
+      VALUE 200 ;
+      ACTION {||TimerFunc()}
 
    ACTIVATE WINDOW oMainWindow CENTER
 

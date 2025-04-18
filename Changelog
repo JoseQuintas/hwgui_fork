@@ -15,6 +15,32 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-18 11:10 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/a.prg
+     ! menu caption changed, one menu option caption changed
+   * samples/grid_3.prg
+   * samples/grid_4.prg
+   * samples/grid_5.prg
+   * samples/hello.prg
+   * samples/helpdemo.prg
+   * samples/helpstatic.prg
+   * samples/hexbincnt.prg
+   * samples/hole.prg
+   * samples/htrack.prg
+   * samples/icons.prg
+   * samples/icons2.prg
+   * samples/memocmp.prg
+   * samples/modtitle.prg
+   * samples/nice2.prg
+   * samples/night.prg
+   * samples/progbars.prg
+   * samples/propsh.prg
+   * samples/pseudocm.prg
+   * samples/testget2.prg
+   * samples/tstconsapp.prg
+   * samples/winprn.prg
+     ! no change, continue single format to best view used options
+
 2025-04-17 21:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/*.prg
      ! continue format source code to visibility only

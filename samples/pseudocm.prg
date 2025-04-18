@@ -37,7 +37,9 @@ FUNCTION Main()
       MENUITEM "Status" ACTION { ||st_f4( nrp, aSample[nrp][2] ) }
    ENDMENU
 
-   @ 160, 10 BROWSE oBrw ARRAY SIZE 180, 180 ;
+   @ 160, 10 BROWSE oBrw ;
+      ARRAY ;
+      SIZE 180, 180 ;
       STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL ;
       ON RIGHTCLICK { |o, nrow, ncol| (o), SUBMNU_BRW( ncol, nrow ) }
 

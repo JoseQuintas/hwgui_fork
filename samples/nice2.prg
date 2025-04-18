@@ -36,9 +36,11 @@ FUNCTION Main()
 
    LOCAL oWinMain
 
-   INIT WINDOW oWinMain MAIN  ;
+   INIT WINDOW oWinMain ;
+      MAIN  ;
       SYSCOLOR COLOR_3DLIGHT+1 ;
-      TITLE "Sample program NICEBUTTON" AT 0, 0 SIZE 600,400;
+      TITLE "Sample program NICEBUTTON" AT 0, 0 ;
+      SIZE 600,400;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
    MENU OF oWinMain
@@ -64,13 +66,19 @@ STATIC FUNCTION _Testen()
    PREPARE FONT oFont NAME "MS Sans Serif" WIDTH 0 HEIGHT 8
 
 * from resource DIALOG_1
-   INIT DIALOG odlg TITLE "nice button test" ;
-      AT 6, 15 SIZE 161, 127 FONT oFont ;
+   INIT DIALOG odlg ;
+      TITLE "nice button test" ;
+      AT 6, 15 ;
+      SIZE 161, 127 ;
+      FONT oFont ;
       STYLE WS_POPUP + WS_VISIBLE + WS_CAPTION + WS_SYSMENU + WS_THICKFRAME + WS_MINIMIZEBOX + WS_MAXIMIZEBOX
 
 // Also bug: The caption of the nicebutton is not visible
 //   @ 10 ,10 NICEBUTTON o1 CAPTION "NICEBUTT" OF odlg ID IDC_1 SIZE 40,40
-   @ 10 ,10 NICEBUTTON  [NICEBUTT] OF odlg ID IDC_1 SIZE 40,40  && See nice.prg
+   @ 10 ,10 NICEBUTTON  [NICEBUTT] ;
+      OF odlg ;
+      ID IDC_1 ;
+      SIZE 40,40  && See nice.prg
 
    * redefine nicebutton o1  caption "teste" of odlg id IDC_1 Red 125 Green 201 blue 36 ;
    *  STYLE WS_CHILD+WS_VISIBLE
