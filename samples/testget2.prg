@@ -63,8 +63,12 @@ FUNCTION DlgGet( lColorInFocus )
 
    PRIVATE oSayT
 
-   INIT DIALOG oModDlg CLIPPER NOEXIT TITLE "Get values"  ;
-      AT 210,10  SIZE 300,320                  ;
+   INIT DIALOG oModDlg ;
+      CLIPPER ;
+      NOEXIT ;
+      TITLE "Get values"  ;
+      AT 210,10  ;
+      SIZE 300,320 ;
       FONT oFont ;
       ON INIT { || Dlg_Settimer( oModDlg, @oTimer ) }
 
@@ -77,27 +81,49 @@ FUNCTION DlgGet( lColorInFocus )
       hwg_SetColorinFocus( lColorInFocus )
    ENDIF
 
-   @ 20, 10  SAY "Input something:" SIZE 260, 22
+   @ 20, 10  SAY "Input something:" ;
+      SIZE 260, 22
 
-   @ 20, 35  GET e1 PICTURE "XXXXXXXXXXXXXXX" SIZE 260, 26
+   @ 20, 35  GET e1 PICTURE "XXXXXXXXXXXXXXX" ;
+      SIZE 260, 26
 
-   @ 20, 65  GET oget6 VAR e6 MAXLENGTH 15 SIZE 260, 26
+   @ 20, 65  GET oget6 ;
+      VAR e6 ;
+      MAXLENGTH 15 ;
+      SIZE 260, 26
 
-   @ 20, 95  GET e2  SIZE 260, 26
+   @ 20, 95  GET e2  ;
+      SIZE 260, 26
 
-   @ 20, 125 GET e3  SIZE 260, 26
+   @ 20, 125 GET e3  ;
+      SIZE 260, 26
 
-   @ 20, 155 GET e4 PICTURE "@R 99.999.999/9999-99" SIZE 260, 26
+   @ 20, 155 GET e4 ;
+      PICTURE "@R 99.999.999/9999-99" ;
+      SIZE 260, 26
 
-   @ 20, 185 GET e5 PICTURE "@e 999,999,999.9999" SIZE 260, 26
+   @ 20, 185 GET e5 ;
+      PICTURE "@e 999,999,999.9999" ;
+      SIZE 260, 26
 
-   @ 20, 215 GET e7 PASSWORD SIZE 260, 26
+   @ 20, 215 GET e7 ;
+      PASSWORD ;
+      SIZE 260, 26
 
-   @  20, 250  BUTTON "Ok" SIZE 100, 32 ON CLICK { || oModDlg:lResult := .T., hwg_EndDialog() }
-   @ 180, 250 BUTTON "Cancel" ID IDCANCEL SIZE 100, 32
+   @  20, 250  BUTTON "Ok" ;
+      SIZE 100, 32 ;
+      ON CLICK { || oModDlg:lResult := .T., hwg_EndDialog() }
 
-   @ 100, 295 SAY oSayT CAPTION "" SIZE 100,22 STYLE WS_BORDER + SS_CENTER ;
-      COLOR 10485760 BACKCOLOR 12507070
+   @ 180, 250 BUTTON "Cancel" ;
+      ID IDCANCEL ;
+      SIZE 100, 32
+
+   @ 100, 295 SAY oSayT ;
+      CAPTION "" ;
+      SIZE 100,22 ;
+      STYLE WS_BORDER + SS_CENTER ;
+      COLOR 10485760 ;
+      BACKCOLOR 12507070
 
    ReadExit( .T. )
    ACTIVATE DIALOG oModDlg
@@ -119,7 +145,10 @@ RETURN Nil
 
 STATIC FUNCTION Dlg_Settimer( oDlg,oTimer )
 
-   SET TIMER oTimer OF oDlg VALUE 1000 ACTION { || TimerFunc() }
+   SET TIMER oTimer ;
+      OF oDlg ;
+      VALUE 1000 ;
+      ACTION { || TimerFunc() }
 
 RETURN Nil
 
@@ -136,11 +165,16 @@ FUNCTION TestBallon()
    hwg_Settooltipballoon(.t.)
 
 
-   INIT DIALOG oWnd CLIPPER TITLE "Dialog text Balon" ;
-      AT 100, 100 SIZE 140, 100
+   INIT DIALOG oWnd ;
+      CLIPPER ;
+      TITLE "Dialog text Balon" ;
+      AT 100, 100 ;
+      SIZE 140, 100
 
-   @ 20, 20 BUTTON "Button 1" ON CLICK { || hwg_Msginfo( "Button 1" ) } SIZE 100, 40 ;
-       TOOLTIP "ToolTip do Button 1"
+   @ 20, 20 BUTTON "Button 1" ;
+      ON CLICK { || hwg_Msginfo( "Button 1" ) } ;
+      SIZE 100, 40 ;
+      TOOLTIP "ToolTip do Button 1"
 
    ACTIVATE DIALOG oWnd
 
@@ -148,12 +182,13 @@ RETURN Nil
 
 
 FUNCTION MAXLEN_VALID(nlen,cstring)
+
  IF LEN(cstring) > nlen
    hwg_MsgInfo("Entry field length exceeds " + ALLTRIM(STR(nlen)) )
    RETURN .F.
  ENDIF
-RETURN .T.
 
+RETURN .T.
 
 * ============================= EOF of testget2.prg ================================================
 

@@ -30,11 +30,16 @@ FUNCTION Main()
    PRIVATE nColor, oBmp2
 
 #ifdef __GTK__
-  INIT WINDOW oMainWindow MAIN TITLE "Example" ;
-     AT 200,0 SIZE 400,150
+  INIT WINDOW oMainWindow ;
+     MAIN ;
+     TITLE "Example" ;
+     AT 200,0 ;
+     SIZE 400,150
 #else
-   INIT WINDOW oMainWindow MDI TITLE "Example" ;
-         MENUPOS 3
+   INIT WINDOW oMainWindow ;
+   MDI ;
+   TITLE "Example" ;
+   MENUPOS 3
 #endif
 
    MENU OF oMainWindow

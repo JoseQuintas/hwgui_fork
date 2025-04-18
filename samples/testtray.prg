@@ -71,12 +71,18 @@ FUNCTION Main()
    ENDIF
 
 #ifdef __GTK__
-   INIT WINDOW oMainWindow MAIN TITLE "Example" ;
-      AT 200,0 SIZE 200,100 ;  && Needed for Ubuntu 16, otherwise not visible
+   INIT WINDOW oMainWindow ;
+      MAIN ;
+      TITLE "Example" ;
+      AT 200,0 ;
+      SIZE 200,100 ;  && Needed for Ubuntu 16, otherwise not visible
       ICON oIcon1
 #else
-   INIT WINDOW oMainWindow MAIN TITLE "Example" ;
-      AT 0, 0 SIZE 600, 400
+   INIT WINDOW oMainWindow ;
+      MAIN ;
+      TITLE "Example" ;
+      AT 0, 0 ;
+      SIZE 600, 400
 #endif
 
 #ifdef __GTK__

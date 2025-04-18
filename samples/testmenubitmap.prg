@@ -78,7 +78,9 @@ FUNCTION Main()
       RETURN Nil
    ENDIF
 
-   INIT WINDOW oMain MAIN TITLE "Teste" ;
+   INIT WINDOW oMain ;
+      MAIN ;
+      TITLE "Teste" ;
       AT 0,0 ;//BACKGROUND BITMAP OBMP;
       SIZE hwg_Getdesktopwidth(), hwg_Getdesktopheight() - 28
 

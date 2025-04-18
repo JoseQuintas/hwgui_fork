@@ -58,12 +58,15 @@
    cVal_Wcur2 := hwg_cHex2Bin( hex_splith() )
 *   cVal_Wcur3 := hwg_cHex2Bin( hex_transistor() )
 
-   INIT DIALOG oDlg TITLE "TESTSPLIT - Split windows example"  ;
-     ; //SYSCOLOR COLOR_3DLIGHT+1 ; // not valid for dialog
-     AT 200,0 SIZE 420,300 ;
-     FONT oFont
+   INIT DIALOG oDlg ;
+      TITLE "TESTSPLIT - Split windows example"  ;
+      ; //SYSCOLOR COLOR_3DLIGHT+1 ; // not valid for dialog
+      AT 200,0 ;
+      SIZE 420,300 ;
+      FONT oFont
 
-   @ 20,10 TREE oTree SIZE 140,100
+   @ 20,10 TREE oTree ;
+      SIZE 140,100
 
    oTree:AddNode( "First" )
    oTree:AddNode( "Second" )
@@ -71,9 +74,14 @@
    oItem:AddNode( "Third-1" )
    oTree:AddNode( "Forth" )
 
-   @ 163,10 EDITBOX oEdit1 CAPTION "Hello, World!"  SIZE 200,100
+   @ 163,10 EDITBOX oEdit1 ;
+      CAPTION "Hello, World!"  ;
+      SIZE 200,100
 
-   @ 160,10 SPLITTER oSplitV SIZE 3,100 DIVIDE {oTree} FROM {oEdit1} LIMITS 100,300
+   @ 160,10 SPLITTER oSplitV ;
+      SIZE 3,100 ;
+      DIVIDE {oTree} FROM {oEdit1} LIMITS 100,300
+
 #ifdef __GTK__
 *   oSplitV:hCursor := hwg_Loadcursor( GDK_SB_H_DOUBLE_ARROW  )  && "VSPLIT"
 *   oSplitV:hCursor := hwg_LoadCursorFromFile("transistor.cur",7,7)   && Test
@@ -85,9 +93,14 @@
    oSplitV:hCursor := hwg_LoadCursorFromString(cVal_Wcur1, 16 , 16 ) && From hex value
 *   oSplitV:hCursor := hwg_LoadCursorFromString(cVal_Wcur3, 16 , 16 ) && Test
 
-   @ 20,113 EDITBOX oEdit2 CAPTION "Example"  SIZE 344,130
+   @ 20,113 EDITBOX oEdit2 ;
+      CAPTION "Example"  ;
+      SIZE 344,130
 
-   @ 20,110 SPLITTER oSplitH SIZE 344,3 DIVIDE {oTree,oEdit1,oSplitV} FROM {oEdit2} LIMITS ,220
+   @ 20,110 SPLITTER oSplitH ;
+      SIZE 344,3 ;
+      DIVIDE {oTree,oEdit1,oSplitV} FROM {oEdit2} LIMITS ,220
+
 #ifdef __GTK__
 *   oSplitH:hCursor := hwg_Loadcursor( GDK_SB_V_DOUBLE_ARROW  )   && "HSPLIT"
 *   oSplitH:hCursor := hwg_LoadCursorFromFile("splith.cur",16,16)   && Load from file

@@ -15,7 +15,21 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2023-04-17 14:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
+2025-04-17 21:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/*.prg
+     ! continue format source code to visibility only
+     ! no extra change. Example:
+     ! INIT Dialog oDlg ;
+     !    AT    0,0 ;
+     !    TITLE cstr ;
+     !    SIZE  500,400 ;
+     !    CLIPPER ;
+     !    NOEXIT ;
+     !    NOEXITESC
+     ! On this format, options used are visible
+     ! 35 files updated, 46 remaining
+
+2025-04-17 14:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/a.prg
    * samples/demobasic.prg
    * samples/demodbfdata.prg

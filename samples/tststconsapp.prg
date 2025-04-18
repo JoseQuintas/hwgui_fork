@@ -144,8 +144,10 @@ FUNCTION Main()
 #endif
 
 
-   INIT WINDOW oWinMain MAIN  ;
-      TITLE "Sample program Start external Programs" AT 0, 0 SIZE 600,400;
+   INIT WINDOW oWinMain ;
+      MAIN  ;
+      TITLE "Sample program Start external Programs" ;
+      AT 0, 0 SIZE 600,400 ;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
    MENU OF oWinMain

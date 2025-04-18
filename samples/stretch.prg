@@ -163,15 +163,21 @@ FUNCTION Main( lStretch )
       "lStretch=" + IIF(lStretch,"True","False") )
 
    IF lStretch
-      INIT WINDOW oFormMain MAIN AT 0,0 SIZE nPosX , nPosY
+      INIT WINDOW oFormMain ;
+      MAIN ;
+      AT 0,0 ;
+      SIZE nPosX , nPosY
 
-      @ 110,0 BITMAP oBitmap  SHOW oBmp OF oFormMain ;
+      @ 110,0 BITMAP oBitmap  ;
+         SHOW oBmp ;
+         OF oFormMain ;
          SIZE nPosX - 10, nPosY - 100 // Here resize of background image (stretch)
          // 301, 160
 
 
       * Transparent test
-      @ 110,100 BITMAP oBitmtrsp  OF oFormMain ;
+      @ 110,100 BITMAP oBitmtrsp  ;
+         OF oFormMain ;
          TRANSPARENT COLOR 16777215
 
       // Attention !
@@ -179,24 +185,35 @@ FUNCTION Main( lStretch )
       // the ON CLICK block does not work.
       // Say "0,0 BITMAP oBitmap" and you can realize the symptom.
 
-      @ 25,25 BUTTON oQuitButton CAPTION "Exit" SIZE 75,32 ;
+      @ 25,25 BUTTON oQuitButton ;
+         CAPTION "Exit" SIZE 75,32 ;
          ON CLICK { | | oFormMain:Close() }
 
       oFormMain:Activate()
 
    ELSE
-      INIT WINDOW oFormMain APPNAME "Agenda Hwgui" MAIN AT 0,0 SIZE nPosX,nPosY BACKGROUND BITMAP oBmp
+      INIT WINDOW oFormMain ;
+         APPNAME "Agenda Hwgui" ;
+         MAIN ;
+         AT 0,0 ;
+         SIZE nPosX,nPosY ;
+         BACKGROUND BITMAP oBmp
+
       // Tiled: Side by side, not stretch
       // If the Button is here inside the background image, the
       // ON CLICK block works fine.
 
       * Transparent test
-      @ 110,100 BITMAP oBitmtrsp  OF oFormMain ;
-         TRANSPARENT COLOR 16777215
+      @ 110,100 BITMAP oBitmtrsp  ;
+         OF oFormMain ;
+         TRANSPARENT ;
+         COLOR 16777215
 
 
-      @ 25,25 BUTTON oQuitButton CAPTION "Exit" SIZE 75,32 ;
-      ON CLICK { | | oFormMain:Close() }
+      @ 25,25 BUTTON oQuitButton ;
+         CAPTION "Exit" ;
+         SIZE 75,32 ;
+         ON CLICK { | | oFormMain:Close() }
 
       oFormMain:Activate()
    ENDIF

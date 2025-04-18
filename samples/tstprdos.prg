@@ -42,7 +42,9 @@ FUNCTION Main()
 
    LOCAL oMain
 
-   INIT WINDOW oMain MAIN TITLE "Example for PrintDos Class"
+   INIT WINDOW oMain ;
+      MAIN ;
+      TITLE "Example for PrintDos Class"
 
    MENU OF oMain
       MENU TITLE "&Test to File"
@@ -154,12 +156,19 @@ FUNCTION OpenRel( oText )
 
    PREPARE FONT oFont NAME "MS Sans Serif" WIDTH 0 HEIGHT -12
 
-   INIT DIALOG oDlg TITLE "Open File:"+oText ;
-        AT 204,25 SIZE 777, 440 FONT oFont
+   INIT DIALOG oDlg ;
+      TITLE "Open File:"+oText ;
+      AT    204,25 ;
+      SIZE  777, 440 ;
+      FONT  oFont
 
-   @ 1,3 EDITBOX lText SIZE 772,384 STYLE WS_VSCROLL + WS_HSCROLL + ES_MULTILINE
+   @ 1,3 EDITBOX lText ;
+      SIZE 772,384 ;
+      STYLE WS_VSCROLL + WS_HSCROLL + ES_MULTILINE
 
-   @ 332,402 BUTTON "Close" ON CLICK {||hwg_EndDialog()} SIZE 80,32
+   @ 332,402 BUTTON "Close" ;
+      ON CLICK {||hwg_EndDialog()} ;
+      SIZE 80,32
 
    ACTIVATE DIALOG oDlg
 

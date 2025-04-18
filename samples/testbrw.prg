@@ -31,8 +31,11 @@ FUNCTION Main()
 
    LOCAL oMainWindow
 
-   INIT WINDOW oMainWindow MAIN TITLE "Example" ;
-     AT 200,0 SIZE 400,150
+   INIT WINDOW oMainWindow ;
+      MAIN ;
+      TITLE "Example" ;
+      AT 200,0 ;
+      SIZE 400,150
 
    * GTK: Submenus required, otherwise only display "Activate"
    MENU OF oMainWindow
@@ -59,13 +62,20 @@ STATIC FUNCTION DlgGet()
    LOCAL cValTrue
 #endif
 
-   INIT DIALOG oModDlg TITLE "About" AT 190,10 SIZE 600,320
+   INIT DIALOG oModDlg ;
+      TITLE "About" ;
+      AT 190,10 ;
+      SIZE 600,320
 
-   @ 20,16 BROWSE oBrw1 ARRAY SIZE 280,220 ;
-        STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
+   @ 20,16 BROWSE oBrw1 ;
+      ARRAY ;
+      SIZE 280,220 ;
+      STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
 
-   @ 310,16 BROWSE oBrw2 ARRAY SIZE 280,220 ;
-        STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
+   @ 310,16 BROWSE oBrw2 ;
+      ARRAY ;
+      SIZE 280,220 ;
+      STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
 
    oBrw1:aArray := aSample1
    oBrw1:AddColumn( HColumn():New( "Name",{|v,o| (v), o:aArray[o:nCurrent,1]},"C",12,0,.F.,DT_CENTER ) )
@@ -90,9 +100,11 @@ STATIC FUNCTION DlgGet()
    oBrw2:bcolorSel := oBrw2:htbColor := 0xeeeeee
    oBrw2:tcolorSel := 0xff0000
 
-   @ 210,260 OWNERBUTTON ON CLICK {|| hwg_EndDialog()} ;
-       SIZE 180,36 FLAT                                ;
-       TEXT "Close" COLOR hwg_ColorC2N("0000FF")
+   @ 210,260 OWNERBUTTON ;
+      ON CLICK {|| hwg_EndDialog()} ;
+      SIZE 180,36 FLAT                                ;
+      TEXT "Close" ;
+      COLOR hwg_ColorC2N("0000FF")
 
    ACTIVATE DIALOG oModDlg
 

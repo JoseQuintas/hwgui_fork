@@ -24,13 +24,19 @@ FUNCTION Main()
 
    LOCAL oMainWindow, oButton1, oButton2
 
-   INIT WINDOW oMainWindow MAIN TITLE "Creating monochrome bitmap file" AT 168,50 SIZE 250,150
+   INIT WINDOW oMainWindow ;
+      MAIN ;
+      TITLE "Creating monochrome bitmap file" ;
+      AT 168,50 ;
+      SIZE 250,150
 
-   @ 20,50 BUTTON oButton1 CAPTION "Test";
+   @ 20,50 BUTTON oButton1 ;
+      CAPTION "Test";
       ON CLICK {|| Testen()} ;
       SIZE 80,32
 
-   @ 120,50 BUTTON oButton2 CAPTION "Quit";
+   @ 120,50 BUTTON oButton2 ;
+      CAPTION "Quit";
       ON CLICK {|| oMainWindow:Close } ;
       SIZE 80,32
 

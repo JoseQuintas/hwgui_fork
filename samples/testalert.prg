@@ -114,8 +114,11 @@ PROCEDURE main
 
    oAlert:ResetVars()
 
-   INIT WINDOW oMainWindow MAIN TITLE "Main Window" ;
-      AT 200, 0 SIZE 420, 300 ;
+   INIT WINDOW oMainWindow ;
+      MAIN ;
+      TITLE "Main Window" ;
+      AT 200, 0 ;
+      SIZE 420, 300 ;
       ON INIT { || TestNonModalAlert() }
 
    MENU OF oMainWindow

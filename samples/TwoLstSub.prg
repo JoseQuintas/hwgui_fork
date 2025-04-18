@@ -47,8 +47,12 @@ FUNCTION Main()
 
    aResult := {}
 
-   INIT WINDOW oMainWindow MAIN TITLE "Example" ;
-     AT 0,0 SIZE hwg_Getdesktopwidth(), hwg_Getdesktopheight() - 28
+   INIT WINDOW oMainWindow ;
+      MAIN ;
+      TITLE "Example" ;
+      AT 0,0 ;
+      SIZE hwg_Getdesktopwidth(), hwg_Getdesktopheight() - 28
+
    // MENUITEM in main menu on GTK/Linux does not start the desired action
    // Submenu needed
    MENU OF oMainWindow
@@ -122,8 +126,11 @@ FUNCTION Teste()
    * return Value
    oItemsR := {}
 
-   INIT DIALOG _frm_2browsboxsel TITLE "Select Browsebox Items" ;
-      AT 536,148 SIZE 516,465 FONT oFont;
+   INIT DIALOG _frm_2browsboxsel ;
+      TITLE "Select Browsebox Items" ;
+      AT    536, 148 ;
+      SIZE  516, 465 ;
+      FONT  oFont;
       STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
 
    @ 33,15 SAY oLabel1 CAPTION "Select items"  SIZE 441,22 ;
@@ -131,10 +138,18 @@ FUNCTION Teste()
 
    // Please dimensionize size of both BROWSE windows so that it is enough space to display
    // all items in oItems1 with additional reserve about 20 pixels.
-   @ 34,56  BROWSE obrowsbox1  ARRAY oItems1 SIZE 150,96 FONT oFont  ;
-                   STYLE WS_BORDER  // NO VSCROLL
-   @ 308,56 BROWSE obrowsbox2  ARRAY oItems2 SIZE 150,96 FONT oFont  ;
-                   STYLE WS_BORDER // NO VSCROLL
+   @ 34,56  BROWSE obrowsbox1  ;
+      ARRAY oItems1 ;
+      SIZE  150,96 ;
+      FONT  oFont  ;
+      STYLE WS_BORDER  // NO VSCROLL
+
+   @ 308,56 BROWSE obrowsbox2  ;
+      ARRAY oItems2 ;
+      SIZE  150,96 ;
+      FONT  oFont  ;
+      STYLE WS_BORDER // NO VSCROLL
+
    // Init Browse windows
    obrowsbox1:aArray := GetItems() // Fill source browse box with all items
    obrowsbox2:aArray := {}
@@ -147,21 +162,47 @@ FUNCTION Teste()
    obrowsbox1:active := .T.
    obrowsbox2:active := .T.
 
-   @ 207,92 BUTTON oButton1 CAPTION ">"   SIZE 80,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ON CLICK { || browsBOX_ITEMTORI(obrowsbox1,obrowsbox2) }
-   @ 207,137 BUTTON oButton2 CAPTION ">>"   SIZE 80,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ON CLICK { || browsBOX_ITEMTORA(obrowsbox1,obrowsbox2,GetItems() ) }
-   @ 207,223 BUTTON oButton3 CAPTION "<"   SIZE 80,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ON CLICK { || browsBOX_ITEMTOLI(obrowsbox1,obrowsbox2) }
-   @ 207,281 BUTTON oButton4 CAPTION "<<"   SIZE 80,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ON CLICK { || browsBOX_ITEMTOLA(obrowsbox1,obrowsbox2,GetItems() ) }
-   @ 36,345 BUTTON oButton5 CAPTION "OK"   SIZE 80,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ON CLICK ;
+   @ 207,92 BUTTON oButton1 CAPTION ">" ;
+      SIZE     80,32 ;
+      STYLE    WS_TABSTOP+BS_FLAT ;
+      ON CLICK { || browsBOX_ITEMTORI(obrowsbox1,obrowsbox2) }
+
+   @ 207,137 BUTTON oButton2 ;
+      CAPTION  ">>" ;
+      SIZE     80, 32 ;
+      STYLE    WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || browsBOX_ITEMTORA(obrowsbox1,obrowsbox2,GetItems() ) }
+
+   @ 207,223 BUTTON oButton3 ;
+      CAPTION  "<"   ;
+      SIZE     80,32 ;
+      STYLE    WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || browsBOX_ITEMTOLI(obrowsbox1,obrowsbox2) }
+
+   @ 207,281 BUTTON oButton4 ;
+      CAPTION  "<<"   ;
+      SIZE     80, 32 ;
+      STYLE    WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || browsBOX_ITEMTOLA(obrowsbox1,obrowsbox2,GetItems() ) }
+
+   @ 36,345 BUTTON oButton5 ;
+      CAPTION "OK"   ;
+      SIZE    80,32 ;
+      STYLE   WS_TABSTOP + BS_FLAT ;
+      ON CLICK ;
          { || oItemsR := obrowsbox2:aArray , _frm_2browsboxsel:Close() }  /* return content of target browsbox */
-   @ 158,345 BUTTON oButton6 CAPTION "Cancel"   SIZE 80,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ON CLICK { || _frm_2browsboxsel:Close() }
-   @ 367,345 BUTTON oButton7 CAPTION "Help"   SIZE 80,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ON CLICK { || Hilfe() }
+
+   @ 158,345 BUTTON oButton6 ;
+      CAPTION   "Cancel"   ;
+      SIZE      80, 32 ;
+      STYLE     WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || _frm_2browsboxsel:Close() }
+
+   @ 367,345 BUTTON oButton7 ;
+      CAPTION  "Help"   ;
+      SIZE     80, 32 ;
+      STYLE    WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || Hilfe() }
 
    ACTIVATE DIALOG _frm_2browsboxsel
    * Returns thze array with results.

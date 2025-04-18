@@ -25,14 +25,20 @@ FUNCTION main()
    LOCAL oMain, i
 
 #ifdef __GTK__
-   INIT WINDOW oMain main TITLE "Scrollbar example"  ;
-        At 200, 100 SIZE 400, 250 ;
-        STYLE WS_VSCROLL + WS_HSCROLL + ES_AUTOHSCROLL
+   INIT WINDOW oMain ;
+      MAIN ;
+      TITLE "Scrollbar example"  ;
+      AT    200, 100 ;
+      SIZE  400, 250 ;
+      STYLE WS_VSCROLL + WS_HSCROLL + ES_AUTOHSCROLL
 #else
 
-   INIT WINDOW oMain MAIN TITLE "Scrollbar example"  ;
-        At 200, 100 SIZE 400, 250 ;
-        STYLE WS_VSCROLL + WS_HSCROLL
+   INIT WINDOW oMain ;
+      MAIN ;
+      TITLE "Scrollbar example"  ;
+      AT    200, 100 ;
+      SIZE  400, 250 ;
+      STYLE WS_VSCROLL + WS_HSCROLL
 #endif
 
    FOR i := 0 TO 200 STEP 20

@@ -45,8 +45,11 @@ FUNCTION Main()
 
    aResult := {}
 
-   INIT WINDOW oMainWindow MAIN TITLE "Example" ;
-     AT 0,0 SIZE hwg_Getdesktopwidth(), hwg_Getdesktopheight() - 28
+   INIT WINDOW oMainWindow ;
+      MAIN ;
+      TITLE "Example" ;
+      AT    0, 0 ;
+      SIZE  hwg_Getdesktopwidth(), hwg_Getdesktopheight() - 28
 
    MENU OF oMainWindow
       MENUITEM "&Exit" ACTION oMainWindow:Close()
@@ -107,34 +110,71 @@ FUNCTION Teste()
    * return Value
    oItemsR := {}
 
-  INIT DIALOG _frm_2listboxsel TITLE "Select Listbox Items" ;
-     AT 536,148 SIZE 516,465 FONT oFont;
+  INIT DIALOG _frm_2listboxsel ;
+     TITLE "Select Listbox Items" ;
+     AT 536,148 ;
+     SIZE 516,465 ;
+     FONT oFont;
      STYLE WS_SYSMENU + WS_SIZEBOX + WS_VISIBLE
 
-   @ 33,15 SAY oLabel1 CAPTION "Select items"  SIZE 441,22 ;
-        STYLE SS_CENTER
+   @ 33,15 SAY oLabel1 ;
+      CAPTION "Select items"  ;
+      SIZE    441,22 ;
+      STYLE   SS_CENTER
 
    // Please dimensionize size of both listboxes so that it is enough space to display
    // all items in oItems1 with additional reserve about 20 pixels.
-   @ 34,56  LISTBOX oListbox1  ITEMS oItems1 INIT 1 SIZE 150,96
-   @ 308,56 LISTBOX oListbox2  ITEMS oItems2 SIZE 150,96
+   @ 34,56  LISTBOX oListbox1  ;
+      ITEMS oItems1 ;
+      INIT  1 ;
+      SIZE  150,96
 
+   @ 308,56 LISTBOX oListbox2  ;
+      ITEMS oItems2 ;
+      SIZE  150,96
 
-   @ 207,92 BUTTON oButton1 CAPTION ">"   SIZE 80,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ON CLICK { || LSTBOX_ITEMTORI(oListbox1,oListbox2) }
-   @ 207,137 BUTTON oButton2 CAPTION ">>"   SIZE 80,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ON CLICK { || LSTBOX_ITEMTORA(oListbox1,oListbox2,GetItems() ) }
-   @ 207,223 BUTTON oButton3 CAPTION "<"   SIZE 80,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ON CLICK { || LSTBOX_ITEMTOLI(oListbox1,oListbox2) }
-   @ 207,281 BUTTON oButton4 CAPTION "<<"   SIZE 80,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ON CLICK { || LSTBOX_ITEMTOLA(oListbox1,oListbox2,GetItems() ) }
-   @ 36,345 BUTTON oButton5 CAPTION "OK"   SIZE 80,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ON CLICK ;
+   @ 207,92 BUTTON oButton1 ;
+      CAPTION  ">"   ;
+      SIZE     80,32 ;
+      STYLE    WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || LSTBOX_ITEMTORI(oListbox1,oListbox2) }
+
+   @ 207,137 BUTTON oButton2 ;
+      CAPTION  ">>"   ;
+      SIZE     80,32 ;
+      STYLE    WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || LSTBOX_ITEMTORA(oListbox1,oListbox2,GetItems() ) }
+
+   @ 207,223 BUTTON oButton3 ;
+      CAPTION  "<"   ;
+      SIZE     80,32 ;
+      STYLE    WS_TABSTOP+BS_FLAT ;
+      ON CLICK { || LSTBOX_ITEMTOLI(oListbox1,oListbox2) }
+
+   @ 207,281 BUTTON oButton4 ;
+      CAPTION "<<"   ;
+      SIZE 80,32 ;
+      STYLE WS_TABSTOP+BS_FLAT ;
+      ON CLICK { || LSTBOX_ITEMTOLA(oListbox1,oListbox2,GetItems() ) }
+
+   @ 36,345 BUTTON oButton5 ;
+      CAPTION "OK"   ;
+      SIZE    80,32 ;
+      STYLE    WS_TABSTOP+BS_FLAT ;
+      ON CLICK ;
          { || oItemsR := oListbox2:aItems , _frm_2listboxsel:Close() }  /* return content of target listbox */
-   @ 158,345 BUTTON oButton6 CAPTION "Cancel"   SIZE 80,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ON CLICK { || _frm_2listboxsel:Close() }
-   @ 367,345 BUTTON oButton7 CAPTION "Help"   SIZE 80,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ON CLICK { || Hilfe() }
+
+   @ 158,345 BUTTON oButton6 ;
+      CAPTION "Cancel"   ;
+      SIZE 80,32 ;
+      STYLE WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || _frm_2listboxsel:Close() }
+
+   @ 367,345 BUTTON oButton7 ;
+      CAPTION "Help"   ;
+      SIZE 80,32 ;
+      STYLE WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || Hilfe() }
 
    ACTIVATE DIALOG _frm_2listboxsel
    * Returns thze array with results.

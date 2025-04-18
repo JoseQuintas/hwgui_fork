@@ -38,7 +38,9 @@ FUNCTION MAIN()
 
    nZoom := 1
 
-   INIT WINDOW oMain MAIN TITLE "HWGUI image viewer with zoom" ;
+   INIT WINDOW oMain ;
+      MAIN ;
+      TITLE "HWGUI image viewer with zoom" ;
       AT 0,0 ;
       SIZE hwg_Getdesktopwidth(), hwg_Getdesktopheight() - 28
 
@@ -115,14 +117,24 @@ FUNCTION ViewImg( ctype, nresize )
       cstr := cstr + " Original size : Y = " + ASTR(noHeight) + " X = " + ASTR(noWidth)
    ENDIF
 
-   INIT Dialog oDlg AT 0,0 TITLE cstr SIZE 500,400 CLIPPER NOEXIT NOEXITESC
+   INIT Dialog oDlg ;
+      AT 0,0 ;
+      TITLE cstr ;
+      SIZE 500,400 ;
+      CLIPPER ;
+      NOEXIT ;
+      NOEXITESC
 
    * BITMAP:
    * Supported formats on Windows: bmp, jpg
 
-   @ 30, 10 BITMAP oSayImg SHOW oImg OF oDlg SIZE nWidth, nHeight
+   @ 30, 10 BITMAP oSayImg ;
+      SHOW oImg ;
+      OF oDlg ;
+      SIZE nWidth, nHeight
 
-   @ 20, 370 BUTTON "OK"      SIZE 75,25 ;
+   @ 20, 370 BUTTON "OK"      ;
+      SIZE 75,25 ;
       ON CLICK {|| oDlg:Close() }
 
    ACTIVATE Dialog oDlg CENTER
@@ -144,16 +156,26 @@ FUNCTION ZoomImg()
 
    nCombo := ComboRet(nZoom)
 
-   INIT DIALOG oForm CLIPPER NOEXIT TITLE "Select zoom factor" ;
-      AT 0, 0 SIZE 200, 200 ;
+   INIT DIALOG oForm ;
+      CLIPPER ;
+      NOEXIT ;
+      TITLE "Select zoom factor" ;
+      AT 0, 0 ;
+      SIZE 200, 200 ;
       STYLE DS_CENTER + WS_VISIBLE + WS_POPUP + WS_VISIBLE + WS_CAPTION + WS_SYSMENU
 
-   @ 20, 20 GET COMBOBOX oCombo1 VAR nCombo ITEMS aItems SIZE 100, 150
+   @ 20, 20 GET COMBOBOX oCombo1 ;
+      VAR nCombo ;
+      ITEMS aItems ;
+      SIZE 100, 150
 
-   @ 20, 170 BUTTON "OK"      SIZE 75,25 ;
+   @ 20, 170 BUTTON "OK" ;
+      SIZE 75,25 ;
       ON CLICK {|| lcancel := .F. , nZoom := ComboTr(nCombo) , oForm:Close() }
 
-   @ 100, 170 BUTTON "Cancel"   SIZE 75,25 ON CLICK {|| oForm:Close() }
+   @ 100, 170 BUTTON "Cancel"   ;
+      SIZE 75,25 ;
+      ON CLICK {|| oForm:Close() }
 
    ACTIVATE DIALOG oForm
 
