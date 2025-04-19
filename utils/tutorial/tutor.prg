@@ -405,18 +405,25 @@ STATIC FUNCTION NodeOut( oItem )
    RETURN Nil
 
 STATIC FUNCTION RunSample( oItem )
-   LOCAL cText := "", cLine, i, ie, cHrb, lWnd := .F.
+   LOCAL cText := "", cLine, i, ie, cHrb, lWnd := .F., cHrbCOpts := ""
    LOCAL cFileErr := hb_DirTemp() + "hwg_compile_err.out", cTemp
-#ifdef __XHARBOUR__
-   LOCAL cHrbCopts := ""
-#endif
+
+// ---------- changed by Jose Quintas 2025-04-19 19:30 UTC -0300
+//#ifdef __XHARBOUR__
+//   LOCAL cHrbCopts := ""
+//#endif
+//#ifdef __GTK__
+//   cHrbCopts := cHrbCopts + "-d__GTK__"
+//#else
+//   #ifdef __XHARBOUR__
+//      cHrbCopts := ""
+//   #endif
+//#endif
+
 #ifdef __GTK__
-   cHrbCopts := cHrbCopts + "-d__GTK__"
-#else
-   #ifdef __XHARBOUR__
-      cHrbCopts := ""
-   #endif
+   cHrbCopts += "-d__GTK__"
 #endif
+// ---------- end changed by Jose Quintas 2025-04-19 19:30 UTC -0300
 
    IF oItem != Nil .AND. !oItem:cargo[1]
       RETURN Nil
@@ -450,11 +457,17 @@ STATIC FUNCTION RunSample( oItem )
 
    i := hwg_rediron( 1, hb_DirTemp() + "hwg_compile.out" )
    ie := hwg_rediron( 2, cFileErr )
-#ifdef __GTK__
-   cHrb := hb_compileFromBuf( cText, "harbour","-n", "-w", "-d__GTK__" , "-I" + cHwg_include_dir + cHrb_inc_dir )
-#else
-   cHrb := hb_compileFromBuf( cText, "harbour","-n", "-w", "-I" + cHwg_include_dir + cHrb_inc_dir )
-#endif
+
+// ----------- changed by JoseQuintas 2025-04-19 19:30 UTC -0300 - need test not windows
+//#ifdef __GTK__
+//   cHrb := hb_compileFromBuf( cText, "harbour","-n", "-w", "-d__GTK__" , "-I" + cHwg_include_dir + cHrb_inc_dir )
+//#else
+//   cHrb := hb_compileFromBuf( cText, "harbour","-n", "-w", "-I" + cHwg_include_dir + cHrb_inc_dir )
+//#endif
+
+   cHrb := hb_compileFromBuf( cText, "harbour", "-n", "-w", cHrbCOpts, "-I" + cHwg_include_dir + cHrb_inc_dir )
+// ----------- end changed by JoseQuintas 2025-04-19 19:30 UTC -0300 - need test not windows
+
    hwg_rediroff( 2, ie )
    hwg_rediroff( 1, i )
 

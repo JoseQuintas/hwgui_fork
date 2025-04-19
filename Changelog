@@ -15,7 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2025-04-19 16:30 UTC+0200 Wilfried Brunken DF7BE  
+2025-04-19 19:30 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * utils/tutorial/tutor.prg
+     ! Error reported by Itamar Lins
+     ! Please after confirm compile/run from tutorial remove commented lines
+     ! Seems ok but confirmed on win only, about a new parameter ""
+     ! please confirm too on hbp -lpcre it does not exists on user machine
+
+2025-04-19 16:30 UTC+0200 Wilfried Brunken DF7BE
 * contrib/qrcode/qrdecode/ReadMe.txt
 * contrib/qrcode/qrdecode/qrdecode.hbp
 * contrib/qrcode/qrdecode/qrdecode.prg
