@@ -4,9 +4,9 @@
 #
 #
 
--L../../lib
+-L../../../lib
 -I./include
--I../../include
+-I../../../include
 
 -lqrcodegen
 

@@ -4,7 +4,7 @@ QR encode library ready for integration into HWGUI
 
 "QR-Code-generator"
 
-
+2025-04-19   DF7BE   Project moved from contrib/qrencode to contrib/qrcode/qrencode by Jose M. Quintas
 2025-02-07   DF7BE   Project "qrencode" now finished.
 2025-02-01   DF7BE   Port of qrcodegenerator.c for non C99 standard compiler started.
                      The committed version is only ready for C99, be patient,
@@ -104,7 +104,7 @@ as soon as possible.
 
 2.3) Steps to build all programs and libraries
 
-     - Change to HWGUI directory "contrib/qrencode"
+     - Change to HWGUI directory "contrib/qrcode/qrencode"
      - build.bat or LINUX/MacOS: ./build.sh
      - Check, that all libraries for the HWGUI interface module
        are present, they are created in the HWGUI "lib" directory:
@@ -115,7 +115,7 @@ as soon as possible.
 
 2.4) Test with sample program
    
-     cd samples
+     cd ../test
      hbmk2 qrencode.hbp
      qrencode.exe or ./qrencode
      Press button "Test":
@@ -133,7 +133,7 @@ as soon as possible.
 2.5) Final instructions
 
 Be shure, that the following options are inserted in 
-the *.hbp file or Makefile of your application:
+the *.hbp file, hbmk.hbm or Makefile of your application:
 
 -L../lib (or path to HWGUI library directory)
 

@@ -4,6 +4,7 @@ ReadMe file for QR code and EAN bar codes decoding
  
 History: 
 
+2025-04-19  DF7BE  Project moved from contrib/qrdecode to contrib/qrcode/qrdecode by Jose M. Quintas
 2025-01-14  DF7BE  Project qrdecode completed
 2025-01-13  DF7BE  Now running on MacOS by using shell script.
 2025-01-13  DF7BE  Also instruction for LINUXMint
@@ -101,7 +102,7 @@ Supported platforms:
      - Extract the archive into 
         $HOME/zbar/zbar-0.10
      - Read generic installation instructions in file INSTALL
-     - Copy the patched file "v4l2.c" from contrib/qrdecode to
+     - Copy the patched file "v4l2.c" from contrib/qrcode/qrdecode to
        "~/zbar/zbar-0.10/zbar/video". 
      - export CFLAGS=""
      - ./configure --prefix=$HOME/local --without-imagemagick --without-python -without-qt
@@ -154,7 +155,7 @@ Supported platforms:
 
 2.1 Compile the sample program
 
-    CD to directory contrib\qrdecode
+    CD to directory contrib\qrcode\qrdecode
     and enter:
      hbmk2 qrdecode.hbp
 
@@ -328,7 +329,8 @@ See LINUX instructions.
 You can modify the number of tries in the "ccommand"
 line of the source code to your own needs.
 
-...#ifdef ___MACOSX___
+...
+#ifdef ___MACOSX___
  lnmodal := .F.
   ccommand := "./qrdecode_mac.sh 10"
   * Set execute permission

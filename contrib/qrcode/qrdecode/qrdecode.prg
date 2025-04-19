@@ -23,6 +23,11 @@
     *  GTK/Linux:  Yes
     *  GTK/Win  :  No
     *  GTK/MacOS:  Yes
+    
+* Warning W0032  Variable 'ARRREA' is assigned but not used in function 'TESTEN(91)'
+* Because of a bug in Harbour, it is not recognized, that this variable is used in
+* an IF statement !
+
 
 #include "hwgui.ch"
 
@@ -52,13 +57,21 @@ RETURN Nil
 
 FUNCTION Testen()
 
-LOCAL rc, outfilename, ccommand, dtueddel
-LOCAL lEOF, arrrea, handle, couttext
+#ifdef __PLATFORM__WINDOWS
+LOCAL dtueddel
+#endif
+
+LOCAL outfilename, ccommand
+LOCAL lEOF, handle, couttext
 LOCAL lnmodal
 LOCAL lf := CHR(13) + CHR(10)
 
+LOCAL  arrrea, rc
+
 outfilename := "output.txt"
+#ifdef __PLATFORM__WINDOWS
 dtueddel := CHR(34)  && "
+#endif
 
 
 * Start the external app
@@ -95,7 +108,7 @@ couttext := ""
   DO WHILE .NOT. lEOF
     arrrea := hwg_RdLn(handle)
     * Detect EOF
-    IF arrrea[2]
+    IF arrrea[2]  && Bug in Harbour
      lEOF := .T.
     ELSE
      * collect all lines in a C Var

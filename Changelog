@@ -15,6 +15,29 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-19 16:30 UTC+0200 Wilfried Brunken DF7BE  
+* contrib/qrcode/qrdecode/ReadMe.txt
+* contrib/qrcode/qrdecode/qrdecode.hbp
+* contrib/qrcode/qrdecode/qrdecode.prg
+* contrib/qrcode/qrencode/Makefile (moved)
+* contrib/qrcode/qrencode/QR-Code-generator-master (moved with all subdirectories)
+* contrib/qrcode/qrencode/Readme.txt
+* contrib/qrcode/qrencode/build.sh
+* contrib/qrcode/qrencode/hb_qrencode.hbp
+* contrib/qrcode/qrencode/qrencode.hbp
+* contrib/qrcode/test/hbmk.hbm (New)
+* D contrib/qrdecode (moved)
+* D contrib/qrencode (empty in case of move, deleted)
+  - Check for moved QR code contrib code on LINUX,
+    corrections, Windows follows.
+  - now directory qrcode contains sub directories by
+    Jose M. Quintas qrdecode and qrencode
+  - so qrencode/QR-Code-generator-master also moved to
+    qrcode/qrencode
+  - Empty directories removed
+  - Path corection in hbp files and Readme's
+
+
 2025-04-19 15:10 UTC+0200 Wilfried Brunken DF7BE
  * clean.sh
    ! More cleanings:
