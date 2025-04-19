@@ -25,10 +25,13 @@ rm -rf lib/.hbmk 2>/dev/null
 rm obj/*.o 2>/dev/null
 #
 rm contrib/hwreport/hwreport 2>/dev/null
+delfi contrib/hwreport/example
 #
 # exe and files in utils
 rm utils/debugger/sample 2>/dev/null
 rm utils/designer/designer 2>/dev/null
+delfi utils/designer/Error.log
+
 rm utils/editor/editor 2>/dev/null
 rm utils/tutorial/hwgrun 2>/dev/null
 rm utils/tutorial/tutor 2>/dev/null
@@ -37,6 +40,7 @@ rm utils/tutorial/__tmp.hrb 2>/dev/null
 rm utils/hbpad/hbpad 2>/dev/null
 #
 # Samples only for LINUX/GTK
+# and optional generated C source file
 rm samples/gtk_samples/GetWinVers 2>/dev/null
 rm samples/gtk_samples/a 2>/dev/null
 rm samples/a.log 2>/dev/null
@@ -54,15 +58,16 @@ delfi samples/demobrowsearray.c
 #
 # Samples for multi plattform (exe)
 # and optional generated C source file
+delfi samples/all
 rm samples/a 2>/dev/null
 rm samples/a.log 2>/dev/null
 rm samples/testget1 2>/dev/null
 rm samples/bincnts 2>/dev/null
 rm samples/demodatepicker 2>/dev/null
-rm samples/bincnts 2>/dev/null
 delfi samples/GetWinVers
 delfi samples/demogetupdown
 delfi samples/demodbfdata
+delfi samples/demodbf
 delfi samples/demolistboxsub
 delfi samples/fileselect
 rm samples/stretch 2>/dev/null
@@ -89,6 +94,7 @@ rm samples/qrencode 2>/dev/null
 rm samples/graph 2>/dev/null
 rm samples/helpstatic 2>/dev/null
 rm samples/icons 2>/dev/null
+delfi samples/icons2
 rm samples/testfehl.bmp 2>/dev/null
 rm samples/testimage 2>/dev/null
 rm samples/tab 2>/dev/null
@@ -100,8 +106,32 @@ delfi samples/tststconsapp
 delfi samples/helloworld
 delfi samples/hello
 delfi samples/htrack
+delfi samples/arraybrowse
 delfi samples/progressbar/progress
 delfi samples/progressbar/demo_progres
+delfi samples/tabs_toolt
+delfi samples/tstscrlbar
+delfi samples/tstcombo
+delfi samples/testxml
+delfi samples/testtray
+delfi samples/simpleedit
+delfi samples/checkbox
+delfi samples/datepicker
+delfi samples/democombobox
+delfi samples/demohlistsub
+delfi samples/demomonthcal
+delfi samples/demotreebox
+delfi samples/dlgbrwdbf
+delfi samples/getupdown
+delfi samples/memocmp
+delfi samples/menumod
+delfi samples/modtitle
+delfi samples/testbrw
+delfi samples/testhmonth
+delfi samples/testrtf
+delfi samples/testsdi
+delfi samples/testspli
+delfi samples/pseudocm
 #
 # created files from sample programs
 rm samples/a.log 2>/dev/null
@@ -109,6 +139,10 @@ rm samples/temp_a2.ps 2>/dev/null
 rm samples/temp_a2.pdf 2>/dev/null
 rm samples/tstbrw.dbf 2>/dev/null
 rm samples/test.bmp  2>/dev/null
+delfi samples/Ausgabe.pdf
+delfi samples/test.dbf
+delfi samples/secondrun.bmp
+delfi samples/xmltree
 
 #
 # Bin exe and logs
@@ -140,9 +174,14 @@ delfi utils/devtools/dbfstru
 rm contrib/hwlabel/hwlbledt 2>/dev/null
 rm contrib/hwlabel/hwlblsample 2>/dev/null
 rm contrib/hwlabel/temp_a2.ps 2>/dev/null
+#
+delfi contrib/gthwg/tests/test1
 # Other files created by contrib
+# QR code functions moved
+# Old location:
 delfi contrib/qrdecode/output.txt
 delfi contrib/qrdecode/qrdecode
+# New location:
 
 # test exe
 rm test/gtk_err93 2>/dev/null
@@ -158,10 +197,30 @@ rm test/icon 2>/dev/null
 rm test/democheckbox 2>/dev/null
 rm test/Test_tab 2>/dev/null
 rm test/gtk3testvbox 2>/dev/null
+delfi test/trefreshing
 delfi test/Ticket113
 delfi test/Ticket85
 delfi test/demosaycrash
 delfi test/rdln_test
+delfi test/ticket188
+delfi test/tickets/Ticket170
+delfi test/tickets/ticket165
+delfi test/cairo
+delfi test/cairo.c
+delfi test/cssbg
+delfi test/cssbg.c
+delfi test/get_bug
+delfi test/gtk3bg
+delfi test/gtk3bg.c
+delfi test/imagebug
+delfi test/imagebug.win
+delfi test/nextbg
+delfi test/nextbg.c
+delfi test/refreshing
+delfi test/strchrrchr
+delfi test/strchrrchr.c
+delfi test/test_origin_cons
+delfi test/testsleep
 
 # Other files created by test programs
 rm test/hexdump.txt 2>/dev/null

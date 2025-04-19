@@ -15,6 +15,13 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-19 15:10 UTC+0200 Wilfried Brunken DF7BE
+ * clean.sh
+   ! More cleanings:
+   ! For next update need to wait
+   ! for finishing the recent project of
+   ! Jose Quintas
+
 2025-04-18 13:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
    - samples/demogetdesktopsize.prg
    - samples/demogetdesktopsize.hbp
