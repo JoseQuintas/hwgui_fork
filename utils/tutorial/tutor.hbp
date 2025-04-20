@@ -5,7 +5,7 @@
 # The macro for unix has also effect on LINUX
 {unix}-lm
 {unix}-lz
-{unix}-lpcre
+#{unix}-lpcre
 {unix}-ldl
 {unix}-static
 {unix}-d__LINUX__

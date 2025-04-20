@@ -15,6 +15,17 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-19 13:07 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/tutorial/tutor.hbp
+     ! tutor.hbp now compiles windows/ubuntu
+   * samples/gtk_samples/a.prg
+   * samples/gtk_samples/graph.prg
+   * samples/gtk_samples/winprn.hbp
+   * samples/tutorial/hwgrun.hbp
+     ! fix warnings -w3 -es2
+     ! note: printdos() on gtk_samples/winprn.prg not used
+     ! return to not static to compile without this warning
+
 2025-04-19 19:30 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * utils/tutorial/tutor.prg
      ! Error reported by Itamar Lins

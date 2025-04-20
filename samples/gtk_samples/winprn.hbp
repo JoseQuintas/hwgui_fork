@@ -7,6 +7,7 @@ winprn.prg
 -owinprn
 -n
 -lm
+-w1
 -static
 -d__LINUX__ -d__GTK__
 

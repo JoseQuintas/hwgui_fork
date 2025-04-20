@@ -11,7 +11,7 @@
 
 {unix}-lm
 {unix}-lz
-{unix}-lpcre
+#{unix}-lpcre
 {unix}-ldl
 {unix}-static
 {unix}-d__LINUX__

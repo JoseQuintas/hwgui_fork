@@ -128,7 +128,7 @@ STATIC FUNCTION FileClose( oDlg )
 
 RETURN .T.
 
-STATIC FUNCTION printdos
+FUNCTION printdos
 
    LOCAL han := fcreate( "LPT1",0 )
 

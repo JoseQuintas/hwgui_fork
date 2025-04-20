@@ -21,8 +21,8 @@
 
 FUNCTION Main()
 
-   LOCAL oMain, oPaneHea, oPaneTop, oGraph, oPaneDrawn, oFont
-   LOCAL oStyleNormal, oStylePressed, oStyleOver
+   LOCAL oMain, oPaneHea, oGraph, oPaneDrawn, oFont
+   //LOCAL oStyleNormal, oStylePressed, oStyleOver
    LOCAL aCorners := { 4,4,4,4 }
    LOCAL aStyles := { HStyle():New( { CLR_DGRAY2 }, 1, aCorners ), ;
       HStyle():New( { CLR_WHITE }, 2, aCorners ), ;
@@ -30,9 +30,9 @@ FUNCTION Main()
 
    PREPARE FONT oFont NAME "Georgia" WIDTH 0 HEIGHT -17 ITALIC
 
-   oStyleNormal := HStyle():New( {0x7b7680,0x5b5760}, 1 )
-   oStylePressed := HStyle():New( {0x7b7680}, 1,, 2, CLR_WHITE )
-   oStyleOver := HStyle():New( {0x7b7680}, 1 )
+   //oStyleNormal := HStyle():New( {0x7b7680,0x5b5760}, 1 )
+   //oStylePressed := HStyle():New( {0x7b7680}, 1,, 2, CLR_WHITE )
+   //oStyleOver := HStyle():New( {0x7b7680}, 1 )
 
    INIT WINDOW oMain MAIN TITLE "Example" AT 200, 0 SIZE 400, 320 ;
       BACKCOLOR 0x3C3940 FONT oFont STYLE WND_NOTITLE + WND_NOSIZEBOX
