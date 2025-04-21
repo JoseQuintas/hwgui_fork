@@ -82,7 +82,6 @@ rm testtree 2> /dev/null
 rm demomenuxml 2> /dev/null
 rm demoonother 2> /dev/null
 rm trackbar 2> /dev/null
-rm demobasic 2> /dev/null
 rm tstscrlbar 2> /dev/null
 rm tstsplash 2> /dev/null
 rm tststconsapp 2> /dev/null

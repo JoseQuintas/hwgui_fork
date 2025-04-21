@@ -79,8 +79,6 @@ rm samples/dbview.c 2>/dev/null
 rm samples/testfunc 2>/dev/null
 rm samples/winprn 2>/dev/null
 delfi samples/winprn.c
-rm samples/demobasic.c  2>/dev/null
-rm samples/demobasic 2>/dev/null
 rm samples/demomenuxml 2>/dev/null
 rm samples/demoxmltree 2>/dev/null
 rm samples/colrbloc 2>/dev/null

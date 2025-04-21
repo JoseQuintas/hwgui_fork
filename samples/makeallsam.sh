@@ -86,7 +86,6 @@ hbmk2 testtree.hbp
 hbmk2 demomenuxml.hbp
 hbmk2 demoonother.hbp
 hbmk2 trackbar.hbp
-hbmk2 demobasic.hbp
 hbmk2 tstscrlbar.hbp
 hbmk2 tstsplash.hbp
 hbmk2 tststconsapp.hbp

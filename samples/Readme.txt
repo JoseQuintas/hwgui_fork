@@ -228,7 +228,11 @@ For beginners:
  Sample program     GTK2    GTK3  NLS MinGW64 Purpose
  =================   ====   ====  === ======= =======
  a.prg   +) 9)       R       N    CN          Some HWGUI basics (Open DBF's, GET's, ...)
- demobasic.prg       ?       ?    ?           Tab, owner button, combobox, dateselect, status panel
+
+ all.prg
+   demotab.prg       ?       ?    ?           Tab, owner button, combobox, dateselect, status panel
+   demobrowsedbf.prg ?       ?    ?           browse dbf
+
  demobrowsearray.prg Y                        Array BROWSE avoiding crashes because of bugs (see inline comments)
  bindbf.prg 10)      Y                        Usage of images from Binary DBF container
  bincnts.prg 10) +)  Y                        Usage of images from Binary container

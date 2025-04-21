@@ -46,65 +46,65 @@
 # Samples WinAPI and LINUX/GTK
 #
 ../samples/all.hbp
-../samples/demobrowsearr.prg
-../samples/bincnts.prg
-../samples/colrbloc.prg
-../samples/demodatepicker.prg ##- old demodatepicker
-../samples/dbview.prg
-../samples/demodbfdata.prg
-../samples/demolistboxsub.prg
-../samples/fileselect.prg
-../samples/demogetupdown.prg
-../samples/GetWinVers.prg
-../samples/graph.prg
-../samples/helpstatic.prg
-../samples/hexbincnt.prg
-../samples/htrack.prg
-../samples/icons.prg
-../samples/icons2.prg
-../samples/menumod.prg
-../samples/modtitle.prg
-../samples/progbars.prg
-../samples/pseudocm.prg
-../samples/simpleedit.prg
-../samples/stretch.prg
-../samples/tab.prg
-../samples/testfunc.prg
-../samples/demomonthcal.prg ## old testhmonth.prg
-../samples/testimage.prg
-../samples/demotreebox.prg ## old testsdi.prg
-../samples/demosplit.prg ## old testspli.prg
-../samples/testtree.prg
-../samples/testmenuxml.prg ## old menuxml.prg
-../samples/trackbar.prg
-../samples/demolistbox.prg ## old tstcombo.prg
-../samples/TwoLstSub.prg
-../samples/winprn.prg
-../samples/demoxmltree.prg
+../samples/bincnts.hbp
+../samples/colrbloc.hbp
+../samples/dbview.hbp
+../samples/demobrowsearr.hbp
+../samples/demodatepicker.hbp ##- old demodatepicker
+../samples/demodbfdata.hbp
+../samples/demogetupdown.hbp
+../samples/demolistbox.hbp ## old tstcombo.prg
+../samples/demolistboxsub.hbp
+../samples/demomonthcal.hbp ## old testhmonth.prg
+../samples/demotreebox.hbp ## old testsdi.prg
+../samples/demoxmltree.hbp
+../samples/fileselect.hbp
+../samples/GetWinVers.hbp
+../samples/graph.hbp
+../samples/helpstatic.hbp
+../samples/hexbincnt.hbp
+../samples/htrack.hbp
+../samples/icons.hbp
+../samples/icons2.hbp
+../samples/menumod.hbp
+../samples/modtitle.hbp
+../samples/progbars.hbp
+../samples/pseudocm.hbp
+../samples/simpleedit.hbp
+../samples/stretch.hbp
+../samples/tab.hbp
+../samples/testfunc.hbp
+../samples/testimage.hbp
+../samples/testplit.hbp
+../samples/testtree.hbp
+../samples/testmenuxml.hbp ## old menuxml.prg
+../samples/trackbar.hbp
+../samples/TwoLstSub.hbp
+../samples/winprn.hbp
 #
 # Samples WinAPI only
 #
-../samples/a.prg
-../samples/buildpelles.prg
-../samples/demolistbox ## old demohlist.prg
-../samples/grid_1.prg
-../samples/grid_4.prg
-../samples/grid_5.prg
-../samples/hello.prg
-../samples/nice.prg
-../samples/demoshadebtn.prg ## old dlgshade.prg
-../samples/demoonother.prg ## old test_bot.prg
-../samples/Testado.prg
-../samples/testalert.prg
-../samples/testbrw.prg
-../samples/testget1.prg
-../samples/testget2.prg
-../samples/demoini.prg
-../samples/testmenubitmap.prg
-../samples/testrtf.prg
-../samples/tstscrlbar.prg
-../samples/tstsplash.prg
-../samples/TwoListbox.prg
+../samples/a.hbp
+../samples/buildpelles.hbp
+../samples/demoshadebtn.hbp ## old dlgshade.prg
+../samples/demoonother.hbp ## old test_bot.prg
+####../samples/demolistbox.hbp ## old demohlist.prg
+../samples/grid_1.hbp
+../samples/grid_4.hbp
+../samples/grid_5.hbp
+../samples/hello.hbp
+../samples/nice.hbp
+../samples/Testado.hbp
+../samples/testalert.hbp
+../samples/testbrw.hbp
+../samples/testget1.hbp
+../samples/testget2.hbp
+../samples/demoini.hbp
+../samples/testmenubitmap.hbp
+../samples/testrtf.hbp
+../samples/tstscrlbar.hbp
+../samples/tstsplash.hbp
+../samples/TwoListbox.hbp
 #
 # Programs not runable
 # ../samples/nice2.prg

@@ -2,7 +2,7 @@
 name: checkwindows
 
 on:
-  push:
+  #push:
   #schedule:
   # - cron: "15 5 1 * *"
   workflow_dispatch:
