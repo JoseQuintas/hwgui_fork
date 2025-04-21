@@ -1,4 +1,4 @@
-\/*
+/*
 demotab.prg
 show tab
 
