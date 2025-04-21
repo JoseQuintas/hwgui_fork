@@ -1,7 +1,6 @@
 /*
  demomenumt.prg
  menu using multithread
- need demobrowsedbf.prg
  compile using -mt
 
 CAUTION
@@ -28,7 +27,9 @@ CAUTION
 
 FUNCTION Main()
 
-   LOCAL oDlg, nCont := 1
+   LOCAL oDlg
+   LOCAL bCodeBrowseDBF := { || DemoBrowseDbf() }
+   LOCAL bCodeDemoTab   := { || DemoTab() }
 
    INIT DIALOG oDlg ;
       TITLE "demomenumt.prg - Menu using Multithread" ;
@@ -36,8 +37,11 @@ FUNCTION Main()
       SIZE 400,150
 
    MENU OF oDlg
-      MENUITEM "&Exit" ACTION hwg_EndDialog()
-      MENUITEM "&Browse DBF" ACTION hb_ThreadStart( { || DoMt( nCont++ ) } )
+      MENU TITLE "Options"
+         MENUITEM "&Browse DBF" ACTION hb_ThreadStart( { || DoMt( bCodeBrowseDbf ) } )
+         MENUITEM "&Tab"        ACTION hb_ThreadStart( { || DoMt( bCodeDemoTab ) } )
+         MENUITEM "&Exit" ACTION hwg_EndDialog()
+      ENDMENU
    ENDMENU
 
    ACTIVATE DIALOG oDlg
@@ -46,11 +50,11 @@ FUNCTION Main()
 
    RETURN Nil
 
-STATIC FUNCTION DoMt( nCont )
+STATIC FUNCTION DoMt( bCode )
 
    hb_gtReload( hb_gtInfo( HB_GTI_VERSION ) )
    hwg_initProc() // init hwgui on thread
-   DemoBrowseDBF( nCont )
+   Eval( bCode )
 
    RETURN Nil
 

@@ -30,7 +30,11 @@ PROCEDURE Main
        ;
        { "",                       .F., .F., .F., "" }, ;
        ;
-       { "demobasic.prg",          .T., .T., .T., "Tab, browse array, combobox, status panel, owner button" } , ;
+       { "demotab",                .T., .T., .T., "Tab and more samples" } , ;
+       { "demobrowsedbf",          .T., .T., .T., "Browse DBF (demotab)"  }, ;
+       ;
+       { "",                       .T., .F., .F., "" }, ;
+       ;
        { "demodbfdata.prg",        .T., .T., .T., "DBF data using tab" }, ;
        { "demoini.prg",            .T., .F., .F., "Read/write Ini" }, ;
        { "demomenuxml.prg",        .T., .T., .T., "Setup menu from XML ***error on new item***" }, ;
@@ -42,7 +46,6 @@ PROCEDURE Main
        ;
        { "demogetupdown.prg",      .T., .T., .T., "Get UpDown" }, ;
        { "demobrowsearr.prg",      .T., .T., .T., "browse array editable" }, ;
-       { "demobrowsedbf.prg",      .T., .T., .T., "Browse DBF"  }, ;
        { "democheckbox.prg",       .T., .T., .T., "Checkbox and tab" }, ;
        { "democombobox.prg",       .T., .T., .T., "Combobox" }, ;
        { "demodatepicker.prg",     .T., .T., .T., "Date Picker" }, ;

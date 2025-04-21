@@ -7,7 +7,7 @@
 -oall
 
 all.prg
-
--d__USING_MENU__
+demobrowsedbf.prg
+demotab.prg
 
 # ================================= EOF of all.hbp ================================

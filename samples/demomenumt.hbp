@@ -20,6 +20,7 @@
 -D__USING_MENU__
 demomenumt.prg
 demobrowsedbf.prg
+demotab.prg
 
 -mt
 

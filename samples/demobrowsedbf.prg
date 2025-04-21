@@ -1,50 +1,51 @@
 /*
- * demobrowsedbf.prg
- * browse dbf
+ demobrowsedbf.prg
+ browse dbf
+
+ called from demomenumt.prg
+ called from all.prg
+
 */
 
 #include "hwgui.ch"
 
-#ifdef __USING_MENU__
-   FUNCTION DemoBrowseDbf( nCont )
-#else
-   FUNCTION Main( nCont )
-#endif
+FUNCTION DemoBrowseDbf( lWithDialog, oDlg )
 
-   LOCAL oDlg, oBrowse, aList, aItem
+   LOCAL oBrowse, aList, aItem
 
-   SET EXCLUSIVE OFF
-
-   hb_Default( @nCont, 1 )
+   hb_Default( @lWithDialog, .T. )
 
    CreateDBF( "test" )
-   USE test
+   USE test SHARED
 
    aList := { ;
       { "Name",   { || field->Name } }, ;
       { "Adress", { || field->Address } } }
 
-   INIT DIALOG oDlg ;
-      TITLE "demobrowsedbf.prg - BROWSE DBF " + Ltrim( Str( nCont ) ) ;
-      AT 0,0 ;
-      SIZE 1024,600
+   IF lWithDialog
+      INIT DIALOG oDlg ;
+         TITLE "demobrowsedbf.prg - BROWSE DBF" ;
+         AT 0,0 ;
+         SIZE 800, 600
+   ENDIF
 
-   @ 20,10 BROWSE oBrowse ;
+   @ 20, 50 BROWSE oBrowse ;
       DATABASE ;
-      SIZE 780, 500 ;
+      SIZE 500, 400 ;
       STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
 
    FOR EACH aItem IN aList
       ADD COLUMN aItem[ 2 ] TO oBrowse HEADER aItem[ 1 ] LENGTH 30
    NEXT
 
-   @ 500,540 BUTTON "Close" ;
+   @ 500, 450 BUTTON "Browse nCurrent" ;
       SIZE 180,36 ;
-      ON CLICK { || hwg_EndDialog() } // will close all
+      ON CLICK { || hwg_MsgInfo( "Browse Current:" + Ltrim( Str( oBrowse:nCurrent ) ) ) } // will close all
 
-
-   ACTIVATE DIALOG oDlg CENTER
-   CLOSE DATABASES
+   IF lWithDialog
+      ACTIVATE DIALOG oDlg CENTER
+      CLOSE DATABASES
+   ENDIF
 
    RETURN Nil
 
