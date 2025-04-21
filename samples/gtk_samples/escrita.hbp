@@ -1,14 +1,14 @@
 #
 # $Id$
 #
+# auto included hbmk.hbm
+#
 
 -stop={win}
 
 ../../hwgui.hbc
 
 -n
--lm
--static
 -d__LINUX__ -d__GTK__
 
 -oescrita

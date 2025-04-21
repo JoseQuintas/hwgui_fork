@@ -15,7 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2025-04-19 13:07 UTC-0300 Jose Quintas jmcquintas-gmail.com
+2025-04-21 01:01 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/gtk_samples/*.hbp
+     ! fix linux after auto hbmk.hbm, removed duplicated from hbp
+
+2025-04-20 13:07 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/tutorial/tutor.hbp
      ! tutor.hbp now compiles windows/ubuntu
    * samples/gtk_samples/a.prg

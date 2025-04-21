@@ -1,6 +1,8 @@
 #
 # $Id$
 #
+# auto included hbmk.hbm
+#
 
 -stop={win}
 winprn.prg
