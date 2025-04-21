@@ -15,6 +15,32 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-21 10:20 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/*.hbp
+   * samples/clean.sh
+   * samples/makeallsam.sh
+     ! fix warnings on ubuntu
+     ! removed not needed #include "gtk.ch", causing duplicated defines
+   * samples/demobrowsedbf.prg
+   * samples/demobrowsedbf.hbp
+     ! changed for multiple use, with or without dialog
+   * samples/demotab.prg (renamed from demobasic.prg)
+   * samples/demotab.hbp (renamed from demobasic.hbp)
+     ! changed for multiple use, with or without dialog
+     ! uses demobrowsedbf inside a TAB PAGE
+   * samples/demomenumt.prg
+   * samples/demomenumt.hbp
+     ! use demobrowseedbf.prg and demotab.prg as dialog
+   * samples/all.hbp
+   * samples/all.prg
+     ! use demotab.prg as tab and as dialog
+     ! use demobrowsedbf.prg as dialog (inside demotab too)
+   ! Trying reuse samples as simple as possible
+   ! Do not need compile demobrowsedbf and demotab,
+   !    but can compile alone too
+   ! TO DO: say on demobrowsedbf.prg do not show text
+   ! NOTE: sample needs reserve a top space for tab
+
 2025-04-21 01:01 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/gtk_samples/*.hbp
      ! fix linux after auto hbmk.hbm, removed duplicated from hbp

@@ -29,10 +29,16 @@ FUNCTION DemoBrowseDbf( lWithDialog, oDlg )
          SIZE 800, 600
    ENDIF
 
-   @ 20, 50 BROWSE oBrowse ;
+   @ 20, 50 SAY "demobrowsedbf.prg" ;
+      SIZE 500, 30
+
+   @ 20, 80 BROWSE oBrowse ;
+      OF oDlg ;
       DATABASE ;
-      SIZE 500, 400 ;
+      SIZE 500, 350 ;
       STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
+
+   oBrowse:oStyleHead := HStyle():New( { 0xffffff, 0xbbbbbb }, 1 )
 
    FOR EACH aItem IN aList
       ADD COLUMN aItem[ 2 ] TO oBrowse HEADER aItem[ 1 ] LENGTH 30

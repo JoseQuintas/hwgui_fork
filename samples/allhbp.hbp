@@ -77,7 +77,7 @@
 ../samples/testimage.hbp
 ../samples/testplit.hbp
 ../samples/testtree.hbp
-../samples/testmenuxml.hbp ## old menuxml.prg
+../samples/demomenuxml.hbp ## old menuxml.prg
 ../samples/trackbar.hbp
 ../samples/TwoLstSub.hbp
 ../samples/winprn.hbp

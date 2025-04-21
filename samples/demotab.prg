@@ -1,4 +1,4 @@
-/*
+\/*
 demotab.prg
 show tab
 
@@ -19,8 +19,8 @@ FUNCTION DemoTab( lWithDialog )
          TITLE "demotab.prg" ;
          AT    0, 0 ;
          SIZE  800, 600 ;
-         FONT  HFont():Add( "MS Sans Serif",0,-15 )
-         // STYLE DS_CENTER + WS_VISIBLE + WS_POPUP + WS_CAPTION + WS_SYSMENU
+         FONT  HFont():Add( "MS Sans Serif",0,-15 ) ;
+         BACKCOLOR 16772062
    ENDIF
 
    @ 30, 50 TAB oTab ;
@@ -69,17 +69,17 @@ FUNCTION DemoTab( lWithDialog )
 
    END PAGE OF oTab
 
-   // A STATUS PANEL may be used instead of a standard STATUS control
-   ADD STATUS PANEL ;
-      TO     oDlg ;
-      HEIGHT 30 ;
-      PARTS  80, 200, 0
-
-   hwg_WriteStatus( oDlg, 1, "all.prg", .F. )
-   hwg_WriteStatus( oDlg, 2, hwg_Version(), .F. )
-   hwg_WriteStatus( oDlg, 3, "See more on hwgui tutorial", .F. )
-
    IF lWithDialog
+      // A STATUS PANEL may be used instead of a standard STATUS control
+      ADD STATUS PANEL ;
+         TO     oDlg ;
+         HEIGHT 30 ;
+         PARTS  80, 200, 0
+
+      hwg_WriteStatus( oDlg, 1, "all.prg", .F. )
+      hwg_WriteStatus( oDlg, 2, hwg_Version(), .F. )
+      hwg_WriteStatus( oDlg, 3, "See more on hwgui tutorial", .F. )
+
       ACTIVATE DIALOG oDlg ;
          CENTER
    ENDIF
@@ -165,6 +165,13 @@ STATIC FUNCTION DemoBrowseArray()
 STATIC FUNCTION DemoButton( lWithDialog, oDlg )
 
    LOCAL oBtn1, oBtn2, oBtn3
+   LOCAL oStyleNormal  := HStyle():New( {16759929,16772062}, 1 )
+   LOCAL oStylePressed := HStyle():New( {16759929}, 1,, 3, 0 )
+   LOCAL oStyleOver    := HStyle():New( {16759929}, 1,, 2, 12164479 )
+   LOCAL aBtn2Style    := { ;
+      HStyle():New( {0xffffff,0xdddddd}, 1,, 1 ), ;
+      HStyle():New( {0xffffff,0xdddddd}, 2,, 1 ), ;
+      HStyle():New( {0xffffff,0xdddddd}, 1,, 2, 8421440 ) }
 
    @ 10, 50 OWNERBUTTON oBtn1 ;
       OF       oDlg ;
@@ -177,10 +184,12 @@ STATIC FUNCTION DemoButton( lWithDialog, oDlg )
       SIZE     60, 24 ;
       TEXT     "But.2" ;
       ON CLICK { || hwg_MsgInfo( "Button 2" ) }
+   oBtn2:aStyle := aBtn2Style
 
    @ 138, 50 OWNERBUTTON oBtn3 ;
       OF       oDlg ;
       SIZE     60, 24 ;
+      HSTYLES oStyleNormal, oStylePressed, oStyleOver ;
       TEXT     "But.3" ;
       ON CLICK { || hwg_MsgInfo( "Button 3" ) }
 

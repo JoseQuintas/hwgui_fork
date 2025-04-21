@@ -19,6 +19,7 @@ all.prg(182) Warning W0032  Variable 'CBINHBMK' is assigned but not used in func
 #endif
 
 #include "hwgui.ch"
+#include "directry.ch"
 
 PROCEDURE Main
 
@@ -108,7 +109,7 @@ PROCEDURE Main
       MAIN ;
       TITLE "ALL - Samples list-------------------------------------" ;
       AT 0,0 ;
-      SIZE 600, 400
+      SIZE 800, 600
 
    MENU OF oDlg
       FOR nCont = 1 TO Len( aList ) // not sure about Xharbour for/each
@@ -143,8 +144,13 @@ PROCEDURE Main
       IF lCloseMenu // close menu if not closed before
          ENDMENU
       ENDIF
-      MENUITEM "&Exit" ACTION hwg_EndWindow()
+      MENU TITLE "Other"
+         MENUITEM "Check PRG/HBP/EXE" ACTION { || CheckPrgHbpExe() }
+         MENUITEM "&Exit" ACTION hwg_EndWindow()
+      ENDMENU
    ENDMENU
+
+   DemoTab( .F. )
 
    ACTIVATE WINDOW oDlg CENTER
 
@@ -181,6 +187,26 @@ STATIC FUNCTION ExecuteExe( cFileName )
       ENDIF
    ENDIF
    HWG_RunApp( cBinName )
+
+   RETURN Nil
+
+STATIC FUNCTION CheckPrgHbpExe()
+
+   LOCAL aItem, cFile, cTxt := "", lWithHbp, lWithExe
+
+   FOR EACH aItem IN Directory( "*.prg" )
+      cFile := aItem[ F_NAME ]
+      cFile := Substr( cFile, 1, Len( cFile ) - 4 )
+      lWithHbp := File( cFile + ".hbp" )
+      lWithExe := File( cFile + ".exe" )
+      IF ! ( lWithHbp .AND. lWithExe )
+         cTxt += Pad( cFile, 20 )
+         cTxt += "HBP_" + iif( lWithHbp, "Yes", "No " )
+         cTxt += "EXE_" + iif( lWithExe, "Yes", "No " )
+         cTxt += hb_Eol()
+      ENDIF
+   NEXT
+   hwg_MsgInfo( cTxt )
 
    RETURN Nil
 
