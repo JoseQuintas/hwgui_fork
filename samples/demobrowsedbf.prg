@@ -2,8 +2,10 @@
  demobrowsedbf.prg
  browse dbf
 
+ moved from demobrowseado.prg Itamar Lins
+
  called from demomenumt.prg
- called from all.prg
+ called from demoall.prg
  called from demotab.prg
 
 note:
@@ -18,6 +20,10 @@ FUNCTION DemoBrowseDbf( lWithDialog, oDlg )
 
    hb_Default( @lWithDialog, .T. )
 
+   IF Select( "test" ) != 0
+      SELECT test
+      USE
+   ENDIF
    CreateDBF( "test" )
    USE test SHARED
 

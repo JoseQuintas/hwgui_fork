@@ -20,8 +20,10 @@
 -D__USING_MENU__
 demomenumt.prg
 demobrowsedbf.prg
-demotab.prg
+###demotab.prg ### dependencies
 {win}demomonthcal.prg
+{win}demobrowseado.prg
+{win}hbwin.hbc
 
 -mt
 

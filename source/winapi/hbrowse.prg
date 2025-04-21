@@ -1394,7 +1394,7 @@ METHOD LINEDOWN( lMouse ) CLASS HBrowse
        btemp := Eval( ::bSkip, Self, 1 ) == 0 .OR. Eval( ::bEof, Self )
    ELSE
        * DF7BE: Modification suggested by Itarmar M. Lins Jr.
-       * (see sample program Testado.prg)
+       * (see sample program demobrowseado.prg)
        *
        * Database (Default)
        * If BROWSE command without "DATABASE" term, the attribute ::type is set to 0 !
@@ -1957,7 +1957,7 @@ METHOD Edit( wParam, lParam ) CLASS HBrowse
                   STYLE ES_AUTOHSCROLL           ;
                   FONT ::oFont                   ;
                   PICTURE oColumn:picture        ;
-                  ON KEYDOWN oColumn:bKeyDown    ; 
+                  ON KEYDOWN oColumn:bKeyDown    ;
                   VALID oColumn:bValid
             ELSE
 

@@ -72,7 +72,7 @@ FUNCTION DemoMonthCal( lWithDialog, oDlg )
       SIZE 100,40
 
    IF lWithDialog
-      ACTIVATE DIALOG oDlg
+      ACTIVATE DIALOG oDlg CENTER
    ENDIF
 
 RETURN Nil

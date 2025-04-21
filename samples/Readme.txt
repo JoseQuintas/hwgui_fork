@@ -229,9 +229,10 @@ For beginners:
  =================   ====   ====  === ======= =======
  a.prg   +) 9)       R       N    CN          Some HWGUI basics (Open DBF's, GET's, ...)
 
- all.prg             ?                        group samples
+ demoall.prg         ?                        group samples
    demotab.prg       ?       ?    ?           Tab, owner button, combobox, dateselect, status panel
    demobrowsedbf.prg ?       ?    ?           browse dbf
+   demobrowseado.prg N       N                ADO Browse (TNX Itamar M. Lins Jr.). For multi platform use BROWSE.
    demomonthcal.prg  ?                 Y      Calendar, Datepicker, TOOLTIP
 
  demobrowsearray.prg Y                        Array BROWSE avoiding crashes because of bugs (see inline comments)
@@ -281,7 +282,6 @@ For beginners:
  stretch.prg         Y  #                     Sample for resizing bitmaps (background), some bugs (as test program)
  tab.prg             Y  #              -      Sample for Tabs
  tabs_toolt          Y                        Sample for tabs with tooltips (TNX Alain Aupeix)
- Testado.prg         N       N                Test program sample for ADO Browse (TNX Itamar M. Lins Jr.). For multi platform use BROWSE.
  testalert.prg       N       N                Clipper style Alert() replacement, delivered by Alex Strickland (TNX !)
  demoonother.prg     P                        bOther Test: Press key, after key up the scan code is displayed.
  testbrw.prg         Y  #                     Another BROWSE test (bug on GTK see docu)

@@ -58,7 +58,7 @@ delfi samples/demobrowsearray.c
 #
 # Samples for multi plattform (exe)
 # and optional generated C source file
-delfi samples/all
+delfi samples/demoall
 rm samples/a 2>/dev/null
 rm samples/a.log 2>/dev/null
 rm samples/testget1 2>/dev/null

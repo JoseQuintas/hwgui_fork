@@ -1,4 +1,11 @@
+#
+# update demoall.hbp too, it calls demotab
+#
+
 demotab.prg
 demobrowsedbf.prg
 {win}demomonthcal.prg
+{win}demobrowseado.prg
+{win}hbwin.hbc
+
 -odemotab

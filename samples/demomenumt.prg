@@ -30,6 +30,9 @@ FUNCTION Main()
    LOCAL oDlg
    LOCAL bCodeBrowseDBF := { || DemoBrowseDbf() }
    LOCAL bCodeDemoTab   := { || DemoTab() }
+#ifdef __PLATFORM__WINDOWS
+   LOCAL bCodeMonthCal  := { || DemoMonthCal() }
+#endif
 
    INIT DIALOG oDlg ;
       TITLE "demomenumt.prg - Menu using Multithread" ;
@@ -38,13 +41,16 @@ FUNCTION Main()
 
    MENU OF oDlg
       MENU TITLE "Options"
-         MENUITEM "&Browse DBF" ACTION hb_ThreadStart( { || DoMt( bCodeBrowseDbf ) } )
-         MENUITEM "&Tab"        ACTION hb_ThreadStart( { || DoMt( bCodeDemoTab ) } )
-         MENUITEM "&Exit" ACTION hwg_EndDialog()
+         MENUITEM "&Browse DBF"     ACTION hb_ThreadStart( { || DoMt( bCodeBrowseDbf ) } )
+         MENUITEM "&Tab"            ACTION hb_ThreadStart( { || DoMt( bCodeDemoTab ) } )
+#ifdef __PLATFORM__WINDOWS
+         MENUITEM "&Month Calendar" ACTION hb_ThreadStart( { || DoMt( bCodeMonthCal ) } )
+#endif
+         MENUITEM "&Exit"           ACTION hwg_EndDialog()
       ENDMENU
    ENDMENU
 
-   ACTIVATE DIALOG oDlg
+   ACTIVATE DIALOG oDlg CENTER
 
    hb_ThreadWaitForAll()
 

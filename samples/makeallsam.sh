@@ -18,8 +18,8 @@
 # don't forget to add it here.
 #
 hbmk2 a.hbp
-hbmk2 all.hbp
 hbmk2 allhbp.hbp
+hbmk2 demoall.hbp
 hbmk2 demobrowsearray.hbp
 hbmk2 bincnts.hbp
 hbmk2 bindbf.hbp
@@ -67,7 +67,6 @@ hbmk2 simpleedit.hbp
 hbmk2 stretch.hbp
 hbmk2 tab.hbp
 hbmk2 tabs_toolt.hbp
-hbmk2 Testado.hbp
 hbmk2 testalert.hbp
 hbmk2 testbmpcr.hbp
 hbmk2 testbrw.hbp

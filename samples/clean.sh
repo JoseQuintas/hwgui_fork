@@ -61,7 +61,6 @@ rm demoshadebtn 2> /dev/null
 rm simpleedit 2> /dev/null
 rm stretch 2> /dev/null
 rm tab 2> /dev/null
-rm Testado 2> /dev/null
 rm testalert 2> /dev/null
 rm testbmpcr 2> /dev/null
 rm testbrw 2> /dev/null

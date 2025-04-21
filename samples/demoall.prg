@@ -1,5 +1,5 @@
 /*
-all.prg
+demoall.prg
 menu for samples on samples/ folder
 
 DF7BE:
@@ -28,12 +28,6 @@ PROCEDURE Main
    LOCAL aList := { ;
        ; // NAME,                  WIN, LINUX, MACOS, DESCRIPTION
        { "a.prg",                  .T., .F., .F., "MDI, Tab, checkbox, combobox, browse array, others" }, ;
-       ;
-       { "",                       .F., .F., .F., "" }, ;
-       ;
-       { "demotab",                .T., .T., .T., "Tab and more samples" } , ;
-       { "demobrowsedbf",          .T., .T., .T., "Browse DBF (demotab)"  }, ;
-       { "demomonthcal",           .T., .T., .T., "Month Calendar (demotab)" }, ;
        ;
        { "",                       .T., .F., .F., "" }, ;
        ;
@@ -86,7 +80,6 @@ PROCEDURE Main
        { "htrack.prg",             .T., .T., .T., "HTrack" }, ;
        { "icons.prg",              .T., .T., .T., "Icons" }, ;
        { "icons2.prg",             .T., .T., .T., "Icons2" }, ;
-       { "testado.prg",            .T., .F., .F., "Test ADO" }, ;
        { "testalert.prg",          .T., .F., .F., "Test Alert" }, ;
        { "testbrwq.prg",           .T., .F., .F., "Test browse" }, ;
        { "testget1.prg",           .T., .F., .F., "Test Get 1" }, ;
@@ -102,14 +95,22 @@ PROCEDURE Main
        { "propsh.prg",             .T., .F., .F., "Propsheet ***error***" }, ;
        { "testtray.prg",           .T., .F., .F., "Test Tray ***Error***" }, ;
        { "tstprdos.prg",           .T., .F., .F., "test DOS ***outdated***" }, ;
+       ;
+       { "",                       .F., .F., .F., "" }, ;
+       ; // already visible on the tab of demoall.prg
+       ;
+       { "demotab",                .T., .T., .T., "Tab and more samples" } , ;
+       { "demobrowsedbf",          .T., .T., .T., "Browse DBF (demotab)"  }, ;
+       { "demomonthcal",           .T., .T., .T., "Month Calendar (demotab)" }, ;
+       { "demobrowseado.prg",      .T., .F., .F., "Browse using ADO" }, ;
        { "",                       .F., .F., .F., "" }, ;
        { "notexist",               .F., .F., .F., "Test for menu, about not available" } }
 
-   INIT WINDOW oDlg ;
-      MAIN ;
+   INIT DIALOG oDlg ;
       TITLE "ALL - Samples list-------------------------------------" ;
       AT 0,0 ;
-      SIZE 800, 600
+      SIZE 800, 600 ;
+      BACKCOLOR 16772062
 
    MENU OF oDlg
       FOR nCont = 1 TO Len( aList ) // not sure about Xharbour for/each
@@ -152,7 +153,17 @@ PROCEDURE Main
 
    DemoTab( .F., oDlg )
 
-   ACTIVATE WINDOW oDlg CENTER
+   // A STATUS PANEL may be used instead of a standard STATUS control
+   ADD STATUS PANEL ;
+      TO     oDlg ;
+      HEIGHT 30 ;
+      PARTS  80, 200, 0
+
+   hwg_WriteStatus( oDlg, 1, "demoall.prg", .F. )
+   hwg_WriteStatus( oDlg, 2, hwg_Version(), .F. )
+   hwg_WriteStatus( oDlg, 3, "See more on hwgui tutorial", .F. )
+
+   ACTIVATE DIALOG oDlg CENTER
 
    RETURN
 

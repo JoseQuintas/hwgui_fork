@@ -45,7 +45,7 @@
 #
 # Samples WinAPI and LINUX/GTK
 #
-../samples/all.hbp
+../samples/demoall.hbp
 ../samples/bincnts.hbp
 ../samples/colrbloc.hbp
 ../samples/dbview.hbp
@@ -55,7 +55,7 @@
 ../samples/demogetupdown.hbp
 ../samples/demolistbox.hbp ## old tstcombo.prg
 ../samples/demolistboxsub.hbp
-#####../samples/demomonthcal.hbp ## old testhmonth.prg included on all.hbp and demotab.hbp
+#####../samples/demomonthcal.hbp ## old testhmonth.prg included on demoall.hbp and demotab.hbp
 ../samples/demotreebox.hbp ## old testsdi.prg
 ../samples/demoxmltree.hbp
 ../samples/fileselect.hbp
@@ -94,8 +94,6 @@
 ../samples/grid_5.hbp
 ../samples/hello.hbp
 ../samples/nice.hbp
-../samples/Testado.hbp
-../samples/testalert.hbp
 ../samples/testbrw.hbp
 ../samples/testget1.hbp
 ../samples/testget2.hbp

@@ -15,6 +15,25 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-21 17:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * source/winapi/hbrowse
+     ! only comment from testado.prg to demobrowseado.prg
+   * samples/Readme.txt
+   * samples/clean.sh
+   * samples/demoall.* (from all.*)
+   - samples/demoado.hbp
+   * samples/demobrowseado.prg (from testado.prg)
+   * samples/demobrowsedbf.prg
+   * samples/demomenumt.*
+   * samples/demomonthcal.prg
+   * samples/demotab.*
+   * samples/makeallsam.sh
+     ! change demobrowseado to multiuse, use friendly variable names
+     ! Update references
+     ! change all.prg to demoall.prg - to easy search, and do not
+     !    confuse with all sources.
+     ! demobrowseado added as windows only on demoall and demotab
+
 2025-04-21 13:10 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/Readme.txt
    * samples/all.hbp

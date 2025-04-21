@@ -5,6 +5,8 @@ show tab
 At momment using source code using parts from hwgui tutorial  hwgui/utils/tutorial
 
 Note: oDlg may be another dialog
+
+called from all.prg - need to add here same prgs on demotab.hbp
 */
 
 #include "hwgui.ch"
@@ -25,12 +27,12 @@ FUNCTION DemoTab( lWithDialog, oDlg )
    ENDIF
 
    @ 30, 30 SAY "demotab.prg" ;
-      SIZE 500, 20 ;
+      SIZE 450, 20 ;
       OF oDlg
 
    @ 30, 60 TAB oTab ;
       ITEMS {} ;
-      SIZE  700, 500
+      SIZE  700, 480
 
    BEGIN PAGE "say" ;
       OF oTab
@@ -82,16 +84,23 @@ FUNCTION DemoTab( lWithDialog, oDlg )
       DemoMonthCal( .F., oTab )
 
    END PAGE OF oTab
+
+   BEGIN PAGE "browseado" ;
+      OF oTab
+
+      DemoBrowseADO( .F., oTab )
+
+   END PAGE OF oTab
 #endif
 
    IF lWithDialog
       // A STATUS PANEL may be used instead of a standard STATUS control
       ADD STATUS PANEL ;
          TO     oDlg ;
-         HEIGHT 30 ;
+         HEIGHT 25 ;
          PARTS  80, 200, 0
 
-      hwg_WriteStatus( oDlg, 1, "all.prg", .F. )
+      hwg_WriteStatus( oDlg, 1, "demotab.prg", .F. )
       hwg_WriteStatus( oDlg, 2, hwg_Version(), .F. )
       hwg_WriteStatus( oDlg, 3, "See more on hwgui tutorial", .F. )
 
