@@ -63,9 +63,6 @@ Other functions:
 
 #include "hwgui.ch"
 #include "common.ch"
-#ifdef __GTK__
-// #include "gtk.ch"
-#endif
 #ifdef __XHARBOUR__
    #include "ttable.ch"
 #endif

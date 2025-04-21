@@ -34,9 +34,6 @@
 MEMVAR CAGUML, COGUML , CUGUML , CAKUML, COKUML , CUKUML , CSZUML , EURO
 
 #include "hwgui.ch"
-// #ifdef __GTK__
-// #include "gtk.ch"
-// #endif
 #ifdef __XHARBOUR__
    #include "ttable.ch"
 #endif

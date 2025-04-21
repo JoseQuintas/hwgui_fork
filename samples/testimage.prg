@@ -20,9 +20,6 @@
 
 
 #include "hwgui.ch"
-// #ifdef __GTK__
-// #include "gtk.ch"
-// #endif
 
 FUNCTION Main()
 

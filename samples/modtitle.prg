@@ -17,9 +17,6 @@
 
 /* === includes === */
 // #include "hwgui.ch"
-// #ifdef __GTK__
-// #include "gtk.ch"
-// #endif
 
 #include "hwgui.ch"
 

@@ -7,9 +7,6 @@
 * Function hb_cdpSelect() returns "EN" as default
 
 #include "hwgui.ch"
-#ifdef __GTK__
-#include "gtk.ch"
-#endif
 
 FUNCTION Main()
 LOCAL oWinMain

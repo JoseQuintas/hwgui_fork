@@ -28,9 +28,6 @@
 */
 
 #include "hwgui.ch"
-// #ifdef __GTK__
-// #include "gtk.ch"
-// #endif
 
 REQUEST HB_CODEPAGE_RU866
 REQUEST HB_CODEPAGE_RUKOI8

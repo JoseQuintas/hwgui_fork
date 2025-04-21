@@ -2,7 +2,7 @@
   *
   * Tickets #93 and #48
   *
-  * Look for bugfixing of: 
+  * Look for bugfixing of:
   * IA__gtk_window_set_transient_for: assertion 'window != parent' failed
   *
   *
@@ -11,7 +11,6 @@
 #ifdef __XHARBOUR__
    #include "ttable.ch"
 #endif
-#include "gtk.ch"
 
 STATIC oWinMain
 
@@ -34,9 +33,9 @@ INIT WINDOW oFormMain MAIN  ;
       MENU TITLE "&Test"
         MENUITEM "&Teste" ACTION TESTEN(cimg)
       ENDMENU
-   ENDMENU    
+   ENDMENU
    oFormMain:Activate()
-RETURN NIL   
+RETURN NIL
 
 
 
@@ -50,27 +49,27 @@ nbut := 0
 
  oObj_Exit := HBitMap():AddFile(cimg)
 
-   PREPARE FONT oFontMain NAME "Sans" WIDTH 0 HEIGHT 12 
+   PREPARE FONT oFontMain NAME "Sans" WIDTH 0 HEIGHT 12
 
 INIT DIALOG oWinDia ;
    FONT oFontMain  ;
      TITLE "Test program gtk error dialog" AT 0, 0 SIZE 200,200;
 //     STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
-     
- @ 0, 0 TOOLBAR oToolbar OF oWinDia SIZE  199 , 50     
-  
+
+ @ 0, 0 TOOLBAR oToolbar OF oWinDia SIZE  199 , 50
+
   @ htab+(nbut*32), 3 OWNERBUTTON /* OF oToolbar */ ;
       ON CLICK {||oWinDia:Close() } ;
       SIZE 28,24   /* FLAT */ ;
       BITMAP oObj_Exit TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") ;
       COORDINATES 0,4,0,0 ;
       TOOLTIP "Quit"
-      
+
    oWinDia:Activate()
 
-RETURN NIL  
+RETURN NIL
 
-FUNCTION Quitter() 
+FUNCTION Quitter()
  oWinMain:Close()
 RETURN NIL
 
@@ -79,8 +78,8 @@ FUNCTION CHECK_FILE ( cfi )
  IF .NOT. FILE( cfi )
   Hwg_MsgStop("File >" + cfi + "< not found, program terminated","File ERROR !")
   QUIT
- ENDIF 
+ ENDIF
 RETURN Nil
 
 * ================================= EOF of gtk_err93.prg =============================================
-    
+

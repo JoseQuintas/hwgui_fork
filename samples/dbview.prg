@@ -58,21 +58,6 @@
 
 #include "hwgui.ch"
 
-* Otherwise fires lots warnings on MacOS like this:
-* ../include/gtk.ch(94) Warning W0002  Redefinition or duplicate definition of #define GDK_UR_ANGLE
-* Fixed Dec. 2024:
-* remove the include of gtk.ch, not needed any more
-
-// #ifndef ___MACOSX___
-
-//#ifdef __GTK__
-// #include "gtk.ch"
-//#endif
-
-// #endif
-
-
-
 REQUEST HB_CODEPAGE_RU866
 REQUEST HB_CODEPAGE_RUKOI8
 REQUEST HB_CODEPAGE_RU1251

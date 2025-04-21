@@ -21,9 +21,6 @@
 
 
 #include "hwgui.ch"
-// #ifdef __GTK__
-// #include "gtk.ch"
-// #endif
 
 MEMVAR oMainWindow
 MEMVAR oObj_Window, oObj_Dialog

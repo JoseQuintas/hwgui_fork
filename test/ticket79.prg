@@ -13,9 +13,6 @@
 *
 
 #include "hwgui.ch"
-#ifdef __GTK__
-#include "gtk.ch"
-#endif
 
 #define ID_ODT 101
 

@@ -35,9 +35,6 @@
 
 #include "hwgui.ch"
 * #include "tab.rh"
-// #ifdef __GTK__
-// #include "gtk.ch"
-// #endif
 
 #define IDC_1           101
 

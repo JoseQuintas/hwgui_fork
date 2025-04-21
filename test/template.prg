@@ -8,14 +8,9 @@
 *
 
 #include "hwgui.ch"
-#ifdef __GTK__
-#include "gtk.ch"
-#endif
 
 FUNCTION Main()
 LOCAL oWinMain
-
-
 
 INIT WINDOW oWinMain MAIN  ;
      SYSCOLOR COLOR_3DLIGHT+1 ;

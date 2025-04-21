@@ -8,10 +8,6 @@ At momment using source code using parts from hwgui tutorial  hwgui/utils/tutori
 
 #include "hwgui.ch"
 
-#ifdef __GTK__
-   #include "gtk.ch"
-#endif
-
 FUNCTION DemoTab( lWithDialog )
 
    LOCAL oTab, oDlg
