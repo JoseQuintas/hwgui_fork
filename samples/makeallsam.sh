@@ -18,6 +18,7 @@
 # don't forget to add it here.
 #
 hbmk2 a.hbp
+hbmk2 all.hbp
 hbmk2 allhbp.hbp
 hbmk2 demobrowsearray.hbp
 hbmk2 bincnts.hbp
@@ -74,7 +75,6 @@ hbmk2 testfunc.hbp
 hbmk2 testget1.hbp
 hbmk2 testget2.hbp
 hbmk2 testhgt.hbp
-hbmk2 demomonthcal.hbp
 hbmk2 testimage.hbp
 hbmk2 demoini.hbp
 hbmk2 testmenubitmap.hbp

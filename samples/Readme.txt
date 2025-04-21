@@ -229,9 +229,10 @@ For beginners:
  =================   ====   ====  === ======= =======
  a.prg   +) 9)       R       N    CN          Some HWGUI basics (Open DBF's, GET's, ...)
 
- all.prg
+ all.prg             ?                        group samples
    demotab.prg       ?       ?    ?           Tab, owner button, combobox, dateselect, status panel
    demobrowsedbf.prg ?       ?    ?           browse dbf
+   demomonthcal.prg  ?                 Y      Calendar, Datepicker, TOOLTIP
 
  demobrowsearray.prg Y                        Array BROWSE avoiding crashes because of bugs (see inline comments)
  bindbf.prg 10)      Y                        Usage of images from Binary DBF container
@@ -287,7 +288,6 @@ For beginners:
  testget1.prg        Y                        Get system: Edit field, Checkboxes, Radio buttons, Combo box, Datepicker
  testget2.prg        Y       Y                Get system: Colored edit fields, time display, Tooltip ballon, HD serial number
  testfunc.prg        Y       Y         Y      Test and demo of standalone HWGUI (hwg_*) functions, enable/disable button.
- demomonthcal.prg    Y                 Y      Calendar, Datepicker, TOOLTIP
  testimage.prg       Y       Y                Displaying images and usage of FreeImage library (IMAGE, BITMAP).
  demoini.prg         P                        Use INI file: create and read
  testmenubitmap.prg  P                        Menu with bitmaps

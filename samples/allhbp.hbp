@@ -55,7 +55,7 @@
 ../samples/demogetupdown.hbp
 ../samples/demolistbox.hbp ## old tstcombo.prg
 ../samples/demolistboxsub.hbp
-../samples/demomonthcal.hbp ## old testhmonth.prg
+#####../samples/demomonthcal.hbp ## old testhmonth.prg included on all.hbp and demotab.hbp
 ../samples/demotreebox.hbp ## old testsdi.prg
 ../samples/demoxmltree.hbp
 ../samples/fileselect.hbp
@@ -75,7 +75,7 @@
 ../samples/tab.hbp
 ../samples/testfunc.hbp
 ../samples/testimage.hbp
-../samples/testplit.hbp
+../samples/testsplit.hbp
 ../samples/testtree.hbp
 ../samples/demomenuxml.hbp ## old menuxml.prg
 ../samples/trackbar.hbp

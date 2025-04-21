@@ -4,6 +4,7 @@ show tab
 
 At momment using source code using parts from hwgui tutorial  hwgui/utils/tutorial
 
+Note: oDlg may be another dialog
 */
 
 #include "hwgui.ch"
@@ -72,6 +73,16 @@ FUNCTION DemoTab( lWithDialog, oDlg )
       DemoButton( .F., oTab )
 
    END PAGE OF oTab
+
+#ifdef __PLATFORM__WINDOWS
+
+   BEGIN PAGE "monthcal" ;
+      OF oTab
+
+      DemoMonthCal( .F., oTab )
+
+   END PAGE OF oTab
+#endif
 
    IF lWithDialog
       // A STATUS PANEL may be used instead of a standard STATUS control

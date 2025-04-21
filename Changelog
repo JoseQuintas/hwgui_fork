@@ -15,6 +15,24 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-21 13:10 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/Readme.txt
+   * samples/all.hbp
+   * samples/all.prg
+   * samples/demobrowsedbf.prg
+   - samples/demomonthcal.hbp
+   * samples/demomonthcal.prg
+   * samples/demotab.hbp
+   * samples/demotab.prg
+   * samples/makeallsam.ch
+     ! demomonthcal changed 1 dialog and for multiuse
+     ! added to demotab.hbp and all.hbp (ok windows only)
+     ! if needed hbmk2 demomonthcal.prg
+     ! Added SAY "name" on samples data.
+     !    to user knows origin of data on screen
+   * samples/testsplit.prg
+     ! wrong filename on comment
+
 2025-04-21 10:20 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/*.hbp
    * samples/clean.sh

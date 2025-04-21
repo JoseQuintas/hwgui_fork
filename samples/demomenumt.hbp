@@ -21,6 +21,7 @@
 demomenumt.prg
 demobrowsedbf.prg
 demotab.prg
+{win}demomonthcal.prg
 
 -mt
 

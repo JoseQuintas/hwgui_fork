@@ -4,7 +4,10 @@
 
  called from demomenumt.prg
  called from all.prg
+ called from demotab.prg
 
+note:
+oDlg may be a dialog or a tab page
 */
 
 #include "hwgui.ch"

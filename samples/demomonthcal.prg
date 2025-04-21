@@ -13,100 +13,69 @@
 // biblioteca HWGUI (Classe HMonthCalendar).
 //================================================================//
 
+FUNCTION DemoMonthCal( lWithDialog, oDlg )
+
 #include "hwgui.ch"
 
-//================================================================//
-
-#ifdef __USING_MENU__
-   FUNCTION DemoMonthCal()
+#ifndef __PLATFORM__WINDOWS
+   hwg_MsgInfo( "This sample is Windows only" )
+   RETURN Nil
 #else
-   FUNCTION Main()
-#endif
+   LOCAL oMonthCal1, oFontMonthCal1
+   LOCAL oMonthCal2, oFontMonthCal2
 
-   LOCAL oWnd
+   hb_Default( @lWithDialog, .T. )
 
-   SET DATE BRITISH
-   SET CENTURY ON
+   IF lWithDialog
+      INIT DIALOG oDlg ;
+         TITLE "Calendário - Exemplo 1" ;
+         AT 0, 00 ;
+         SIZE 800, 600
+   ENDIF
 
-   hwg_Settooltipballoon(.t.)
+   PREPARE FONT oFontMonthCal1 NAME "Arial" WIDTH 0 HEIGHT -12
 
-   INIT DIALOG oWnd ;
-      TITLE "demomonthcal.prg - Controle MonthCalendar" ;
-      AT 100,100 ;
-      SIZE 640,480
+   @ 30, 30 SAY "demomonthcal.prg" ;
+      SIZE 500, 20 ;
+      OF oDlg
 
-   MENU OF oWnd
-      MENUITEM "&Calendário 1" ACTION Dlg1()
-      MENUITEM "&Calendário 2" ACTION Dlg2()
-      MENUITEM "&Sair"         ACTION hwg_EndDialog()
-   ENDMENU
-
-   ACTIVATE DIALOG oWnd CENTER
-
-RETURN Nil
-
-STATIC FUNCTION Dlg1()
-
-   LOCAL oDlg
-   LOCAL oMC
-   LOCAL oFont
-
-   INIT DIALOG oDlg ;
-      TITLE "Calendário - Exemplo 1" ;
-      AT 20,20 ;
-      SIZE 500,300
-
-   PREPARE FONT oFont NAME "Arial" WIDTH 0 HEIGHT -12
-
-   @ 20,20 MONTHCALENDAR oMC ;
+   @ 20, 50 MONTHCALENDAR oMonthCal1 ;
       SIZE 250,250 ;
       INIT ctod( "01/01/2004" ) ;
-      ON INIT { || hwg_Msginfo( "Evento On Init","MonthCalendar" ) } ;
+      ; // ON INIT { || hwg_Msginfo( "Evento On Init","MonthCalendar" ) } ;
       ON CHANGE { || hwg_Msginfo( "Evento On Change","MonthCalendar" ) } ;
       NOTODAY NOTODAYCIRCLE WEEKNUMBERS ;
-      FONT oFont ;
+      FONT oFontMonthCal1 ;
       TOOLTIP "MonthCalendar - NoToday - NoTodayCircle - WeekNumbers"
 
-   @ 300,20 BUTTON "Get Date" ;
-      ON CLICK { || hwg_Msginfo( dtoc( oMC:Value ) ) } ;
+   @ 300, 90 BUTTON "Get Date" ;
+      ON CLICK { || hwg_Msginfo( dtoc( oMonthCal1:Value ) ) } ;
       SIZE 100,40
 
-   @ 300,60 BUTTON "Set Date" ;
-   ON CLICK { || oMC:Value := Date() } ;
-   SIZE 100,40
+   @ 300, 140 BUTTON "Set Date" ;
+      ON CLICK { || oMonthCal1:Value := Date() } ;
+      SIZE 100,40
 
-   ACTIVATE DIALOG oDlg
+   PREPARE FONT oFontMonthCal2 NAME "Courier New" WIDTH 0 HEIGHT -12
 
-RETURN Nil
-
-STATIC FUNCTION Dlg2()
-
-   LOCAL oDlg
-   LOCAL oMC
-   LOCAL oFont
-
-   INIT DIALOG oDlg ;
-      TITLE "Calendário - Exemplo 2" ;
-      AT 20,20 ;
-      SIZE 500,300
-
-   PREPARE FONT oFont NAME "Courier New" WIDTH 0 HEIGHT -12
-
-   @ 20,20 MONTHCALENDAR oMC ;
+   @ 20, 240 MONTHCALENDAR oMonthCal2 ;
       SIZE 250,250 ;
       INIT Date() ;
-      FONT oFont
+      FONT oFontMonthCal2
 
-   @ 300,20 BUTTON "Get Date" ;
-      ON CLICK {||hwg_Msginfo(dtoc(oMC:Value))} ;
+   @ 300, 280 BUTTON "Get Date" ;
+      ON CLICK { || hwg_Msginfo(dtoc( oMonthCal2:Value ) ) } ;
       SIZE 100,40
 
-   @ 300,60 BUTTON "Set Date" ;
-      ON CLICK {||oMC:Value := Date()} ;
+   @ 300, 320 BUTTON "Set Date" ;
+      ON CLICK { || oMonthCal2:Value := Date() } ;
       SIZE 100,40
 
-   ACTIVATE DIALOG oDlg
+   IF lWithDialog
+      ACTIVATE DIALOG oDlg
+   ENDIF
 
 RETURN Nil
+#endif
 
-//================================================================//
+* ======================== EOF of demmonthcal.prg ========================

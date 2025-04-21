@@ -33,6 +33,7 @@ PROCEDURE Main
        ;
        { "demotab",                .T., .T., .T., "Tab and more samples" } , ;
        { "demobrowsedbf",          .T., .T., .T., "Browse DBF (demotab)"  }, ;
+       { "demomonthcal",           .T., .T., .T., "Month Calendar (demotab)" }, ;
        ;
        { "",                       .T., .F., .F., "" }, ;
        ;
@@ -52,7 +53,6 @@ PROCEDURE Main
        { "demodatepicker.prg",     .T., .T., .T., "Date Picker" }, ;
        { "demolistbox.prg",        .T., .F., .F., "Listbox" }, ;
        { "demolistboxsub.prg",     .T., .T., .T., "Listbox Substitute" }, ;
-       { "demomonthcal.prg",       .T., .T., .T., "Month Calendar" }, ;
        { "demoonother.prg",        .T., .F., .F., "ON OTHER MESSAGES" }, ;
        { "demotreebox.prg",        .T., .T., .T., "Treebox, Splitter and tab" }, ;
        ;
