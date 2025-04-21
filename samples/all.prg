@@ -150,7 +150,7 @@ PROCEDURE Main
       ENDMENU
    ENDMENU
 
-   DemoTab( .F. )
+   DemoTab( .F., oDlg )
 
    ACTIVATE WINDOW oDlg CENTER
 

@@ -8,9 +8,9 @@ At momment using source code using parts from hwgui tutorial  hwgui/utils/tutori
 
 #include "hwgui.ch"
 
-FUNCTION DemoTab( lWithDialog )
+FUNCTION DemoTab( lWithDialog, oDlg )
 
-   LOCAL oTab, oDlg
+   LOCAL oTab
 
    hb_Default( @lWithDialog, .T. )
 
@@ -23,7 +23,11 @@ FUNCTION DemoTab( lWithDialog )
          BACKCOLOR 16772062
    ENDIF
 
-   @ 30, 50 TAB oTab ;
+   @ 30, 30 SAY "demotab.prg" ;
+      SIZE 500, 20 ;
+      OF oDlg
+
+   @ 30, 60 TAB oTab ;
       ITEMS {} ;
       SIZE  700, 500
 
@@ -58,7 +62,7 @@ FUNCTION DemoTab( lWithDialog )
    BEGIN PAGE "browse dbf" ;
       OF oTab
 
-      DemoBrowseDBF( .F., oDlg )
+      DemoBrowseDBF( .F., oTab )
 
    END PAGE OF oTab
 
