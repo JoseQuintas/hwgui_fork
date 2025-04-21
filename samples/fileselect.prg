@@ -124,9 +124,9 @@ RETURN Nil
 
 FUNCTION Test4()
 
+#ifndef __GTK__
    LOCAL fname
 
-#ifndef __GTK__
    fname := hwg_SaveFile( "Enter name of new file","Test text file","*.txt",cstartvz,"Save File" )
    * Check for cancel
    IF EMPTY( fname )
