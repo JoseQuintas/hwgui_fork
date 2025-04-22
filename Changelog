@@ -15,6 +15,17 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+205-04-22 15:15 UTC -0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demobrowseado.prg
+   * samples/demobrowsedbf.prg
+   * samples/democheckbox.prg
+   * samples/demomonthcal.prg
+   * samples/demotab.prg
+     ! changed @SAY to @OWNERBUTTON
+  * samples/demoall.prg
+     ! removed these samples from menu options
+     ! Call them using button on "sample image"
+
 2025-04-22 16:15 UTC+0200 Wilfried Brunken DF7BE
 * test/tickets/ticket204.hbp (New)
 * test/tickets/ticket204.prg (New)
@@ -37,12 +48,12 @@
   * utils/hwbuild/hwb.prg
     * Support of .hwprg added
 
-2025-04-22 15:30 UTC+0200 Wilfried Brunken DF7BE 
+2025-04-22 15:30 UTC+0200 Wilfried Brunken DF7BE
 * samples/testtray.prg
   ! Bugfix on LINUX compile:
   ! Warning W0003  Variable 'OTRAYMENU' and 'OICON2' ...
   ! Compile all sample in one run
-  ! hbmk2 *.hbp 
+  ! hbmk2 *.hbp
   ! runs OK.
 
 2025-04-22 09:00 UTC-0300 Jose Quntas jmcquintas-gmail.com
