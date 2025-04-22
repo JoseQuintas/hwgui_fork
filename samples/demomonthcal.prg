@@ -37,15 +37,7 @@ FUNCTION DemoMonthCal( lWithDialog, oDlg )
    PREPARE FONT oFontMonthCal1 NAME "Arial" WIDTH 0 HEIGHT -12
 
    // do not remove button
-   @ 3, 30 OWNERBUTTON ;
-      OF       oDlg ;
-      SIZE     200, 24 ;
-      HSTYLES ;
-         HStyle():New( {16759929,16772062}, 1 ), ;
-         HStyle():New( {16759929}, 1,, 3, 0 ), ;
-         HStyle():New( {16759929}, 1,, 2, 12164479 ) ;
-      TEXT     "demomonthcal.prg" ;
-      ON CLICK { || demomonthcal() }
+   DemoCodeButton( "demomonthcal.prg", oDlg )
 
    // On Win11 event on change occurs at any time
    @ 20, 50 MONTHCALENDAR oMonthCal1 ;
@@ -86,5 +78,7 @@ FUNCTION DemoMonthCal( lWithDialog, oDlg )
 
 RETURN Nil
 #endif
+
+#include "demo.ch"
 
 * ======================== EOF of demmonthcal.prg ========================

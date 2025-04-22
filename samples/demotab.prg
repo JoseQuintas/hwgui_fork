@@ -27,15 +27,7 @@ FUNCTION DemoTab( lWithDialog, oDlg )
    ENDIF
 
    // do not remove button
-   @ 3, 30 OWNERBUTTON ;
-      OF       oDlg ;
-      SIZE     200, 24 ;
-      HSTYLES ;
-         HStyle():New( {16759929,16772062}, 1 ), ;
-         HStyle():New( {16759929}, 1,, 3, 0 ), ;
-         HStyle():New( {16759929}, 1,, 2, 12164479 ) ;
-      TEXT     "demotab.prg" ;
-      ON CLICK { || demotab() }
+   DemoCodeButton( "demotab.prg", oDlg )
 
    @ 30, 60 TAB oTab ;
       ITEMS {} ;
@@ -234,7 +226,7 @@ STATIC FUNCTION DemoButton( lWithDialog, oDlg )
    @ 10, 50 OWNERBUTTON oBtn1 ;
       OF       oDlg ;
       SIZE     60, 24;
-      TEXT     "But1" ;
+      TEXT     "But.1" ;
       ON CLICK { || hwg_MsgInfo( "Button 1" ) }
 
    @ 74, 50 OWNERBUTTON oBtn2 ;
@@ -254,5 +246,7 @@ STATIC FUNCTION DemoButton( lWithDialog, oDlg )
    (lWithDialog) // not used, warning -w3 -es2
 
    RETURN Nil
+
+#include "demo.ch"
 
 * ============================== EOF of demotab.prg ========================

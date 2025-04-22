@@ -48,15 +48,7 @@ FUNCTION DemoCheckBox( lWithDialog, oDlg )
    ENDIF
 
    // do not remove button
-   @ 3, 30 OWNERBUTTON ;
-      OF       oDlg ;
-      SIZE     200, 24 ;
-      HSTYLES ;
-         HStyle():New( {16759929,16772062}, 1 ), ;
-         HStyle():New( {16759929}, 1,, 3, 0 ), ;
-         HStyle():New( {16759929}, 1,, 2, 12164479 ) ;
-      TEXT     "democheckbox.prg" ;
-      ON CLICK { || democheckbox() }
+   DemoCodeButton( "demochckbox.prg", oDlg )
 
    @ 20, 50 TAB oTab ;
       ITEMS   {} ;
@@ -176,5 +168,7 @@ STATIC FUNCTION bool2onoff( lbool )
    ENDIF
 
 RETURN "Off"
+
+#include "demo.ch"
 
 * ============================== EOF of checkbox.prg ========================

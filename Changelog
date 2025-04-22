@@ -15,7 +15,28 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-205-04-22 15:15 UTC -0300 Jose Quintas jmcquintas-gmail.com
+2025-04-22 17:40 UTC -0300 Jose Quintas jmcquintas-gmail.com
+   + samples/demo.ch
+     ! To do not duplicate routines over samples
+     ! At momment I do not know another way to do this
+     ! Create 2 buttons, and a dialog to show source code
+     ! #include "demo.ch" on the end of samples source code
+   * samples/demobrowseado.prg
+   * samples/demobrowsedbf.prg
+   * samples/democheckbox.prg
+   * samples/demomonthcal.prg
+   * samples/demotab.prg
+     ! adjust to use demo.ch
+     ! NOTE: sample need reserve top space to tab
+     ! NOTE: sample do not need first button, could be in lWithDialog ELSE
+     !       but it remember about space, when testing alone
+   !
+   ! Do not compare with hwgui tutorial, demoall is for different use
+   ! Intention of demoall is to show working, and from there go to source
+   ! and do not multiply source code to do same thing on same way
+   ! Current limits: 800x600, DIALOG only, top space for tab and buttons
+
+2025-04-22 15:15 UTC -0300 Jose Quintas jmcquintas-gmail.com
    * samples/demobrowseado.prg
    * samples/demobrowsedbf.prg
    * samples/democheckbox.prg

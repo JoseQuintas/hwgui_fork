@@ -39,15 +39,7 @@ FUNCTION DemoBrowseDbf( lWithDialog, oDlg )
    ENDIF
 
    // do not remove button
-   @ 3, 30 OWNERBUTTON ;
-      OF       oDlg ;
-      SIZE     200, 24 ;
-      HSTYLES ;
-         HStyle():New( {16759929,16772062}, 1 ), ;
-         HStyle():New( {16759929}, 1,, 3, 0 ), ;
-         HStyle():New( {16759929}, 1,, 2, 12164479 ) ;
-      TEXT     "demobrowsedbf.prg" ;
-      ON CLICK { || demobrowsedbf() }
+   DemoCodeButton( "demobrowsedbf.prg", oDlg )
 
    @ 20, 80 BROWSE oBrowse ;
       OF oDlg ;
@@ -96,3 +88,5 @@ STATIC FUNCTION CreateDbf( cFileName )
    USE
 
    RETURN NIL
+
+#include "demo.ch"

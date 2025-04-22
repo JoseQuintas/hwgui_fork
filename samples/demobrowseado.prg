@@ -46,15 +46,7 @@ FUNCTION DemoBrowseADO( lWithDialog, oDlg )
    ENDIF
 
    // do not remove button
-   @ 3, 30 OWNERBUTTON ;
-      OF       oDlg ;
-      SIZE     200, 24 ;
-      HSTYLES ;
-         HStyle():New( {16759929,16772062}, 1 ), ;
-         HStyle():New( {16759929}, 1,, 3, 0 ), ;
-         HStyle():New( {16759929}, 1,, 2, 12164479 ) ;
-      TEXT     "demobrowseado.prg" ;
-      ON CLICK { || demobrowseado() }
+   DemocodeButton( "demobrowseado.prg", oDlg )
 
    @ 20, 80 BROWSE ;
       ARRAY oBrowse ;
@@ -153,4 +145,7 @@ FUNCTION RecordsetADO()
 
 RETURN cnSQL
 #endif
+
+#include "demo.ch"
+
 * ==================== EOF of demobrowseado.prg =======================
