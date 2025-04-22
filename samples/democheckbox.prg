@@ -47,10 +47,16 @@ FUNCTION DemoCheckBox( lWithDialog, oDlg )
          STYLE WS_SYSMENU + WS_SIZEBOX + WS_VISIBLE
    ENDIF
 
-   @ 30, 30 SAY "democheckbox.prg" ;
-      SIZE 450, 20 ;
-      OF oDlg ;
-      TRANSPARENT
+   // do not remove button
+   @ 3, 30 OWNERBUTTON ;
+      OF       oDlg ;
+      SIZE     200, 24 ;
+      HSTYLES ;
+         HStyle():New( {16759929,16772062}, 1 ), ;
+         HStyle():New( {16759929}, 1,, 3, 0 ), ;
+         HStyle():New( {16759929}, 1,, 2, 12164479 ) ;
+      TEXT     "democheckbox.prg" ;
+      ON CLICK { || democheckbox() }
 
    @ 20, 50 TAB oTab ;
       ITEMS   {} ;

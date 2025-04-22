@@ -6,6 +6,10 @@ DF7BE:
 This seems to be a bug in Harbour:
 all.prg(182) Warning W0032  Variable 'CBINHBMK' is assigned but not used in function 'EXECUTEEXE(159)'
 
+possible bug on windows 11:
+status panel is not full on dialog first display, need to be up
+Ok if use mouse and change dialog height
+insert a dialog move on init ?
 */
 
 #ifdef __LINUX__
@@ -99,10 +103,10 @@ PROCEDURE Main
        ; // already visible on the tab of demoall.prg
        ;
        { "demotab",                .T., .T., .T., "Tab and more samples" } , ;
-       { "demobrowsedbf",          .T., .T., .T., "Browse DBF (demotab)"  }, ;
-       { "demomonthcal",           .T., .T., .T., "Month Calendar (demotab)" }, ;
-       { "demobrowseado.prg",      .T., .F., .F., "Browse using ADO (demotab)" }, ;
-       { "democheckbox",           .T., .T., .T., "Checkbox and tab (demotab)" }, ;
+       ; // { "demobrowsedbf",          .T., .T., .T., "Browse DBF (demotab)"  }, ;
+       ; // { "demomonthcal",           .T., .T., .T., "Month Calendar (demotab)" }, ;
+       ; // { "demobrowseado.prg",      .T., .F., .F., "Browse using ADO (demotab)" }, ;
+       ; // { "democheckbox",           .T., .T., .T., "Checkbox and tab (demotab)" }, ;
        { "",                       .F., .F., .F., "" }, ;
        { "notexist",               .F., .F., .F., "Test for menu, about not available" } }
 

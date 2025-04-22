@@ -45,10 +45,16 @@ FUNCTION DemoBrowseADO( lWithDialog, oDlg )
          SIZE 800,600
    ENDIF
 
-   @ 30, 30 SAY "demoado.prg" ;
-      SIZE 500, 20 ;
-      OF oDlg ;
-      TRANSPARENT
+   // do not remove button
+   @ 3, 30 OWNERBUTTON ;
+      OF       oDlg ;
+      SIZE     200, 24 ;
+      HSTYLES ;
+         HStyle():New( {16759929,16772062}, 1 ), ;
+         HStyle():New( {16759929}, 1,, 3, 0 ), ;
+         HStyle():New( {16759929}, 1,, 2, 12164479 ) ;
+      TEXT     "demobrowseado.prg" ;
+      ON CLICK { || demobrowseado() }
 
    @ 20, 80 BROWSE ;
       ARRAY oBrowse ;

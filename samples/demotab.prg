@@ -26,10 +26,16 @@ FUNCTION DemoTab( lWithDialog, oDlg )
          BACKCOLOR 16772062
    ENDIF
 
-   @ 30, 30 SAY "demotab.prg" ;
-      SIZE 450, 20 ;
-      OF oDlg ;
-      TRANSPARENT
+   // do not remove button
+   @ 3, 30 OWNERBUTTON ;
+      OF       oDlg ;
+      SIZE     200, 24 ;
+      HSTYLES ;
+         HStyle():New( {16759929,16772062}, 1 ), ;
+         HStyle():New( {16759929}, 1,, 3, 0 ), ;
+         HStyle():New( {16759929}, 1,, 2, 12164479 ) ;
+      TEXT     "demotab.prg" ;
+      ON CLICK { || demotab() }
 
    @ 30, 60 TAB oTab ;
       ITEMS {} ;

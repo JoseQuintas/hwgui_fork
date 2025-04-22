@@ -28,7 +28,7 @@ FUNCTION DemoMonthCal( lWithDialog, oDlg )
 
    IF lWithDialog
       INIT DIALOG oDlg ;
-         TITLE "Calendário - Exemplo 1" ;
+         TITLE "demomonthcal.prg - month calendar" ;
          AT 0, 00 ;
          SIZE 800, 600 ;
          BACKCOLOR 10408107
@@ -36,10 +36,16 @@ FUNCTION DemoMonthCal( lWithDialog, oDlg )
 
    PREPARE FONT oFontMonthCal1 NAME "Arial" WIDTH 0 HEIGHT -12
 
-   @ 30, 30 SAY "demomonthcal.prg - get date using calend" ;
-      SIZE 500, 20 ;
-      OF oDlg ;
-      TRANSPARENT
+   // do not remove button
+   @ 3, 30 OWNERBUTTON ;
+      OF       oDlg ;
+      SIZE     200, 24 ;
+      HSTYLES ;
+         HStyle():New( {16759929,16772062}, 1 ), ;
+         HStyle():New( {16759929}, 1,, 3, 0 ), ;
+         HStyle():New( {16759929}, 1,, 2, 12164479 ) ;
+      TEXT     "demomonthcal.prg" ;
+      ON CLICK { || demomonthcal() }
 
    // On Win11 event on change occurs at any time
    @ 20, 50 MONTHCALENDAR oMonthCal1 ;
