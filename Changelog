@@ -15,6 +15,19 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-22 16:15 UTC+0200 Wilfried Brunken DF7BE
+* test/tickets/ticket204.hbp (New)
+* test/tickets/ticket204.prg (New)
+* test/tickets/image (New directory)
+* test/tickets/image/Ticket204.png (New)
+  ! Bug ticket #203 Linux GTK Browse auto text adjustment:
+  ! Some experiments with size values.
+  ! Now the sizes may be  correct,
+  ! see screenshot in directory "image"
+  ! May be aspect for #204.
+  ! Please try to make experiments with size parameters.
+  ! Will check for #204 for the next few days.
+
 2025-04-22 16:45 UTC+0300 Alexander Kresin <alex@belacy.ru>
   * source/winapi/draw.c
   * source/gtk/draw.c
