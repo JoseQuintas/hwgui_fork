@@ -32,14 +32,22 @@
 * The Window is hidden.
 * Go to tray and call with right mouse click
 *
+* Compile bugfix on LINUX:
+* testtray.prg(118) Warning W0003  Variable 'OTRAYMENU' declared but not used in function 'MAIN(41)'
+* testtray.prg(118) Warning W0032  Variable 'OICON2' is assigned but not used in function 'MAIN(61)'
+
 
 #include "hwgui.ch"
 
 
 FUNCTION Main()
 
-   LOCAL oMainWindow, oTrayMenu, cdirsep, cimagedir
-   LOCAL oIcon1, oIcon2
+   LOCAL oMainWindow, cdirsep, cimagedir
+   LOCAL oIcon1
+   
+#ifndef __GTK__   
+    LOCAL oTrayMenu, oIcon2
+#endif    
 
    * Borland resources removed
    // LOCAL oIcon1 := HIcon():AddResource( "ICON_1" )
@@ -47,18 +55,19 @@ FUNCTION Main()
 
    cdirsep := hwg_GetDirSep()
    * decides for samples/gtk_samples or samples/
-#ifdef __GTK__
-   cimagedir := ".." + cdirsep + ".." + cdirsep + "image" + cdirsep
-#else
+
    cimagedir := ".." + cdirsep + "image" + cdirsep
-#endif
+
 
    * Better way to uses hex values for resources instead of
    * icon files
 
    // oIcon1 := HIcon():AddFile(cimagedir + "ok.ico")
    oIcon1 := HIcon():AddFile(cimagedir + "hwgui_32x32.ico")
+   
+#ifndef __GTK__   
    oIcon2 := HIcon():AddFile(cimagedir + "cancel.ico")
+#endif   
 
    IF .NOT. FILE(cimagedir + "hwgui_16x16.ico")
       hwg_msgstop("Icon not found: " + cimagedir + "hwgui_32x32.ico")
