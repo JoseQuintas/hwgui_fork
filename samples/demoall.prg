@@ -42,7 +42,6 @@ PROCEDURE Main
        ;
        { "demogetupdown.prg",      .T., .T., .T., "Get UpDown" }, ;
        { "demobrowsearr.prg",      .T., .T., .T., "browse array editable" }, ;
-       { "democheckbox.prg",       .T., .T., .T., "Checkbox and tab" }, ;
        { "democombobox.prg",       .T., .T., .T., "Combobox" }, ;
        { "demodatepicker.prg",     .T., .T., .T., "Date Picker" }, ;
        { "demolistbox.prg",        .T., .F., .F., "Listbox" }, ;
@@ -102,7 +101,8 @@ PROCEDURE Main
        { "demotab",                .T., .T., .T., "Tab and more samples" } , ;
        { "demobrowsedbf",          .T., .T., .T., "Browse DBF (demotab)"  }, ;
        { "demomonthcal",           .T., .T., .T., "Month Calendar (demotab)" }, ;
-       { "demobrowseado.prg",      .T., .F., .F., "Browse using ADO" }, ;
+       { "demobrowseado.prg",      .T., .F., .F., "Browse using ADO (demotab)" }, ;
+       { "democheckbox",           .T., .T., .T., "Checkbox and tab (demotab)" }, ;
        { "",                       .F., .F., .F., "" }, ;
        { "notexist",               .F., .F., .F., "Test for menu, about not available" } }
 

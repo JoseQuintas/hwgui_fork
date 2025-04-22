@@ -40,14 +40,15 @@ FUNCTION DemoBrowseADO( lWithDialog, oDlg )
 
    IF lWithDialog
       INIT DIALOG oDlg ;
-         TITLE "demobrowseado.prg - ADO BROWSE" ;
+         TITLE "demobrowseado.prg - Browse using ADO" ;
          AT 0,0 ;
          SIZE 800,600
    ENDIF
 
    @ 30, 30 SAY "demoado.prg" ;
       SIZE 500, 20 ;
-      OF oDlg
+      OF oDlg ;
+      TRANSPARENT
 
    @ 20, 80 BROWSE ;
       ARRAY oBrowse ;

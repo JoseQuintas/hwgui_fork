@@ -9,9 +9,11 @@
 
 demoall.prg
 demobrowsedbf.prg
+democheckbox.prg
+demotab.prg
+
 {win}demobrowseado.prg
 {win}hbwin.hbc
 {win}demomonthcal.prg
-demotab.prg
 
 # =============================== EOF of demoall.hbp ==============================

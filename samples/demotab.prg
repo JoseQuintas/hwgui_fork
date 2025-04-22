@@ -13,13 +13,13 @@ called from all.prg - need to add here same prgs on demotab.hbp
 
 FUNCTION DemoTab( lWithDialog, oDlg )
 
-   LOCAL oTab
+   LOCAL oTab, oTab2, oTab3
 
    hb_Default( @lWithDialog, .T. )
 
    IF lWithDialog
       INIT DIALOG oDlg ;
-         TITLE "demotab.prg" ;
+         TITLE "demotab.prg - controls" ;
          AT    0, 0 ;
          SIZE  800, 600 ;
          FONT  HFont():Add( "MS Sans Serif",0,-15 ) ;
@@ -28,7 +28,8 @@ FUNCTION DemoTab( lWithDialog, oDlg )
 
    @ 30, 30 SAY "demotab.prg" ;
       SIZE 450, 20 ;
-      OF oDlg
+      OF oDlg ;
+      TRANSPARENT
 
    @ 30, 60 TAB oTab ;
       ITEMS {} ;
@@ -41,34 +42,6 @@ FUNCTION DemoTab( lWithDialog, oDlg )
 
    END PAGE OF oTab
 
-   BEGIN PAGE "dateselect" ;
-      OF oTab
-
-      DemoDateSelect( .F. )
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "combobox" ;
-      OF oTab
-
-      DemoCombobox( .F. )
-
-   END PAGE of oTab
-
-   BEGIN PAGE "browse array" ;
-      OF oTab
-
-      DemoBrowseArray( .F. )
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "browse dbf" ;
-      OF oTab
-
-      DemoBrowseDBF( .F., oTab )
-
-   END PAGE OF oTab
-
    BEGIN PAGE "button" ;
       OF oTab
 
@@ -76,22 +49,77 @@ FUNCTION DemoTab( lWithDialog, oDlg )
 
    END PAGE OF oTab
 
+   BEGIN PAGE "browse" ;
+      OF oTab
+
+      @ 30, 30 TAB oTab2 ;
+         ITEMS {} ;
+         SIZE  650, 450
+
+         BEGIN PAGE "browse array" ;
+            OF oTab2
+
+            DemoBrowseArray( .F., oTab2 )
+
+         END PAGE OF oTab2
+
+         BEGIN PAGE "browse dbf" ;
+            OF oTab2
+
+            DemoBrowseDBF( .F., oTab2 )
+
+         END PAGE OF oTab2
+
+#ifdef __PLATFORM__WINDOWS
+         BEGIN PAGE "browseado" ;
+            OF oTab2
+
+            DemoBrowseADO( .F., oTab2 )
+
+         END PAGE OF oTab2
+#endif
+
+   END PAGE OF oTab
+
+   BEGIN PAGE "combobox" ;
+      OF oTab
+
+      DemoCombobox( .F., oTab )
+
+   END PAGE of oTab
+
+   BEGIN PAGE "checkbox" ;
+      OF oTab
+
+      DemoCheckBox( .F., oTab )
+
+   END PAGE OF oTab
+
+   BEGIN PAGE "date" ;
+      OF oTab
+
+      @ 30, 30 TAB oTab3 ;
+         ITEMS {} ;
+         SIZE  650, 450
+
+      BEGIN PAGE "dateselect" ;
+         OF oTab3
+
+         DemoDateSelect( .F., oTab3 )
+
+      END PAGE OF oTab3
+
 #ifdef __PLATFORM__WINDOWS
 
-   BEGIN PAGE "monthcal" ;
-      OF oTab
+      BEGIN PAGE "monthcal" ;
+         OF oTab3
 
-      DemoMonthCal( .F., oTab )
+         DemoMonthCal( .F., oTab3 )
 
-   END PAGE OF oTab
-
-   BEGIN PAGE "browseado" ;
-      OF oTab
-
-      DemoBrowseADO( .F., oTab )
-
-   END PAGE OF oTab
+      END PAGE OF oTab3
 #endif
+
+   END PAGE OF oTab
 
    IF lWithDialog
       // A STATUS PANEL may be used instead of a standard STATUS control

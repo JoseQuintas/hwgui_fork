@@ -26,11 +26,7 @@
 
 #include "hwgui.ch"
 
-#ifdef __USING_MENU__
-   FUNCTION DemoDatePicker()
-#else
-   FUNCTION Main()
-#endif
+FUNCTION DemoDatePicker()
 
    LOCAL odGet, oDateOwb, daltdatum, Ctext
    LOCAL oModDlg, oFont, d1 := Date() + 1

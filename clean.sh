@@ -86,7 +86,6 @@ rm samples/testtree 2>/dev/null
 rm samples/bindbf 2>/dev/null
 rm samples/hexbincnt  2>/dev/null
 rm samples/imageview 2>/dev/null
-rm samples/democheckbox 2>/dev/null
 rm samples/testbmpcr 2>/dev/null
 rm samples/qrencode 2>/dev/null
 rm samples/graph 2>/dev/null
@@ -192,7 +191,6 @@ rm test/testbmpcr 2>/dev/null
 rm test/template  2>/dev/null
 rm test/hello 2>/dev/null
 rm test/icon 2>/dev/null
-rm test/democheckbox 2>/dev/null
 rm test/Test_tab 2>/dev/null
 rm test/gtk3testvbox 2>/dev/null
 delfi test/trefreshing

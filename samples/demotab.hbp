@@ -4,6 +4,7 @@
 
 demotab.prg
 demobrowsedbf.prg
+democheckbox.prg
 {win}demomonthcal.prg
 {win}demobrowseado.prg
 {win}hbwin.hbc

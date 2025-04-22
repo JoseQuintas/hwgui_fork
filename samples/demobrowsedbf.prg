@@ -38,8 +38,9 @@ FUNCTION DemoBrowseDbf( lWithDialog, oDlg )
          SIZE 800, 600
    ENDIF
 
-   @ 3, 30 SAY "demobrowsedbf.prg" ;
-      SIZE 500, 30
+   @ 3, 30 SAY "demobrowsedbf.prg - browse of a dbf" ;
+      SIZE 500, 30 ;
+      TRANSPARENT
 
    @ 20, 80 BROWSE oBrowse ;
       OF oDlg ;

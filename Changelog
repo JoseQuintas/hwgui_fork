@@ -15,6 +15,24 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-22 09:00 UTC-0300 Jose Quntas jmcquintas-gmail.com
+   * samples/demomonthcal.prg
+     ! from vertical to horizontal
+   * samples/demotab.hbp
+   * samples/demotab.prg
+      ! tab inside tab
+   * samples/democheckbox.prg
+     ! multiuse
+   * clean.sh
+   * samples/readme.txt
+   * samples/clean.sh
+   * samples/demoall.*
+   * demobrowsedbf.prg
+   * samples/demodatepicker.prg
+   * samples/demomenumt.prg
+   * samples/makeallsam.sh
+     ! small changes: position, color
+
 2025-04-21 17:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * source/winapi/hbrowse
      ! only comment from testado.prg to demobrowseado.prg

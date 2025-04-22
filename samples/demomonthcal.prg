@@ -30,44 +30,47 @@ FUNCTION DemoMonthCal( lWithDialog, oDlg )
       INIT DIALOG oDlg ;
          TITLE "Calendário - Exemplo 1" ;
          AT 0, 00 ;
-         SIZE 800, 600
+         SIZE 800, 600 ;
+         BACKCOLOR 10408107
    ENDIF
 
    PREPARE FONT oFontMonthCal1 NAME "Arial" WIDTH 0 HEIGHT -12
 
-   @ 30, 30 SAY "demomonthcal.prg" ;
+   @ 30, 30 SAY "demomonthcal.prg - get date using calend" ;
       SIZE 500, 20 ;
-      OF oDlg
+      OF oDlg ;
+      TRANSPARENT
 
+   // On Win11 event on change occurs at any time
    @ 20, 50 MONTHCALENDAR oMonthCal1 ;
       SIZE 250,250 ;
       INIT ctod( "01/01/2004" ) ;
       ; // ON INIT { || hwg_Msginfo( "Evento On Init","MonthCalendar" ) } ;
-      ON CHANGE { || hwg_Msginfo( "Evento On Change","MonthCalendar" ) } ;
+      ; // ON CHANGE { || hwg_Msginfo( "Evento On Change","MonthCalendar" ) } ;
       NOTODAY NOTODAYCIRCLE WEEKNUMBERS ;
       FONT oFontMonthCal1 ;
       TOOLTIP "MonthCalendar - NoToday - NoTodayCircle - WeekNumbers"
 
-   @ 300, 90 BUTTON "Get Date" ;
+   @ 20, 350 BUTTON "Get Date" ;
       ON CLICK { || hwg_Msginfo( dtoc( oMonthCal1:Value ) ) } ;
       SIZE 100,40
 
-   @ 300, 140 BUTTON "Set Date" ;
+   @ 150, 350 BUTTON "Set Date" ;
       ON CLICK { || oMonthCal1:Value := Date() } ;
       SIZE 100,40
 
    PREPARE FONT oFontMonthCal2 NAME "Courier New" WIDTH 0 HEIGHT -12
 
-   @ 20, 240 MONTHCALENDAR oMonthCal2 ;
+   @ 300, 50 MONTHCALENDAR oMonthCal2 ;
       SIZE 250,250 ;
       INIT Date() ;
       FONT oFontMonthCal2
 
-   @ 300, 280 BUTTON "Get Date" ;
+   @ 300, 350 BUTTON "Get Date" ;
       ON CLICK { || hwg_Msginfo(dtoc( oMonthCal2:Value ) ) } ;
       SIZE 100,40
 
-   @ 300, 320 BUTTON "Set Date" ;
+   @ 430, 350 BUTTON "Set Date" ;
       ON CLICK { || oMonthCal2:Value := Date() } ;
       SIZE 100,40
 

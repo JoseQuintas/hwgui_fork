@@ -23,16 +23,14 @@
    #include "ttable.ch"
 #endif
 
-#ifdef __USING_MENU__
-   FUNCTION DemoCheckBox()
-#else
-   FUNCTION Main()
-#endif
+FUNCTION DemoCheckBox( lWithDialog, oDlg )
 
-   LOCAL oDlg, oButton1, oButton2, oButton3, oButton4, oButton5, oButton6 , oButton7 , oButton8
+   LOCAL oButton1, oButton2, oButton3, oButton4, oButton5, oButton6 , oButton7 , oButton8
    LOCAL oTab
    LOCAL oCheckbox1, oCheckbox2, oCheckbox3 , oCheckbox4 , oCheckbox5,  oCheckbox6
    LOCAL lCheckbox1, lCheckbox2, lCheckbox3 , lCheckbox4 , lCheckbox5,  lCheckbox6
+
+   hb_Default( @lWithDialog, .T. )
 
    lCheckbox1 := .F.
    lCheckbox2 := .F.
@@ -41,13 +39,20 @@
    lCheckbox5 := .F.
    lCheckbox6 := .F.
 
-  INIT DIALOG oDlg ;
-     TITLE "democheckbox.prg - Checkboxes and tabs" ;
-     AT 390,197 ;
-     SIZE 516,323 ;
-     STYLE WS_SYSMENU + WS_SIZEBOX + WS_VISIBLE
+   IF lWithDialog
+      INIT DIALOG oDlg ;
+         TITLE "democheckbox.prg - Checkboxes and tabs" ;
+         AT 390,197 ;
+         SIZE 516,323 ;
+         STYLE WS_SYSMENU + WS_SIZEBOX + WS_VISIBLE
+   ENDIF
 
-   @ 20, 20 TAB oTab ;
+   @ 30, 30 SAY "democheckbox.prg" ;
+      SIZE 450, 20 ;
+      OF oDlg ;
+      TRANSPARENT
+
+   @ 20, 50 TAB oTab ;
       ITEMS   {} ;
       SIZE    440, 250 ;
       ON SIZE ANCHOR_TOPABS + ANCHOR_LEFTABS + ANCHOR_RIGHTABS + ANCHOR_BOTTOMABS
@@ -140,7 +145,9 @@
 
    END PAGE of oTab
 
-   ACTIVATE DIALOG oDlg CENTER
+   IF lWithDialog
+      ACTIVATE DIALOG oDlg CENTER
+   ENDIF
 
 RETURN Nil
 

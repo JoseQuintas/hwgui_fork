@@ -233,6 +233,7 @@ For beginners:
    demotab.prg       ?       ?    ?           Tab, owner button, combobox, dateselect, status panel
    demobrowsedbf.prg ?       ?    ?           browse dbf
    demobrowseado.prg N       N                ADO Browse (TNX Itamar M. Lins Jr.). For multi platform use BROWSE.
+   democheckbox.prg  Y                        Checkboxes and tabs
    demomonthcal.prg  ?                 Y      Calendar, Datepicker, TOOLTIP
 
  demobrowsearray.prg Y                        Array BROWSE avoiding crashes because of bugs (see inline comments)
@@ -240,7 +241,6 @@ For beginners:
  bincnts.prg 10) +)  Y                        Usage of images from Binary container
  bitmapbug.prg       Y                        Handle of bug in command @<x>,<y> BITMAP ... SHOW (Class HBITMAP)
  buildpelles.prg     N       N         Y      Build APP using Pelles C Compiler (*.bld file)
- demo checkbox.prg   Y                        Checkboxes and tabs
  colrbloc.prg        Y                 Y      BROWSE: arrays and DBF's with colored lines and columns
  demodatepicker.prg  Y                        Multiplatform substitute of Windows only DATEPICKER
  dbview.prg          Y       Y         Y      DBF access (Browse, Indexing, Codepages, Structure, ... )

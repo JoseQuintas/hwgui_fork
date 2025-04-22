@@ -20,7 +20,6 @@ rm bincnts 2> /dev/null
 rm bindbf 2> /dev/null
 rm bitmapbug 2> /dev/null
 rm buildpelles 2> /dev/null
-rm democheckbox 2> /dev/null
 rm colrbloc 2> /dev/null
 rm demodatepicker 2> /dev/null
 rm dbview 2> /dev/null
