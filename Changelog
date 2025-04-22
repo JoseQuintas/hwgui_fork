@@ -15,6 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-22 16:45 UTC+0300 Alexander Kresin <alex@belacy.ru>
+  * source/winapi/draw.c
+  * source/gtk/draw.c
+    * hwg_drawgradient(): aCorners parameter may be a numerical value now, if the radius is the same for all corners
+  * source/gtk/window.c
+    * Potential problem fixes with g_convert()
+  * utils/hwbuild/hwb.prg
+    * Support of .hwprg added
+
 2025-04-22 15:30 UTC+0200 Wilfried Brunken DF7BE 
 * samples/testtray.prg
   ! Bugfix on LINUX compile:

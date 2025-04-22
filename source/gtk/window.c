@@ -1063,18 +1063,24 @@ HB_FUNC( HWG_GETWINDOWPOS )
 
 gchar * hwg_convert_to_utf8( const char * szText )
 {
-   if( *szAppLocale )
-      return g_convert( szText, -1, "UTF-8", szAppLocale, NULL, NULL, NULL );
-   else
-      return g_locale_to_utf8( szText,-1,NULL,NULL,NULL );
+   if( szText ) {
+      if( *szAppLocale )
+         return g_convert( szText, -1, "UTF-8", szAppLocale, NULL, NULL, NULL );
+      else
+         return g_locale_to_utf8( szText,-1,NULL,NULL,NULL );
+   } else
+      return (gchar*) szText;
 }
 
 gchar * hwg_convert_from_utf8( const char * szText )
 {
-   if( *szAppLocale )
-      return g_convert( szText, -1, szAppLocale, "UTF-8", NULL, NULL, NULL );
-   else
-      return g_locale_from_utf8( szText,-1,NULL,NULL,NULL );
+   if( szText ) {
+      if( *szAppLocale )
+         return g_convert( szText, -1, szAppLocale, "UTF-8", NULL, NULL, NULL );
+      else
+         return g_locale_from_utf8( szText,-1,NULL,NULL,NULL );
+   } else
+      return (gchar*) szText;
 }
 
 HB_FUNC( HWG_SETAPPLOCALE )

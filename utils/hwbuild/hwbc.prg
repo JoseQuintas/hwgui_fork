@@ -11,7 +11,7 @@
 #endif
 #include "hbclass.ch"
 
-#define HWB_VERSION  "1.16"
+#define HWB_VERSION  "1.17"
 
 #define COMP_ID      1
 #define COMP_EXE     2
@@ -208,7 +208,7 @@ FUNCTION Main( ... )
             NEXT
          ELSE
             c := Iif( !Empty( cSrcPath ) .AND. Empty( hb_fnameDir(c) ), cSrcPath + hb_ps() + c, c )
-            IF Empty( hb_fnameExt(c) )
+            IF Empty( hb_fnameExt( "x" + hb_fnameNameExt(c) ) )  // hb_fnameExt( ".hwprj" ) returns empty string
                IF File( c + ".hwprj" )
                   c += ".hwprj"
                ELSEIF File( c + ".prg" )
@@ -242,13 +242,16 @@ FUNCTION Main( ... )
       cLibsHwGUI := oGui:cLibs
    ENDIF
 
-   nPrj := Ascan( aFiles, {|a|Lower(hb_fnameExt(a[1]))==".hwprj"} )
-   // Lower( hb_fnameExt( aFiles[1,1] ) ) == ".hwprj" )
+   nPrj := Ascan( aFiles, {|a|Lower(hb_fnameExt("x"+hb_fnameNameExt(a[1])))==".hwprj"} )
    IF Empty( aParams ) .OR. ( lGui .AND. nPrj > 0 .AND. Len( aFiles ) == 1  )
 #ifdef __GUI
       StartGUI( Iif( Empty( aFiles ), Nil, aFiles[1,1] ) )
 #endif
    ELSEIF !Empty( aFiles )
+      IF nPrj == 0 .AND. File( hb_fnameDir(aFiles[1,1]) + ".hwprj" )
+         AAdd( aFiles, { hb_fnameDir(aFiles[1,1]) + ".hwprj", } )
+         nPrj := Len( aFiles )
+      ENDIF
       IF nPrj > 0
          IF !Empty( oPrg := HwProject():Open( aFiles[nPrj,1], oComp, aUserPar, aFiles ) )
             oPrg:Build( lClean )
@@ -1779,7 +1782,7 @@ METHOD Open( xSource, oComp, aUserPar, aFiles, aParentVars ) CLASS HwProject
 
    IF !Empty( aFiles )
       FOR i := 1 TO Len( aFiles )
-         IF !( Lower( hb_fnameExt( aFiles[i,1] ) ) == ".hwprj" )
+         IF !( Lower( hb_fnameExt( "x"+hb_fnameNameExt(aFiles[i,1]) ) ) == ".hwprj" )
             AAdd( ::aFiles, aFiles[i] )
          ENDIF
       NEXT

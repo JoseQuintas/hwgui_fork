@@ -1975,7 +1975,8 @@ HB_FUNC( HWG_DRAWGRADIENT )
    int stop_x[GRADIENT_MAX_COLORS], stop_y[GRADIENT_MAX_COLORS], coord_stop;
    int isH = 0, isV = 0, isD = 0, is_5_6 = 0, isR = 0;
    int x_center = 0, y_center = 0, gr_radius = 0;
-   PHB_ITEM pArrRadius = hb_param( 9, HB_IT_ARRAY );
+   PHB_ITEM pArrRadius = NULL;
+   int iRadius = 0;
    int radius[4];
    double angle, angle_step, coord_x, coord_y, min_delta, delta;
    int user_colors_num, colors_num, user_stops_num, user_radiuses_num, i, j, k;
@@ -1991,6 +1992,11 @@ HB_FUNC( HWG_DRAWGRADIENT )
    int polygon_len = 0, nearest_coord = 0, cycle_start, cycle_stop, cycle_step;
    int convert[4][2] = { {-1,1}, {1,1}, {1,-1}, {-1,-1} };
    long x, y;
+
+   if( HB_ISNUM(9) )
+      iRadius = hb_parni(9);
+   else
+      pArrRadius = hb_param( 9, HB_IT_ARRAY );
 
    if ( !pArrColor || ( user_colors_num = hb_arrayLen( pArrColor ) ) == 0 )
       return;
@@ -2262,12 +2268,15 @@ HB_FUNC( HWG_DRAWGRADIENT )
 
    // We draw polygon that looks like rectangle with rounded corners.
    // WinAPI allows to fill this figure with brush.
-   user_radiuses_num = ( pArrRadius ) ? hb_arrayLen( pArrRadius ) : 0;
-   for ( i = 0; i < 4; i++ )
-   {
-      radius[i] = ( i < user_radiuses_num ) ? hb_arrayGetNI( pArrRadius, i+1 ) : 0;
-      radius[i] = ( radius[i] >= 0 ) ? radius[i] : 0;
-   }
+   if( pArrRadius ) {
+      user_radiuses_num = ( pArrRadius ) ? hb_arrayLen( pArrRadius ) : 0;
+      for ( i = 0; i < 4; i++ )
+      {
+         radius[i] = ( i < user_radiuses_num ) ? hb_arrayGetNI( pArrRadius, i+1 ) : 0;
+         radius[i] = ( radius[i] >= 0 ) ? radius[i] : 0;
+      }
+   } else
+      radius[0] = radius[1] = radius[2] = radius[3] = iRadius;
 
    center[0].x = x1 + radius[0];
    center[0].y = y1 + radius[0];
