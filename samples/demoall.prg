@@ -25,11 +25,17 @@ insert a dialog move on init ?
 #include "hwgui.ch"
 #include "directry.ch"
 
+#define TAB_MAIN   1
+#define TAB_BROWSE 2
+#define TAB_BUTTON 3
+#define TAB_MENU   4
+#define TAB_DATE   5
+
 PROCEDURE Main
 
    LOCAL oDlg, aItem, nIndex := 1, lCloseMenu := .F., nCont
    LOCAL lIsAvailable, lIsEXE
-   LOCAL oTab, oTab2, oTab3
+   LOCAL oTab := Array(5)
    LOCAL aList := { ;
        ; // NAME,                  WIN, LINUX, MACOS, DESCRIPTION
        { "a.prg",                  .T., .F., .F., "MDI, Tab, checkbox, combobox, browse array, others" }, ;
@@ -38,7 +44,6 @@ PROCEDURE Main
        ;
        { "demodbfdata.prg",        .T., .T., .T., "DBF data using tab" }, ;
        { "demoini.prg",            .T., .F., .F., "Read/write Ini" }, ;
-       { "demomenuxml.prg",        .T., .T., .T., "Setup menu from XML ***error on new item***" }, ;
        { "demoxmltree.prg",        .T., .T., .T., "Show XML using hxmldoc and tree" }, ;
        { "hello.prg",              .T., .F., .F., "RichEdit, Tab, Combobox" }, ;
        { "tab.prg",                .T., .F., .F., "Tab, checkbox, editbox, combobox, browse array" }, ;
@@ -52,7 +57,6 @@ PROCEDURE Main
        { "demolistbox.prg",        .T., .F., .F., "Listbox" }, ;
        { "demolistboxsub.prg",     .T., .T., .T., "Listbox Substitute" }, ;
        { "demoonother.prg",        .T., .F., .F., "ON OTHER MESSAGES" }, ;
-       { "demotreebox",            .T., .T., .T., "Treebox, Splitter and tab" }, ;
        ;
        { "",                       .F., .F., .F., "" }, ;
        ;
@@ -104,11 +108,13 @@ PROCEDURE Main
        ; // already visible on the tab of demoall.prg
        ;
        { "demotab",                .T., .T., .T., "Tab and more samples" } , ;
-       ; // { "demobrowsedbf",          .T., .T., .T., "Browse DBF (demotab)"  }, ;
-       ; // { "demomonthcal",           .T., .T., .T., "Month Calendar (demotab)" }, ;
-       ; // { "demobrowseado.prg",      .T., .F., .F., "Browse using ADO (demotab)" }, ;
-       ; // { "democheckbox",           .T., .T., .T., "Checkbox and tab (demotab)" }, ;
+       ; // { "demobrowsedbf",          .T., .T., .T., "Browse DBF"  }, ;
+       ; // { "demomonthcal",           .T., .T., .T., "Month Calendar" }, ;
+       ; // { "demobrowseado",          .T., .F., .F., "Browse using ADO" }, ;
+       ; // { "democheckbox",           .T., .T., .T., "Checkbox and tab" }, ;
        ; // { "demomenu",               .T., .T., .T., "Simple menu" }, ;
+       ; // { "demomenuxml",            .T., .T., .T., "Setup menu from XML ***error on new item***" }, ;
+       ; // { "demotreebox",            .T., .T., .T., "Treebox, Splitter and tab" }, ;
        { "",                       .F., .F., .F., "" }, ;
        { "notexist",               .F., .F., .F., "Test for menu, about not available" } }
 
@@ -157,118 +163,149 @@ PROCEDURE Main
       ENDMENU
    ENDMENU
 
-   @ 30, 60 TAB oTab ;
+   @ 30, 60 TAB oTab[ TAB_MAIN ] ;
       ITEMS {} ;
       SIZE  700, 480
 
    BEGIN PAGE "menu" ;
-      OF oTab
+      OF oTab[ TAB_MAIN ]
 
-      @ 30, 50 BUTTON "demomenu.prg" ;
-         SIZE 100, 24 ;
-         ON CLICK { || DemoMenu() }
+      @ 30, 60 TAB oTab[ TAB_MENU ] ;
+         ITEMS {} ;
+         SIZE 650, 430
 
-   END PAGE OF oTab
+      BEGIN PAGE "menu" ;
+         OF oTab[ TAB_MENU ]
+
+         @ 30, 50 BUTTON "demomenu.prg" ;
+            SIZE 200, 24 ;
+            ON CLICK { || DemoMenu() }
+
+      END PAGE OF oTab[ TAB_MENU ]
+
+      BEGIN PAGE "menuxml" ;
+         OF oTab[ TAB_MENU ]
+
+         @ 30, 50 BUTTON "demomenuxml.prg" ;
+            SIZE 200, 24 ;
+            ON CLICK { || DemoMenuXml() }
+
+      END PAGE OF oTab[ TAB_MENU ]
+
+   END PAGE OF oTab[ TAB_MAIN ]
 
    BEGIN PAGE "say" ;
-      OF oTab
+      OF oTab[ TAB_MAIN ]
 
       DemoSay( .F. )
 
-   END PAGE OF oTab
+   END PAGE OF oTab[ TAB_MAIN ]
 
    BEGIN PAGE "button" ;
-      OF oTab
+      OF oTab[ TAB_MAIN ]
 
-      DemoButton( .F., oTab )
+      @ 30, 60 TAB oTab[ TAB_BUTTON ] ;
+         ITEMS {} ;
+         SIZE  700, 480
 
-   END PAGE OF oTab
+         BEGIN PAGE "Ownerbutton" ;
+            OF oTab[ TAB_BUTTON ]
+
+            DemoOwner( .F., oTab[ TAB_MAIN ] )
+
+         END PAGE OF oTab[ TAB_BUTTON ]
+
+   END PAGE OF oTab[ TAB_MAIN ]
 
    BEGIN PAGE "browse" ;
-      OF oTab
+      OF oTab[ TAB_MAIN ]
 
-      @ 30, 30 TAB oTab2 ;
+      @ 30, 30 TAB oTab[ TAB_BROWSE ] ;
          ITEMS {} ;
          SIZE  650, 450
 
-         BEGIN PAGE "browse array" ;
-            OF oTab2
-
-            DemoBrowseArray( .F., oTab2 )
-
-         END PAGE OF oTab2
-
          BEGIN PAGE "browse dbf" ;
-            OF oTab2
+            OF oTab[ TAB_BROWSE ]
 
-            DemoBrowseDBF( .F., oTab2 )
+            DemoBrowseDBF( .F., oTab[ TAB_BROWSE ] )
 
-         END PAGE OF oTab2
+         END PAGE OF oTab[ TAB_BROWSE ]
+
+         BEGIN PAGE "browse array" ;
+            OF oTab[ TAB_BROWSE ]
+
+            DemoBrowseArray( .F., oTab[ TAB_BROWSE ] )
+
+         END PAGE OF oTab[ TAB_BROWSE ]
 
 #ifdef __PLATFORM__WINDOWS
          BEGIN PAGE "browseado" ;
-            OF oTab2
+            OF oTab[ TAB_BROWSE ]
 
-            DemoBrowseADO( .F., oTab2 )
+            DemoBrowseADO( .F., oTab[ TAB_BROWSE ] )
 
-         END PAGE OF oTab2
+         END PAGE OF oTab[ TAB_BROWSE ]
 #endif
 
-   END PAGE OF oTab
+   END PAGE OF oTab[ TAB_MAIN ]
 
    BEGIN PAGE "tab" ;
-      OF oTab
+      OF oTab[ TAB_MAIN ]
 
-      DemoTab( .F., oTab )
+      DemoTab( .F., oTab[ TAB_MAIN ] )
 
-   END PAGE OF oTab
+   END PAGE OF oTab[ TAB_MAIN ]
 
    BEGIN PAGE "combobox" ;
-      OF oTab
+      OF oTab[ TAB_MAIN ]
 
-      DemoCombobox( .F., oTab )
+      DemoCombobox( .F., oTab[ TAB_MAIN ] )
 
-   END PAGE of oTab
+   END PAGE of oTab[ TAB_MAIN ]
 
    BEGIN PAGE "checkbox" ;
-      OF oTab
+      OF oTab[ TAB_MAIN ]
 
-      DemoCheckBox( .F., oTab )
+      DemoCheckBox( .F., oTab[ TAB_MAIN ] )
 
-   END PAGE OF oTab
+   END PAGE OF oTab[ TAB_MAIN ]
 
    BEGIN PAGE "demotreebox" ;
-      OF oTab
+      OF oTab[ TAB_MAIN ]
 
-      DemoTreebox( .F., oTab )
+      @ 30, 50 BUTTON "demotreebox.prg" ;
+         SIZE 200, 24 ;
+         ON CLICK { || DemoTreebox() }
 
-   END PAGE OF oTab
+      //DemoTreebox( .F., oTab[ TAB_MAIN ] )
+
+   END PAGE OF oTab[ TAB_MAIN ]
 
    BEGIN PAGE "date" ;
-      OF oTab
+      OF oTab[ TAB_MAIN ]
 
-      @ 30, 30 TAB oTab3 ;
+      @ 30, 30 TAB oTab[ TAB_DATE ] ;
          ITEMS {} ;
          SIZE  650, 450
 
       BEGIN PAGE "dateselect" ;
-         OF oTab3
+         OF oTab[ TAB_DATE ]
 
-         DemoDateSelect( .F., oTab3 )
+         DemoDateSelect( .F., oTab[ TAB_DATE ] )
 
-      END PAGE OF oTab3
+      END PAGE OF oTab[ TAB_DATE ]
 
 #ifdef __PLATFORM__WINDOWS
 
       BEGIN PAGE "monthcal" ;
-         OF oTab3
+         OF oTab[ TAB_DATE ]
 
-         DemoMonthCal( .F., oTab3 )
+         DemoMonthCal( .F., oTab[ TAB_DATE ] )
 
-      END PAGE OF oTab3
+      END PAGE OF oTab[ TAB_DATE ]
 #endif
 
-   END PAGE OF oTab
+   END PAGE OF oTab[ TAB_MAIN ]
 
    // A STATUS PANEL may be used instead of a standard STATUS control
    ADD STATUS PANEL ;
@@ -384,16 +421,13 @@ STATIC FUNCTION DemoCombobox()
 #else
    @ 10, 50 COMBOBOX oCombo1 ;
       ITEMS aComboList ;
-      SIZE  100, 100             // size for GTK
+      SIZE  100, 100             // size for windows
 
-   @ 100, 50 COMBOBOX oCombo2 ;
+   @ 10, 150 COMBOBOX oCombo2 ;
       ITEMS   aComboList ;
       SIZE    100, 100 ;
-      EDIT                       // crash on GTK
+      EDIT                       // only windows, crash on GTK
 #endif
-
-   @ 10, 200 SAY "size height include list height on win" ;
-      SIZE 300, 30
 
    RETURN Nil
 
@@ -420,7 +454,7 @@ STATIC FUNCTION DemoBrowseArray()
    RETURN Nil
 
 // to be external
-STATIC FUNCTION DemoButton( lWithDialog, oDlg )
+STATIC FUNCTION DemoOwner( lWithDialog, oDlg )
 
    LOCAL oBtn1, oBtn2, oBtn3
    LOCAL oStyleNormal  := HStyle():New( {16759929,16772062}, 1 )
@@ -431,20 +465,20 @@ STATIC FUNCTION DemoButton( lWithDialog, oDlg )
       HStyle():New( {0xffffff,0xdddddd}, 2,, 1 ), ;
       HStyle():New( {0xffffff,0xdddddd}, 1,, 2, 8421440 ) }
 
-   @ 10, 50 OWNERBUTTON oBtn1 ;
+   @ 10, 150 OWNERBUTTON oBtn1 ;
       OF       oDlg ;
       SIZE     60, 24;
       TEXT     "But.1" ;
       ON CLICK { || hwg_MsgInfo( "Button 1" ) }
 
-   @ 74, 50 OWNERBUTTON oBtn2 ;
+   @ 10, 200 OWNERBUTTON oBtn2 ;
       OF       oDlg ;
       SIZE     60, 24 ;
       TEXT     "But.2" ;
       ON CLICK { || hwg_MsgInfo( "Button 2" ) }
    oBtn2:aStyle := aBtn2Style
 
-   @ 138, 50 OWNERBUTTON oBtn3 ;
+   @ 10, 250 OWNERBUTTON oBtn3 ;
       OF       oDlg ;
       SIZE     60, 24 ;
       HSTYLES oStyleNormal, oStylePressed, oStyleOver ;
@@ -454,5 +488,21 @@ STATIC FUNCTION DemoButton( lWithDialog, oDlg )
    (lWithDialog) // not used, warning -w3 -es2
 
    RETURN Nil
+
+// only test
+FUNCTION LoadResourceDemo( cFileName )
+
+DO CASE
+CASE cFileName == "democheckbox.prg";   #pragma __binarystreaminclude "democheckbox.prg" | RETURN %s
+CASE cFileName == "demobrowsedbf.prg";  #pragma __binarystreaminclude "demobrowsedbf.prg" | RETURN %s
+CASE cFileName == "demobrowseado.prg";  #pragma __binarystreaminclude "demobrowseado.prg" | RETURN %s
+CASE cFileName == "demomonthcal.prg";   #pragma __binarystreaminclude "demomonthcal.prg" | RETURN %s
+CASE cFileName == "demomenu.prg";       #pragma __binarystreaminclude "demomenu.prg" | RETURN %s
+CASE cFileName == "demomenuxml.prg";    #pragma __binarystreaminclude "demomenuxml.prg" | RETURN %s
+CASE cFileName == "demotab.prg";        #pragma __binarystreaminclude "demotab.prg" | RETURN %s
+CASE cFileName == "demotreebox.prg";    #pragma __binarystreaminclude "demotreebox.prg" | RETURN %s
+ENDCASE
+
+RETURN Nil
 
 * ================================= EOF of all.prg ===========================

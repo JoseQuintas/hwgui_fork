@@ -43,7 +43,7 @@ FUNCTION DemoCheckBox( lWithDialog, oDlg )
    ENDIF
 
    // do not remove button
-   ButtonForSample( "demochckbox.prg", oDlg )
+   ButtonForSample( "democheckbox.prg", oDlg )
 
    @ 300, 70 BUTTON oButton7 ;
       CAPTION  "Invert all"   ;

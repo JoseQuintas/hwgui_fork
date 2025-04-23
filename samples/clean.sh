@@ -77,7 +77,6 @@ rm demotreebox 2> /dev/null
 rm testspli 2> /dev/null
 rm testtray 2> /dev/null
 rm testtree 2> /dev/null
-rm demomenuxml 2> /dev/null
 rm demoonother 2> /dev/null
 rm trackbar 2> /dev/null
 rm tstscrlbar 2> /dev/null

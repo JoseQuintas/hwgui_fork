@@ -34,10 +34,19 @@ STATIC FUNCTION ButtonForSample( cFileName, oDlg )
 
 STATIC FUNCTION ShowCode( cFileName )
 
-   LOCAL oDlg, oEdit, oFont
+   LOCAL oDlg, oEdit, oFont, cText
 
-   IF ! File( cFileName )
-      hwg_MsgInfo( cFileName + " not found" )
+   BEGIN SEQUENCE WITH __BreakBlock()
+      cText := &( [LoadResourceDemo( "] + cFileName + [" )] )
+   ENDSEQUENCE
+
+   IF Empty( cText )
+      IF ! File( cFileName )
+         hwg_MsgInfo( cFileName + " not found" )
+         RETURN Nil
+      ENDIF
+      hwg_MsgInfo( "Reading " + cFileName )
+      cText := MemoRead( cFileName )
    ENDIF
 
    PREPARE FONT oFont ;
@@ -51,7 +60,7 @@ STATIC FUNCTION ShowCode( cFileName )
       FONT oFont
 
    @ 10, 10 EDITBOX oEdit ;
-      CAPTION MemoRead( cFileName ) ;
+      CAPTION cText ;
       SIZE    780, 580 ;
       ; // FONT    oFont
       STYLE   ES_MULTILINE + ES_AUTOVSCROLL + WS_VSCROLL + WS_HSCROLL

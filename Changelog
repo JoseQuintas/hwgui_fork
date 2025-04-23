@@ -15,6 +15,22 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-23 12:15 UTC -0300 JoseQuintas jmcquintas-gmail.com
+  * clean.sh
+  * samples/allhbp.hbp
+  * samples/clean.sh
+  * samples/democheckbox.hbp
+  - samples/demomenuxml.hbp
+  * samples/demomenuxml.prg
+     ! demomenuxml to demoall
+  * samples/demoall.hbp
+  * samples/demoall.prg
+  * samples/demo.ch
+     ! experimental LoadResourceDemo(), and error routine about it
+     ! Test using mingw on Win11 ok
+     ! Compile on same way as before, but source code becames resource
+     ! Comment function if fail on another compiler
+
 2025-04-23 16:30 UTC+0200 Wilfried Brunken DF7BE
 * source/gtk/hbrowse.prg
 * test/checkbox.hbp
@@ -26,7 +42,7 @@
   ! Ticket #204 Browse GTK Linux, puts three dots in the column unnecessarily:
   ! First fix the default length of dates in HBROWSE class.
   ! To be continued with the other bugs reported by Itamar M. Lins Jr.
-  
+
 
 2025-04-23 03:30 UTC -0300 Jose Quintas jmcquintas-gmail.com
   * samples/democheckbox.prg

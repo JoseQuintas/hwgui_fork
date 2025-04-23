@@ -51,17 +51,12 @@ REQUEST HB_CODEPAGE_DEWIN
 REQUEST HB_CODEPAGE_UTF8
 #endif
 
-
 #include "hwgui.ch"
 #include "hxml.ch"
 
 MEMVAR oXmlDoc, lIniChanged, nCurrentItem , oDlg, oFont
 
-#ifdef __USING_MENU__
-   FUNCTION DemoMenuXml()
-#else
-   FUNCTION Main()
-#endif
+FUNCTION DemoMenuXml()
 
    LOCAL oXmlNode
    LOCAL i, fname
@@ -111,6 +106,8 @@ MEMVAR oXmlDoc, lIniChanged, nCurrentItem , oDlg, oFont
          MENUITEM "About" ACTION p_about()
       ENDMENU
    ENDMENU
+
+   ButtonForSample( "demomenuxml.prg", oDlg )
 
    ACTIVATE DIALOG oDlg CENTER
 
@@ -311,5 +308,7 @@ STATIC FUNCTION p_about()
 #endif
 
 RETURN Nil
+
+#include "demo.ch"
 
 * ==================== EOF of demomenuxml.prg ======================
