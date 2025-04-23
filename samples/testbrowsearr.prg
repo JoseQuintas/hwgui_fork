@@ -1,6 +1,6 @@
 /*
  *
- * demobrowsearr.prg
+ * testbrowsearr.prg
  *
  * $Id$
  *
@@ -53,7 +53,7 @@ FUNCTION Main()
 
    INIT WINDOW oWinMain ;
       MAIN  ;
-      TITLE "demobrowsearr.prg - Sample BROWSE arrays" AT 100, 100 SIZE 600,400;
+      TITLE "testbrowsearr.prg - Sample BROWSE arrays" AT 100, 100 SIZE 600,400;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
    MENU OF oWinMain

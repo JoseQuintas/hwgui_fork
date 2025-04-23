@@ -236,7 +236,7 @@ For beginners:
    democheckbox.prg  Y                        Checkboxes and tabs
    demomonthcal.prg  ?                 Y      Calendar, Datepicker, TOOLTIP
 
- demobrowsearray.prg Y                        Array BROWSE avoiding crashes because of bugs (see inline comments)
+ testbrowsearray.prg Y                        Array BROWSE avoiding crashes because of bugs (see inline comments)
  bindbf.prg 10)      Y                        Usage of images from Binary DBF container
  bincnts.prg 10) +)  Y                        Usage of images from Binary container
  bitmapbug.prg       Y                        Handle of bug in command @<x>,<y> BITMAP ... SHOW (Class HBITMAP)

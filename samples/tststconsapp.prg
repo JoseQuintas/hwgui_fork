@@ -28,7 +28,7 @@
 
  Instructions:
  - First compile the HWGUI program to be called by this program:
-   hbmk2 demobrowsearray.hbp (Windows, MacOS & LINUX)
+   hbmk2 testbrowsearr.hbp (Windows, MacOS & LINUX)
  - Compile the Harbour Console/Terminal program to be called:
    hbmk2 helloworld.prg (Windows & LINUX)
    ./hbmk.sh helloworld (MacOS, optional for LINUX)
@@ -188,7 +188,7 @@ RETURN Nil
 
 FUNCTION Test1()
 * Start another HWGUI application
-START_PGM("demobrowsearray")
+START_PGM("testbrowsearr")
 RETURN Nil
 
 FUNCTION Test2()

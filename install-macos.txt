@@ -172,18 +172,18 @@ For more info see chapter "2. Hints for programmers".
     10.) Compile a sample program
 
         goto directory "samples"
-        and start compiling of demobrowsearray.prg
-        hbmk2 demobrowsearray.hbp
+        and start compiling of testbrowsearray.prg
+        hbmk2 testbrowsearray.hbp
         Ignore warning:
         ld: warning: ignoring duplicate libraries: '-lhbrdd', '-lhbrtl', '-lhbvm'
 
         Start sample programm:
-        ./demobrowsearray
+        ./testbrowsearray
 
 
     11.) Compile your own application
 
-        Use the file demobrowsearray.hbp and hbmk.hbm as a template
+        Use the file testbrowsearray.hbp and hbmk.hbm as a template
         to create a hbp file for building your own application.
         Because the HPB macro "{mac}" does not exist,
         use following macros to divide to your used operating system:

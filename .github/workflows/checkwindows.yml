@@ -18,18 +18,21 @@ jobs:
     runs-on: windows-latest
     steps:
 
-    - name: Load Source Code
-      run: |
-         c:
-         git clone https://github.com/harbour/core /temp/harbour32 --depth 1
-         git clone https://github.com/JoseQuintas/hwgui_fork /temp/hwgui --depth 1
-
-    - name: mingw
+    - name: load mingw
       uses: dawidd6/action-download-artifact@v2
       with:
-         workflow: mingw.yml
+         workflow: buildall.yml
          workflow_conclusion: success
          name: mingw_1420
+         path: c:\temp
+         repo: JoseQuintas/sefazclass
+
+    - name: load harbour32
+      uses: dawidd6/action-download-artifact@v2
+      with:
+         workflow: buildall.yml
+         workflow_conclusion: success
+         name: hb32_mingw_1420
          path: c:\temp
          repo: JoseQuintas/sefazclass
 
@@ -41,6 +44,12 @@ jobs:
          md c:\temp\harbour
          md c:\temp\harbour\comp
          7z x -y c:\temp\mingw_1420.7z -oc:\temp\comp
+         7z x -y c:\temp\hb32_mingw_1420.7z -oc:\temp\harbour
+
+    - name: Load Source Code
+      run: |
+         c:
+         git clone https://github.com/JoseQuintas/hwgui_fork /temp/hwgui --depth 1
 
     - name: Build 32 bits
       env:
@@ -50,8 +59,6 @@ jobs:
          PATH: c:\temp\comp\mingw32\bin;c:\temp\harbour\bin
       run: |
          c:
-         cd c:\temp\harbour32
-         mingw32-make clean install
          cd c:\temp\hwgui
          hbmk2 hwgui.hbp -w3
          hbmk2 hbxml.hbp -w3
@@ -59,19 +66,3 @@ jobs:
          hbmk2 hwgdebug.hbp -w3
          cd c:\temp\hwgui\samples
          hbmk2 allhbp.hbp
-
-    #- name: Build 64 bits
-    #  env:
-    #     HB_BUILD_STRIP: all
-    #     HB_COMPILER: mingw64
-    #     HB_INSTALL_PREFIX: c:\temp\harbour
-    #     PATH: c:\temp\comp\mingw64\bin;c:\temp\harbour\bin
-    #  run: |
-    #     c:
-    #     cd \temp\harbour32
-    #     mingw32-make clean install
-    #     cd c:\temp\hwgui
-    #     hbmk2 hwgui.hbp
-    #     hbmk2 hbxml.hbp
-    #     hbmk2 procmisc.hbp
-    #     hbmk2 hwgdebug.hbp

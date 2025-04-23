@@ -20,7 +20,7 @@
 hbmk2 a.hbp
 hbmk2 allhbp.hbp
 hbmk2 demoall.hbp
-hbmk2 demobrowsearray.hbp
+hbmk2 testbrowsearr.hbp
 hbmk2 bincnts.hbp
 hbmk2 bindbf.hbp
 hbmk2 bitmapbug.hbp

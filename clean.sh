@@ -53,8 +53,8 @@ rm samples/gtk_samples/pseudocm 2>/dev/null
 rm samples/gtk_samples/testget2 2>/dev/null
 rm samples/gtk_samples/winprn 2>/dev/null
 rm samples/gtk_samples/temp_a2.ps 2>/dev/null
-delfi samples/demobrowsearray
-delfi samples/demobrowsearray.c
+delfi samples/testbrowsearray
+delfi samples/testbrowsearray.c
 #
 # Samples for multi plattform (exe)
 # and optional generated C source file

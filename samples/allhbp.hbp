@@ -49,7 +49,7 @@
 ../samples/bincnts.hbp
 ../samples/colrbloc.hbp
 ../samples/dbview.hbp
-../samples/demobrowsearr.hbp
+../samples/testbrowsearr.hbp
 ../samples/demodatepicker.hbp ##- old demodatepicker
 ../samples/demodbfdata.hbp
 ../samples/demogetupdown.hbp

@@ -45,7 +45,7 @@ PROCEDURE Main
        ; // controls
        ;
        { "demogetupdown.prg",      .T., .T., .T., "Get UpDown" }, ;
-       { "demobrowsearr.prg",      .T., .T., .T., "browse array editable" }, ;
+       { "testbrowsearr.prg",      .T., .T., .T., "browse array editable" }, ;
        { "democombobox.prg",       .T., .T., .T., "Combobox" }, ;
        { "demodatepicker.prg",     .T., .T., .T., "Date Picker" }, ;
        { "demolistbox.prg",        .T., .F., .F., "Listbox" }, ;
@@ -111,9 +111,9 @@ PROCEDURE Main
        { "notexist",               .F., .F., .F., "Test for menu, about not available" } }
 
    INIT DIALOG oDlg ;
-      TITLE "ALL - Samples list-------------------------------------" ;
+      TITLE "demoall.prg - Group Show Samples on screen, and others on menu" ;
       AT 0,0 ;
-      SIZE 800, 600 ;
+      SIZE 1024, 768 ;
       BACKCOLOR 16772062
 
    MENU OF oDlg
