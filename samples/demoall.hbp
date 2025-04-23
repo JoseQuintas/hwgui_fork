@@ -10,7 +10,9 @@
 demoall.prg
 demobrowsedbf.prg
 democheckbox.prg
+demomenu.prg
 demotab.prg
+demotreebox.prg
 
 {win}demobrowseado.prg
 {win}hbwin.hbc

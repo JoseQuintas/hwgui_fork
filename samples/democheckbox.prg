@@ -48,7 +48,7 @@ FUNCTION DemoCheckBox( lWithDialog, oDlg )
    ENDIF
 
    // do not remove button
-   DemoCodeButton( "demochckbox.prg", oDlg )
+   ButtonForSample( "demochckbox.prg", oDlg )
 
    @ 20, 50 TAB oTab ;
       ITEMS   {} ;

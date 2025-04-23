@@ -39,7 +39,7 @@ FUNCTION DemoBrowseDbf( lWithDialog, oDlg )
    ENDIF
 
    // do not remove button
-   DemoCodeButton( "demobrowsedbf.prg", oDlg )
+   ButtonForSample( "demobrowsedbf.prg", oDlg )
 
    @ 20, 80 BROWSE oBrowse ;
       OF oDlg ;

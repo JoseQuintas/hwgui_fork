@@ -15,6 +15,42 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-22 23:30 UTC -0300 Jose Quintas jmcquintas-gmail.com
+  * samples/demo.ch
+  * samples/demobrowseado.prg
+  * samples/democheckbox.prg
+  * samples/demomonthcal.prg
+    ! another bad name democodebutton seems another sample
+    !    changed demo.ch and related to ButtonForSample()
+  * samples/demotreebox.prg
+    ! changed to be reusable
+  * samples/demoall.hbp
+  * samples/demoall.prg
+  * samples/demotab.prg
+    ! moved code from demotab to demoall
+    ! previous code is bad for sample
+    ! added a temporary code about tab
+  + samples/demomenu.prg
+    ! added a temporary code about menu
+  ! Only as comment: splitter is working on tab page!
+  ! knowed issues:
+  ! status panel fail on demoall, it is half displayed
+  !    ok if do not use ACTIVATE DIALOG CENTER
+  ! tree is not displayed on tabpage, not sure if expected
+
+2025-04-22 19:00 UTC -0300 Jose Quintas jmcquintas-gmail.com
+   * clean.sh
+   * doc/hwgdoc_functions.html
+   * install-macos.txt
+   * samples/Readme.txt
+   * samples/allhbp.hbp
+   * samples/demoall.prg
+   * samples/testbrowsearr.hbp renamed from demobrowsearr.hbp
+   * samples/testbrowsearr.prg renamed from demobrowsearr.prg
+   * samples/tststconsapp.prg
+     ! rename testbrowsearr, update references
+     ! found references that I update before with wrong name
+
 2025-04-22 17:40 UTC -0300 Jose Quintas jmcquintas-gmail.com
    + samples/demo.ch
      ! To do not duplicate routines over samples

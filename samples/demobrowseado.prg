@@ -46,7 +46,7 @@ FUNCTION DemoBrowseADO( lWithDialog, oDlg )
    ENDIF
 
    // do not remove button
-   DemocodeButton( "demobrowseado.prg", oDlg )
+   ButtonForSample( "demobrowseado.prg", oDlg )
 
    @ 20, 80 BROWSE ;
       ARRAY oBrowse ;

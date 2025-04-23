@@ -29,6 +29,7 @@ PROCEDURE Main
 
    LOCAL oDlg, aItem, nIndex := 1, lCloseMenu := .F., nCont
    LOCAL lIsAvailable, lIsEXE
+   LOCAL oTab, oTab2, oTab3
    LOCAL aList := { ;
        ; // NAME,                  WIN, LINUX, MACOS, DESCRIPTION
        { "a.prg",                  .T., .F., .F., "MDI, Tab, checkbox, combobox, browse array, others" }, ;
@@ -51,7 +52,7 @@ PROCEDURE Main
        { "demolistbox.prg",        .T., .F., .F., "Listbox" }, ;
        { "demolistboxsub.prg",     .T., .T., .T., "Listbox Substitute" }, ;
        { "demoonother.prg",        .T., .F., .F., "ON OTHER MESSAGES" }, ;
-       { "demotreebox.prg",        .T., .T., .T., "Treebox, Splitter and tab" }, ;
+       { "demotreebox",            .T., .T., .T., "Treebox, Splitter and tab" }, ;
        ;
        { "",                       .F., .F., .F., "" }, ;
        ;
@@ -107,6 +108,7 @@ PROCEDURE Main
        ; // { "demomonthcal",           .T., .T., .T., "Month Calendar (demotab)" }, ;
        ; // { "demobrowseado.prg",      .T., .F., .F., "Browse using ADO (demotab)" }, ;
        ; // { "democheckbox",           .T., .T., .T., "Checkbox and tab (demotab)" }, ;
+       ; // { "demomenu",               .T., .T., .T., "Simple menu" }, ;
        { "",                       .F., .F., .F., "" }, ;
        { "notexist",               .F., .F., .F., "Test for menu, about not available" } }
 
@@ -150,12 +152,123 @@ PROCEDURE Main
          ENDMENU
       ENDIF
       MENU TITLE "Other"
-         MENUITEM "Check PRG/HBP/EXE" ACTION { || CheckPrgHbpExe() }
+         MENUITEM "For tests check PRG/HBP/EXE" ACTION { || CheckPrgHbpExe() }
          MENUITEM "&Exit" ACTION hwg_EndWindow()
       ENDMENU
    ENDMENU
 
-   DemoTab( .F., oDlg )
+   @ 30, 60 TAB oTab ;
+      ITEMS {} ;
+      SIZE  700, 480
+
+   BEGIN PAGE "menu" ;
+      OF oTab
+
+      @ 30, 50 BUTTON "demomenu.prg" ;
+         SIZE 100, 24 ;
+         ON CLICK { || DemoMenu() }
+
+   END PAGE OF oTab
+
+   BEGIN PAGE "say" ;
+      OF oTab
+
+      DemoSay( .F. )
+
+   END PAGE OF oTab
+
+   BEGIN PAGE "button" ;
+      OF oTab
+
+      DemoButton( .F., oTab )
+
+   END PAGE OF oTab
+
+   BEGIN PAGE "browse" ;
+      OF oTab
+
+      @ 30, 30 TAB oTab2 ;
+         ITEMS {} ;
+         SIZE  650, 450
+
+         BEGIN PAGE "browse array" ;
+            OF oTab2
+
+            DemoBrowseArray( .F., oTab2 )
+
+         END PAGE OF oTab2
+
+         BEGIN PAGE "browse dbf" ;
+            OF oTab2
+
+            DemoBrowseDBF( .F., oTab2 )
+
+         END PAGE OF oTab2
+
+#ifdef __PLATFORM__WINDOWS
+         BEGIN PAGE "browseado" ;
+            OF oTab2
+
+            DemoBrowseADO( .F., oTab2 )
+
+         END PAGE OF oTab2
+#endif
+
+   END PAGE OF oTab
+
+   BEGIN PAGE "tab" ;
+      OF oTab
+
+      DemoTab( .F., oTab )
+
+   END PAGE OF oTab
+
+   BEGIN PAGE "combobox" ;
+      OF oTab
+
+      DemoCombobox( .F., oTab )
+
+   END PAGE of oTab
+
+   BEGIN PAGE "checkbox" ;
+      OF oTab
+
+      DemoCheckBox( .F., oTab )
+
+   END PAGE OF oTab
+
+   BEGIN PAGE "demotreebox" ;
+      OF oTab
+
+      DemoTreebox( .F., oTab )
+
+   END PAGE OF oTab
+
+   BEGIN PAGE "date" ;
+      OF oTab
+
+      @ 30, 30 TAB oTab3 ;
+         ITEMS {} ;
+         SIZE  650, 450
+
+      BEGIN PAGE "dateselect" ;
+         OF oTab3
+
+         DemoDateSelect( .F., oTab3 )
+
+      END PAGE OF oTab3
+
+#ifdef __PLATFORM__WINDOWS
+
+      BEGIN PAGE "monthcal" ;
+         OF oTab3
+
+         DemoMonthCal( .F., oTab3 )
+
+      END PAGE OF oTab3
+#endif
+
+   END PAGE OF oTab
 
    // A STATUS PANEL may be used instead of a standard STATUS control
    ADD STATUS PANEL ;
@@ -207,21 +320,138 @@ STATIC FUNCTION ExecuteExe( cFileName )
 
 STATIC FUNCTION CheckPrgHbpExe()
 
-   LOCAL aItem, cFile, cTxt := "", lWithHbp, lWithExe
+   LOCAL aItem, cFile, lWithHbp, lWithExe
+   LOCAL cTxtPrg := "No HBP without EXE" + hb_Eol() + hb_Eol()
+   LOCAL cTxtHbp := "HBP without EXE" + hb_Eol() + hb_Eol()
 
    FOR EACH aItem IN Directory( "*.prg" )
       cFile := aItem[ F_NAME ]
       cFile := Substr( cFile, 1, Len( cFile ) - 4 )
       lWithHbp := File( cFile + ".hbp" )
       lWithExe := File( cFile + ".exe" )
-      IF ! ( lWithHbp .AND. lWithExe )
-         cTxt += Pad( cFile, 20 )
-         cTxt += "HBP_" + iif( lWithHbp, "Yes", "No " )
-         cTxt += "EXE_" + iif( lWithExe, "Yes", "No " )
-         cTxt += hb_Eol()
+      IF ! lWithHbp
+         cTxtPrg += Pad( cFile, 20 )
+         cTxtPrg += iif( lWithExe, "EXE_YES", "EXE_NO" )
+         cTxtPrg += hb_Eol()
+      ELSEIF ! ( lWithExe )
+         cTxtHbp += Pad( cFile, 20 )
+         cTxtHbp += "EXE_" + iif( lWithExe, "YES", "NO" )
+         cTxtHbp += hb_Eol()
       ENDIF
    NEXT
-   hwg_MsgInfo( cTxt )
+   hwg_MsgInfo( cTxtPrg )
+   hwg_MsgInfo( cTxtHbp )
+
+   RETURN Nil
+
+// to be external
+STATIC FUNCTION DemoSay()
+
+   @ 10, 50 SAY "a text" ;
+      SIZE 80, 30
+
+   @ 10, 100 SAY "Need SIZE (*)" ;
+      SIZE 300, 30
+
+   RETURN Nil
+
+// to be external
+STATIC FUNCTION DemoDateSelect()
+
+   LOCAL oDate
+
+   @ 10, 50 SAY "Date" ;
+      SIZE 80, 30
+
+   @ 100, 50 DATESELECT oDate ;
+      SIZE 120,28
+
+   RETURN Nil
+
+// to be external
+STATIC FUNCTION DemoCombobox()
+
+   LOCAL oCombo1, oCombo2
+   LOCAL aComboList  := { "White", "Blue", "Red", "Black" }
+
+#ifndef __PLATFORM__WINDOWS
+   @ 10, 50 COMBOBOX oCombo1 ;
+      ITEMS aComboList ;
+      SIZE  100, 25              // size for GTK
+
+   oCombo2 := Nil // ok, warning -w3 -es2 require value
+   (oCombo2)      // ok, warning -w3 -es2 require use
+#else
+   @ 10, 50 COMBOBOX oCombo1 ;
+      ITEMS aComboList ;
+      SIZE  100, 100             // size for GTK
+
+   @ 100, 50 COMBOBOX oCombo2 ;
+      ITEMS   aComboList ;
+      SIZE    100, 100 ;
+      EDIT                       // crash on GTK
+#endif
+
+   @ 10, 200 SAY "size height include list height on win" ;
+      SIZE 300, 30
+
+   RETURN Nil
+
+// to be external
+STATIC FUNCTION DemoBrowseArray()
+
+   LOCAL oBrowse
+   LOCAL aBrowseList := { ;
+      { "Alex",   17, 12600 }, ;
+      { "Victor", 42, 1600 }, ;
+      { "John",   31, 15000 } }
+
+   @ 10, 30 BROWSE oBrowse ;
+      ARRAY ;
+      SIZE  450, 250 ;
+      STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
+
+   // array stored on browse aArray, and codeblocks using it
+   oBrowse:aArray := aBrowseList
+   oBrowse:AddColumn( HColumn():New( "Name",  { | v, o | (v), o:aArray[ o:nCurrent, 1 ] }, "C", 16, 0 ) )
+   oBrowse:AddColumn( HColumn():New( "Age",   { | v, o | (v), o:aArray[ o:nCurrent, 2 ] }, "N", 6, 0 ) )
+   oBrowse:AddColumn( HColumn():New( "Number",{ | v, o | (v), o:aArray[ o:nCurrent, 3 ] }, "N", 8, 0 ) )
+
+   RETURN Nil
+
+// to be external
+STATIC FUNCTION DemoButton( lWithDialog, oDlg )
+
+   LOCAL oBtn1, oBtn2, oBtn3
+   LOCAL oStyleNormal  := HStyle():New( {16759929,16772062}, 1 )
+   LOCAL oStylePressed := HStyle():New( {16759929}, 1,, 3, 0 )
+   LOCAL oStyleOver    := HStyle():New( {16759929}, 1,, 2, 12164479 )
+   LOCAL aBtn2Style    := { ;
+      HStyle():New( {0xffffff,0xdddddd}, 1,, 1 ), ;
+      HStyle():New( {0xffffff,0xdddddd}, 2,, 1 ), ;
+      HStyle():New( {0xffffff,0xdddddd}, 1,, 2, 8421440 ) }
+
+   @ 10, 50 OWNERBUTTON oBtn1 ;
+      OF       oDlg ;
+      SIZE     60, 24;
+      TEXT     "But.1" ;
+      ON CLICK { || hwg_MsgInfo( "Button 1" ) }
+
+   @ 74, 50 OWNERBUTTON oBtn2 ;
+      OF       oDlg ;
+      SIZE     60, 24 ;
+      TEXT     "But.2" ;
+      ON CLICK { || hwg_MsgInfo( "Button 2" ) }
+   oBtn2:aStyle := aBtn2Style
+
+   @ 138, 50 OWNERBUTTON oBtn3 ;
+      OF       oDlg ;
+      SIZE     60, 24 ;
+      HSTYLES oStyleNormal, oStylePressed, oStyleOver ;
+      TEXT     "But.3" ;
+      ON CLICK { || hwg_MsgInfo( "Button 3" ) }
+
+   (lWithDialog) // not used, warning -w3 -es2
 
    RETURN Nil
 

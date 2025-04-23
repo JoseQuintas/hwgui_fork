@@ -4,7 +4,7 @@
   Created to do not duplicate source code on all samples
 */
 
-STATIC FUNCTION DemoCodeButton( cFileName, oDlg )
+STATIC FUNCTION ButtonForSample( cFileName, oDlg )
 
    LOCAL cRunName
 
