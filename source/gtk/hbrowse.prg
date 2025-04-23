@@ -469,9 +469,13 @@ STATIC FUNCTION InitColumn( oBrw, oColumn, n )
       ENDIF
       oColumn:length := Max( oColumn:length, Len( oColumn:heading ) )
    ENDIF
-   // DF7BE: If century is on, the length of date field must set to 10
+   // DF7BE: The length must have a secure addition,
+   // if century is on, the length of date field must set to 10 + 2 = 12
+   // off: 8 + 2 = 10 
    IF oColumn:type == "D"
      IF hwg_getCentury()
+      oColumn:length := Max(oColumn:length,12)  && old: 10
+     ELSE
       oColumn:length := Max(oColumn:length,10)
      ENDIF
    ENDIF

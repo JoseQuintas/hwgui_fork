@@ -15,6 +15,19 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-23 16:30 UTC+0200 Wilfried Brunken DF7BE
+* source/gtk/hbrowse.prg
+* test/checkbox.hbp
+* test/hbmk.hbm
+* test/tickets/hbmk.hbm (New)
+* test/tickets/ticket203.hbp (moved from test/tickets/ticket204.hbp)
+* test/tickets/ticket203.prg (moved from test/tickets/ticket204.prg)
+  ! Ticket #204 are #203, so renamed
+  ! Ticket #204 Browse GTK Linux, puts three dots in the column unnecessarily:
+  ! First fix the default length of dates in HBROWSE class.
+  ! To be continued with the other bugs reported by Itamar M. Lins Jr.
+  
+
 2025-04-23 03:30 UTC -0300 Jose Quintas jmcquintas-gmail.com
   * samples/democheckbox.prg
     ! reduced from 6 to 3 checkbox, removed tab
