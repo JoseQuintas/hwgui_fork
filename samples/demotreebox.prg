@@ -47,7 +47,10 @@ FUNCTION DemoTreebox( lWithDialog, oDlg )
 
    @ 414, 60 BUTTON "X" ;
       SIZE 24, 24 ;
-      ON CLICK { || hwg_Msginfo( "Delete " + str( oTab:GetActivePage() ) ), oTab:DeletePage( oTab:GetActivePage() ) } ;
+      ON CLICK { | nPos | ;
+         nPos := oTab:GetActivePage(), ;
+         hwg_MsgInfo( iif( nPos == 0, "No Page To Delete", "Delete " + Str( nPos ) ) ), ;
+         iif( nPos == 0, Nil, oTab:DeletePage( nPos ) ) } ;
       ON SIZE { | o, x, y | (x), (y), o:Move( oTab:nLeft + oTab:nWidth - 26 ) } ;
 
    @ 210, 60 SPLITTER oSplit ;

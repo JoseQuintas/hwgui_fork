@@ -15,6 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-23 03:30 UTC -0300 Jose Quintas jmcquintas-gmail.com
+  * samples/democheckbox.prg
+    ! reduced from 6 to 3 checkbox, removed tab
+  * samples/demotreebox.prg
+    ! fix error when no tabs to delete
+  * samples/demotab.hbp
+  * samples/demotab.prg
+    ! add content to tabs
+
 2025-04-22 23:30 UTC -0300 Jose Quintas jmcquintas-gmail.com
   * samples/demo.ch
   * samples/demobrowseado.prg
