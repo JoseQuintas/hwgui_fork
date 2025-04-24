@@ -67,7 +67,6 @@ delfi samples/GetWinVers
 delfi samples/demogetupdown
 delfi samples/demodbfdata
 delfi samples/demodbf
-delfi samples/demolistboxsub
 delfi samples/fileselect
 rm samples/stretch 2>/dev/null
 rm samples/escrita 2>/dev/null

@@ -15,6 +15,21 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-24 20:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
+  * clean.sh
+  * samples/Readme.txt
+  * samples/demoall.hbp
+  * samples/demoall.prg
+  - samples/demolistboxsub.hbp
+  * samples/demolistboxsub.prg
+  * samples/makeallsam.sh
+    ! change to reusable, add to demoall on listbox and browse
+    !
+    ! TODO:
+    ! @  300, 100 BUTTON "Show Values" ID IDOK
+    ! Commented ID IDOK, on windows crashes with it
+    ! Is it needed for Linux/GTK/MacOs ?
+
 2025-04-24 17:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/demoall.prg
      ! this solves status panel on demoall dialog: WS_SYSMENU

@@ -126,7 +126,7 @@ PROCEDURE Main
       AT 0,0 ;
       SIZE 1024, 768 ;
       BACKCOLOR 16772062 ;
-      STYLE WS_SYSMENU // WS_MAXIMIZEBOX + WS_MINIMIZEBOX + WS_SYSMENU
+      STYLE WS_MAXIMIZEBOX + WS_MINIMIZEBOX + WS_SYSMENU
 
    MENU OF oDlg
       FOR nCont = 1 TO Len( aList ) // not sure about Xharbour for/each
@@ -247,6 +247,12 @@ PROCEDURE Main
 
    END PAGE OF oTab
 
+   BEGIN PAGE "listbox substitute" OF oTab
+
+      DemoListBoxSub( .F., oTab )
+
+   END PAGE OF oTab
+
    BEGIN PAGE "splitter" ;
       OF oTab
 
@@ -298,6 +304,13 @@ STATIC FUNCTION DemoAllTabBrowse()
 
    END PAGE OF oTab
 #endif
+
+   BEGIN PAGE "browse as listbox" ;
+      OF oTab
+
+      DemoListBoxSub( .F., oTab )
+
+   END PAGE OF oTab
 
    RETURN Nil
 
@@ -644,21 +657,22 @@ STATIC FUNCTION DemoOwner( lWithDialog, oDlg )
 FUNCTION LoadResourceDemo( cFileName )
 
 DO CASE
-CASE cFileName == "demo.ch";            #pragma __binarystreaminclude "demo.ch" | RETURN %s
-CASE cFileName == "demoall.prg";        #pragma __binarystreaminclude "demoall.prg" | RETURN %s
-CASE cFileName == "democheckbox.prg";   #pragma __binarystreaminclude "democheckbox.prg" | RETURN %s
-CASE cFileName == "demoaltdpicker.prg"; #pragma __binarystreaminclude "demoaltdpicker.prg" | RETURN %s
-CASE cFileName == "demobrowsedbf.prg";  #pragma __binarystreaminclude "demobrowsedbf.prg" | RETURN %s
-CASE cFileName == "demobrowseado.prg";  #pragma __binarystreaminclude "demobrowseado.prg" | RETURN %s
-CASE cFileName == "demodbfdata.prg";    #pragma __binarystreaminclude "demodbfdata.prg" | RETURN %s
-CASE cFileName == "demolistbox.prg";    #pragma __binarystreaminclude "demolistbox.prg" | RETURN %s
-CASE cFileName == "demomonthcal.prg";   #pragma __binarystreaminclude "demomonthcal.prg" | RETURN %s
-CASE cFileName == "demomenu.prg";       #pragma __binarystreaminclude "demomenu.prg" | RETURN %s
-CASE cFileName == "demomenuxml.prg";    #pragma __binarystreaminclude "demomenuxml.prg" | RETURN %s
-CASE cFileName == "demoshadebtn.prg";   #pragma __binarystreaminclude "demoshadebtn.prg" | RETURN %s
-CASE cFileName == "demotab.prg";        #pragma __binarystreaminclude "demotab.prg" | RETURN %s
-CASE cFileName == "demotreebox.prg";    #pragma __binarystreaminclude "demotreebox.prg" | RETURN %s
-CASE cFileName == "demoxmltree.prg";    #pragma __binarystreaminclude "demoxmltree.prg" | RETURN %s
+CASE cFileName == "demo.ch";             #pragma __binarystreaminclude "demo.ch" | RETURN %s
+CASE cFileName == "demoall.prg";         #pragma __binarystreaminclude "demoall.prg" | RETURN %s
+CASE cFileName == "democheckbox.prg";    #pragma __binarystreaminclude "democheckbox.prg" | RETURN %s
+CASE cFileName == "demoaltdpicker.prg";  #pragma __binarystreaminclude "demoaltdpicker.prg" | RETURN %s
+CASE cFileName == "demobrowsedbf.prg";   #pragma __binarystreaminclude "demobrowsedbf.prg" | RETURN %s
+CASE cFileName == "demobrowseado.prg";   #pragma __binarystreaminclude "demobrowseado.prg" | RETURN %s
+CASE cFileName == "demodbfdata.prg";     #pragma __binarystreaminclude "demodbfdata.prg" | RETURN %s
+CASE cFileName == "demolistbox.prg";     #pragma __binarystreaminclude "demolistbox.prg" | RETURN %s
+CASE cFileName == "demolistboxsub.prg";  #pragma __binarystreaminclude "demolistboxsub.prg" | RETURN %s
+CASE cFileName == "demomonthcal.prg";    #pragma __binarystreaminclude "demomonthcal.prg" | RETURN %s
+CASE cFileName == "demomenu.prg";        #pragma __binarystreaminclude "demomenu.prg" | RETURN %s
+CASE cFileName == "demomenuxml.prg";     #pragma __binarystreaminclude "demomenuxml.prg" | RETURN %s
+CASE cFileName == "demoshadebtn.prg";    #pragma __binarystreaminclude "demoshadebtn.prg" | RETURN %s
+CASE cFileName == "demotab.prg";         #pragma __binarystreaminclude "demotab.prg" | RETURN %s
+CASE cFileName == "demotreebox.prg";     #pragma __binarystreaminclude "demotreebox.prg" | RETURN %s
+CASE cFileName == "demoxmltree.prg";     #pragma __binarystreaminclude "demoxmltree.prg" | RETURN %s
 ENDCASE
 
 RETURN Nil

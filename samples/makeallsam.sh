@@ -28,7 +28,6 @@ hbmk2 buildpelles.hbp
 hbmk2 colrbloc.hbp
 hbmk2 dbview.hbp
 hbmk2 demodbf.hbp
-hbmk2 demolistboxsub.hbp
 hbmk2 Dialogboxes.hbp
 hbmk2 escrita.hbp
 hbmk2 fileselect.hbp

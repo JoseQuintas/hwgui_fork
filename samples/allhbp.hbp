@@ -52,7 +52,6 @@
 ../samples/testbrowsearr.hbp
 ../samples/demodbfdata.hbp
 ../samples/demogetupdown.hbp
-../samples/demolistboxsub.hbp
 #####../samples/demomonthcal.hbp ## old testhmonth.prg included on demoall.hbp and demotab.hbp
 ../samples/fileselect.hbp
 ../samples/GetWinVers.hbp

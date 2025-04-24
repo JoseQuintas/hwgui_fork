@@ -8,15 +8,16 @@
 -odemoall
 
 demoall.prg
+demoaltdpicker.prg
 demobrowsedbf.prg
 democheckbox.prg
 demodbfdata.prg
+demolistboxsub.prg
 demomenu.prg
 demomenuxml.prg
 demotab.prg
 demotreebox.prg
 demoxmltree.prg
-demoaltdpicker.prg
 
 {win}demobrowseado.prg
 {win}hbwin.hbc

@@ -236,6 +236,7 @@ For beginners:
    demodbfdata.prg                            Database to insert/delete/edit/navigate
    demoaltdpicker.prg Y                       Multiplatform substitute of Windows only DATEPICKER
    demolistbox.prg   S       S         Y      Demo for listbox
+   demolistboxsub.prg Y                Y      Multi platform substitute for listbox by BROWSE.
    demomenu.prg      Y                        Simple menu
    demomenuxml.prg   Y                        reading/writing XML file and handling menu items while run-time (testxml.xml)
    demomonthcal.prg  N                 Y      Calendar, Datepicker, TOOLTIP
@@ -252,7 +253,6 @@ For beginners:
  colrbloc.prg        Y                 Y      BROWSE: arrays and DBF's with colored lines and columns
  dbview.prg          Y       Y         Y      DBF access (Browse, Indexing, Codepages, Structure, ... )
  demodbf.prg         Y                 Y      Demo for Edit using command NOEXIT
- demolistboxsub.prg  Y                 Y      Multi platform substitute for listbox by BROWSE.
  Dialogboxes.prg     Y                        Demonstrates few ready to use dialog boxes (extract from tutor)
  escrita.prg   +)    Y       Y                Tool buttons with bitmaps ("Accent Test")
  fileselect.prg      Y                        Sample for file selection menues
