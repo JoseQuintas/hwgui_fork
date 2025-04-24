@@ -533,6 +533,20 @@
    you must select a suitable character set.<br>
    For details see sample program "samples/dbview.prg".<br>
    Works best on LINUX/GTK, if the default charset 0 ist passed.<br>
+   <br>
+   Define correct column length:<br>
+   If the columns are not wide enough, here some instruction for fixing:<br>
+   (.. appears)<br>
+   Browsing a database, the length of every column is delivered by the<br> 
+   structure data.<br>
+   For arrays, in the init of browse, the field length is got from the length of the<br>
+   header text. So trim the header text with PADR() to the desired length !<br>
+   Example:<br>
+     @ 10,20 BROWSE oBrw ARRAY SIZE ...<br>
+   hwg_CreateArList( oBrw, aSample )  &&  aSample : array with data<br> 
+   oBrw:aColumns[1]:heading := PADR("Name",45)<br>
+   oBrw:aColumns[2]:heading := PADR("Age",4)<br>
+   <br>
    </p>
 
    <br><strong class="subhead"><a name="hpanel" href="#_hpanel">

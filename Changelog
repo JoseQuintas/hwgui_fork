@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-24 09:20 UTC+0200 Wilfried Brunken DF7BE
+* doc/hwgdoc_classes.html
+* test/tickets/ticket203.prg
+* test/tickets/ticket204.prg
+  ! Bug tickets #203 and #204:
+  ! See comment in ticket204.prg
+  ! Docu for HBROWSE class updated
+
 2025-04-23 12:15 UTC -0300 JoseQuintas jmcquintas-gmail.com
   * clean.sh
   * samples/allhbp.hbp
