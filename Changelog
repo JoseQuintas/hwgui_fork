@@ -21,6 +21,7 @@
 * test/tickets/ticket204.prg
   ! Bug tickets #203 and #204:
   ! See comment in ticket204.prg
+  ! and posts to tickts.
   ! Docu for HBROWSE class updated
 
 2025-04-23 12:15 UTC -0300 JoseQuintas jmcquintas-gmail.com
