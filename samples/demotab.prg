@@ -26,7 +26,7 @@ FUNCTION DemoTab( lWithDialog, oDlg )
          BACKCOLOR 16772062
    ENDIF
 
-   // do not remove button
+// on demo.ch
    ButtonForSample( "demotab.prg", oDlg )
 
    @ 30, 60 TAB oTab ;
@@ -55,6 +55,7 @@ FUNCTION DemoTab( lWithDialog, oDlg )
 
    RETURN Nil
 
+// show buttons and source code
 #include "demo.ch"
 
 * ============================== EOF of demotab.prg ========================

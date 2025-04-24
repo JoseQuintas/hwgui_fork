@@ -32,6 +32,7 @@ FUNCTION DemoXmlTree()
       FONT oFont  ;
       ON INIT { || BuildTree( oTree, oXmlDoc:aItems, oSay ) }
 
+// on demo.ch
    ButtonForSample( "demoxmltree.prg", oDlg )
 
    @ 10, 70 TREE oTree ;
@@ -327,6 +328,7 @@ HB_FUNC( ICONV_CLOSE )
 
 #endif
 
+// show buttons and source code
 #include "demo.ch"
 
 * ======================================= EOF of demoxmltree.prg ===================================

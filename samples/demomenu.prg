@@ -39,6 +39,7 @@ FUNCTION DemoMenu( lWithDialog, oDlg )
 
    RETURN Nil
 
+// on demo.ch
 #include "demo.ch"
 
 * ============================== EOF of demomenu.prg =========================

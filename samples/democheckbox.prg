@@ -42,7 +42,7 @@ FUNCTION DemoCheckBox( lWithDialog, oDlg )
          STYLE WS_SYSMENU + WS_SIZEBOX + WS_VISIBLE
    ENDIF
 
-   // do not remove button
+// on demo.ch
    ButtonForSample( "democheckbox.prg", oDlg )
 
    @ 300, 70 BUTTON oButton7 ;
@@ -121,6 +121,7 @@ STATIC FUNCTION bool2onoff( lbool )
 
 RETURN "Off"
 
+// show buttons and source code
 #include "demo.ch"
 
 * ============================== EOF of checkbox.prg ========================

@@ -31,7 +31,7 @@ FUNCTION DemoShadeBtn( lWithDialog, oDlg )
          SYSCOLOR COLOR_3DLIGHT+1
    ENDIF
 
-   // do not remove button
+// on demo.ch
    ButtonForSample( "demoshadebtn.prg", oDlg )
 
    @ 10, 60 SHADEBUTTON ;
@@ -130,4 +130,5 @@ FUNCTION DemoShadeBtn( lWithDialog, oDlg )
 RETURN Nil
 #endif
 
+// show buttons and source code
 #include "demo.ch"

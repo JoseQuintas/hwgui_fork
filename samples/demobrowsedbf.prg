@@ -26,8 +26,8 @@ FUNCTION DemoBrowseDbf( lWithDialog, oDlg )
    USE tmpbrowsedbf SHARED ALIAS browsedbf
 
    aList := { ;
-      { "Name",   { || field->Name } }, ;
-      { "Adress", { || field->Address } } }
+      { "Name",   { || browsedbf->Name } }, ;
+      { "Adress", { || browsedbf->Address } } }
 
    IF lWithDialog
       INIT DIALOG oDlg ;
@@ -36,7 +36,7 @@ FUNCTION DemoBrowseDbf( lWithDialog, oDlg )
          SIZE 800, 600
    ENDIF
 
-   // do not remove button
+// on demo.ch
    ButtonForSample( "demobrowsedbf.prg", oDlg )
 
    @ 20, 80 BROWSE oBrowse ;
@@ -87,4 +87,5 @@ STATIC FUNCTION CreateDbf( cFileName )
 
    RETURN NIL
 
+// show buttons and source code
 #include "demo.ch"

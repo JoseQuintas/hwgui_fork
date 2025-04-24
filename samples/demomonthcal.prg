@@ -36,7 +36,7 @@ FUNCTION DemoMonthCal( lWithDialog, oDlg )
 
    PREPARE FONT oFontMonthCal1 NAME "Arial" WIDTH 0 HEIGHT -12
 
-   // do not remove button
+// on demo.ch
    ButtonForSample( "demomonthcal.prg", oDlg )
 
    // On Win11 event on change occurs at any time
@@ -79,6 +79,7 @@ FUNCTION DemoMonthCal( lWithDialog, oDlg )
 RETURN Nil
 #endif
 
+// show buttons and source code
 #include "demo.ch"
 
 * ======================== EOF of demmonthcal.prg ========================

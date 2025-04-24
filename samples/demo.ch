@@ -1,7 +1,7 @@
 /*
   $Id: demo.ch
 
-  Created to do not duplicate source code on all samples
+  include buttons on sample to run and show source code
 */
 
 STATIC FUNCTION ButtonForSample( cFileName, oDlg )

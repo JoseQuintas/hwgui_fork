@@ -332,13 +332,6 @@ PROCEDURE Main
          ITEMS {} ;
          SIZE  650, 450
 
-      BEGIN PAGE "dateselect" ;
-         OF oTab[ TAB_DATE ]
-
-         DemoDateSelect( .F., oTab[ TAB_DATE ] )
-
-      END PAGE OF oTab[ TAB_DATE ]
-
 #ifdef __PLATFORM__WINDOWS
 
       BEGIN PAGE "monthcal" ;
@@ -348,6 +341,13 @@ PROCEDURE Main
 
       END PAGE OF oTab[ TAB_DATE ]
 #endif
+
+      BEGIN PAGE "dateselect" ;
+         OF oTab[ TAB_DATE ]
+
+         DemoDateSelect( .F., oTab[ TAB_DATE ] )
+
+      END PAGE OF oTab[ TAB_DATE ]
 
    END PAGE OF oTab[ TAB_MAIN ]
 

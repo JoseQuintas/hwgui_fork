@@ -15,7 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2025-04-24 05:00 YTC-0300 Jose Quintas jmcquintas-gmail.com
+2025-04-24 06:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
+  * samples/demo*.prg
+  * samples/demo.ch
+    ! note on source code about ButtonForSample() and demo.ch
+  * samples/demodatadbf.prg
+    ! fix name including ".prg"
+
+2025-04-24 05:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
    - samples/demodbfdata.hbp
    - samples/demolistbox.hbp
    - samples/demoshadebtn.hbp

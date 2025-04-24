@@ -45,7 +45,7 @@ FUNCTION DemoBrowseADO( lWithDialog, oDlg )
          SIZE 800,600
    ENDIF
 
-   // do not remove button
+// on demo.ch
    ButtonForSample( "demobrowseado.prg", oDlg )
 
    @ 20, 80 BROWSE ;
@@ -146,6 +146,7 @@ FUNCTION RecordsetADO()
 RETURN cnSQL
 #endif
 
+// show buttons and source code
 #include "demo.ch"
 
 * ==================== EOF of demobrowseado.prg =======================

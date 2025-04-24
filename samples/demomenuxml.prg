@@ -107,6 +107,7 @@ FUNCTION DemoMenuXml()
       ENDMENU
    ENDMENU
 
+// on demo.ch
    ButtonForSample( "demomenuxml.prg", oDlg )
 
    ACTIVATE DIALOG oDlg CENTER
@@ -309,6 +310,7 @@ STATIC FUNCTION p_about()
 
 RETURN Nil
 
+// show buttons and source code
 #include "demo.ch"
 
 * ==================== EOF of demomenuxml.prg ======================

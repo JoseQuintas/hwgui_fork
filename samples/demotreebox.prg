@@ -23,7 +23,7 @@ FUNCTION DemoTreebox( lWithDialog, oDlg )
          FONT oFont
    ENDIF
 
-   // do not remove button
+// on demo.ch
    ButtonForSample( "demotreebox.prg", oDlg )
 
    @ 10, 60 TREE oTree ;
@@ -103,4 +103,5 @@ STATIC FUNCTION NodeOut( n, oTab )
 
 RETURN Nil
 
+// show buttons and source code
 #include "demo.ch"

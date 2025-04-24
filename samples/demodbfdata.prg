@@ -68,7 +68,8 @@ FUNCTION DemoDbfData( lWithDialog, oDlg )
          Font oFontBtn
    ENDIF
 
-   ButtonForSample( "demodbfdata" )
+// on demo.ch
+   ButtonForSample( "demodbfdata.prg" )
 
    OpenDbf()
 
@@ -381,4 +382,5 @@ FUNCTION ControlDisable( ... )
 
    RETURN Nil
 
+// show buttons and source code
 #include "demo.ch"
