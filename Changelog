@@ -15,6 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-24 17:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demoall.prg
+     ! this solves status panel on demoall dialog: WS_SYSMENU
+     ! But change to WS_MAXIMIZEBOX + WS_MINIMIZEBOX + WS_SYSMENU
+
 2025-04-24 15:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
   * clean.sh
   * samples/demo.ch

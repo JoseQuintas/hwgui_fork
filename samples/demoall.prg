@@ -125,7 +125,8 @@ PROCEDURE Main
       TITLE "demoall.prg - Show Samples on screen, and others on menu" ;
       AT 0,0 ;
       SIZE 1024, 768 ;
-      BACKCOLOR 16772062
+      BACKCOLOR 16772062 ;
+      STYLE WS_SYSMENU // WS_MAXIMIZEBOX + WS_MINIMIZEBOX + WS_SYSMENU
 
    MENU OF oDlg
       FOR nCont = 1 TO Len( aList ) // not sure about Xharbour for/each
@@ -160,8 +161,12 @@ PROCEDURE Main
       IF lCloseMenu // close menu if not closed before
          ENDMENU
       ENDIF
-      MENU TITLE "Other"
+      MENU TITLE "Tests/Exit"
          MENUITEM "For tests check PRG/HBP/EXE" ACTION { || CheckPrgHbpExe() }
+         MENUITEM "Display current DLG Size" ACTION { || ;
+            hwg_MsgInfo( "Width: " + Ltrim( Str( oDlg:nWidth ) ) + " - " + ;
+               "Height:" + Ltrim( Str( oDlg:nHeight ) ) ) }
+         MENUITEM "Refresh Dilaog" ACTION { || oDlg:refresh() }
          MENUITEM "&Exit" ACTION hwg_EndWindow()
       ENDMENU
    ENDMENU
@@ -170,7 +175,7 @@ PROCEDURE Main
 
    @ 30, 60 TAB oTab ;
       ITEMS {} ;
-      SIZE  700, 480
+      SIZE  950, 600
 
    BEGIN PAGE "sample" ;
       OF oTab
