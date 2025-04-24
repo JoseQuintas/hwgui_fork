@@ -10,13 +10,17 @@
 demoall.prg
 demobrowsedbf.prg
 democheckbox.prg
+demodbfdata.prg
 demomenu.prg
 demomenuxml.prg
 demotab.prg
 demotreebox.prg
+demoxmltree.prg
 
 {win}demobrowseado.prg
 {win}hbwin.hbc
 {win}demomonthcal.prg
+{win}demoshadebtn.prg
+{win}demolistbox.prg
 
 # =============================== EOF of demoall.hbp ==============================

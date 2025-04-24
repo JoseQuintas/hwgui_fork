@@ -29,7 +29,6 @@ hbmk2 colrbloc.hbp
 hbmk2 demodatepicker.hbp
 hbmk2 dbview.hbp
 hbmk2 demodbf.hbp
-hbmk2 demolistbox.hbp
 hbmk2 demolistboxsub.hbp
 hbmk2 Dialogboxes.hbp
 hbmk2 escrita.hbp
@@ -61,7 +60,6 @@ hbmk2 propsh.hbp
 hbmk2 pseudocm.hbp
 hbmk2 qrencode.hbp
 hbmk2 qrencodedll.hbp
-hbmk2 demoshadebtn.hbp
 hbmk2 simpleedit.hbp
 hbmk2 stretch.hbp
 hbmk2 tab.hbp
@@ -77,11 +75,9 @@ hbmk2 testimage.hbp
 hbmk2 demoini.hbp
 hbmk2 testmenubitmap.hbp
 hbmk2 testrtf.hbp
-hbmk2 demotreebox.hbp
 hbmk2 testspli.hbp
 hbmk2 testtray.hbp
 hbmk2 testtree.hbp
-hbmk2 demomenuxml.hbp
 hbmk2 demoonother.hbp
 hbmk2 trackbar.hbp
 hbmk2 tstscrlbar.hbp
@@ -90,6 +86,5 @@ hbmk2 tststconsapp.hbp
 hbmk2 TwoListbox.hbp
 hbmk2 TwoLstSub.hbp
 hbmk2 winprn.hbp
-hbmk2 demoxmltree.hbp
 
 # ================= EOF of makeallsam.sh ==================

@@ -230,11 +230,18 @@ For beginners:
  a.prg   +) 9)       R       N    CN          Some HWGUI basics (Open DBF's, GET's, ...)
 
  demoall.prg         ?                        group samples
-   demotab.prg       ?       ?    ?           Tab, owner button, combobox, dateselect, status panel
-   demobrowsedbf.prg ?       ?    ?           browse dbf
+   demobrowsedbf.prg Y       ?    ?           browse dbf
    demobrowseado.prg N       N                ADO Browse (TNX Itamar M. Lins Jr.). For multi platform use BROWSE.
    democheckbox.prg  Y                        Checkboxes and tabs
-   demomonthcal.prg  ?                 Y      Calendar, Datepicker, TOOLTIP
+   demodbfdata.prg                            Database to insert/delete/edit/navigate
+   demolistbox.prg   S       S         Y      Demo for listbox
+   demomenu.prg      Y                        Simple menu
+   demomenuxml.prg   Y                        reading/writing XML file and handling menu items while run-time (testxml.xml)
+   demomonthcal.prg  N                 Y      Calendar, Datepicker, TOOLTIP
+   demoshadebtn.prg  N       N                Shade buttons (for multi platform usage take OWNERBUTTON)
+   demotab.prg       Y       ?    ?           Tab, owner button, combobox, dateselect, status panel
+   demotreebox.prg   Y                        Tree control, Splitter, Tab
+   demoxmltree.prg   Y                 YW     Show XML-Tree: Open "testxml.xml" for test.
 
  testbrowsearray.prg Y                        Array BROWSE avoiding crashes because of bugs (see inline comments)
  bindbf.prg 10)      Y                        Usage of images from Binary DBF container
@@ -245,7 +252,6 @@ For beginners:
  demodatepicker.prg  Y                        Multiplatform substitute of Windows only DATEPICKER
  dbview.prg          Y       Y         Y      DBF access (Browse, Indexing, Codepages, Structure, ... )
  demodbf.prg         Y                 Y      Demo for Edit using command NOEXIT
- demolistbox.prg     S       S         Y      Demo for listbox
  demolistboxsub.prg  Y                 Y      Multi platform substitute for listbox by BROWSE.
  Dialogboxes.prg     Y                        Demonstrates few ready to use dialog boxes (extract from tutor)
  escrita.prg   +)    Y       Y                Tool buttons with bitmaps ("Accent Test")
@@ -277,7 +283,6 @@ For beginners:
  pseudocm.prg        Y                        Pseudo context menu
  qrencode.prg 1) 2)  Y                        Encode QR code from string an convert to monochrome bitmap.
  qrencodedll.prg 1)  N       N                Encode QR code like qrencode.prg by using a DLL (for multi platform usage see contrib/qrencode)
- demoshadebtn.prg    N       N                Shade buttons (for multi platform usage take OWNERBUTTON)
  simpleedit.prg      Y                        Simple text editor demonstrating hwg_Memoedit()
  stretch.prg         Y  #                     Sample for resizing bitmaps (background), some bugs (as test program)
  tab.prg             Y  #              -      Sample for Tabs
@@ -292,12 +297,10 @@ For beginners:
  demoini.prg         P                        Use INI file: create and read
  testmenubitmap.prg  P                        Menu with bitmaps
  testrtf.prg  1)     Y  #    N          -      Create Rich text files. Need some work, the created RTFs are not compatible with newest specifications. (TO-DO for Alexander Kresin)
- demotreebox.prg     Y                        Tree control, Splitter, Tab
  teststrrev.prg      Y                        Function hwg_strrev() reverses a string for UTF-8 and handle Euro currency sign with GET
  testspli.prg        Y                        Split windows
  testtray.prg        Y                 Y      Tray Message : Be care of different behavior between WinAPI and GTK
  testtree.prg        Y                        Tree view control
- demomenuxml.prg     Y                        reading/writing XML file and handling menu items while run-time (testxml.xml)
  trackbar.prg        P                        Trackbar demo, horizontal und vertical.
  tstprdos.prg 3)     N       N                Print on LPT, outdated, see 3)
  tstscrlbar.prg      P                        Scrollbar (GTK: Compilable, but no scroll function, more info in comment lines)
@@ -306,7 +309,6 @@ For beginners:
  TwoListbox.prg      S       S                Sample for select and move items between two listboxes.
  TwoLstSub.prg       Y                        Multi platform substitute for two listboxes by BROWSE windows.
  winprn.prg  3) 8)   Y            Y    Y      Printing via Windows GDI Interface (same sample in gtk_samples)
- demoxmltree.prg     Y                 YW     Show XML-Tree: Open "testxml.xml" for test.
 
 moved to test/samples/
  iesample.prg 2) 5)  N       N                Sample of ActiveX container for the IE browser object.

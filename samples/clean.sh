@@ -23,8 +23,6 @@ rm buildpelles 2> /dev/null
 rm colrbloc 2> /dev/null
 rm demodatepicker 2> /dev/null
 rm dbview 2> /dev/null
-rm demodbfdata 2> /dev/null
-rm demolistbox 2> /dev/null
 rm demohlistsub 2> /dev/null
 rm Dialogboxes 2> /dev/null
 rm escrita 2> /dev/null
@@ -56,7 +54,6 @@ rm propsh 2> /dev/null
 rm pseudocm 2> /dev/null
 rm qrencode 2> /dev/null
 rm qrencodedll 2> /dev/null
-rm demoshadebtn 2> /dev/null
 rm simpleedit 2> /dev/null
 rm stretch 2> /dev/null
 rm tab 2> /dev/null
@@ -73,7 +70,6 @@ rm testimage 2> /dev/null
 rm demoini 2> /dev/null
 rm testmenubitmap 2> /dev/null
 rm testrtf 2> /dev/null
-rm demotreebox 2> /dev/null
 rm testspli 2> /dev/null
 rm testtray 2> /dev/null
 rm testtree 2> /dev/null
@@ -85,7 +81,6 @@ rm tststconsapp 2> /dev/null
 rm TwoListbox 2> /dev/null
 rm TwoLstSub 2> /dev/null
 rm winprn 2> /dev/null
-rm demoxmltree 2> /dev/null
 
 # Reserved for temporary files and databases
 # created by a sample program.

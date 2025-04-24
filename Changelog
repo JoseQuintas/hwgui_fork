@@ -15,6 +15,34 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-24 05:00 YTC-0300 Jose Quintas jmcquintas-gmail.com
+   - samples/demodbfdata.hbp
+   - samples/demolistbox.hbp
+   - samples/demoshadebtn.hbp
+   - samples/demotreebox.hbp
+   - samples/demoxmltree.hbp
+     ! removed hbp
+   * samples/testbmpcr.prg
+   * samples/tstprdos.prg
+   * samples/winprn.prg
+     ! #pragma -w0 on source code
+   * samples/Readme.txt
+   * samples/allhbp.hbp
+   * samples/clean.sh
+   * samples/demoall.hbp
+   * samples/demoall.prg
+   * samples/demobrowsedbf.prg
+   * samples/demodbfdata.prg
+   * samples/demolistbox.prg
+   * samples/demoshadebtn.prg
+   * samples/demotreebox.prg
+   * samples/demoxmltree.prg
+   * samples/hbmk.hbm
+   * samples/makeallsam.ch
+     ! more samples reusable
+     ! on demodbfdata adjust to work on tab together with anothers
+     ! {win}hbwin.hbc on hbmk.hbm
+
 2025-04-24 09:20 UTC+0200 Wilfried Brunken DF7BE
 * doc/hwgdoc_classes.html
 * test/tickets/ticket203.prg

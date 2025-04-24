@@ -1,3 +1,5 @@
+#pragma -w0
+
 /*
  * HWGUI using sample
  *

@@ -2,9 +2,9 @@
 
 MEMVAR oFont , cImageDir , cDirSep , cBitmap1, cbitmap2 , cppath
 
-FUNCTION Main()
+FUNCTION DemoXmlTree()
 
-   LOCAL oMainWindow
+   LOCAL oDlg, oTree, oXmlDoc, fname, oSplit, oSay
 
    PRIVATE oFont     := HFont():Add( "MS Sans Serif",0,-13 )
    PRIVATE cppath    := ".."
@@ -16,27 +16,6 @@ FUNCTION Main()
    CHECK_FILE( cBitmap1 )
    CHECK_FILE( cbitmap2 )
 
-   INIT WINDOW oMainWindow ;
-      MAIN TITLE "DEMOXMLTREE - Show XML using Treebox" ;
-      AT 200,0 ;
-      SIZE 400,150
-
-   MENU OF oMainWindow
-      MENUITEM "&Exit" ACTION hwg_EndWindow()
-      MENUITEM "&Open" ACTION DlgGet()
-   ENDMENU
-
-   ACTIVATE WINDOW oMainWindow CENTER
-
-RETURN Nil
-
-STATIC FUNCTION DlgGet()
-
-   LOCAL oDlg
-   LOCAL oTree, oXmlDoc
-   LOCAL fname
-   LOCAL oSplit, oSay
-
    fname := hwg_Selectfile( "XML files( *.xml )", "*.xml" )
 
    IF Empty( fname )
@@ -47,40 +26,42 @@ STATIC FUNCTION DlgGet()
    ENDIF
 
    INIT DIALOG oDlg ;
-      TITLE CutPath( fname )    ;
+      TITLE "demoxmltree.prg - " + cutPath( fname ) ;
       AT 210,10  ;
-      SIZE 430,300                  ;
-      FONT oFont                               ;
+      SIZE 430,300 ;
+      FONT oFont  ;
       ON INIT { || BuildTree( oTree, oXmlDoc:aItems, oSay ) }
 
-   @ 10,10 TREE oTree ;
+   ButtonForSample( "demoxmltree.prg", oDlg )
+
+   @ 10, 70 TREE oTree ;
       OF oDlg ;
       SIZE 200,280 ;
       EDITABLE ;
       BITMAP { cBitmap1, cbitmap2 } ;
       ON SIZE {|o,x,y| (x), o:Move(,,,y-20)}
 
-   @ 214,10 SAY oSay ;
+   @ 214, 70 SAY oSay ;
       CAPTION "" ;
       SIZE 206,280 ;
       STYLE WS_BORDER ;
       ON SIZE {|o,x,y|o:Move(,,x-oSplit:nLeft-oSplit:nWidth-10,y-20)}
 
-   @ 214,10 EDITBOX oSay ;
+   @ 214, 70 EDITBOX oSay ;
       CAPTION "" ;
       SIZE 206,280 ;
       STYLE WS_VSCROLL+WS_HSCROLL+ES_MULTILINE+ES_READONLY ;
       ON SIZE {|o,x,y|o:Move(,,x-oSplit:nLeft-oSplit:nWidth-10,y-20)} ;
       ON GETFOCUS {||hwg_Sendmessage(oSay:handle,EM_SETSEL,0,0)}
 
-   @ 210,10 SPLITTER oSplit ;
+   @ 210, 70 SPLITTER oSplit ;
       SIZE 4,260 ;
       DIVIDE {oTree} FROM {oSay} ;
       ON SIZE {|o,x,y| (x), o:Move(,,,y-20)}
 
    oSplit:bEndDrag := {||hwg_Redrawwindow( oSay:handle,RDW_ERASE+RDW_INVALIDATE+RDW_INTERNALPAINT+RDW_UPDATENOW)}
 
-   ACTIVATE DIALOG oDlg NOMODAL
+   ACTIVATE DIALOG oDlg
 
 RETURN Nil
 
@@ -345,5 +326,7 @@ HB_FUNC( ICONV_CLOSE )
 
 
 #endif
+
+#include "demo.ch"
 
 * ======================================= EOF of demoxmltree.prg ===================================

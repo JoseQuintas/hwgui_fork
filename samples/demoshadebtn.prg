@@ -6,66 +6,76 @@
 
 #include "hwgui.ch"
 
-#ifdef __USING_MENU__
+#ifndef __PLATFORM__WINDOWS
    FUNCTION DemoShadeBtn()
-#else
-   FUNCTION Main()
-#endif
 
-   LOCAL oMainWindow, oFont
+      hwg_MsgInfo( "Available on Windows only" )
+
+      RETURN Nil
+#else
+FUNCTION DemoShadeBtn( lWithDialog, oDlg )
+
+   LOCAL oFont
    LOCAL oIco1 := HIcon():AddFile("..\image\ok.ico")
    LOCAL oIco2 := HIcon():AddFile("..\image\cancel.ico")
 
+   hb_Default( @lWithDialog, .T. )
+
    PREPARE FONT oFont NAME "Times New Roman" WIDTH 0 HEIGHT 20 WEIGHT 400
 
-   INIT WINDOW oMainWindow ;
-      TITLE "DEMOSHADEBTN - Shade Buttons" ;
-      AT 200,0 ;
-      SIZE 480,220 ;
-      SYSCOLOR COLOR_3DLIGHT+1
+   IF lWithDialog
+      INIT WINDOW oDlg ;
+         TITLE "DEMOSHADEBTN - Shade Buttons" ;
+         AT 200,0 ;
+         SIZE 600, 400 ;
+         SYSCOLOR COLOR_3DLIGHT+1
+   ENDIF
 
-   @ 10,10 SHADEBUTTON ;
+   // do not remove button
+   ButtonForSample( "demoshadebtn.prg", oDlg )
+
+   @ 10, 60 SHADEBUTTON ;
       SIZE 100,36 ;
       TEXT "Metal" ;
       FONT oFont ;
       EFFECT SHS_METAL PALETTE PAL_METAL
 
-   @ 10,50 SHADEBUTTON ;
+   @ 10, 100 SHADEBUTTON ;
       SIZE 100,36 ;
       TEXT "Softbump" ;
       FONT oFont ;
       EFFECT SHS_SOFTBUMP PALETTE PAL_METAL
 
-   @ 10,90 SHADEBUTTON ;
+   @ 10, 140 SHADEBUTTON ;
       SIZE 100,36 ;
       TEXT "Noise" ;
       FONT oFont ;
       EFFECT SHS_NOISE  PALETTE PAL_METAL GRANULARITY 33
 
-   @ 10,130 SHADEBUTTON ;
+   @ 10, 180 SHADEBUTTON ;
       SIZE 100,36 ;
       TEXT "Hardbump" ;
       FONT oFont ;
       EFFECT SHS_HARDBUMP PALETTE PAL_METAL
 
-   @ 120,10 SHADEBUTTON ;
+   @ 120, 60 SHADEBUTTON ;
       SIZE 100,36 ;
       TEXT "HShade" ;
       FONT oFont ;
       EFFECT SHS_HSHADE PALETTE PAL_METAL
 
-   @ 120,50 SHADEBUTTON ;
+   @ 120, 100 SHADEBUTTON ;
       SIZE 100,36 ;
       TEXT "VShade" ;
       FONT oFont EFFECT SHS_VSHADE PALETTE PAL_METAL
 
-   @ 120,90 SHADEBUTTON ;
+   @ 120, 140 SHADEBUTTON ;
       SIZE 100,36 ;
       TEXT "DiagShade" ;
       FONT oFont ;
       EFFECT SHS_DIAGSHADE  PALETTE PAL_METAL
 
-   @ 120,130 SHADEBUTTON ;
+   @ 120, 180 SHADEBUTTON ;
       SIZE 100,36 ;
       TEXT "HBump" ;
       FONT oFont ;
@@ -73,7 +83,7 @@
 
    // @ 128,0 GROUPBOX "" SIZE 94,75
 
-   @ 230,10 SHADEBUTTON ;
+   @ 230, 60 SHADEBUTTON ;
       SIZE 100,40 ;
       FLAT ;
       BITMAP oIco1 COORDINATES 2,0,0,0 ;
@@ -82,18 +92,18 @@
       FONT oFont COORDINATES 56,0 ;
       EFFECT SHS_VSHADE  PALETTE PAL_METAL HIGHLIGHT 12
 
-   @ 230,50 SHADEBUTTON ;
+   @ 230, 100 SHADEBUTTON ;
       SIZE 100,40 ;
       FLAT ;
       BITMAP oIco2 COORDINATES 2,0,0,0 ;
       EFFECT SHS_VSHADE  PALETTE PAL_METAL HIGHLIGHT 12
 
-   @ 230,90 SHADEBUTTON ;
+   @ 230, 140 SHADEBUTTON ;
       SIZE 100,40 ;
       FLAT ;
       EFFECT SHS_VSHADE  PALETTE PAL_METAL HIGHLIGHT 12
 
-   @ 230,130 SHADEBUTTON ;
+   @ 230, 180 SHADEBUTTON ;
       SIZE 100,40 ;
       FLAT ;
       TEXT "Flat" ;
@@ -101,19 +111,23 @@
       FONT oFont ;
       EFFECT SHS_VSHADE  PALETTE PAL_METAL HIGHLIGHT 12
 
-   @ 340,10 SHADEBUTTON ;
+   @ 340, 60 SHADEBUTTON ;
       SIZE 100,36 ;
       EFFECT SHS_METAL  PALETTE PAL_METAL GRANULARITY 33 ;
       HIGHLIGHT 20 ;
       TEXT "Close" ;
       FONT oFont ;
-      ON CLICK {||oMainWindow:Close()}
+      ON CLICK {||oDlg:Close()}
 
-   @ 340,50 SHADEBUTTON ;
+   @ 340, 100 SHADEBUTTON ;
       SIZE 100,36 ;
       EFFECT SHS_SOFTBUMP  PALETTE PAL_METAL GRANULARITY 33 HIGHLIGHT 20
 
-   ACTIVATE WINDOW oMainWindow CENTER
+   IF lWithDialog
+      ACTIVATE WINDOW oDlg CENTER
+   ENDIF
 
 RETURN Nil
+#endif
 
+#include "demo.ch"

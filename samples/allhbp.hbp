@@ -53,11 +53,8 @@
 ../samples/demodatepicker.hbp ##- old demodatepicker
 ../samples/demodbfdata.hbp
 ../samples/demogetupdown.hbp
-../samples/demolistbox.hbp ## old tstcombo.prg
 ../samples/demolistboxsub.hbp
 #####../samples/demomonthcal.hbp ## old testhmonth.prg included on demoall.hbp and demotab.hbp
-../samples/demotreebox.hbp ## old testsdi.prg
-../samples/demoxmltree.hbp
 ../samples/fileselect.hbp
 ../samples/GetWinVers.hbp
 ../samples/graph.hbp
@@ -85,9 +82,7 @@
 #
 ../samples/a.hbp
 ../samples/buildpelles.hbp
-../samples/demoshadebtn.hbp ## old dlgshade.prg
 ../samples/demoonother.hbp ## old test_bot.prg
-####../samples/demolistbox.hbp ## old demohlist.prg
 ../samples/grid_1.hbp
 ../samples/grid_4.hbp
 ../samples/grid_5.hbp

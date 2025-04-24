@@ -1,55 +1,42 @@
 #include "hwgui.ch"
-// #include "listbox.ch"
 
-FUNCTION Main()
+FUNCTION DemoListbox( lWithDialog, oDlg )
 
-   LOCAL oMainWindow
+   LOCAL oFont := HFont():Add( "MS Sans Serif",0,-13 )
+   LOCAL oListbox, aList := { "Item01", "Item02", "Item03", "Item04" }
 
-   INIT WINDOW oMainWindow ;
-      MAIN ;
-      TITLE "DEMOLISTBOX - Example Listbox" ;
-      AT 0,0 ;
-      SIZE 600, 400
+   hb_Default( @lWithDialog, .T. )
 
-   MENU OF oMainWindow
-      MENUITEM "&Exit" ACTION oMainWindow:Close()
-      MENUITEM "&Teste" ACTION Teste()
-   ENDMENU
+   IF lWithDialog
+      INIT DIALOG oDlg ;
+         TITLE "demolistbox.prg - listbox sample"  ;
+         AT 0,0  ;
+         SIZE 450,350   ;
+         FONT oFont
+   ENDIF
 
-   ACTIVATE WINDOW oMainWindow CENTER
+   ButtonForSample( "demolistbox.prg", oDlg )
 
-RETURN Nil
-
-FUNCTION Teste()
-
-   LOCAL oModDlg, oFont := HFont():Add( "MS Sans Serif",0,-13 )
-   LOCAL oList, oItems:={"Item01","Item02","Item03","Item04"}
-
-   INIT DIALOG oModDlg ;
-      TITLE "Test"  ;
-      AT 0,0  ;
-      SIZE 450,350   ;
-      FONT oFont
-
-   @ 10,40 LISTBOX oList ;
-      ITEMS oItems ;
-      OF oModDlg                  ;
+   @ 10, 100 LISTBOX oListbox ;
+      ITEMS aList ;
+      OF oDlg  ;
       INIT 1 ;
-      SIZE 210, 220            ;
-      ON INIT {||hwg_Msginfo("Teste")} ;
+      SIZE 210, 220 ;
+      ; //ON INIT { || hwg_Msginfo( "Teste" ) } ;
       TOOLTIP "Test ListBox"
 
-   @  10,280 BUTTON "Ok" ;
+#ifndef __PLATFORM__WINDOWS
+   @  300, 100 BUTTON "Show Value" ;
       ID IDOK  ;
-      SIZE 50, 32
+      SIZE 100, 32 ;
+      ON CLICK { || hwg_msgInfo( Str( oListbox:value ), "Result of Listbox selection" ) }
+#endif
 
-   ACTIVATE DIALOG oModDlg CENTER
-   oFont:Release()
-
-   // show result
-   hwg_msgInfo( Str( oList:value ), "Result of Listbox selection" )
-
-   IF oModDlg:lResult
+   IF lWithDialog
+      ACTIVATE DIALOG oDlg CENTER
+      oFont:Release()
    ENDIF
 
 RETURN Nil
+
+#include "demo.ch"

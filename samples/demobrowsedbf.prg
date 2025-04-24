@@ -20,12 +20,10 @@ FUNCTION DemoBrowseDbf( lWithDialog, oDlg )
 
    hb_Default( @lWithDialog, .T. )
 
-   IF Select( "test" ) != 0
-      SELECT test
-      USE
-   ENDIF
-   CreateDBF( "test" )
-   USE test SHARED
+   SELECT ( Select( "browsedbf" ) )
+   USE
+   CreateDBF( "tmpbrowsedbf" )
+   USE tmpbrowsedbf SHARED ALIAS browsedbf
 
    aList := { ;
       { "Name",   { || field->Name } }, ;

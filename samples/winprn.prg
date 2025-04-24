@@ -1,3 +1,5 @@
+#pragma -w1
+
 /*
  * HWinPrn using sample
  *

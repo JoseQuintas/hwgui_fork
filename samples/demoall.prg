@@ -7,9 +7,19 @@ This seems to be a bug in Harbour:
 all.prg(182) Warning W0032  Variable 'CBINHBMK' is assigned but not used in function 'EXECUTEEXE(159)'
 
 possible bug on windows 11:
-status panel is not full on dialog first display, need to be up
-Ok if use mouse and change dialog height
-insert a dialog move on init ?
+status panel is not full on dialog first display, if remove ACTIVATE DIALOG CENTER ok
+
+How to reutilize samples:
+
+1) Change sample to receive 2 parameters lWithDialog and oDLG
+2) If send lWithDialog=.F. sample do not create dialog, use dialog from parameter
+3) Add on sample ButtonForSample( "name", oDlg ) to show buttons
+4) Add on sample at the end #include "demo.ch"
+
+Depending on sample, it can be used on a dialog or tab page (send oTab and not oDlg)
+if not, add a button call to it.
+It is all
+
 */
 
 #ifdef __LINUX__
@@ -25,26 +35,26 @@ insert a dialog move on init ?
 #include "hwgui.ch"
 #include "directry.ch"
 
-#define TAB_MAIN   1
-#define TAB_BROWSE 2
-#define TAB_BUTTON 3
-#define TAB_MENU   4
-#define TAB_DATE   5
+#define TAB_MAIN     1
+#define TAB_BROWSE   2
+#define TAB_BUTTON   3
+#define TAB_MENU     4
+#define TAB_DATE     5
+#define TAB_TREEBOX  6
+#define TAB_SPLITTER 7
 
 PROCEDURE Main
 
    LOCAL oDlg, aItem, nIndex := 1, lCloseMenu := .F., nCont
    LOCAL lIsAvailable, lIsEXE
-   LOCAL oTab := Array(5)
+   LOCAL oTab := Array(7)
    LOCAL aList := { ;
        ; // NAME,                  WIN, LINUX, MACOS, DESCRIPTION
        { "a.prg",                  .T., .F., .F., "MDI, Tab, checkbox, combobox, browse array, others" }, ;
        ;
        { "",                       .T., .F., .F., "" }, ;
        ;
-       { "demodbfdata.prg",        .T., .T., .T., "DBF data using tab" }, ;
        { "demoini.prg",            .T., .F., .F., "Read/write Ini" }, ;
-       { "demoxmltree.prg",        .T., .T., .T., "Show XML using hxmldoc and tree" }, ;
        { "hello.prg",              .T., .F., .F., "RichEdit, Tab, Combobox" }, ;
        { "tab.prg",                .T., .F., .F., "Tab, checkbox, editbox, combobox, browse array" }, ;
        ;
@@ -54,14 +64,12 @@ PROCEDURE Main
        { "testbrowsearr.prg",      .T., .T., .T., "browse array editable" }, ;
        { "democombobox.prg",       .T., .T., .T., "Combobox" }, ;
        { "demodatepicker.prg",     .T., .T., .T., "Date Picker" }, ;
-       { "demolistbox.prg",        .T., .F., .F., "Listbox" }, ;
        { "demolistboxsub.prg",     .T., .T., .T., "Listbox Substitute" }, ;
        { "demoonother.prg",        .T., .F., .F., "ON OTHER MESSAGES" }, ;
        ;
        { "",                       .F., .F., .F., "" }, ;
        ;
        ; // not recommended. Move to contrib ?
-       { "demoshadebtn.prg",        .T., .F., .F., "Shade button" }, ;
        ;
        { "",                       .F., .F., .F., "" }, ;
        { "",                       .F., .F., .F., "" }, ;
@@ -112,14 +120,18 @@ PROCEDURE Main
        ; // { "demomonthcal",           .T., .T., .T., "Month Calendar" }, ;
        ; // { "demobrowseado",          .T., .F., .F., "Browse using ADO" }, ;
        ; // { "democheckbox",           .T., .T., .T., "Checkbox and tab" }, ;
+       ; // { "demodbfdata.prg",        .T., .T., .T., "DBF data using tab" }, ;
+       ; // { "demolistbox.prg",        .T., .F., .F., "Listbox" }, ;
        ; // { "demomenu",               .T., .T., .T., "Simple menu" }, ;
        ; // { "demomenuxml",            .T., .T., .T., "Setup menu from XML ***error on new item***" }, ;
        ; // { "demotreebox",            .T., .T., .T., "Treebox, Splitter and tab" }, ;
+       ; // { "demoshadebtn",           .T., .F., .F., "Shade button" }, ;
+       ; // { "demoxmltree.prg",        .T., .T., .T., "Show XML using hxmldoc and tree" }, ;
        { "",                       .F., .F., .F., "" }, ;
        { "notexist",               .F., .F., .F., "Test for menu, about not available" } }
 
    INIT DIALOG oDlg ;
-      TITLE "demoall.prg - Group Show Samples on screen, and others on menu" ;
+      TITLE "demoall.prg - Show Samples on screen, and others on menu" ;
       AT 0,0 ;
       SIZE 1024, 768 ;
       BACKCOLOR 16772062
@@ -167,6 +179,13 @@ PROCEDURE Main
       ITEMS {} ;
       SIZE  700, 480
 
+   BEGIN PAGE "sample" ;
+      OF oTab[ TAB_MAIN ]
+
+      DemoDbfData( .F., oTab[ TAB_MAIN ] )
+
+   END PAGE OF oTab[ TAB_MAIN ]
+
    BEGIN PAGE "menu" ;
       OF oTab[ TAB_MAIN ]
 
@@ -211,9 +230,18 @@ PROCEDURE Main
          BEGIN PAGE "Ownerbutton" ;
             OF oTab[ TAB_BUTTON ]
 
-            DemoOwner( .F., oTab[ TAB_MAIN ] )
+            DemoOwner( .F., oTab[ TAB_BUTTON ] )
 
          END PAGE OF oTab[ TAB_BUTTON ]
+
+#ifdef __PLATFORM__WINDOWS
+         BEGIN PAGE "Shadebutton" ;
+            OF oTab[ TAB_BUTTON ]
+
+            DemoShadeBtn( .F., oTab[ TAB_BUTTON ] )
+
+         END PAGE OF oTab[ TAB_BUTTON ]
+#endif
 
    END PAGE OF oTab[ TAB_MAIN ]
 
@@ -270,14 +298,30 @@ PROCEDURE Main
 
    END PAGE OF oTab[ TAB_MAIN ]
 
-   BEGIN PAGE "demotreebox" ;
+   BEGIN PAGE "treebox" ;
       OF oTab[ TAB_MAIN ]
 
-      @ 30, 50 BUTTON "demotreebox.prg" ;
-         SIZE 200, 24 ;
-         ON CLICK { || DemoTreebox() }
+      @ 30, 30 TAB oTab[ TAB_TREEBOX ] ;
+         ITEMS {} ;
+         SIZE 650, 450
 
-      //DemoTreebox( .F., oTab[ TAB_MAIN ] )
+      BEGIN PAGE "treebox" ;
+         OF oTab[ TAB_TREEBOX ]
+
+         @ 30, 50 BUTTON "demoTreebox.prg" ;
+            SIZE 200, 24 ;
+            ON CLICK { || DemoTreebox() }
+
+      END PAGE OF oTab[ TAB_TREEBOX ]
+
+      BEGIN PAGE "demoxmltree" ;
+         OF oTab[ TAB_TREEBOX ]
+
+         @ 30, 50 BUTTON "demoXmlTree.prg" ;
+            SIZE 200, 24 ;
+            ON CLICK { || DemoXmlTree() }
+
+      END PAGE OF oTab[ TAB_TREEBOX ]
 
    END PAGE OF oTab[ TAB_MAIN ]
 
@@ -304,6 +348,33 @@ PROCEDURE Main
 
       END PAGE OF oTab[ TAB_DATE ]
 #endif
+
+   END PAGE OF oTab[ TAB_MAIN ]
+
+   BEGIN PAGE "splitter" ;
+      OF oTab[ TAB_MAIN ]
+
+      @ 30, 30 TAB oTab[ TAB_SPLITTER ] ;
+         ITEMS {} ;
+         SIZE 650, 450
+
+      BEGIN PAGE "demotreebox" ;
+         OF oTab[ TAB_SPLITTER ]
+
+         @ 30, 50 BUTTON "demotreebox.prg" ;
+            SIZE 200, 24 ;
+            ON CLICK { || DemoTreebox() }
+
+      END PAGE OF oTab[ TAB_SPLITTER ]
+
+      BEGIN PAGE "demoxmltree" ;
+         OF oTab[ TAB_SPLITTER ]
+
+         @ 30, 50 BUTTON "demoXmlTree.prg" ;
+            SIZE 200, 24 ;
+            ON CLICK { || DemoXmlTree() }
+
+      END PAGE OF oTab[ TAB_SPLITTER ]
 
    END PAGE OF oTab[ TAB_MAIN ]
 
@@ -358,8 +429,8 @@ STATIC FUNCTION ExecuteExe( cFileName )
 STATIC FUNCTION CheckPrgHbpExe()
 
    LOCAL aItem, cFile, lWithHbp, lWithExe
-   LOCAL cTxtPrg := "No HBP without EXE" + hb_Eol() + hb_Eol()
-   LOCAL cTxtHbp := "HBP without EXE" + hb_Eol() + hb_Eol()
+   LOCAL cTxtPrg := "No HBP" + hb_Eol() + hb_Eol()
+   LOCAL cTxtHbp := "With HBP" + hb_Eol() + hb_Eol()
 
    FOR EACH aItem IN Directory( "*.prg" )
       cFile := aItem[ F_NAME ]
@@ -496,11 +567,15 @@ DO CASE
 CASE cFileName == "democheckbox.prg";   #pragma __binarystreaminclude "democheckbox.prg" | RETURN %s
 CASE cFileName == "demobrowsedbf.prg";  #pragma __binarystreaminclude "demobrowsedbf.prg" | RETURN %s
 CASE cFileName == "demobrowseado.prg";  #pragma __binarystreaminclude "demobrowseado.prg" | RETURN %s
+CASE cFileName == "demodbfdata.prg";    #pragma __binarystreaminclude "demodbfdata.prg" | RETURN %s
+CASE cFileName == "demolistbox.prg";    #pragma __binarystreaminclude "demolistbox.prg" | RETURN %s
 CASE cFileName == "demomonthcal.prg";   #pragma __binarystreaminclude "demomonthcal.prg" | RETURN %s
 CASE cFileName == "demomenu.prg";       #pragma __binarystreaminclude "demomenu.prg" | RETURN %s
 CASE cFileName == "demomenuxml.prg";    #pragma __binarystreaminclude "demomenuxml.prg" | RETURN %s
+CASE cFileName == "demoshadebtn.prg";   #pragma __binarystreaminclude "demoshadebtn.prg" | RETURN %s
 CASE cFileName == "demotab.prg";        #pragma __binarystreaminclude "demotab.prg" | RETURN %s
 CASE cFileName == "demotreebox.prg";    #pragma __binarystreaminclude "demotreebox.prg" | RETURN %s
+CASE cFileName == "demoxmltree.prg";    #pragma __binarystreaminclude "demoxmltree.prg" | RETURN %s
 ENDCASE
 
 RETURN Nil
