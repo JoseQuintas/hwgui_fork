@@ -15,6 +15,21 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-24 15:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
+  * clean.sh
+  * samples/demo.ch
+  * samples/demoall.prg
+    ! do not show message on standalone sample about resource
+  * samples/Readme.txt
+  * samples/allhbp.hbp
+  * samples/clean.sh
+  * samples/makeallsam.sh
+    ! forgot to update references to demodatepicker
+  * samples/hwgdoc_functions.html
+    ! update doc reference to new sample name
+    ! Not sure why on doc_functions
+    ! and already exists dateselect
+
 2025-04-24 15:20 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/demoaltdpicker.prg from demodatepicker.prg
    - samples/demodatepicker.hbp

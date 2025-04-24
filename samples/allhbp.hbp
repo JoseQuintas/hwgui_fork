@@ -50,7 +50,6 @@
 ../samples/colrbloc.hbp
 ../samples/dbview.hbp
 ../samples/testbrowsearr.hbp
-../samples/demodatepicker.hbp ##- old demodatepicker
 ../samples/demodbfdata.hbp
 ../samples/demogetupdown.hbp
 ../samples/demolistboxsub.hbp

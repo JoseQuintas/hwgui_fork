@@ -45,7 +45,9 @@ STATIC FUNCTION ShowCode( cFileName )
          hwg_MsgInfo( cFileName + " not found" )
          RETURN Nil
       ENDIF
-      hwg_MsgInfo( "Reading " + cFileName )
+      IF "demoall" $ Lower( hb_ProgName() )
+         hwg_MsgInfo( "Add " + cFileName +  " to LoadResourceDemo()" )
+      ENDIF
       cText := MemoRead( cFileName )
    ENDIF
 

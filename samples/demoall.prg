@@ -166,6 +166,8 @@ PROCEDURE Main
       ENDMENU
    ENDMENU
 
+   ButtonForSample( "demoall.prg" )
+
    @ 30, 60 TAB oTab ;
       ITEMS {} ;
       SIZE  700, 480
@@ -637,6 +639,8 @@ STATIC FUNCTION DemoOwner( lWithDialog, oDlg )
 FUNCTION LoadResourceDemo( cFileName )
 
 DO CASE
+CASE cFileName == "demo.ch";            #pragma __binarystreaminclude "demo.ch" | RETURN %s
+CASE cFileName == "demoall.prg";        #pragma __binarystreaminclude "demoall.prg" | RETURN %s
 CASE cFileName == "democheckbox.prg";   #pragma __binarystreaminclude "democheckbox.prg" | RETURN %s
 CASE cFileName == "demoaltdpicker.prg"; #pragma __binarystreaminclude "demoaltdpicker.prg" | RETURN %s
 CASE cFileName == "demobrowsedbf.prg";  #pragma __binarystreaminclude "demobrowsedbf.prg" | RETURN %s
@@ -653,5 +657,7 @@ CASE cFileName == "demoxmltree.prg";    #pragma __binarystreaminclude "demoxmltr
 ENDCASE
 
 RETURN Nil
+
+#include "demo.ch"
 
 * ================================= EOF of all.prg ===========================

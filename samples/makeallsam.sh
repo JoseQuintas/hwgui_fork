@@ -26,7 +26,6 @@ hbmk2 bindbf.hbp
 hbmk2 bitmapbug.hbp
 hbmk2 buildpelles.hbp
 hbmk2 colrbloc.hbp
-hbmk2 demodatepicker.hbp
 hbmk2 dbview.hbp
 hbmk2 demodbf.hbp
 hbmk2 demolistboxsub.hbp

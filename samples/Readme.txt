@@ -234,6 +234,7 @@ For beginners:
    demobrowseado.prg N       N                ADO Browse (TNX Itamar M. Lins Jr.). For multi platform use BROWSE.
    democheckbox.prg  Y                        Checkboxes and tabs
    demodbfdata.prg                            Database to insert/delete/edit/navigate
+   demoaltdpicker.prg Y                       Multiplatform substitute of Windows only DATEPICKER
    demolistbox.prg   S       S         Y      Demo for listbox
    demomenu.prg      Y                        Simple menu
    demomenuxml.prg   Y                        reading/writing XML file and handling menu items while run-time (testxml.xml)
@@ -249,7 +250,6 @@ For beginners:
  bitmapbug.prg       Y                        Handle of bug in command @<x>,<y> BITMAP ... SHOW (Class HBITMAP)
  buildpelles.prg     N       N         Y      Build APP using Pelles C Compiler (*.bld file)
  colrbloc.prg        Y                 Y      BROWSE: arrays and DBF's with colored lines and columns
- demodatepicker.prg  Y                        Multiplatform substitute of Windows only DATEPICKER
  dbview.prg          Y       Y         Y      DBF access (Browse, Indexing, Codepages, Structure, ... )
  demodbf.prg         Y                 Y      Demo for Edit using command NOEXIT
  demolistboxsub.prg  Y                 Y      Multi platform substitute for listbox by BROWSE.

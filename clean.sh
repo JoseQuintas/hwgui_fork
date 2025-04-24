@@ -63,7 +63,6 @@ rm samples/a 2>/dev/null
 rm samples/a.log 2>/dev/null
 rm samples/testget1 2>/dev/null
 rm samples/bincnts 2>/dev/null
-rm samples/demodatepicker 2>/dev/null
 delfi samples/GetWinVers
 delfi samples/demogetupdown
 delfi samples/demodbfdata
