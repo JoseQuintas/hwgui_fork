@@ -16,6 +16,7 @@ demomenuxml.prg
 demotab.prg
 demotreebox.prg
 demoxmltree.prg
+demoaltdpicker.prg
 
 {win}demobrowseado.prg
 {win}hbwin.hbc

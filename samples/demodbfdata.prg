@@ -322,8 +322,8 @@ RETURN Nil
 FUNCTION OpenDbf()
 
    LOCAL vTab:={}
-   LOCAL vArq  := aVar[ VAR_CPATH ] + "TMPDEMODBFDATA.DBF"
-   LOCAL vInd1 := aVar[ VAR_CPATH ] + "TMPDEMODBFDATA.NTX"
+   LOCAL vArq  := aVar[ VAR_CPATH ] + "tmpdbfdata.dbf"
+   LOCAL vInd1 := aVar[ VAR_CPATH ] + "tmpdbrfdata.ntx"
 
    SELECT ( Select( "dbfdata" ) )
    USE

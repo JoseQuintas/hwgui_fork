@@ -15,6 +15,17 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-24 15:20 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demoaltdpicker.prg from demodatepicker.prg
+   - samples/demodatepicker.hbp
+     ! rename it, because it is another alternative to datepicker
+     ! change to reusable
+   * demodbfdata.prg
+     ! dbf/ntx filename
+   * samples/demoall.prg
+   * samples/demoall.hbp
+     ! include use of demoaltdpicker on tabpage date
+
 2025-04-24 06:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
   * samples/demo*.prg
   * samples/demo.ch
