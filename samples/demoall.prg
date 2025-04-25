@@ -280,6 +280,16 @@ PROCEDURE Main
 
    ACTIVATE DIALOG oDlg CENTER
 
+   CLOSE DATABASES
+
+   // delete temporary from samples
+
+   fErase( "tmpbrowsedbf.dbf" )
+   fErase( "tmpdbfdata.dbf" )
+   fErase( "tmpdbfdata.ntx" )
+   fErase( "tmpini.ini" )
+
+
    RETURN
 
 STATIC FUNCTION DemoAllTabSay()

@@ -58,6 +58,7 @@ FUNCTION DemoBrowseDbf( lWithDialog, oDlg )
    IF lWithDialog
       ACTIVATE DIALOG oDlg CENTER
       CLOSE DATABASES
+      fErase( "tmpbrowsedbf.dbf" )
    ENDIF
 
    RETURN Nil

@@ -144,7 +144,12 @@ FUNCTION DemoDbfData( lWithDialog, oDlg )
       FLAT ;
       TEXT "Close"
 
+   IF lWithDialog
       ACTIVATE DIALOG oDlg CENTER
+      CLOSE DATABASES
+      fErase( "demodbfdata.dbf" )
+      fErase( "demodbfdata.ntx" )
+   ENDIF
 
 RETURN Nil
 
@@ -323,7 +328,7 @@ FUNCTION OpenDbf()
 
    LOCAL vTab:={}
    LOCAL vArq  := aVar[ VAR_CPATH ] + "tmpdbfdata.dbf"
-   LOCAL vInd1 := aVar[ VAR_CPATH ] + "tmpdbrfdata.ntx"
+   LOCAL vInd1 := aVar[ VAR_CPATH ] + "tmpdbfdata.ntx"
 
    SELECT ( Select( "dbfdata" ) )
    USE
