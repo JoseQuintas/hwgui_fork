@@ -10,7 +10,7 @@ STATIC FUNCTION ButtonForSample( cFileName, oDlg )
 
    cRunName := StrTran( cFileName, ".prg", "" )
 
-   @ 3, 30 OWNERBUTTON ;
+   @ 33, 30 OWNERBUTTON ;
       OF       oDlg ;
       SIZE     200, 24 ;
       TEXT     cFileName ;
@@ -20,7 +20,7 @@ STATIC FUNCTION ButtonForSample( cFileName, oDlg )
          HStyle():New( {16759929}, 1,, 2, 12164479 ) ;
       ON CLICK { || Do( cRunName ) }
 
-   @ 220, 30 OWNERBUTTON ;
+   @ 250, 30 OWNERBUTTON ;
       OF oDlg ;
       SIZE 100, 24 ;
       TEXT "show code" ;

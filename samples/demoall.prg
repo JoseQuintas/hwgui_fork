@@ -178,12 +178,6 @@ PROCEDURE Main
       ITEMS {} ;
       SIZE  950, 600
 
-   BEGIN PAGE "AppData" OF oTab
-
-      DemoDbfData( .F., oTab )
-
-   END PAGE OF oTab
-
    BEGIN PAGE "Browse" OF oTab
 
       DemoAllTabBrowse()
@@ -246,7 +240,7 @@ PROCEDURE Main
 
    BEGIN PAGE "Tab" OF oTab
 
-      DemoTab( .F., oTab )
+      DemoAllTabTab()
 
    END PAGE OF oTab
 
@@ -271,6 +265,12 @@ PROCEDURE Main
    BEGIN PAGE "Updown" OF oTab
 
       DemoGetUpDown( .F., oTab )
+
+   END PAGE OF oTab
+
+   BEGIN PAGE "AppData" OF oTab
+
+      DemoDbfData( .F., oTab )
 
    END PAGE OF oTab
 
@@ -523,6 +523,29 @@ STATIC FUNCTION DemoAllTabListbox()
 
    RETURN Nil
 
+
+STATIC FUNCTION DemoAllTabTab()
+
+   LOCAL oTab
+
+   @ 30, 30 TAB oTab ;
+      ITEMS {} ;
+      SIZE 700, 650
+
+   BEGIN PAGE "1.Lenta" OF oTab
+
+      DemoLenta( .F., oTab )
+
+   END PAGE OF oTab
+
+   BEGIN PAGE "2.Tab" OF oTab
+
+      DemoTab( .F., oTab )
+
+   END PAGE OF oTab
+
+   RETURN Nil
+
 STATIC FUNCTION CreatePanel( oDlg, nLeft, nTop, nWidth, nHeight )
 
    LOCAL oPanel, aColorList := { ;
@@ -708,6 +731,7 @@ CASE cFileName == "demodbfdata.prg";     #pragma __binarystreaminclude "demodbfd
 CASE cFileName == "demogetupdown.prg";   #pragma __binarystreaminclude "demogetupdown.prg" | RETURN %s
 CASE cFileName == "demoget2.prg";        #pragma __binarystreaminclude "demoget2.prg" | RETURN %s
 CASE cFileName == "demohtrack.prg";      #pragma __binarystreaminclude "demohtrack.prg" | RETURN %s
+CASE cFileName == "demolenta.prg";       #pragma __binarystreaminclude "demolenta.prg" | RETURN %s
 CASE cFileName == "demolistbox.prg";     #pragma __binarystreaminclude "demolistbox.prg" | RETURN %s
 CASE cFileName == "demolistboxsub.prg";  #pragma __binarystreaminclude "demolistboxsub.prg" | RETURN %s
 CASE cFileName == "demomonthcal.prg";    #pragma __binarystreaminclude "demomonthcal.prg" | RETURN %s
