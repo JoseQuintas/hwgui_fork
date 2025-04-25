@@ -233,6 +233,7 @@ For beginners:
    demobrowsedbf.prg Y       ?    ?           browse dbf
    demobrowseado.prg N       N                ADO Browse (TNX Itamar M. Lins Jr.). For multi platform use BROWSE.
    democheckbox.prg  Y                        Checkboxes and tabs
+   democombobox.prg  Y                        Combobox
    demodbfdata.prg                            Database to insert/delete/edit/navigate
    demoaltdpicker.prg Y                       Multiplatform substitute of Windows only DATEPICKER
    demolistbox.prg   S       S         Y      Demo for listbox

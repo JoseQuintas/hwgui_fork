@@ -53,9 +53,7 @@ PROCEDURE Main
        ;
        { "demogetupdown.prg",      .T., .T., .T., "Get UpDown" }, ;
        { "testbrowsearr.prg",      .T., .T., .T., "browse array editable" }, ;
-       { "democombobox.prg",       .T., .T., .T., "Combobox" }, ;
        { "demodatepicker.prg",     .T., .T., .T., "Date Picker" }, ;
-       { "demolistboxsub.prg",     .T., .T., .T., "Listbox Substitute" }, ;
        { "demoonother.prg",        .T., .F., .F., "ON OTHER MESSAGES" }, ;
        ;
        { "",                       .F., .F., .F., "" }, ;
@@ -111,8 +109,10 @@ PROCEDURE Main
        ; // { "demomonthcal",           .T., .T., .T., "Month Calendar" }, ;
        ; // { "demobrowseado",          .T., .F., .F., "Browse using ADO" }, ;
        ; // { "democheckbox",           .T., .T., .T., "Checkbox and tab" }, ;
+       ; //{ "democombobox.prg",       .T., .T., .T., "Combobox" }, ;
        ; // { "demodbfdata.prg",        .T., .T., .T., "DBF data using tab" }, ;
        ; // { "demolistbox.prg",        .T., .F., .F., "Listbox" }, ;
+       ; // { "demolistboxsub.prg",     .T., .T., .T., "Listbox Substitute" }, ;
        ; // { "demomenu",               .T., .T., .T., "Simple menu" }, ;
        ; // { "demomenuxml",            .T., .T., .T., "Setup menu from XML ***error on new item***" }, ;
        ; // { "demotreebox",            .T., .T., .T., "Treebox, Splitter and tab" }, ;
@@ -248,9 +248,9 @@ PROCEDURE Main
 
    END PAGE OF oTab
 
-   BEGIN PAGE "listbox substitute" OF oTab
+   BEGIN PAGE "Listbox" OF oTab
 
-      DemoListBoxSub( .F., oTab )
+      DemoAllTabListbox()
 
    END PAGE OF oTab
 
@@ -451,6 +451,22 @@ STATIC FUNCTION DemoAllTabSplitter( aInitList )
 
    RETURN Nil
 
+STATIC FUNCTION DemoAllTabListbox()
+
+   LOCAL oTab
+
+   @ 30, 30 TAB oTab ;
+      ITEMS {} ;
+      SIZE 650, 450
+
+   BEGIN PAGE "listbox substitute" OF oTab
+
+      DemoListBoxSub( .F., oTab )
+
+   END PAGE OF oTab
+
+   RETURN Nil
+
 STATIC FUNCTION CreatePanel( oDlg, nLeft, nTop, nWidth, nHeight )
 
    LOCAL oPanel, aColorList := { ;
@@ -573,30 +589,6 @@ STATIC FUNCTION DemoDateSelect()
    RETURN Nil
 
 // to be external
-STATIC FUNCTION DemoCombobox()
-
-   LOCAL oCombo1, oCombo2
-   LOCAL aComboList  := { "White", "Blue", "Red", "Black" }
-
-#ifndef __PLATFORM__WINDOWS
-   @ 10, 50 COMBOBOX oCombo1 ;
-      ITEMS aComboList ;
-      SIZE  100, 25              // size for GTK
-
-   oCombo2 := Nil // ok, warning -w3 -es2 require value
-   (oCombo2)      // ok, warning -w3 -es2 require use
-#else
-   @ 10, 50 COMBOBOX oCombo1 ;
-      ITEMS aComboList ;
-      SIZE  100, 100             // size for windows
-
-   @ 10, 150 COMBOBOX oCombo2 ;
-      ITEMS   aComboList ;
-      SIZE    100, 100 ;
-      EDIT                       // only windows, crash on GTK
-#endif
-
-   RETURN Nil
 
 // to be external
 STATIC FUNCTION DemoBrowseArray()
@@ -663,6 +655,7 @@ DO CASE
 CASE cFileName == "demo.ch";             #pragma __binarystreaminclude "demo.ch" | RETURN %s
 CASE cFileName == "demoall.prg";         #pragma __binarystreaminclude "demoall.prg" | RETURN %s
 CASE cFileName == "democheckbox.prg";    #pragma __binarystreaminclude "democheckbox.prg" | RETURN %s
+CASE cFileName == "democombobox.prg";    #pragma __binarystreaminclude "democombobox.prg" | RETURN %s
 CASE cFileName == "demoaltdpicker.prg";  #pragma __binarystreaminclude "demoaltdpicker.prg" | RETURN %s
 CASE cFileName == "demobrowsedbf.prg";   #pragma __binarystreaminclude "demobrowsedbf.prg" | RETURN %s
 CASE cFileName == "demobrowseado.prg";   #pragma __binarystreaminclude "demobrowseado.prg" | RETURN %s

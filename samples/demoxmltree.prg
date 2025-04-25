@@ -21,8 +21,8 @@ FUNCTION DemoXmlTree( lWithDialog, oDlg )
    IF lWithDialog
       INIT DIALOG oDlg ;
          TITLE "demoxmltree.prg - show xml content" ; // + cutPath( fname ) ;
-         AT 210,10  ;
-         SIZE 430,300 ;
+         AT 0, 0  ;
+         SIZE 640, 480 ;
          FONT oFont  ;
          //ON INIT { || BuildTree( oTree, oXmlDoc:aItems, oSay ) }
    ENDIF
@@ -37,19 +37,20 @@ FUNCTION DemoXmlTree( lWithDialog, oDlg )
       BITMAP { cBitmap1, cbitmap2 } ;
       ON SIZE {|o,x,y| (x), o:Move(,,,y-20)}
 
-   @ 214, 60 BUTTON "Load XML File" ;
+   @ 314, 60 BUTTON "Load XML File" ;
       SIZE 200, 24 ;
-      ON CLICK { || LoadXmlFile( oTree, oSay ) }
-
-   @ 214, 100 SAY oSay ;
-      CAPTION "" ;
-      SIZE 206,280 ;
-      STYLE WS_BORDER ;
+      ON CLICK { || LoadXmlFile( oTree, oSay ) } ;
       ON SIZE {|o,x,y|o:Move(,,x-oSplit:nLeft-oSplit:nWidth-10,y-20)}
 
-   @ 214, 150 EDITBOX oSay ;
+   //@ 214, 100 SAY oSay ;
+   //   CAPTION "" ;
+   //   SIZE 206,280 ;
+   //   STYLE WS_BORDER ;
+   //   ON SIZE {|o,x,y|o:Move(,,x-oSplit:nLeft-oSplit:nWidth-10,y-20)}
+
+   @ 214, 100 EDITBOX oSay ;
       CAPTION "" ;
-      SIZE 206,280 ;
+      SIZE 300, 300 ;
       STYLE WS_VSCROLL+WS_HSCROLL+ES_MULTILINE+ES_READONLY ;
       ON SIZE {|o,x,y|o:Move(,,x-oSplit:nLeft-oSplit:nWidth-10,y-20)} ;
       ON GETFOCUS {||hwg_Sendmessage(oSay:handle,EM_SETSEL,0,0)}
@@ -62,7 +63,7 @@ FUNCTION DemoXmlTree( lWithDialog, oDlg )
    oSplit:bEndDrag := {||hwg_Redrawwindow( oSay:handle,RDW_ERASE+RDW_INVALIDATE+RDW_INTERNALPAINT+RDW_UPDATENOW)}
 
    IF lWithDialog
-      ACTIVATE DIALOG oDlg
+      ACTIVATE DIALOG oDlg CENTER
    ENDIF
 
 RETURN Nil
