@@ -50,7 +50,6 @@ rm samples/gtk_samples/example 2>/dev/null
 rm samples/gtk_samples/graph 2>/dev/null
 rm samples/gtk_samples/progbars 2>/dev/null
 rm samples/gtk_samples/pseudocm 2>/dev/null
-rm samples/gtk_samples/testget2 2>/dev/null
 rm samples/gtk_samples/winprn 2>/dev/null
 rm samples/gtk_samples/temp_a2.ps 2>/dev/null
 delfi samples/testbrowsearray
@@ -89,8 +88,6 @@ delfi samples/icons2
 rm samples/testfehl.bmp 2>/dev/null
 rm samples/testimage 2>/dev/null
 rm samples/tab 2>/dev/null
-rm samples/testget2.c 2>/dev/null
-rm samples/testget2 2>/dev/null
 delfi samples/Dialogboxes
 delfi samples/bitmapbug
 delfi samples/tststconsapp

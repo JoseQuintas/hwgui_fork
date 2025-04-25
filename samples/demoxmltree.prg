@@ -35,12 +35,12 @@ FUNCTION DemoXmlTree( lWithDialog, oDlg )
       SIZE 200,280 ;
       EDITABLE ;
       BITMAP { cBitmap1, cbitmap2 } ;
-      ON SIZE {|o,x,y| (x), o:Move(,,,y-20)}
+      ON SIZE { |o,x,y| (x), o:Move(,,, y - 20 ) }
 
    @ 314, 60 BUTTON "Load XML File" ;
       SIZE 200, 24 ;
       ON CLICK { || LoadXmlFile( oTree, oSay ) } ;
-      ON SIZE {|o,x,y|o:Move(,,x-oSplit:nLeft-oSplit:nWidth-10,y-20)}
+      ON SIZE { | o,x,y| o:Move(,, x - oSplit:nLeft - oSplit:nWidth - 10, y - 20 ) }
 
    //@ 214, 100 SAY oSay ;
    //   CAPTION "" ;
@@ -51,16 +51,17 @@ FUNCTION DemoXmlTree( lWithDialog, oDlg )
    @ 214, 100 EDITBOX oSay ;
       CAPTION "" ;
       SIZE 300, 300 ;
-      STYLE WS_VSCROLL+WS_HSCROLL+ES_MULTILINE+ES_READONLY ;
-      ON SIZE {|o,x,y|o:Move(,,x-oSplit:nLeft-oSplit:nWidth-10,y-20)} ;
-      ON GETFOCUS {||hwg_Sendmessage(oSay:handle,EM_SETSEL,0,0)}
+      STYLE WS_VSCROLL + WS_HSCROLL + ES_MULTILINE + ES_READONLY ;
+      ON SIZE { | o,x,y | o:Move(,, x - oSplit:nLeft - oSplit:nWidth - 10, y - 20 ) } ;
+      ON GETFOCUS { || hwg_Sendmessage( oSay:handle, EM_SETSEL, 0, 0 ) }
 
    @ 210, 70 SPLITTER oSplit ;
       SIZE 4,260 ;
       DIVIDE {oTree} FROM {oSay} ;
-      ON SIZE {|o,x,y| (x), o:Move(,,,y-20)}
+      ON SIZE { |o,x,y| (x), o:Move(,,, y - 20 ) }
 
-   oSplit:bEndDrag := {||hwg_Redrawwindow( oSay:handle,RDW_ERASE+RDW_INVALIDATE+RDW_INTERNALPAINT+RDW_UPDATENOW)}
+   oSplit:bEndDrag := { || hwg_Redrawwindow( oSay:handle, ;
+      RDW_ERASE + RDW_INVALIDATE + RDW_INTERNALPAINT + RDW_UPDATENOW ) }
 
    IF lWithDialog
       ACTIVATE DIALOG oDlg CENTER

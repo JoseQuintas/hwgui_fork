@@ -2,7 +2,7 @@ Readme for HWGUI Designer
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
   $Id$
-  
+
 Additional information by DF7BE:
 
 The HWGUI designer is not completely ported to LINUX.
@@ -14,10 +14,10 @@ Open an XML form file created on Windows, so most
 elements are not visible. This severe bug must be fixed at first.
 
 A special comment by A. Kressin:
-Support of prg sources in the Designer is outdated. I recommend to use Designer's xml forms only.  
+Support of prg sources in the Designer is outdated. I recommend to use Designer's xml forms only.
 Reference: See closed bug ticket #23:
-"designer crashes at writing prg, containg a CHECKBOX element" 
- 
+"designer crashes at writing prg, containg a CHECKBOX element"
+
 
 
 === The following text translated from spanish to english (from file readme_es.txt) ===
@@ -104,7 +104,7 @@ Contents:
   There are three examples of 'forms' included - testget1.xml,
   testget2.xml and testdbf1.xml, which implements the
   functionality of the examples in
-  samples/testget1.prg, samples / testget2.prg and
+  samples/testget1.prg, samples / demoget2.prg and
   samples/demodbf. prg.
 
 3. Some notes for HwGUI applications
@@ -128,7 +128,7 @@ Contents:
   3.4 The 'widgets', which have to correspond to items
      'GET', have a 'Varname' property - the name of the
      corresponding variable, which will also be declared as
-     'Private' at the beginning of HFormTmpl():Show(). 
+     'Private' at the beginning of HFormTmpl():Show().
 
 ================ EOF of Readme.txt =================
 

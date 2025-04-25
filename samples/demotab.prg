@@ -33,14 +33,14 @@ FUNCTION DemoTab( lWithDialog, oDlg )
       ITEMS {} ;
       SIZE  700, 480
 
-   BEGIN PAGE "tab1" ;
+   BEGIN PAGE "a.tab1" ;
       OF oTab
 
       DemoCheckbox( .F., oTab )
 
    END PAGE OF oTab
 
-   BEGIN PAGE "tab2" ;
+   BEGIN PAGE "b.tab2" ;
       OF oTab
 
       DemoBrowseDBF( .F., oTab )

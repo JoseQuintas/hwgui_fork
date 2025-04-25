@@ -61,7 +61,8 @@ FUNCTION DemoTreebox( lWithDialog, oDlg, aInitList )
       DIVIDE { oTree } FROM { oTab, oGet } ;
       ON SIZE { | o, x, y | (x), o:Move(,,, y - 20 ) }
 
-   oSplit:bEndDrag := { || hwg_Redrawwindow( oTab:handle, RDW_ERASE + RDW_INVALIDATE + RDW_INTERNALPAINT + RDW_UPDATENOW ) }
+   oSplit:bEndDrag := { || hwg_Redrawwindow( oTab:handle, ;
+      RDW_ERASE + RDW_INVALIDATE + RDW_INTERNALPAINT + RDW_UPDATENOW ) }
 
    //BuildTree( oDlg, oTree,oTab )
 

@@ -236,6 +236,7 @@ For beginners:
    democheckbox.prg  Y                        Checkboxes and tabs
    democombobox.prg  Y                        Combobox
    demodbfdata.prg                            Database to insert/delete/edit/navigate
+   demoget2.prg      Y       Y                Get system: Colored edit fields, time display, Tooltip ballon, HD serial number
    demogetupdown.prg Y                        Usage of @ <x> <y> GET UPDOWN ..
    demolistbox.prg   S       S         Y      Demo for listbox
    demolistboxsub.prg Y                Y      Multi platform substitute for listbox by BROWSE.
@@ -292,7 +293,6 @@ For beginners:
  demoonother.prg     P                        bOther Test: Press key, after key up the scan code is displayed.
  testbrw.prg         Y  #                     Another BROWSE test (bug on GTK see docu)
  testget1.prg        Y                        Get system: Edit field, Checkboxes, Radio buttons, Combo box, Datepicker
- testget2.prg        Y       Y                Get system: Colored edit fields, time display, Tooltip ballon, HD serial number
  testfunc.prg        Y       Y         Y      Test and demo of standalone HWGUI (hwg_*) functions, enable/disable button.
  testimage.prg       Y       Y                Displaying images and usage of FreeImage library (IMAGE, BITMAP).
  demoini.prg         P                        Use INI file: create and read

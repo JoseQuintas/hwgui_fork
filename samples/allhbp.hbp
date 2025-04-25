@@ -86,7 +86,7 @@
 ../samples/nice.hbp
 ../samples/testbrw.hbp
 ../samples/testget1.hbp
-../samples/testget2.hbp
+../samples/demoget2.hbp
 ../samples/demoini.hbp
 ../samples/testmenubitmap.hbp
 ../samples/testrtf.hbp
@@ -123,7 +123,6 @@
 ../samples/gtk_samples/pseudocm.hbp
 # Only as template !
 #../samples/gtk_samples/sample.hbp
-../samples/gtk_samples/testget2.hbp
 ../samples/gtk_samples/winprn.hbp
 #
 # Utils

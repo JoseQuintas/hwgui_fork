@@ -66,7 +66,6 @@ hbmk2 testbmpcr.hbp
 hbmk2 testbrw.hbp
 hbmk2 testfunc.hbp
 hbmk2 testget1.hbp
-hbmk2 testget2.hbp
 hbmk2 testhgt.hbp
 hbmk2 testimage.hbp
 hbmk2 demoini.hbp
