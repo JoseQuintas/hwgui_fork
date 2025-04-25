@@ -238,6 +238,7 @@ For beginners:
    demodbfdata.prg                            Database to insert/delete/edit/navigate
    demoget2.prg      Y       Y                Get system: Colored edit fields, time display, Tooltip ballon, HD serial number
    demogetupdown.prg Y                        Usage of @ <x> <y> GET UPDOWN ..
+   demohtrack.prg    Y                        Demo of HTRACK class as substitute for Windows only HTRACKBAR
    demolistbox.prg   S       S         Y      Demo for listbox
    demolistboxsub.prg Y                Y      Multi platform substitute for listbox by BROWSE.
    demomenu.prg      Y                        Simple menu
@@ -271,7 +272,6 @@ For beginners:
  helpstatic.prg      Y                        Static help text
  hexbincnt.prg 11)   Y                        Handling of binary resources with hex values.
  hole.prg   2) 4)    N       N                MS Agent Control (not running on Windows 11)
- htrack.prg          Y                        Demo of HTRACK class as substitute for Windows only HTRACKBAR
  icons.prg           Y                        Icons and background bitmaps
  icons2.prg          Y                        Icons and bitmaps using hex values
  memocmp.prg.        Y                        Edit and compare memo's an get size

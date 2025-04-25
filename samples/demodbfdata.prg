@@ -41,7 +41,7 @@ FUNCTION DemoDbfData( lWithDialog, oDlg )
    //Local oFontBtn
    LOCAL oFont := Nil
    LOCAL cDirSep
-   LOCAL oFontBtn, Titulo := "Tab Forneced"
+   LOCAL oFontBtn
 
    hb_Default( @lWithDialog, .T. )
 
@@ -63,7 +63,7 @@ FUNCTION DemoDbfData( lWithDialog, oDlg )
       INIT DIALOG oDlg ;
          CLIPPER ;
          NOEXIT ;
-         TITLE Titulo ;
+         TITLE "demodbfdata.prg - data entry" ;
          SIZE 800, 600 ;
          Font oFontBtn
    ENDIF
@@ -330,7 +330,7 @@ FUNCTION OpenDbf()
    LOCAL vArq  := aVar[ VAR_CPATH ] + "tmpdbfdata.dbf"
    LOCAL vInd1 := aVar[ VAR_CPATH ] + "tmpdbfdata.ntx"
 
-   SELECT ( Select( "dbfdata" ) )
+   SELECT ( Select( "dbfdata" ) ) // if already open
    USE
    IF ! File( vArq )
       AADD( vTab, { "Cod",    "C", 3, 0 } )
@@ -342,9 +342,9 @@ FUNCTION OpenDbf()
    ENDIF
    USE ( vArq ) SHARED ALIAS dbfdata
    IF ! File( vInd1 )
-      fLock()
-      INDEX ON field->Cod   TO ( vInd1 )
-      UNLOCK
+      // fLock()
+      INDEX ON field->Cod  TO ( vInd1 )
+      // UNLOCK
    ELSE
       SET INDEX TO ( vInd1 )
    ENDIF

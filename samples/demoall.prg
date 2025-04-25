@@ -52,7 +52,6 @@ PROCEDURE Main
        ; // controls
        ;
        { "testbrowsearr.prg",      .T., .T., .T., "browse array editable" }, ;
-       { "demodatepicker.prg",     .T., .T., .T., "Date Picker" }, ;
        { "demoonother.prg",        .T., .F., .F., "ON OTHER MESSAGES" }, ;
        ;
        { "",                       .F., .F., .F., "" }, ;
@@ -81,7 +80,6 @@ PROCEDURE Main
        { "grid_4.prg",             .T., .F., .F., "Grid4" }, ;
        { "grid_5.prg",             .T., .F., .F., "Grid5" }, ;
        { "helpstatic.prg",         .T., .T., .T., "Help Static" }, ;
-       { "htrack.prg",             .T., .T., .T., "HTrack" }, ;
        { "icons.prg",              .T., .T., .T., "Icons" }, ;
        { "icons2.prg",             .T., .T., .T., "Icons2" }, ;
        { "testalert.prg",          .T., .F., .F., "Test Alert" }, ;
@@ -102,7 +100,7 @@ PROCEDURE Main
        { "",                       .F., .F., .F., "" }, ;
        ; // already visible on the tab of demoall.prg
        ;
-       ; // { "demotab",                .T., .T., .T., "Tab and more samples" } , ;
+       ; // { "demoaltdpicker.prg",     .T., .T., .T., "Date Picker" }, ;
        ; // { "demobrowsedbf",          .T., .T., .T., "Browse DBF"  }, ;
        ; // { "demoget2.prg",           .T., .F., .F., "Test Get 2" }, ;
        ; // { "demomonthcal",           .T., .T., .T., "Month Calendar" }, ;
@@ -115,9 +113,11 @@ PROCEDURE Main
        ; // { "demolistboxsub.prg",     .T., .T., .T., "Listbox Substitute" }, ;
        ; // { "demomenu",               .T., .T., .T., "Simple menu" }, ;
        ; // { "demomenuxml",            .T., .T., .T., "Setup menu from XML ***error on new item***" }, ;
+       ; // { "demotab",                .T., .T., .T., "Tab and more samples" } , ;
        ; // { "demotreebox",            .T., .T., .T., "Treebox, Splitter and tab" }, ;
        ; // { "demoshadebtn",           .T., .F., .F., "Shade button" }, ;
        ; // { "demoxmltree.prg",        .T., .T., .T., "Show XML using hxmldoc and tree" }, ;
+       ; // { "htrack.prg",             .T., .T., .T., "HTrack" }, ;
        { "",                       .F., .F., .F., "" }, ;
        { "notexist",               .F., .F., .F., "Test for menu, about not available" } }
 
@@ -256,6 +256,12 @@ PROCEDURE Main
 
    END PAGE OF oTab
 
+   BEGIN PAGE "Trackbar" OF oTab
+
+      DemoAllTabTrackbar()
+
+   END PAGE OF oTab
+
    BEGIN PAGE "Treebox" OF oTab
 
       DemoAllTabTreebox( aInitList )
@@ -303,6 +309,22 @@ STATIC FUNCTION DemoAllTabSay()
    BEGIN PAGE "1.DemoGet2" OF oTab
 
       DemoGet2( .F., oTab )
+
+   END PAGE OF oTab
+
+   RETURN Nil
+
+STATIC FUNCTION DemoAllTabTrackbar()
+
+   LOCAL oTab
+
+   @ 10, 30 TAB oTab ;
+      ITEMS {} ;
+      SIZE 700, 550
+
+   BEGIN PAGE "1.HTrack" OF oTab
+
+      DemoHTrack( .F., oTab )
 
    END PAGE OF oTab
 
@@ -685,6 +707,7 @@ CASE cFileName == "demobrowseado.prg";   #pragma __binarystreaminclude "demobrow
 CASE cFileName == "demodbfdata.prg";     #pragma __binarystreaminclude "demodbfdata.prg" | RETURN %s
 CASE cFileName == "demogetupdown.prg";   #pragma __binarystreaminclude "demogetupdown.prg" | RETURN %s
 CASE cFileName == "demoget2.prg";        #pragma __binarystreaminclude "demoget2.prg" | RETURN %s
+CASE cFileName == "demohtrack.prg";      #pragma __binarystreaminclude "demohtrack.prg" | RETURN %s
 CASE cFileName == "demolistbox.prg";     #pragma __binarystreaminclude "demolistbox.prg" | RETURN %s
 CASE cFileName == "demolistboxsub.prg";  #pragma __binarystreaminclude "demolistboxsub.prg" | RETURN %s
 CASE cFileName == "demomonthcal.prg";    #pragma __binarystreaminclude "demomonthcal.prg" | RETURN %s

@@ -20,7 +20,7 @@ FUNCTION DemoBrowseDbf( lWithDialog, oDlg )
 
    hb_Default( @lWithDialog, .T. )
 
-   SELECT ( Select( "browsedbf" ) )
+   SELECT ( Select( "browsedbf" ) ) // if already open
    USE
    CreateDBF( "tmpbrowsedbf" )
    USE tmpbrowsedbf SHARED ALIAS browsedbf

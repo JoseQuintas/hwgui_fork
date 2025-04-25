@@ -93,7 +93,6 @@ delfi samples/bitmapbug
 delfi samples/tststconsapp
 delfi samples/helloworld
 delfi samples/hello
-delfi samples/htrack
 delfi samples/arraybrowse
 delfi samples/progressbar/progress
 delfi samples/progressbar/demo_progres
