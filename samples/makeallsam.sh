@@ -31,7 +31,6 @@ hbmk2 demodbf.hbp
 hbmk2 Dialogboxes.hbp
 hbmk2 escrita.hbp
 hbmk2 fileselect.hbp
-hbmk2 demogetupdown.hbp
 hbmk2 GetWinVers.hbp
 hbmk2 graph.hbp
 hbmk2 grid_1.hbp

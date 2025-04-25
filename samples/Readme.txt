@@ -230,12 +230,13 @@ For beginners:
  a.prg   +) 9)       R       N    CN          Some HWGUI basics (Open DBF's, GET's, ...)
 
  demoall.prg         ?                        group samples
+   demoaltdpicker.prg Y                       Multiplatform substitute of Windows only DATEPICKER
    demobrowsedbf.prg Y       ?    ?           browse dbf
    demobrowseado.prg N       N                ADO Browse (TNX Itamar M. Lins Jr.). For multi platform use BROWSE.
    democheckbox.prg  Y                        Checkboxes and tabs
    democombobox.prg  Y                        Combobox
    demodbfdata.prg                            Database to insert/delete/edit/navigate
-   demoaltdpicker.prg Y                       Multiplatform substitute of Windows only DATEPICKER
+   demogetupdown.prg Y                        Usage of @ <x> <y> GET UPDOWN ..
    demolistbox.prg   S       S         Y      Demo for listbox
    demolistboxsub.prg Y                Y      Multi platform substitute for listbox by BROWSE.
    demomenu.prg      Y                        Simple menu
@@ -257,7 +258,6 @@ For beginners:
  Dialogboxes.prg     Y                        Demonstrates few ready to use dialog boxes (extract from tutor)
  escrita.prg   +)    Y       Y                Tool buttons with bitmaps ("Accent Test")
  fileselect.prg      Y                        Sample for file selection menues
- demogetupdown.prg   Y                        Usage of @ <x> <y> GET UPDOWN ..
  GetWinVers.prg      Y                        Functions for get recent hwg_SaveFile() Windows version
  graph.prg           Y                        Paint graphs (Sinus, Bar diagram)
  grid_1.prg     +)   N       N         Y      Grid demo (HGrid class)

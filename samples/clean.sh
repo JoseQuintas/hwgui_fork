@@ -22,11 +22,9 @@ rm bitmapbug 2> /dev/null
 rm buildpelles 2> /dev/null
 rm colrbloc 2> /dev/null
 rm dbview 2> /dev/null
-rm demohlistsub 2> /dev/null
 rm Dialogboxes 2> /dev/null
 rm escrita 2> /dev/null
 rm fileselect 2> /dev/null
-rm demogetupdown 2> /dev/null
 rm GetWinVers 2> /dev/null
 rm graph 2> /dev/null
 rm grid_1 2> /dev/null
@@ -64,7 +62,6 @@ rm testfunc 2> /dev/null
 rm testget1 2> /dev/null
 rm testget2 2> /dev/null
 rm testhgt 2> /dev/null
-rm demomonthcal 2> /dev/null
 rm testimage 2> /dev/null
 rm demoini 2> /dev/null
 rm testmenubitmap 2> /dev/null

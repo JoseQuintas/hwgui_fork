@@ -64,8 +64,6 @@ rm samples/a.log 2>/dev/null
 rm samples/testget1 2>/dev/null
 rm samples/bincnts 2>/dev/null
 delfi samples/GetWinVers
-delfi samples/demogetupdown
-delfi samples/demodbfdata
 delfi samples/demodbf
 delfi samples/fileselect
 rm samples/stretch 2>/dev/null
@@ -77,7 +75,6 @@ rm samples/dbview.c 2>/dev/null
 rm samples/testfunc 2>/dev/null
 rm samples/winprn 2>/dev/null
 delfi samples/winprn.c
-rm samples/demoxmltree 2>/dev/null
 rm samples/colrbloc 2>/dev/null
 rm samples/testtree 2>/dev/null
 rm samples/bindbf 2>/dev/null
@@ -111,10 +108,6 @@ delfi samples/testtray
 delfi samples/simpleedit
 delfi samples/checkbox
 delfi samples/datepicker
-delfi samples/democombobox
-delfi samples/demohlistsub
-delfi samples/demomonthcal
-delfi samples/demotreebox
 delfi samples/dlgbrwdbf
 delfi samples/getupdown
 delfi samples/memocmp
