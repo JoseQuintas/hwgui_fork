@@ -86,7 +86,7 @@ PROCEDURE Main
        { "testbrwq.prg",           .T., .F., .F., "Test browse" }, ;
        { "testget1.prg",           .T., .F., .F., "Test Get 1" }, ;
        { "testmenubitmap.prg",     .T., .F., .F., "Test Menu Bitmap" }, ;
-       { "testtree.prg",           .T., .F., .F., "Treebox Editable *** error on edit***" }, ;
+       { "testtree.prg",           .T., .F., .F., "Treeview Editable *** error on edit***" }, ;
        { "testrtf.prg",            .T., .F., .F., "Test RTF" }, ;
        { "tstscrlbar.prg",         .T., .T., .T., "Scrollbar" }, ;
        { "tstspach.prg",           .T., .F., .F., "Test Splash" }, ;
@@ -114,7 +114,7 @@ PROCEDURE Main
        ; // { "demomenu",               .T., .T., .T., "Simple menu" }, ;
        ; // { "demomenuxml",            .T., .T., .T., "Setup menu from XML ***error on new item***" }, ;
        ; // { "demotab",                .T., .T., .T., "Tab and more samples" } , ;
-       ; // { "demotreebox",            .T., .T., .T., "Treebox, Splitter and tab" }, ;
+       ; // { "demotreeview",           .T., .T., .T., "Treeview, Splitter and tab" }, ;
        ; // { "demoshadebtn",           .T., .F., .F., "Shade button" }, ;
        ; // { "demoxmltree.prg",        .T., .T., .T., "Show XML using hxmldoc and tree" }, ;
        ; // { "htrack.prg",             .T., .T., .T., "HTrack" }, ;
@@ -262,9 +262,9 @@ PROCEDURE Main
 
    END PAGE OF oTab
 
-   BEGIN PAGE "Treebox" OF oTab
+   BEGIN PAGE "Treeview" OF oTab
 
-      DemoAllTabTreebox( aInitList )
+      DemoAllTabTreeview( aInitList )
 
    END PAGE OF oTab
 
@@ -463,7 +463,7 @@ STATIC FUNCTION DemoAllTabDate()
 
    RETURN Nil
 
-STATIC FUNCTION DemoAllTabTreebox( aInitList )
+STATIC FUNCTION DemoAllTabTreeview( aInitList )
 
    LOCAL oTab
 
@@ -471,9 +471,9 @@ STATIC FUNCTION DemoAllTabTreebox( aInitList )
       ITEMS {} ;
       SIZE 700, 550
 
-   BEGIN PAGE "1.Treebox" OF oTab
+   BEGIN PAGE "1.Treeview" OF oTab
 
-      DemoTreebox( .F., oTab, aInitList )
+      DemoTreeview( .F., oTab, aInitList )
 
    END PAGE OF oTab
 
@@ -493,9 +493,9 @@ STATIC FUNCTION DemoAllTabSplitter( aInitList )
       ITEMS {} ;
       SIZE 700, 550
 
-   BEGIN PAGE "1.Treebox" OF oTab
+   BEGIN PAGE "1.Treeview" OF oTab
 
-      DemoTreebox( .F., oTab, aInitList )
+      DemoTreeview( .F., oTab, aInitList )
 
    END PAGE OF oTab
 
@@ -715,7 +715,7 @@ CASE cFileName == "demomenu.prg";        #pragma __binarystreaminclude "demomenu
 CASE cFileName == "demomenuxml.prg";     #pragma __binarystreaminclude "demomenuxml.prg" | RETURN %s
 CASE cFileName == "demoshadebtn.prg";    #pragma __binarystreaminclude "demoshadebtn.prg" | RETURN %s
 CASE cFileName == "demotab.prg";         #pragma __binarystreaminclude "demotab.prg" | RETURN %s
-CASE cFileName == "demotreebox.prg";     #pragma __binarystreaminclude "demotreebox.prg" | RETURN %s
+CASE cFileName == "demotreeview.prg";    #pragma __binarystreaminclude "demotreeview.prg" | RETURN %s
 CASE cFileName == "demoxmltree.prg";     #pragma __binarystreaminclude "demoxmltree.prg" | RETURN %s
 ENDCASE
 

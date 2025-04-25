@@ -246,7 +246,7 @@ For beginners:
    demomonthcal.prg  N                 Y      Calendar, Datepicker, TOOLTIP
    demoshadebtn.prg  N       N                Shade buttons (for multi platform usage take OWNERBUTTON)
    demotab.prg       Y       ?    ?           Tab, owner button, combobox, dateselect, status panel
-   demotreebox.prg   Y                        Tree control, Splitter, Tab
+   demotreeview.prg  Y                        Tree control, Splitter, Tab
    demoxmltree.prg   Y                 YW     Show XML-Tree: Open "testxml.xml" for test.
 
  testbrowsearray.prg Y                        Array BROWSE avoiding crashes because of bugs (see inline comments)

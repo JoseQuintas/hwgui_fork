@@ -1,5 +1,5 @@
 /*
- * $Id: demotreebox.prg,v 1.2 2005/09/19 16:32:44 lf_sfnet Exp $
+ * $Id: demotreeview.prg,v 1.2 2005/09/19 16:32:44 lf_sfnet Exp $
  *
  * This sample demonstrates the using of a TREE control
  *
@@ -7,7 +7,7 @@
 
 #include "hwgui.ch"
 
-FUNCTION DemoTreebox( lWithDialog, oDlg, aInitList )
+FUNCTION DemoTreeview( lWithDialog, oDlg, aInitList )
 
    LOCAL oFont := HFont():Add( "MS Sans Serif",0,-13 )
    LOCAL oTree, oSplit, oTab
@@ -17,7 +17,7 @@ FUNCTION DemoTreebox( lWithDialog, oDlg, aInitList )
 
    IF lWithDialog
       INIT DIALOG oDlg ;
-         TITLE "demotreebox.prg - treebox and splitter" ;
+         TITLE "demotreeview.prg - treeview and splitter" ;
          AT 200,0 ;
          SIZE 600, 400 ;
          FONT oFont ;
@@ -27,7 +27,7 @@ FUNCTION DemoTreebox( lWithDialog, oDlg, aInitList )
    ENDIF
 
 // on demo.ch
-   ButtonForSample( "demotreebox.prg", oDlg )
+   ButtonForSample( "demotreeview.prg", oDlg )
 
    @ 10, 60 TREE oTree ;
       OF oDlg ;
