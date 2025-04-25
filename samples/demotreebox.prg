@@ -7,7 +7,7 @@
 
 #include "hwgui.ch"
 
-FUNCTION DemoTreebox( lWithDialog, oDlg )
+FUNCTION DemoTreebox( lWithDialog, oDlg, aInitList )
 
    LOCAL oFont := HFont():Add( "MS Sans Serif",0,-13 )
    LOCAL oTree, oSplit, oTab
@@ -16,11 +16,14 @@ FUNCTION DemoTreebox( lWithDialog, oDlg )
    hb_Default( @lWithDialog, .T. )
 
    IF lWithDialog
-      INIT WINDOW oDlg ;
+      INIT DIALOG oDlg ;
          TITLE "demotreebox.prg - treebox and splitter" ;
          AT 200,0 ;
          SIZE 600, 400 ;
-         FONT oFont
+         FONT oFont ;
+         ON INIT { || BuildTree( oDlg, oTree, oTab ) }
+   ELSE
+      AADD( aInitList, { || BuildTree( oDlg, oTree, oTab ) } )
    ENDIF
 
 // on demo.ch
@@ -60,10 +63,10 @@ FUNCTION DemoTreebox( lWithDialog, oDlg )
 
    oSplit:bEndDrag := { || hwg_Redrawwindow( oTab:handle, RDW_ERASE + RDW_INVALIDATE + RDW_INTERNALPAINT + RDW_UPDATENOW ) }
 
-   BuildTree( oDlg, oTree,oTab )
+   //BuildTree( oDlg, oTree,oTab )
 
    IF lWithDialog
-      ACTIVATE WINDOW oDlg ;
+      ACTIVATE DIALOG oDlg ;
          CENTER // MAXIMIZED
       oFont:Release()
    ENDIF

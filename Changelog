@@ -15,7 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2025-04-24 20:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
+2024-04-24 20:00 UTCX-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demotreebox.prg
+     ! change to dialog and move buildtree to dialog init
+     ! add parameter aInitList, to add same codeblock
+   * samples/demoxmltree.prg
+     ! change to load xml clicking on a button
+   * samples/demoall.prg
+     ! added to call samples passing bInitList when needed
+     ! dialog init eval codeblocks added on aInitList by samples
+     ! Now that samples works alone or inside demoall tabpage
+
+2025-04-24 19:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
   * clean.sh
   * samples/Readme.txt
   * samples/demoall.hbp

@@ -2,9 +2,9 @@
 
 MEMVAR oFont , cImageDir , cDirSep , cBitmap1, cbitmap2 , cppath
 
-FUNCTION DemoXmlTree()
+FUNCTION DemoXmlTree( lWithDialog, oDlg )
 
-   LOCAL oDlg, oTree, oXmlDoc, fname, oSplit, oSay
+   LOCAL oTree, oSplit, oSay
 
    PRIVATE oFont     := HFont():Add( "MS Sans Serif",0,-13 )
    PRIVATE cppath    := ".."
@@ -13,24 +13,19 @@ FUNCTION DemoXmlTree()
    PRIVATE cBitmap1  := cImageDir + "cl_fl.bmp"
    PRIVATE cbitmap2  := cImageDir + "op_fl.bmp"
 
+   hb_Default( @lWithDialog, .T. )
+
    CHECK_FILE( cBitmap1 )
    CHECK_FILE( cbitmap2 )
 
-   fname := hwg_Selectfile( "XML files( *.xml )", "*.xml" )
-
-   IF Empty( fname )
-      Return Nil
+   IF lWithDialog
+      INIT DIALOG oDlg ;
+         TITLE "demoxmltree.prg - show xml content" ; // + cutPath( fname ) ;
+         AT 210,10  ;
+         SIZE 430,300 ;
+         FONT oFont  ;
+         //ON INIT { || BuildTree( oTree, oXmlDoc:aItems, oSay ) }
    ENDIF
-
-   IF ( oXmlDoc := HXMLDoc():Read( fname ) ) = Nil
-   ENDIF
-
-   INIT DIALOG oDlg ;
-      TITLE "demoxmltree.prg - " + cutPath( fname ) ;
-      AT 210,10  ;
-      SIZE 430,300 ;
-      FONT oFont  ;
-      ON INIT { || BuildTree( oTree, oXmlDoc:aItems, oSay ) }
 
 // on demo.ch
    ButtonForSample( "demoxmltree.prg", oDlg )
@@ -42,13 +37,17 @@ FUNCTION DemoXmlTree()
       BITMAP { cBitmap1, cbitmap2 } ;
       ON SIZE {|o,x,y| (x), o:Move(,,,y-20)}
 
-   @ 214, 70 SAY oSay ;
+   @ 214, 60 BUTTON "Load XML File" ;
+      SIZE 200, 24 ;
+      ON CLICK { || LoadXmlFile( oTree, oSay ) }
+
+   @ 214, 100 SAY oSay ;
       CAPTION "" ;
       SIZE 206,280 ;
       STYLE WS_BORDER ;
       ON SIZE {|o,x,y|o:Move(,,x-oSplit:nLeft-oSplit:nWidth-10,y-20)}
 
-   @ 214, 70 EDITBOX oSay ;
+   @ 214, 150 EDITBOX oSay ;
       CAPTION "" ;
       SIZE 206,280 ;
       STYLE WS_VSCROLL+WS_HSCROLL+ES_MULTILINE+ES_READONLY ;
@@ -62,9 +61,28 @@ FUNCTION DemoXmlTree()
 
    oSplit:bEndDrag := {||hwg_Redrawwindow( oSay:handle,RDW_ERASE+RDW_INVALIDATE+RDW_INTERNALPAINT+RDW_UPDATENOW)}
 
-   ACTIVATE DIALOG oDlg
+   IF lWithDialog
+      ACTIVATE DIALOG oDlg
+   ENDIF
 
 RETURN Nil
+
+STATIC FUNCTION LoadXmlFile( oTree, oSay )
+
+   LOCAL fName, oXmlDoc
+
+   fname := hwg_Selectfile( "XML files( *.xml )", "*.xml" )
+
+   IF Empty( fname )
+      Return Nil
+   ENDIF
+
+   IF ( oXmlDoc := HXMLDoc():Read( fname ) ) = Nil
+   ENDIF
+
+   BuildTree( oTree, oXmlDoc:aItems, oSay )
+
+   RETURN Nil
 
 STATIC FUNCTION BuildTree( oParent,aItems,oSay )
 

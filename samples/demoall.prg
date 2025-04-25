@@ -38,7 +38,7 @@ It is all
 PROCEDURE Main
 
    LOCAL oDlg, oTab, aItem, nIndex := 1, lCloseMenu := .F., nCont
-   LOCAL lIsAvailable, lIsEXE
+   LOCAL lIsAvailable, lIsEXE, aInitList := {}
    LOCAL aList := { ;
        ; // NAME,                  WIN, LINUX, MACOS, DESCRIPTION
        { "a.prg",                  .T., .F., .F., "MDI, Tab, checkbox, combobox, browse array, others" }, ;
@@ -126,7 +126,8 @@ PROCEDURE Main
       AT 0,0 ;
       SIZE 1024, 768 ;
       BACKCOLOR 16772062 ;
-      STYLE WS_MAXIMIZEBOX + WS_MINIMIZEBOX + WS_SYSMENU
+      STYLE WS_MAXIMIZEBOX + WS_MINIMIZEBOX + WS_SYSMENU ;
+      ON INIT { || DemoAllEvalList( aInitList ) }
 
    MENU OF oDlg
       FOR nCont = 1 TO Len( aList ) // not sure about Xharbour for/each
@@ -236,7 +237,7 @@ PROCEDURE Main
    BEGIN PAGE "treebox" ;
       OF oTab
 
-      DemoAllTabTreebox()
+      DemoAllTabTreebox( aInitList )
 
    END PAGE OF oTab
 
@@ -256,7 +257,7 @@ PROCEDURE Main
    BEGIN PAGE "splitter" ;
       OF oTab
 
-      DemoAllTabSplitter()
+      DemoAllTabSplitter( aInitList )
 
    END PAGE OF oTab
 
@@ -402,7 +403,7 @@ STATIC FUNCTION DemoAllTabDate()
 
    RETURN Nil
 
-STATIC FUNCTION DemoAllTabTreebox()
+STATIC FUNCTION DemoAllTabTreebox( aInitList )
 
    LOCAL oTab
 
@@ -413,24 +414,20 @@ STATIC FUNCTION DemoAllTabTreebox()
    BEGIN PAGE "treebox" ;
       OF oTab
 
-      @ 30, 50 BUTTON "demoTreebox.prg" ;
-         SIZE 200, 24 ;
-         ON CLICK { || DemoTreebox() }
+      DemoTreebox( .F., oTab, aInitList )
 
    END PAGE OF oTab
 
    BEGIN PAGE "demoxmltree" ;
       OF oTab
 
-      @ 30, 50 BUTTON "demoXmlTree.prg" ;
-         SIZE 200, 24 ;
-         ON CLICK { || DemoXmlTree() }
+      DemoXmlTree( .F., oTab, aInitList )
 
    END PAGE OF oTab
 
    RETURN Nil
 
-STATIC FUNCTION DemoAllTabSplitter()
+STATIC FUNCTION DemoAllTabSplitter( aInitList )
 
    LOCAL oTab
 
@@ -441,18 +438,14 @@ STATIC FUNCTION DemoAllTabSplitter()
    BEGIN PAGE "demotreebox" ;
       OF oTab
 
-      @ 30, 50 BUTTON "demotreebox.prg" ;
-         SIZE 200, 24 ;
-         ON CLICK { || DemoTreebox() }
+      DemoTreebox( .F., oTab, aInitList )
 
    END PAGE OF oTab
 
    BEGIN PAGE "demoxmltree" ;
       OF oTab
 
-      @ 30, 50 BUTTON "demoXmlTree.prg" ;
-         SIZE 200, 24 ;
-         ON CLICK { || DemoXmlTree() }
+      DemoXmlTree( .F., oTab )
 
    END PAGE OF oTab
 
@@ -516,6 +509,16 @@ STATIC FUNCTION ExecuteExe( cFileName )
       ENDIF
    ENDIF
    HWG_RunApp( cBinName )
+
+   RETURN Nil
+
+STATIC FUNCTION DemoAllEvalList( aInitList )
+
+   LOCAL bCode
+
+   FOR EACH bCode IN aInitList
+      Eval( bCode )
+   NEXT
 
    RETURN Nil
 
