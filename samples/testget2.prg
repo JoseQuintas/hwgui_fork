@@ -28,33 +28,9 @@
 
 #include "hwgui.ch"
 
-MEMVAR oSayT
+FUNCTION TestGet2( lWithDialog, oDlg )
 
-FUNCTION Main()
-
-   LOCAL oMainWindow
-
-   INIT WINDOW oMainWindow ;
-      MAIN ;
-      TITLE "Example" ;
-      AT 200,0 ;
-      SIZE 400,150
-
-   MENU OF oMainWindow
-      MENUITEM "&Exit" ACTION hwg_EndWindow()
-      MENUITEM "&Get values" ACTION DlgGet(.F.)
-      MENUITEM "&Get using SetcolorinFocus" ACTION DlgGet(.T.)
-      MENUITEM "&Text Ballon" ACTION TestBallon()
-      MENUITEM "&Hd Serial  " ACTION hwg_Msginfo( hwg_HdSerial( "C:\" ), "HD Serial number" )
-   ENDMENU
-
-   ACTIVATE WINDOW oMainWindow CENTER
-
-RETURN Nil
-
-FUNCTION DlgGet( lColorInFocus )
-
-   LOCAL oModDlg, oFont := HFont():Add( "MS Sans Serif", 0, -13 ), oTimer
+   LOCAL oFont := HFont():Add( "MS Sans Serif", 0, -13 ), oTimer
    LOCAL e1 := "Dialog from prg"
    LOCAL e2 := Date()
    LOCAL e3 := 10320.54
@@ -62,66 +38,68 @@ FUNCTION DlgGet( lColorInFocus )
    LOCAL e5 := 10320.54
    LOCAL e6 := "Max Lenght = 15"
    LOCAL e7 := "Password"
-   LOCAL oget6
+   LOCAL oget6, oSayT
 
-   PRIVATE oSayT
+   hb_Default( @lWithDialog, .T. )
 
-   INIT DIALOG oModDlg ;
-      CLIPPER ;
-      NOEXIT ;
-      TITLE "Get values"  ;
-      AT 210,10  ;
-      SIZE 300,320 ;
-      FONT oFont ;
-      ON INIT { || Dlg_Settimer( oModDlg, @oTimer ) }
+   IF lWithDialog
+      INIT DIALOG oDlg ;
+         CLIPPER ;
+         NOEXIT ;
+         TITLE "testget2.prg - get values"  ;
+         AT 0, 0  ;
+         SIZE 600, 450 ;
+         FONT oFont ;
+         ON INIT { || Dlg_Settimer( oDlg, @oTimer, oSayT ) }
 
-   SET KEY FSHIFT, VK_F3 TO hwg_Msginfo( "Shift-F3" )
-   SET KEY FCONTROL, VK_F3 TO hwg_Msginfo( "Ctrl-F3" )
-   SET KEY 0, VK_F3 TO hwg_Msginfo( "F3" )
-   SET KEY 0, VK_RETURN TO hwg_Msginfo( "Return" )
-
-   IF lColorInFocus <> Nil
-      hwg_SetColorinFocus( lColorInFocus )
+      SET KEY FSHIFT, VK_F3 TO hwg_Msginfo( "Shift-F3" )
+      SET KEY FCONTROL, VK_F3 TO hwg_Msginfo( "Ctrl-F3" )
+      SET KEY 0, VK_F3 TO hwg_Msginfo( "F3" )
+      SET KEY 0, VK_RETURN TO hwg_Msginfo( "Return" )
    ENDIF
 
-   @ 20, 10  SAY "Input something:" ;
+   hwg_SetColorinFocus( .T.)
+
+   ButtonForSample( "testget2.prg" )
+
+   @ 20, 110  SAY "Input something:" ;
       SIZE 260, 22
 
-   @ 20, 35  GET e1 PICTURE "XXXXXXXXXXXXXXX" ;
+   @ 20, 135  GET e1 PICTURE "XXXXXXXXXXXXXXX" ;
       SIZE 260, 26
 
-   @ 20, 65  GET oget6 ;
+   @ 20, 165  GET oget6 ;
       VAR e6 ;
       MAXLENGTH 15 ;
       SIZE 260, 26
 
-   @ 20, 95  GET e2  ;
+   @ 20, 195  GET e2  ;
       SIZE 260, 26
 
-   @ 20, 125 GET e3  ;
+   @ 20, 225 GET e3  ;
       SIZE 260, 26
 
-   @ 20, 155 GET e4 ;
+   @ 20, 255 GET e4 ;
       PICTURE "@R 99.999.999/9999-99" ;
       SIZE 260, 26
 
-   @ 20, 185 GET e5 ;
+   @ 20, 285 GET e5 ;
       PICTURE "@e 999,999,999.9999" ;
       SIZE 260, 26
 
-   @ 20, 215 GET e7 ;
+   @ 20, 315 GET e7 ;
       PASSWORD ;
       SIZE 260, 26
 
-   @  20, 250  BUTTON "Ok" ;
+   @  20, 350  BUTTON "Ok" ;
       SIZE 100, 32 ;
-      ON CLICK { || oModDlg:lResult := .T., hwg_EndDialog() }
+      ON CLICK { || oDlg:lResult := .T., hwg_EndDialog() }
 
-   @ 180, 250 BUTTON "Cancel" ;
+   @ 180, 350 BUTTON "Cancel" ;
       ID IDCANCEL ;
       SIZE 100, 32
 
-   @ 100, 295 SAY oSayT ;
+   @ 100, 395 SAY oSayT ;
       CAPTION "" ;
       SIZE 100,22 ;
       STYLE WS_BORDER + SS_CENTER ;
@@ -129,12 +107,14 @@ FUNCTION DlgGet( lColorInFocus )
       BACKCOLOR 12507070
 
    ReadExit( .T. )
-   ACTIVATE DIALOG oModDlg
 
-   oTimer:End()
+   IF lWithDialog
+      ACTIVATE DIALOG oDlg
 
-   IF oModDlg:lResult
-      hwg_Msginfo( e1 + chr(10) + chr(13) +       ;
+      oTimer:End()
+
+      IF oDlg:lResult
+         hwg_Msginfo( e1 + chr(10) + chr(13) + ;
                e6 + chr(10) + chr(13) +       ;
                Dtoc(e2) + chr(10) + chr(13) + ;
                Str(e3) + chr(10) + chr(13) +  ;
@@ -142,20 +122,21 @@ FUNCTION DlgGet( lColorInFocus )
                Str(e5) + chr(10) + chr(13) +  ;
                e7 + chr(10) + chr(13)         ;
                ,"Results:" )
+      ENDIF
    ENDIF
 
 RETURN Nil
 
-STATIC FUNCTION Dlg_Settimer( oDlg,oTimer )
+STATIC FUNCTION Dlg_Settimer( oDlg,oTimer, oSayT )
 
    SET TIMER oTimer ;
       OF oDlg ;
       VALUE 1000 ;
-      ACTION { || TimerFunc() }
+      ACTION { || TimerFunc( oSayT ) }
 
 RETURN Nil
 
-STATIC FUNCTION TimerFunc()
+STATIC FUNCTION TimerFunc( oSayT )
 
    oSayT:SetText( Time() )
 
@@ -192,6 +173,8 @@ FUNCTION MAXLEN_VALID(nlen,cstring)
  ENDIF
 
 RETURN .T.
+
+#include "demo.ch"
 
 * ============================= EOF of testget2.prg ================================================
 

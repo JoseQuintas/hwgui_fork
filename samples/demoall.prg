@@ -192,7 +192,13 @@ PROCEDURE Main
 
    BEGIN PAGE "Say" OF oTab
 
-      DemoSay( .F. )
+      DemoAllTabSay()
+
+   END PAGE OF oTab
+
+   BEGIN PAGE "Get" OF oTab
+
+      TestGet2( .F., oTab )
 
    END PAGE OF oTab
 
@@ -269,6 +275,34 @@ PROCEDURE Main
    ACTIVATE DIALOG oDlg CENTER
 
    RETURN
+
+STATIC FUNCTION DemoAllTabSay()
+
+   @ 10, 30 TAB oTab ;
+      ITEMS () ;
+      SIZE 650, 450
+
+   BEGIN PAGE "Testget2" OF oTab
+
+      TestGet2( .F., oTab )
+
+   END PAGE OF oTab
+
+   RETURN Nil
+
+STATIC FUNCTION DemoAllTabGet()
+
+   @ 10, 30 TAB oTab ;
+      ITEMS () ;
+      SIZE 650, 450
+
+   BEGIN PAGE "Testget2" OF oTab
+
+      TestGet2( .F., oTab )
+
+   END PAGE OF oTab
+
+   RETURN Nil
 
 STATIC FUNCTION DemoAllTabBrowse()
 
@@ -545,17 +579,6 @@ STATIC FUNCTION CheckPrgHbpExe()
    RETURN Nil
 
 // to be external
-STATIC FUNCTION DemoSay()
-
-   @ 10, 50 SAY "a text" ;
-      SIZE 80, 30
-
-   @ 10, 100 SAY "Need SIZE (*)" ;
-      SIZE 300, 30
-
-   RETURN Nil
-
-// to be external
 STATIC FUNCTION DemoDateSelect()
 
    LOCAL oDate
@@ -641,6 +664,7 @@ CASE cFileName == "demobrowsedbf.prg";   #pragma __binarystreaminclude "demobrow
 CASE cFileName == "demobrowseado.prg";   #pragma __binarystreaminclude "demobrowseado.prg" | RETURN %s
 CASE cFileName == "demodbfdata.prg";     #pragma __binarystreaminclude "demodbfdata.prg" | RETURN %s
 CASE cFileName == "demogetupdown.prg";   #pragma __binarystreaminclude "demogetupdown.prg" | RETURN %s
+CASE cFileName == "testget2.prg";        #pragma __binarystreaminclude "testget2.prg" | RETURN %s
 CASE cFileName == "demolistbox.prg";     #pragma __binarystreaminclude "demolistbox.prg" | RETURN %s
 CASE cFileName == "demolistboxsub.prg";  #pragma __binarystreaminclude "demolistboxsub.prg" | RETURN %s
 CASE cFileName == "demomonthcal.prg";    #pragma __binarystreaminclude "demomonthcal.prg" | RETURN %s
