@@ -15,6 +15,25 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2024-04-25 19:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * clean.sh
+   * samples/Readme.txt
+   * samples/clean.sh
+   * samples/demoall.hbp
+   * samples/demoall.prg
+   * samples/demobrowsedbf.prg
+   * samples/demodbfdata.prg
+   * samples/demo.ch
+   - samples/demogetupdown.hbp
+   - samples/htrack.hbp
+   * samples/demohtrack.prg renamed from track.prg
+   * samples/demotreeview.prg renamed from demotreebox.prg
+   * samples/demoini.prg
+   * samples/makeallsam.sh
+     ! more samples multiuse, tmp file names, delete tmp on exit
+   + samples/demolenta.prg
+     ! from tutorial, added as subtab on "tab" (can be compiled alone)
+
 2024-04-25 11:10 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * clean.sh
    * samples/Readme.txt
