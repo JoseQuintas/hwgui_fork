@@ -17,9 +17,11 @@
 #include "hwgui.ch"
 
 
-FUNCTION Main()
+FUNCTION DemoGetUpDown( lWithDialog, oDlg )
 
-   LOCAL n_Key2, o_Number, o_TAB_1, nValue, o_get // n_Key1
+   LOCAL n_Key2, o_Number, o_get
+
+   hb_Default( @lWithDialog, .T. )
 
 #ifndef __GTK__
    hwg_Settooltipballoon(.t.)
@@ -29,32 +31,44 @@ FUNCTION Main()
    n_Key2 := 3000
    o_Number := 10
 
-   INIT WINDOW o_TAB_1 ;
-      MAIN ;
-      TITLE "demogetupdown.prg - Ticket #19"  ;
-      AT 200,100 SIZE 500,500 ;
-      ON EXIT { || hwg_MsgYesNo( "OK to quit ?" ) }
+   IF lWithDialog
+      INIT DIALOG oDlg ;
+         TITLE "demogetupdown.prg - Ticket #19"  ;
+         AT 200,100 SIZE 500,500 ;
+         // ON EXIT { || hwg_MsgYesNo( "OK to quit ?" ) }
+   ENDIF
 
-   @ 200, 50 GET UPDOWN o_get ;
+   ButtonForSample( "demogetupdown.prg" )
+
+   @ 200, 100 GET UPDOWN o_get ;
       VAR o_Number ;
-      RANGE 1, n_Key2 OF o_TAB_1 ;
+      RANGE 1, n_Key2 OF oDlg ;
       ID 100 ;
       SIZE 80, 30 ;
       STYLE WS_BORDER ;
       TOOLTIP "Select the Progressive Number"
 
+   @ 200, 200 BUTTON "Show Value" ;
+      OF oDlg ;
+      SIZE 200, 24 ;
+      ON CLICK { || hwg_MsgInfo( "Value = " + LTrim( Str( o_Get:Value() ) ) ) }
+
    o_Number := o_Number + 1
-   o_get:Value(o_Number)
+   o_get:Value( o_Number )
    o_get:Refresh()
 
-   ACTIVATE WINDOW o_TAB_1 CENTER
+   IF lWithDialog
+      ACTIVATE DIALOG oDlg CENTER
+   ENDIF
    * after some code execution
    * I put this istruction to see the value
    * nValue := o_Number:Value()
-   nValue := o_Number
-   hwg_msginfo( "nValue =" + ALLTRIM( STR( nValue ) ) )
+   //nValue := o_Number
+   //hwg_msginfo( "nValue =" + ALLTRIM( STR( nValue ) ) )
 
 RETURN Nil
+
+#include "demo.ch"
 
 * reading the value works fine
 *    after some other code execution i increment the counter

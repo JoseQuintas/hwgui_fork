@@ -51,7 +51,6 @@ PROCEDURE Main
        ;
        ; // controls
        ;
-       { "demogetupdown.prg",      .T., .T., .T., "Get UpDown" }, ;
        { "testbrowsearr.prg",      .T., .T., .T., "browse array editable" }, ;
        { "demodatepicker.prg",     .T., .T., .T., "Date Picker" }, ;
        { "demoonother.prg",        .T., .F., .F., "ON OTHER MESSAGES" }, ;
@@ -104,13 +103,14 @@ PROCEDURE Main
        { "",                       .F., .F., .F., "" }, ;
        ; // already visible on the tab of demoall.prg
        ;
-       { "demotab",                .T., .T., .T., "Tab and more samples" } , ;
+       ; // { "demotab",                .T., .T., .T., "Tab and more samples" } , ;
        ; // { "demobrowsedbf",          .T., .T., .T., "Browse DBF"  }, ;
        ; // { "demomonthcal",           .T., .T., .T., "Month Calendar" }, ;
        ; // { "demobrowseado",          .T., .F., .F., "Browse using ADO" }, ;
        ; // { "democheckbox",           .T., .T., .T., "Checkbox and tab" }, ;
        ; //{ "democombobox.prg",       .T., .T., .T., "Combobox" }, ;
        ; // { "demodbfdata.prg",        .T., .T., .T., "DBF data using tab" }, ;
+       ; //{ "demogetupdown.prg",      .T., .T., .T., "Get UpDown" }, ;
        ; // { "demolistbox.prg",        .T., .F., .F., "Listbox" }, ;
        ; // { "demolistboxsub.prg",     .T., .T., .T., "Listbox Substitute" }, ;
        ; // { "demomenu",               .T., .T., .T., "Simple menu" }, ;
@@ -178,71 +178,61 @@ PROCEDURE Main
       ITEMS {} ;
       SIZE  950, 600
 
-   BEGIN PAGE "sample" ;
-      OF oTab
+   BEGIN PAGE "Sample" OF oTab
 
       DemoDbfData( .F., oTab )
 
    END PAGE OF oTab
 
-   BEGIN PAGE "menu" ;
-      OF oTab
+   BEGIN PAGE "Menu" OF oTab
 
       DemoAllTabMenu()
 
    END PAGE OF oTab
 
-   BEGIN PAGE "say" ;
-      OF oTab
+   BEGIN PAGE "Say" OF oTab
 
       DemoSay( .F. )
 
    END PAGE OF oTab
 
-   BEGIN PAGE "button" ;
-      OF oTab
+   BEGIN PAGE "Button" OF oTab
 
       DemoAllTabButton()
 
    END PAGE OF oTab
 
-   BEGIN PAGE "browse" ;
-      OF oTab
+   BEGIN PAGE "Browse" OF oTab
 
       DemoAllTabBrowse()
 
    END PAGE OF oTab
 
-   BEGIN PAGE "tab" ;
-      OF oTab
+   BEGIN PAGE "Tab" OF oTab
 
       DemoTab( .F., oTab )
 
    END PAGE OF oTab
 
-   BEGIN PAGE "combobox" ;
-      OF oTab
+   BEGIN PAGE "Combobox" OF oTab
 
       DemoCombobox( .F., oTab )
 
    END PAGE of oTab
 
-   BEGIN PAGE "checkbox" ;
-      OF oTab
+   BEGIN PAGE "Checkbox" OF oTab
 
       DemoCheckBox( .F., oTab )
 
    END PAGE OF oTab
 
-   BEGIN PAGE "treebox" ;
-      OF oTab
+   BEGIN PAGE "Treebox" OF oTab
 
       DemoAllTabTreebox( aInitList )
 
    END PAGE OF oTab
 
-   BEGIN PAGE "date" ;
-      OF oTab
+   BEGIN PAGE "Date" OF oTab
 
       DemoAllTabDate()
 
@@ -254,10 +244,15 @@ PROCEDURE Main
 
    END PAGE OF oTab
 
-   BEGIN PAGE "splitter" ;
-      OF oTab
+   BEGIN PAGE "Splitter" OF oTab
 
       DemoAllTabSplitter( aInitList )
+
+   END PAGE OF oTab
+
+   BEGIN PAGE "Updown" OF oTab
+
+      DemoGetUpDown( .F., oTab )
 
    END PAGE OF oTab
 
@@ -283,31 +278,27 @@ STATIC FUNCTION DemoAllTabBrowse()
       ITEMS {} ;
       SIZE  650, 450
 
-   BEGIN PAGE "browse dbf" ;
-      OF oTab
+   BEGIN PAGE "Browse DBF" OF oTab
 
       DemoBrowseDBF( .F., oTab )
 
    END PAGE OF oTab
 
-   BEGIN PAGE "browse array" ;
-      OF oTab
+   BEGIN PAGE "Browse Array" OF oTab
 
       DemoBrowseArray( .F., oTab )
 
    END PAGE OF oTab
 
 #ifdef __PLATFORM__WINDOWS
-   BEGIN PAGE "browseado" ;
-      OF oTab
+   BEGIN PAGE "Browse ADO" OF oTab
 
       DemoBrowseADO( .F., oTab )
 
    END PAGE OF oTab
 #endif
 
-   BEGIN PAGE "browse as listbox" ;
-      OF oTab
+   BEGIN PAGE "Alt.Listbox" OF oTab
 
       DemoListBoxSub( .F., oTab )
 
@@ -323,16 +314,14 @@ STATIC FUNCTION DemoAllTabButton()
       ITEMS {} ;
       SIZE  700, 480
 
-   BEGIN PAGE "Ownerbutton" ;
-      OF oTab
+   BEGIN PAGE "Ownerbutton" OF oTab
 
       DemoOwner( .F., oTab )
 
    END PAGE OF oTab
 
 #ifdef __PLATFORM__WINDOWS
-   BEGIN PAGE "Shadebutton" ;
-      OF oTab
+   BEGIN PAGE "Shadebutton" OF oTab
 
       DemoShadeBtn( .F., oTab )
 
@@ -349,8 +338,7 @@ STATIC FUNCTION DemoAllTabMenu()
       ITEMS {} ;
       SIZE 650, 430
 
-   BEGIN PAGE "menu" ;
-      OF oTab
+   BEGIN PAGE "menu" OF oTab
 
       @ 30, 50 BUTTON "demomenu.prg" ;
          SIZE 200, 24 ;
@@ -358,8 +346,7 @@ STATIC FUNCTION DemoAllTabMenu()
 
    END PAGE OF oTab
 
-   BEGIN PAGE "menuxml" ;
-      OF oTab
+   BEGIN PAGE "menuxml" OF oTab
 
       @ 30, 50 BUTTON "demomenuxml.prg" ;
          SIZE 200, 24 ;
@@ -379,23 +366,20 @@ STATIC FUNCTION DemoAllTabDate()
 
 #ifdef __PLATFORM__WINDOWS
 
-   BEGIN PAGE "monthcal" ;
-      OF oTab
+   BEGIN PAGE "Monthcal" OF oTab
 
       DemoMonthCal( .F., oTab )
 
    END PAGE OF oTab
 #endif
 
-   BEGIN PAGE "dateselect" ;
-      OF oTab
+   BEGIN PAGE "Dateselect" OF oTab
 
       DemoDateSelect( .F., oTab )
 
    END PAGE OF oTab
 
-   BEGIN PAGE "alt.dpicker" ;
-      OF oTab
+   BEGIN PAGE "Alt.DPicker" OF oTab
 
       DemoAltDPicker( .F., oTab )
 
@@ -411,15 +395,13 @@ STATIC FUNCTION DemoAllTabTreebox( aInitList )
       ITEMS {} ;
       SIZE 650, 450
 
-   BEGIN PAGE "treebox" ;
-      OF oTab
+   BEGIN PAGE "Treebox" OF oTab
 
       DemoTreebox( .F., oTab, aInitList )
 
    END PAGE OF oTab
 
-   BEGIN PAGE "demoxmltree" ;
-      OF oTab
+   BEGIN PAGE "XML Tree" OF oTab
 
       DemoXmlTree( .F., oTab, aInitList )
 
@@ -435,15 +417,13 @@ STATIC FUNCTION DemoAllTabSplitter( aInitList )
       ITEMS {} ;
       SIZE 650, 450
 
-   BEGIN PAGE "demotreebox" ;
-      OF oTab
+   BEGIN PAGE "Treebox" OF oTab
 
       DemoTreebox( .F., oTab, aInitList )
 
    END PAGE OF oTab
 
-   BEGIN PAGE "demoxmltree" ;
-      OF oTab
+   BEGIN PAGE "XML Tree" OF oTab
 
       DemoXmlTree( .F., oTab )
 
@@ -459,7 +439,7 @@ STATIC FUNCTION DemoAllTabListbox()
       ITEMS {} ;
       SIZE 650, 450
 
-   BEGIN PAGE "listbox substitute" OF oTab
+   BEGIN PAGE "Alt.Listbox" OF oTab
 
       DemoListBoxSub( .F., oTab )
 
@@ -660,6 +640,7 @@ CASE cFileName == "demoaltdpicker.prg";  #pragma __binarystreaminclude "demoaltd
 CASE cFileName == "demobrowsedbf.prg";   #pragma __binarystreaminclude "demobrowsedbf.prg" | RETURN %s
 CASE cFileName == "demobrowseado.prg";   #pragma __binarystreaminclude "demobrowseado.prg" | RETURN %s
 CASE cFileName == "demodbfdata.prg";     #pragma __binarystreaminclude "demodbfdata.prg" | RETURN %s
+CASE cFileName == "demogetupdown.prg";   #pragma __binarystreaminclude "demogetupdown.prg" | RETURN %s
 CASE cFileName == "demolistbox.prg";     #pragma __binarystreaminclude "demolistbox.prg" | RETURN %s
 CASE cFileName == "demolistboxsub.prg";  #pragma __binarystreaminclude "demolistboxsub.prg" | RETURN %s
 CASE cFileName == "demomonthcal.prg";    #pragma __binarystreaminclude "demomonthcal.prg" | RETURN %s
