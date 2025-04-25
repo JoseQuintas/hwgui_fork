@@ -15,6 +15,10 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2024-04-25 19:15 UTC-0300 Jose Quintas jmquintas-gmail.com
+   * samples/demoini.prg renamed from testini.prg
+     ! complement to previous changelog
+
 2024-04-25 19:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * clean.sh
    * samples/Readme.txt
