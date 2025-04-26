@@ -50,13 +50,11 @@
 ../samples/colrbloc.hbp
 ../samples/dbview.hbp
 ../samples/testbrowsearr.hbp
-../samples/demodbfdata.hbp
 ../samples/fileselect.hbp
 ../samples/GetWinVers.hbp
 ../samples/graph.hbp
 ../samples/helpstatic.hbp
 ../samples/hexbincnt.hbp
-../samples/htrack.hbp
 ../samples/icons.hbp
 ../samples/icons2.hbp
 ../samples/menumod.hbp
@@ -86,7 +84,6 @@
 ../samples/nice.hbp
 ../samples/testbrw.hbp
 ../samples/testget1.hbp
-../samples/demoget2.hbp
 ../samples/demoini.hbp
 ../samples/testmenubitmap.hbp
 ../samples/testrtf.hbp

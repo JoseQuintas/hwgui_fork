@@ -18,7 +18,7 @@ STATIC FUNCTION ButtonForSample( cFileName, oDlg )
          HStyle():New( {16759929,16772062}, 1 ), ;
          HStyle():New( {16759929}, 1,, 3, 0 ), ;
          HStyle():New( {16759929}, 1,, 2, 12164479 ) ;
-      ON CLICK { || Do( cRunName ) }
+      ON CLICK { || iif( cRunName == "demoall", "", Do( cRunName ) ) }
 
    @ 250, 30 OWNERBUTTON ;
       OF oDlg ;

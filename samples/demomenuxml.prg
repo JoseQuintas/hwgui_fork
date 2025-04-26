@@ -54,19 +54,20 @@ REQUEST HB_CODEPAGE_UTF8
 #include "hwgui.ch"
 #include "hxml.ch"
 
-MEMVAR oXmlDoc, lIniChanged, nCurrentItem , oDlg, oFont
+MEMVAR oXmlDoc, lIniChanged, nCurrentItem , oFont, oDlg
 
-FUNCTION DemoMenuXml()
+FUNCTION DemoMenuXml( lWithDialog )
 
    LOCAL oXmlNode
    LOCAL i, fname
    PRIVATE oXmlDoc, lIniChanged := .F., nCurrentItem
-   PRIVATE oDlg, oFont
+   PRIVATE oFont, oDlg
 
+   hb_Default( @lWithDialog, .T. )
 #ifdef __LINUX__
    hb_cdpSelect( "UTF8" )
 #else
-   hb_cdpSelect( "DEWIN" )
+   //hb_cdpSelect( "DEWIN" )
 #endif
    HB_LANGSELECT("DE")
 
@@ -74,13 +75,15 @@ FUNCTION DemoMenuXml()
 
    PREPARE FONT oFont NAME "Times New Roman" WIDTH 0 HEIGHT -17 && CHARSET 0 && 204 = Russian
 
-   INIT DIALOG oDlg ;
-      TITLE "demomenuxml.prg - XML Sample"  ;
-     ; // SYSCOLOR COLOR_3DLIGHT+1 ; // not valid for dialog
-     AT 200,0 ;
-     SIZE 600,300 ;
-     ON EXIT {||SaveOptions()} ;
-     FONT oFont
+   IF lWithDialog
+      INIT DIALOG oDlg ;
+         TITLE "demomenuxml.prg - XML Sample"  ;
+        ; // SYSCOLOR COLOR_3DLIGHT+1 ; // not valid for dialog
+        AT 200,0 ;
+        SIZE 600,300 ;
+        ON EXIT {||SaveOptions()} ;
+        FONT oFont
+   ENDIF
 
    MENU OF oDlg
       MENU TITLE "File"
@@ -99,7 +102,7 @@ FUNCTION DemoMenuXml()
             NEXT
             SEPARATOR
          ENDIF
-         MENUITEM "Exit" ACTION hwg_EndDialog()
+         MENUITEM "Exit" ACTION oDlg:Close()
       ENDMENU
 
       MENU TITLE "Help"
@@ -110,7 +113,9 @@ FUNCTION DemoMenuXml()
 // on demo.ch
    ButtonForSample( "demomenuxml.prg", oDlg )
 
-   ACTIVATE DIALOG oDlg CENTER
+   IF lWithDialog
+      ACTIVATE DIALOG oDlg CENTER
+   ENDIF
 
 RETURN Nil
 

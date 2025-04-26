@@ -15,6 +15,21 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2024-04-26 05:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demoini.prg
+     ! added editbox, can view/write by text, buttons to actions
+     ! add to demoall as sample for ini and get
+   * samples/demo.ch
+   * samples/demoall.hbp
+   * samples/demoall.prg
+   * samples/demomenuxml.prg
+     ! automatic tab/page creation, to easy change, 2 level only
+   * contrib/hwlabel/hwlbledit.prg
+   * contrib/hwgdoc_classes.html
+   * samples/Readme.txt
+   * samples/allhbp.hbp
+     ! update references
+
 2024-04-25 19:15 UTC-0300 Jose Quintas jmquintas-gmail.com
    * samples/demoini.prg renamed from testini.prg
      ! complement to previous changelog

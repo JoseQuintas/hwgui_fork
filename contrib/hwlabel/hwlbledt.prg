@@ -185,8 +185,6 @@
 *   If clangf is NIL, the default language "English" is selected.
 *
 *   Samples for *.hbp files in the HWGUI directory "samples":
-*    samples\demodbfdata.hbp
-*   and many more.
 *
 * =========================================================================================
 *

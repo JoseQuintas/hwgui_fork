@@ -35,9 +35,11 @@ It is all
 #include "hwgui.ch"
 #include "directry.ch"
 
+STATIC aMenuOptions := {}, nMenuLevel := 0
+
 PROCEDURE Main
 
-   LOCAL oDlg, oTab, aItem, nIndex := 1, lCloseMenu := .F., nCont
+   LOCAL oDlg, aItem, nIndex := 1, lCloseMenu := .F., nCont
    LOCAL lIsAvailable, lIsEXE, aInitList := {}
    LOCAL aList := { ;
        ; // NAME,                  WIN, LINUX, MACOS, DESCRIPTION
@@ -98,27 +100,6 @@ PROCEDURE Main
        { "tstprdos.prg",           .T., .F., .F., "test DOS ***outdated***" }, ;
        ;
        { "",                       .F., .F., .F., "" }, ;
-       ; // already visible on the tab of demoall.prg
-       ;
-       ; // { "demoaltdpicker.prg",     .T., .T., .T., "Date Picker" }, ;
-       ; // { "demobrowsedbf",          .T., .T., .T., "Browse DBF"  }, ;
-       ; // { "demoget2.prg",           .T., .F., .F., "Test Get 2" }, ;
-       ; // { "demomonthcal",           .T., .T., .T., "Month Calendar" }, ;
-       ; // { "demobrowseado",          .T., .F., .F., "Browse using ADO" }, ;
-       ; // { "democheckbox",           .T., .T., .T., "Checkbox and tab" }, ;
-       ; // { "democombobox.prg",       .T., .T., .T., "Combobox" }, ;
-       ; // { "demodbfdata.prg",        .T., .T., .T., "DBF data using tab" }, ;
-       ; // { "demogetupdown.prg",      .T., .T., .T., "Get UpDown" }, ;
-       ; // { "demolistbox.prg",        .T., .F., .F., "Listbox" }, ;
-       ; // { "demolistboxsub.prg",     .T., .T., .T., "Listbox Substitute" }, ;
-       ; // { "demomenu",               .T., .T., .T., "Simple menu" }, ;
-       ; // { "demomenuxml",            .T., .T., .T., "Setup menu from XML ***error on new item***" }, ;
-       ; // { "demotab",                .T., .T., .T., "Tab and more samples" } , ;
-       ; // { "demotreeview",           .T., .T., .T., "Treeview, Splitter and tab" }, ;
-       ; // { "demoshadebtn",           .T., .F., .F., "Shade button" }, ;
-       ; // { "demoxmltree.prg",        .T., .T., .T., "Show XML using hxmldoc and tree" }, ;
-       ; // { "htrack.prg",             .T., .T., .T., "HTrack" }, ;
-       { "",                       .F., .F., .F., "" }, ;
        { "notexist",               .F., .F., .F., "Test for menu, about not available" } }
 
    INIT DIALOG oDlg ;
@@ -174,105 +155,7 @@ PROCEDURE Main
 
    ButtonForSample( "demoall.prg" )
 
-   @ 30, 60 TAB oTab ;
-      ITEMS {} ;
-      SIZE  950, 600
-
-   BEGIN PAGE "Browse" OF oTab
-
-      DemoAllTabBrowse()
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "Button" OF oTab
-
-      DemoAllTabButton()
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "Checkbox" OF oTab
-
-      DemoCheckBox( .F., oTab )
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "Combobox" OF oTab
-
-      DemoCombobox( .F., oTab )
-
-   END PAGE of oTab
-
-   BEGIN PAGE "Date" OF oTab
-
-      DemoAllTabDate()
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "Get" OF oTab
-
-      DemoAllTabGet()
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "Listbox" OF oTab
-
-      DemoAllTabListbox()
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "Menu" OF oTab
-
-      DemoAllTabMenu()
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "Say" OF oTab
-
-      DemoAllTabSay()
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "Splitter" OF oTab
-
-      DemoAllTabSplitter( aInitList )
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "Tab" OF oTab
-
-      DemoAllTabTab()
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "Timer" OF oTab
-
-      DemoGet2( .F., oTab )
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "Trackbar" OF oTab
-
-      DemoAllTabTrackbar()
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "Treeview" OF oTab
-
-      DemoAllTabTreeview( aInitList )
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "Updown" OF oTab
-
-      DemoGetUpDown( .F., oTab )
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "AppData" OF oTab
-
-      DemoDbfData( .F., oTab )
-
-   END PAGE OF oTab
+   CreateAllTabPages( oDlg, aInitList )
 
    // A STATUS PANEL may be used instead of a standard STATUS control
    ADD STATUS PANEL ;
@@ -297,254 +180,6 @@ PROCEDURE Main
 
 
    RETURN
-
-STATIC FUNCTION DemoAllTabSay()
-
-   LOCAL oTab
-
-   @ 10, 30 TAB oTab ;
-      ITEMS {} ;
-      SIZE 700, 550
-
-   BEGIN PAGE "1.DemoGet2" OF oTab
-
-      DemoGet2( .F., oTab )
-
-   END PAGE OF oTab
-
-   RETURN Nil
-
-STATIC FUNCTION DemoAllTabTrackbar()
-
-   LOCAL oTab
-
-   @ 10, 30 TAB oTab ;
-      ITEMS {} ;
-      SIZE 700, 550
-
-   BEGIN PAGE "1.HTrack" OF oTab
-
-      DemoHTrack( .F., oTab )
-
-   END PAGE OF oTab
-
-   RETURN Nil
-
-STATIC FUNCTION DemoAllTabGet()
-
-   LOCAL oTab
-
-   @ 10, 30 TAB oTab ;
-      ITEMS {} ;
-      SIZE 700, 550
-
-   BEGIN PAGE "1.DemoGet2" OF oTab
-
-      DemoGet2( .F., oTab )
-
-   END PAGE OF oTab
-
-   RETURN Nil
-
-STATIC FUNCTION DemoAllTabBrowse()
-
-   LOCAL oTab
-
-   @ 30, 30 TAB oTab ;
-      ITEMS {} ;
-      SIZE  700, 550
-
-#ifdef __PLATFORM__WINDOWS
-   BEGIN PAGE "1.Browse ADO" OF oTab
-
-      DemoBrowseADO( .F., oTab )
-
-   END PAGE OF oTab
-#endif
-
-   BEGIN PAGE "2.Browse Array" OF oTab
-
-      DemoBrowseArray( .F., oTab )
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "3.Browse DBF" OF oTab
-
-      DemoBrowseDBF( .F., oTab )
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "4.Listbox Alt" OF oTab
-
-      DemoListBoxSub( .F., oTab )
-
-   END PAGE OF oTab
-
-   RETURN Nil
-
-STATIC FUNCTION DemoAllTabButton()
-
-   LOCAL oTab
-
-   @ 30, 60 TAB oTab ;
-      ITEMS {} ;
-      SIZE  700, 480
-
-   BEGIN PAGE "1.Ownerbutton" OF oTab
-
-      DemoOwner( .F., oTab )
-
-   END PAGE OF oTab
-
-#ifdef __PLATFORM__WINDOWS
-   BEGIN PAGE "2.Shadebutton" OF oTab
-
-      DemoShadeBtn( .F., oTab )
-
-   END PAGE OF oTab
-#endif
-
-   RETURN Nil
-
-STATIC FUNCTION DemoAllTabMenu()
-
-   LOCAL oTab
-
-   @ 30, 60 TAB oTab ;
-      ITEMS {} ;
-      SIZE 700, 550
-
-   BEGIN PAGE "1.menu" OF oTab
-
-      @ 30, 50 BUTTON "demomenu.prg" ;
-         SIZE 200, 24 ;
-         ON CLICK { || DemoMenu() }
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "2.menuxml" OF oTab
-
-      @ 30, 50 BUTTON "demomenuxml.prg" ;
-         SIZE 200, 24 ;
-         ON CLICK { || DemoMenuXml() }
-
-   END PAGE OF oTab
-
-   RETURN Nil
-
-STATIC FUNCTION DemoAllTabDate()
-
-   LOCAL oTab
-
-   @ 30, 30 TAB oTab ;
-      ITEMS {} ;
-      SIZE  700, 550
-
-#ifdef __PLATFORM__WINDOWS
-
-   BEGIN PAGE "1.Monthcal" OF oTab
-
-      DemoMonthCal( .F., oTab )
-
-   END PAGE OF oTab
-#endif
-
-   BEGIN PAGE "2.Dateselect" OF oTab
-
-      DemoDateSelect( .F., oTab )
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "3.Alt.DPicker" OF oTab
-
-      DemoAltDPicker( .F., oTab )
-
-   END PAGE OF oTab
-
-   RETURN Nil
-
-STATIC FUNCTION DemoAllTabTreeview( aInitList )
-
-   LOCAL oTab
-
-   @ 30, 30 TAB oTab ;
-      ITEMS {} ;
-      SIZE 700, 550
-
-   BEGIN PAGE "1.Treeview" OF oTab
-
-      DemoTreeview( .F., oTab, aInitList )
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "2.XML Tree" OF oTab
-
-      DemoXmlTree( .F., oTab, aInitList )
-
-   END PAGE OF oTab
-
-   RETURN Nil
-
-STATIC FUNCTION DemoAllTabSplitter( aInitList )
-
-   LOCAL oTab
-
-   @ 30, 30 TAB oTab ;
-      ITEMS {} ;
-      SIZE 700, 550
-
-   BEGIN PAGE "1.Treeview" OF oTab
-
-      DemoTreeview( .F., oTab, aInitList )
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "2.XML Tree" OF oTab
-
-      DemoXmlTree( .F., oTab )
-
-   END PAGE OF oTab
-
-   RETURN Nil
-
-STATIC FUNCTION DemoAllTabListbox()
-
-   LOCAL oTab
-
-   @ 30, 30 TAB oTab ;
-      ITEMS {} ;
-      SIZE 700, 650
-
-   BEGIN PAGE "1.Alt.Listbox" OF oTab
-
-      DemoListBoxSub( .F., oTab )
-
-   END PAGE OF oTab
-
-   RETURN Nil
-
-
-STATIC FUNCTION DemoAllTabTab()
-
-   LOCAL oTab
-
-   @ 30, 30 TAB oTab ;
-      ITEMS {} ;
-      SIZE 700, 650
-
-   BEGIN PAGE "1.Lenta" OF oTab
-
-      DemoLenta( .F., oTab )
-
-   END PAGE OF oTab
-
-   BEGIN PAGE "2.Tab" OF oTab
-
-      DemoTab( .F., oTab )
-
-   END PAGE OF oTab
-
-   RETURN Nil
 
 STATIC FUNCTION CreatePanel( oDlg, nLeft, nTop, nWidth, nHeight )
 
@@ -716,6 +351,146 @@ STATIC FUNCTION DemoOwner( lWithDialog, oDlg )
 
    RETURN Nil
 
+STATIC FUNCTION MenuOption( cCaption, bCodeOrString, bCode )
+
+   LOCAL nCont, aLastMenu
+
+   aLastMenu := aMenuOptions
+   FOR nCont = 1 TO nMenuLevel
+      aLastMenu := aLastMenu[ Len( aLastMenu ) ]
+      aLastMenu := aLastMenu[ 2 ]
+   NEXT
+   AAdd( aLastMenu, { ccaption, {}, bCodeOrString, bCode } )
+
+   RETURN Nil
+
+STATIC FUNCTION MenuDrop()
+
+   nMenuLevel++
+
+   RETURN Nil
+
+STATIC FUNCTION MenuUndrop()
+
+   nMenuLevel --
+
+   RETURN Nil
+
+STATIC FUNCTION CreateAllTabPages( oDlg, aInitList )
+
+   LOCAL aOption, aOption2, oTab1, oTab2
+
+   MenuOption( "Browse" )
+      MenuDrop()
+#ifdef __PLATFORM__WINDOWS
+      MenuOption( "1.Browse ADO",         { |o| DemoBrowseADO( .F., o ) } )
+#endif
+      MenuOption( "2.Browse Array",       { |o| DemoBrowseArray( .F., o ) } )
+      MenuOption( "3.Browse DBF",         { |o| DemoBrowseDbf( .F., o ) } )
+      MenuUndrop()
+   MenuOption( "Button" )
+      MenuDrop()
+      MenuOption( "1.OwnerButton",        { |o| DemoOwner( .F., o ) } )
+#ifdef __PLATFORM_WINDOWS
+      MenuOption( "2.ShadeButton",        { |o| DemoShadeBtn( .F., o ) } )
+#endif
+      MenuUnDrop()
+   MenuOption( "Checkbox",                { |o| DemoCheckbox( .F., o ) } )
+   MenuOption( "Combobox",                { |o| DemoCombobox( .F., o ) } )
+   MenuOption( "Date" )
+      MenuDrop()
+#ifdef __PLATFORM__WINDOWS
+      MenuOption( "1.MonthCal",           { |o| DemoMonthCal( .F., o ) } )
+#endif
+      MenuOption( "DateSelect",           { |o| DemoDateSelect( .F., o ) } )
+      MenuOption( "Alt.DPicker",          { |o| DemoAltDPicker( .F., o ) } )
+      MenuUnDrop()
+   MenuOption( "Get" )
+      MenuDrop()
+      MenuOption( "1.DemoGet2",           { |o| DemoGet2( .F., o ) } )
+      MenuOption( "2.Editbox",            { |o| DemoIni( .F., o ) } )
+      MenuUnDrop()
+   MenuOption( "Listbox" )
+      MenuDrop()
+      MenuOption( "1.Listbox Alt",        { |o| DemoListBoxSub( .F., o ) } )
+      MenuUndrop()
+   MenuOption( "Menu" )
+      MenuDrop()
+      MenuOption( "1.menu",    "demomenu.prg",    { || DemoMenu() } )
+      MenuOption( "2.menuxml", "demomenuxml.prg", { || DemoMenuXml() } )
+      MenuUnDrop()
+   MenuOption( "Say" )
+      MenuDrop()
+      MenuOption( "1.DemoGet2",           { |o| DemoGet2( .F., o ) } )
+      MenuUnDrop()
+   MenuOption( "Splitter" )
+      MenuDrop()
+      MenuOption( "1.Treeview",           { |o| DemoTreeview( .F., o, aInitList ) } )
+      MenuOption( "2.XML Tree",           { |o| DemoXmlTree( .F., o ) } )
+      MenuUnDrop()
+   MenuOption( "Tab" )
+      MenuDrop()
+      MenuOption( "1.Lenta",              { |o| DemoLenta( .F., o ) } )
+      MenuOption( "2.Tab",                { |o| DemoTab( .F., o ) } )
+      MenuUnDrop()
+   MenuOption( "Trackbar" )
+      MenuDrop()
+      MenuOption( "1.HTrack",             { |o| DemoHTrack( .F., o ) } )
+      MenuUnDrop()
+   MenuOption( "Treeview" )
+      MenuDrop()
+      MenuOption( "1.Treeview",           { |o| DemoTreeview( .F., o, aInitList ) } )
+      MenuOption( "2.XML Tree",           { |o| DemoXmlTree( .F., o ) } )
+      MenuUnDrop()
+   MenuOption( "UpDown",                  { |o| DemoGetUpDown( .F., o ) } )
+   MenuOption( "Others" )
+      MenuDrop()
+      MenuOption( "1.AppData",              { |o| DemoDbfData( .F., o ) } )
+      MenuOption( "2.Ini Files",            { |o| DemoIni( .F., o ) } )
+      MenuOption( "3.Timer",                { |o| DemoGet2( .F., o ) } )
+
+   @ 30, 60 TAB oTab1 ITEMS {} SIZE 950, 650 OF oDlg
+
+   FOR EACH aOption IN aMenuOptions
+
+      BEGIN PAGE aOption[ 1 ] OF oTab1
+
+      IF Len( aOption[ 2 ] ) == 0            // no other level
+         IF ValType( aOption[ 3 ] ) == "C"   // can't run on tabpage
+            @ 30, 50 BUTTON aOption[ 3 ] ;
+               SIZE 200, 24 ;
+               ON CLICK aOption[ 4 ]
+         ELSE
+            Eval( aOption[ 3 ], oTab1 )
+         ENDIF
+      ELSE
+         FOR EACH oTab2 IN { Nil }           // to have unique otab2
+            @ 30, 30 TAB oTab2 ITEMS {} SIZE 850, 550 OF oTab1
+            FOR EACH aOption2 IN aOption[ 2 ]
+
+               BEGIN PAGE aOption2[ 1 ] OF oTab2
+
+               IF ValType( aOption2[ 3 ] ) == "C" // can't run on tabpage
+                  @ 30, 50 BUTTON aOption2[ 3 ] ;
+                     SIZE 200, 24 ;
+                     ON CLICK aOption2[ 4 ]
+               ELSE
+                  Eval( aOption2[ 3 ], oTab2 )
+               ENDIF
+
+               END PAGE OF oTab2
+
+            NEXT
+         NEXT
+      ENDIF
+
+      END PAGE OF oTab1
+
+   NEXT
+
+   RETURN Nil
+
+
 // only test
 FUNCTION LoadResourceDemo( cFileName )
 
@@ -731,6 +506,7 @@ CASE cFileName == "demodbfdata.prg";     #pragma __binarystreaminclude "demodbfd
 CASE cFileName == "demogetupdown.prg";   #pragma __binarystreaminclude "demogetupdown.prg" | RETURN %s
 CASE cFileName == "demoget2.prg";        #pragma __binarystreaminclude "demoget2.prg" | RETURN %s
 CASE cFileName == "demohtrack.prg";      #pragma __binarystreaminclude "demohtrack.prg" | RETURN %s
+CASE cFileName == "demoini.prg";         #pragma __binarystreaminclude "demoini.prg" | RETURN %s
 CASE cFileName == "demolenta.prg";       #pragma __binarystreaminclude "demolenta.prg" | RETURN %s
 CASE cFileName == "demolistbox.prg";     #pragma __binarystreaminclude "demolistbox.prg" | RETURN %s
 CASE cFileName == "demolistboxsub.prg";  #pragma __binarystreaminclude "demolistboxsub.prg" | RETURN %s

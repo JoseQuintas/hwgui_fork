@@ -537,13 +537,13 @@
    Define correct column length:<br>
    If the columns are not wide enough, here some instruction for fixing:<br>
    (.. appears)<br>
-   Browsing a database, the length of every column is delivered by the<br> 
+   Browsing a database, the length of every column is delivered by the<br>
    structure data.<br>
    For arrays, in the init of browse, the field length is got from the length of the<br>
    header text. So trim the header text with PADR() to the desired length !<br>
    Example:<br>
      @ 10,20 BROWSE oBrw ARRAY SIZE ...<br>
-   hwg_CreateArList( oBrw, aSample )  &&  aSample : array with data<br> 
+   hwg_CreateArList( oBrw, aSample )  &&  aSample : array with data<br>
    oBrw:aColumns[1]:heading := PADR("Name",45)<br>
    oBrw:aColumns[2]:heading := PADR("Age",4)<br>
    <br>
@@ -1564,7 +1564,7 @@
    We create here a new control, which can be<br>
    used as a replacement for a track bar,<br>
    which has not GTK version.<br>
-   Usage of HTRACK class see sample program "htrack.prg"
+   Usage of HTRACK class see sample program "demohtrack.prg"
    and chapter "Advanced using of controls / Let create new control" of tutorial.<br>
    </p>
 
