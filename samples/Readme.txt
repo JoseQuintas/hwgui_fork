@@ -247,8 +247,8 @@ For beginners:
    demomenuxml.prg   Y                        reading/writing XML file and handling menu items while run-time (testxml.xml)
    demomonthcal.prg  N                 Y      Calendar, Datepicker, TOOLTIP
    demoshadebtn.prg  N       N                Shade buttons (for multi platform usage take OWNERBUTTON)
+   demosplitter.prg  Y                        Tree control, Splitter, Tab
    demotab.prg       Y       ?    ?           Tab, owner button, combobox, dateselect, status panel
-   demotreeview.prg  Y                        Tree control, Splitter, Tab
    demoxmltree.prg   Y                 YW     Show XML-Tree: Open "testxml.xml" for test.
 
  testbrowsearray.prg Y                        Array BROWSE avoiding crashes because of bugs (see inline comments)

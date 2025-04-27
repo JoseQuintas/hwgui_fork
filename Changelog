@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2024-04-26 21:10 UTC-0300 Jose Quintas jmcquintas-gmail.com
+  * samples/Readme.txt
+  * samples/demosplitter.prg renamed from demotreeview.prg
+  * samples/demoall.prg
+    ! sample was created to show splitter
+    ! continues on tabpages "splitter" and "treeview"
+    ! reference on readme.txt only
+
 2024-04-26 05:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/demoini.prg
      ! added editbox, can view/write by text, buttons to actions

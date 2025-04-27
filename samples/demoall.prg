@@ -6,9 +6,6 @@ DF7BE:
 This seems to be a bug in Harbour:
 all.prg(182) Warning W0032  Variable 'CBINHBMK' is assigned but not used in function 'EXECUTEEXE(159)'
 
-possible bug on windows 11:
-status panel is not full on dialog first display, if remove ACTIVATE DIALOG CENTER ok
-
 How to reutilize samples:
 
 1) Change sample to receive 2 parameters lWithDialog and oDLG
@@ -37,7 +34,7 @@ It is all
 
 STATIC aMenuOptions := {}, nMenuLevel := 0
 
-PROCEDURE Main
+PROCEDURE DemoAll
 
    LOCAL oDlg, aItem, nIndex := 1, lCloseMenu := .F., nCont
    LOCAL lIsAvailable, lIsEXE, aInitList := {}
@@ -378,7 +375,7 @@ STATIC FUNCTION MenuUndrop()
 
 STATIC FUNCTION CreateAllTabPages( oDlg, aInitList )
 
-   LOCAL aOption, aOption2, oTab1, oTab2
+   LOCAL aOption, aOption2, oTabLevel1, oTabLevel2
 
    MenuOption( "Browse" )
       MenuDrop()
@@ -425,7 +422,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList )
       MenuUnDrop()
    MenuOption( "Splitter" )
       MenuDrop()
-      MenuOption( "1.Treeview",           { |o| DemoTreeview( .F., o, aInitList ) } )
+      MenuOption( "1.Splitter",           { |o| DemoSplitter( .F., o, aInitList ) } )
       MenuOption( "2.XML Tree",           { |o| DemoXmlTree( .F., o ) } )
       MenuUnDrop()
    MenuOption( "Tab" )
@@ -439,7 +436,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList )
       MenuUnDrop()
    MenuOption( "Treeview" )
       MenuDrop()
-      MenuOption( "1.Treeview",           { |o| DemoTreeview( .F., o, aInitList ) } )
+      MenuOption( "1.Splitter",           { |o| DemoSplitter( .F., o, aInitList ) } )
       MenuOption( "2.XML Tree",           { |o| DemoXmlTree( .F., o ) } )
       MenuUnDrop()
    MenuOption( "UpDown",                  { |o| DemoGetUpDown( .F., o ) } )
@@ -449,42 +446,44 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList )
       MenuOption( "2.Ini Files",            { |o| DemoIni( .F., o ) } )
       MenuOption( "3.Timer",                { |o| DemoGet2( .F., o ) } )
 
-   @ 30, 60 TAB oTab1 ITEMS {} SIZE 950, 650 OF oDlg
+   @ 30, 60 TAB oTabLevel1 ITEMS {} SIZE 950, 650 OF oDlg
 
    FOR EACH aOption IN aMenuOptions
 
-      BEGIN PAGE aOption[ 1 ] OF oTab1
+      BEGIN PAGE aOption[ 1 ] OF oTabLevel1
 
-      IF Len( aOption[ 2 ] ) == 0            // no other level
+      // without sub-level
+      IF Len( aOption[ 2 ] ) == 0
          IF ValType( aOption[ 3 ] ) == "C"   // can't run on tabpage
-            @ 30, 50 BUTTON aOption[ 3 ] ;
+            @ 30, 50 BUTTON "run " + aOption[ 3 ] ;
                SIZE 200, 24 ;
                ON CLICK aOption[ 4 ]
          ELSE
-            Eval( aOption[ 3 ], oTab1 )
+            Eval( aOption[ 3 ], oTabLevel1 )
          ENDIF
       ELSE
-         FOR EACH oTab2 IN { Nil }           // to have unique otab2
-            @ 30, 30 TAB oTab2 ITEMS {} SIZE 850, 550 OF oTab1
+         // with sub-level
+         FOR EACH oTabLevel2 IN { Nil }
+            @ 30, 30 TAB oTabLevel2 ITEMS {} SIZE 850, 550 OF oTabLevel1
             FOR EACH aOption2 IN aOption[ 2 ]
 
-               BEGIN PAGE aOption2[ 1 ] OF oTab2
+               BEGIN PAGE aOption2[ 1 ] OF oTabLevel2
 
                IF ValType( aOption2[ 3 ] ) == "C" // can't run on tabpage
-                  @ 30, 50 BUTTON aOption2[ 3 ] ;
+                  @ 30, 50 BUTTON "run " + aOption2[ 3 ] ;
                      SIZE 200, 24 ;
                      ON CLICK aOption2[ 4 ]
                ELSE
-                  Eval( aOption2[ 3 ], oTab2 )
+                  Eval( aOption2[ 3 ], oTabLevel2 )
                ENDIF
 
-               END PAGE OF oTab2
+               END PAGE OF oTabLevel2
 
             NEXT
          NEXT
       ENDIF
 
-      END PAGE OF oTab1
+      END PAGE OF oTabLevel1
 
    NEXT
 
@@ -515,7 +514,7 @@ CASE cFileName == "demomenu.prg";        #pragma __binarystreaminclude "demomenu
 CASE cFileName == "demomenuxml.prg";     #pragma __binarystreaminclude "demomenuxml.prg" | RETURN %s
 CASE cFileName == "demoshadebtn.prg";    #pragma __binarystreaminclude "demoshadebtn.prg" | RETURN %s
 CASE cFileName == "demotab.prg";         #pragma __binarystreaminclude "demotab.prg" | RETURN %s
-CASE cFileName == "demotreeview.prg";    #pragma __binarystreaminclude "demotreeview.prg" | RETURN %s
+CASE cFileName == "demosplitter.prg";    #pragma __binarystreaminclude "demosplitter.prg" | RETURN %s
 CASE cFileName == "demoxmltree.prg";     #pragma __binarystreaminclude "demoxmltree.prg" | RETURN %s
 ENDCASE
 

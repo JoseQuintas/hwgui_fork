@@ -22,7 +22,7 @@ demolistboxsub.prg
 demomenu.prg
 demomenuxml.prg
 demotab.prg
-demotreeview.prg
+demosplitter.prg
 demoxmltree.prg
 
 {win}demobrowseado.prg
