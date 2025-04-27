@@ -49,6 +49,13 @@
 * Info for GTK:
 * Take care of different designs.
 *
+* Bugfix on LINUX:
+* Error DBCMD/2001  Workarea not in use: DBGOTOP
+* Called from (b)HWG_ERRSYS(19)
+* Called from DBGOTOP(0)
+* Called from DBFCNT_SEARCH(390)
+* Called from BINDBF_GETIMAGE(323)
+* Called from MAIN(200)
 
 #include "hwgui.ch"
 
@@ -92,6 +99,10 @@ FUNCTION Main()
 
    * Open container
    USE bindbf
+   
+   * Debug (is container openend ?)
+   // hwg_MsgInfo("Alias=" + ALIAS() )
+   // hwg_MsgInfo("USED=" + IIF(USED() , ".T.",".F.") )
 
    * Load contents from container into image objects.
    * oIcon := HIcon():AddResource( "ok" )        && ico (old)
@@ -120,7 +131,7 @@ FUNCTION Main()
 
    * Close the binary DBF container
    * (all image objects are created)
-   USE
+//   USE
 
    * Now you can open your own database(s) with the use command
 
