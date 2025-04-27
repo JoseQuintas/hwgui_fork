@@ -61,44 +61,64 @@ HB_FUNC( HWG_TEXTOUT )
       g_free( cText );
    }
 }
-
+/*
+hwg_Drawtext( hDC, "Text", 0, 0, 50, 20, DT_CENTER ) // Should center
+hwg_Drawtext( hDC, "Text", 0, 0, 50, 20, DT_RIGHT )  // Should align right
+hwg_Drawtext( hDC, "Text", 0, 0, 50, 20, 0 )         // Should align left default!
+*/
 HB_FUNC( HWG_DRAWTEXT )
 {
-   PHWGUI_HDC hDC = (PHWGUI_HDC) HB_PARHANDLE(1);
-   char * cText;
-   PangoRectangle rc;
-   int iWidth = hb_parni(5)-hb_parni(3);
-   // 0 - None, 1 - End, 2 - middle, 3 - Start
-   int iElli = ( HB_ISNUM(8) )? hb_parni(8) : ( (HB_ISLOG(8) )? ( ( hb_parl(8) )? 1 : 0 ) : 1 );
+    PHWGUI_HDC hDC = (PHWGUI_HDC) HB_PARHANDLE(1);
+    char *cText;
+    PangoRectangle rc;
+    int iWidth = hb_parni(5) - hb_parni(3);
 
-   if( hb_parclen(2) > 0 )
-   {
-      cText = hwg_convert_to_utf8( hb_parc(2) );
-      pango_layout_set_text( hDC->layout, cText, -1 );
+    // Validate hDC and context
+    if (!hDC || !hDC->cr || !hDC->layout) {
+        fprintf(stderr, "Error: Invalid hDC or context in HWG_DRAWTEXT\n");
+        return;
+    }
 
-      pango_layout_get_pixel_extents( hDC->layout, &rc, NULL );
-      if( rc.width >= iWidth && iElli > 0 )
-         pango_layout_set_ellipsize( hDC->layout, 
-            (iElli==1)? PANGO_ELLIPSIZE_END : ( (iElli==2)? PANGO_ELLIPSIZE_MIDDLE : PANGO_ELLIPSIZE_START ) );
-      pango_layout_set_width( hDC->layout, iWidth*PANGO_SCALE );
-      pango_layout_set_justify( hDC->layout, 1 );
-      //pango_layout_set_width( hDC->layout, -1 );
+    // Check if there is text
+    if (hb_parclen(2) > 0) {
+        cText = hwg_convert_to_utf8(hb_parc(2));
+        pango_layout_set_text(hDC->layout, cText, -1);
 
-      if( !HB_ISNIL(7) && ( hb_parni(7) & ( DT_CENTER | DT_RIGHT ) ) &&
-            ( rc.width < ( iWidth-10 ) ) )
-      {
-         pango_layout_set_alignment( hDC->layout,
-             (hb_parni(7) & DT_CENTER)? PANGO_ALIGN_CENTER : PANGO_ALIGN_RIGHT );
-      }
-      else
-         pango_layout_set_alignment( hDC->layout, PANGO_ALIGN_LEFT );
+        // Get text dimensions
+        pango_layout_get_pixel_extents(hDC->layout, &rc, NULL);
 
-      hwg_setcolor( hDC->cr, (hDC->fcolor != -1)? hDC->fcolor : 0 );
-      cairo_move_to( hDC->cr, (gdouble)hb_parni(3), (gdouble)hb_parni(4) );
-      pango_cairo_show_layout( hDC->cr, hDC->layout );
-      cairo_stroke( hDC->cr );
-      g_free( cText );
-   }
+        // Set maximum width to respect column boundaries
+        pango_layout_set_width(hDC->layout, iWidth * PANGO_SCALE);
+        // Disable ellipsis to remove "..."
+        pango_layout_set_ellipsize(hDC->layout, PANGO_ELLIPSIZE_NONE);
+        // Disable justification for natural alignment
+        pango_layout_set_justify(hDC->layout, 0);
+        // Disable word wrapping to prevent text from spilling to the next line
+        pango_layout_set_wrap(hDC->layout, PANGO_WRAP_NONE);
+        // Treat as a single paragraph to prevent line breaks
+        pango_layout_set_single_paragraph_mode(hDC->layout, TRUE);
+
+        // Set alignment: default to left, optional center or right
+        if (!HB_ISNIL(7) && (hb_parni(7) & (DT_CENTER | DT_RIGHT)) && (rc.width < (iWidth - 10))) {
+            pango_layout_set_alignment(hDC->layout,
+                (hb_parni(7) & DT_CENTER) ? PANGO_ALIGN_CENTER : PANGO_ALIGN_RIGHT);
+        } else {
+            pango_layout_set_alignment(hDC->layout, PANGO_ALIGN_LEFT);
+        }
+
+        // Set text color
+        hwg_setcolor(hDC->cr, (hDC->fcolor != -1) ? hDC->fcolor : 0);
+        // Move to drawing position
+        cairo_move_to(hDC->cr, (gdouble)hb_parni(3), (gdouble)hb_parni(4));
+        // Render text
+        pango_cairo_show_layout(hDC->cr, hDC->layout);
+        cairo_stroke(hDC->cr);
+
+        // Free memory
+        g_free(cText);
+    } else {
+        fprintf(stderr, "Error: Empty text in HWG_DRAWTEXT\n");
+    }
 }
 
 HB_FUNC( HWG_GETTEXTMETRIC )
