@@ -36,15 +36,14 @@
 
 #include "hwgui.ch"
 
-#ifdef __USING_MENU__
-   FUNCTION TestSplit()
-#else
-   FUNCTION Main()
-#endif
+FUNCTION DemoSplit( lWithDialog, oDlg, aInitList )
 
-   LOCAL oDlg, oFont, oSplitV, oSplitH, oEdit1, oEdit2 , cVal_Wcur1 , cVal_Wcur2
-   LOCAL oTree, oItem
+   LOCAL oFont, oSplitV, oSplitH, oEdit1, oEdit2 , cVal_Wcur1 , cVal_Wcur2
+   LOCAL oTree
 * Local cVal_Wcur3
+
+   hb_Default( @lWithDialog, .T. )
+   hb_Default( @aInitList, {} )
 
    PREPARE FONT oFont NAME "MS Sans Serif" WIDTH 0 HEIGHT -13
 
@@ -53,27 +52,30 @@
    cVal_Wcur2 := hwg_cHex2Bin( hex_splith() )
 *   cVal_Wcur3 := hwg_cHex2Bin( hex_transistor() )
 
-   INIT DIALOG oDlg ;
-      TITLE "TESTSPLIT - Split windows example"  ;
-      ; //SYSCOLOR COLOR_3DLIGHT+1 ; // not valid for dialog
-      AT 200,0 ;
-      SIZE 420,300 ;
-      FONT oFont
+   IF lWithDialog
+      INIT DIALOG oDlg ;
+         TITLE "demosplit.prg - Split windows example"  ;
+         ; //SYSCOLOR COLOR_3DLIGHT+1 ; // not valid for dialog
+         AT 200,0 ;
+         SIZE 640, 480 ;
+         FONT oFont ;
+         ON INIT { || BuildTree( oTree ) }
+   ELSE
+      AAdd( aInitList, { || BuildTree( oTree ) } )
+   ENDIF
 
-   @ 20,10 TREE oTree ;
+   ButtonForSample( "demosplit.prg" )
+
+   @ 20, 110 TREE oTree ;
       SIZE 140,100
 
-   oTree:AddNode( "First" )
-   oTree:AddNode( "Second" )
-   oItem := oTree:AddNode( "Third" )
-   oItem:AddNode( "Third-1" )
-   oTree:AddNode( "Forth" )
+   BuildTree( oTree )
 
-   @ 163,10 EDITBOX oEdit1 ;
+   @ 163, 110 EDITBOX oEdit1 ;
       CAPTION "Hello, World!"  ;
       SIZE 200,100
 
-   @ 160,10 SPLITTER oSplitV ;
+   @ 160, 110 SPLITTER oSplitV ;
       SIZE 3,100 ;
       DIVIDE {oTree} FROM {oEdit1} LIMITS 100,300
 
@@ -88,11 +90,11 @@
    oSplitV:hCursor := hwg_LoadCursorFromString(cVal_Wcur1, 16 , 16 ) && From hex value
 *   oSplitV:hCursor := hwg_LoadCursorFromString(cVal_Wcur3, 16 , 16 ) && Test
 
-   @ 20,113 EDITBOX oEdit2 ;
+   @ 20, 213 EDITBOX oEdit2 ;
       CAPTION "Example"  ;
       SIZE 344,130
 
-   @ 20,110 SPLITTER oSplitH ;
+   @ 20, 210 SPLITTER oSplitH ;
       SIZE 344,3 ;
       DIVIDE {oTree,oEdit1,oSplitV} FROM {oEdit2} LIMITS ,220
 
@@ -181,5 +183,19 @@ RETURN ;
    "00 00 A0 7D 00 00 A0 7D 00 00 BE 3D 00 00 BE 5D " + ;
    "00 00 DE 6B 00 00 EE 77 00 00 F7 EF 00 00 F8 1F " + ;
    "00 00 FF FF 00 00 "
+
+STATIC FUNCTION BuildTree( oTree )
+
+   LOCAL oItem
+
+   oTree:AddNode( "First" )
+   oTree:AddNode( "Second" )
+   oItem := oTree:AddNode( "Third" )
+   oItem:AddNode( "Third-1" )
+   oTree:AddNode( "Forth" )
+
+   RETURN Nil
+
+#include "demo.ch"
 
 * ================================ EOF of demosplit.prg ===============================

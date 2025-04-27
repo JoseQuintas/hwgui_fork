@@ -54,13 +54,13 @@ REQUEST HB_CODEPAGE_UTF8
 #include "hwgui.ch"
 #include "hxml.ch"
 
-MEMVAR oXmlDoc, lIniChanged, nCurrentItem , oFont, oDlg
+STATIC oXmlDoc
+MEMVAR lIniChanged, nCurrentItem , oFont, oDlg
 
 FUNCTION DemoMenuXml( lWithDialog )
 
-   LOCAL oXmlNode
-   LOCAL i, fname
-   PRIVATE oXmlDoc, lIniChanged := .F., nCurrentItem
+   LOCAL oXmlNode, i, fname, nPos, cFileName := "tmpxmldoc.xml"
+   PRIVATE lIniChanged := .F., nCurrentItem
    PRIVATE oFont, oDlg
 
    hb_Default( @lWithDialog, .T. )
@@ -71,7 +71,10 @@ FUNCTION DemoMenuXml( lWithDialog )
 #endif
    HB_LANGSELECT("DE")
 
-   oXmlDoc := HXMLDoc():Read( "demomenuxml.xml" )
+   IF ! File( cFileName )
+      CreateXmlFile( cFileName )
+   ENDIF
+   oXmlDoc := HXMLDoc():Read( cFileName )
 
    PREPARE FONT oFont NAME "Times New Roman" WIDTH 0 HEIGHT -17 && CHARSET 0 && 204 = Russian
 
@@ -94,7 +97,9 @@ FUNCTION DemoMenuXml( lWithDialog )
             FOR i := 1 TO Len( oXmlDoc:aItems[1]:aItems )
                oXmlNode := oXmlDoc:aItems[1]:aItems[i]
                fname := oXmlNode:GetAttribute("name")
-               Hwg_DefineMenuItem( fname, 1020+i, &( "{||NewItem("+LTrim(Str(i,2))+")}" ) )
+               FOR EACH nPos IN { i } // variable for codeblock
+                  Hwg_DefineMenuItem( fname, 1020 + i, { || NewItem( nPos ) } )
+               NEXT
             * other behavior on GTK:
             * the new item was appended at the end of the menu in the recent run.
             * After restart the program (in case of new reading of the
@@ -314,6 +319,34 @@ STATIC FUNCTION p_about()
 #endif
 
 RETURN Nil
+
+STATIC FUNCTION CreateXmlFile( cFileName )
+
+   LOCAL cTxt
+
+   cTxt := [<?xml version="1.0" encoding="windows-1252"?>] + hb_Eol()
+   cTxt += [<table>] + hb_Eol()
+   cTxt += [<item name="aa">] + hb_Eol()
+   cTxt += [course] + hb_Eol()
+   cTxt += [<font name="Courier New" width="0" height="-18" weight="700"/>] + hb_Eol()
+   cTxt += [  </item>] + hb_Eol()
+   cTxt += [  <item name="bb">] + hb_Eol()
+   cTxt += [Jimmy Hendrix] + hb_Eol()
+   cTxt += [    <font name="Arial" width="0" height="-20" weight="400" italic="255"/>] + hb_Eol()
+   cTxt += [  </item>] + hb_Eol()
+   cTxt += [  <item name="bfbfd">] + hb_Eol()
+   cTxt += [ffff] + hb_Eol()
+   cTxt += [    <font name="Times New Roman" width="0" height="-17"/>] + hb_Eol()
+   cTxt += [  </item>] + hb_Eol()
+   cTxt += [  <item name="xxxx">] + hb_Eol()
+   cTxt += [xxxx] + hb_Eol()
+   cTxt += [    <font name="Times New Roman" width="0" height="-17"/>] + hb_Eol()
+   cTxt += [  </item>] + hb_Eol()
+   cTxt += [</table>] + hb_Eol()
+
+   hb_MemoWrit( cFileName, cTxt )
+
+   RETURN Nil
 
 // show buttons and source code
 #include "demo.ch"

@@ -37,7 +37,8 @@ STATIC aMenuOptions := {}, nMenuLevel := 0
 PROCEDURE DemoAll
 
    LOCAL oDlg, aItem, nIndex := 1, lCloseMenu := .F., nCont
-   LOCAL lIsAvailable, lIsEXE, aInitList := {}
+   LOCAL lIsAvailable, lIsEXE
+   LOCAL aInitList := {}, aExitList := {}, bCode
    LOCAL aList := { ;
        ; // NAME,                  WIN, LINUX, MACOS, DESCRIPTION
        { "a.prg",                  .T., .F., .F., "MDI, Tab, checkbox, combobox, browse array, others" }, ;
@@ -152,7 +153,7 @@ PROCEDURE DemoAll
 
    ButtonForSample( "demoall.prg" )
 
-   CreateAllTabPages( oDlg, aInitList )
+   CreateAllTabPages( oDlg, aInitList, aExitList )
 
    // A STATUS PANEL may be used instead of a standard STATUS control
    ADD STATUS PANEL ;
@@ -168,13 +169,9 @@ PROCEDURE DemoAll
 
    CLOSE DATABASES
 
-   // delete temporary from samples
-
-   fErase( "tmpbrowsedbf.dbf" )
-   fErase( "tmpdbfdata.dbf" )
-   fErase( "tmpdbfdata.ntx" )
-   fErase( "tmpini.ini" )
-
+   FOR EACH bCode IN aExitList
+      Eval( bCode )
+   NEXT
 
    RETURN
 
@@ -373,7 +370,7 @@ STATIC FUNCTION MenuUndrop()
 
    RETURN Nil
 
-STATIC FUNCTION CreateAllTabPages( oDlg, aInitList )
+STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aExitList )
 
    LOCAL aOption, aOption2, oTabLevel1, oTabLevel2
 
@@ -383,7 +380,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList )
       MenuOption( "1.Browse ADO",         { |o| DemoBrowseADO( .F., o ) } )
 #endif
       MenuOption( "2.Browse Array",       { |o| DemoBrowseArray( .F., o ) } )
-      MenuOption( "3.Browse DBF",         { |o| DemoBrowseDbf( .F., o ) } )
+      MenuOption( "3.Browse DBF",         { |o| DemoBrowseDbf( .F., o, aExitList ) } )
       MenuUndrop()
    MenuOption( "Button" )
       MenuDrop()
@@ -405,7 +402,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList )
    MenuOption( "Get" )
       MenuDrop()
       MenuOption( "1.DemoGet2",           { |o| DemoGet2( .F., o ) } )
-      MenuOption( "2.Editbox",            { |o| DemoIni( .F., o ) } )
+      MenuOption( "2.Editbox",            { |o| DemoIni( .F., o, aExitList ) } )
       MenuUnDrop()
    MenuOption( "Listbox" )
       MenuDrop()
@@ -416,34 +413,38 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList )
       MenuOption( "1.menu",    "demomenu.prg",    { || DemoMenu() } )
       MenuOption( "2.menuxml", "demomenuxml.prg", { || DemoMenuXml() } )
       MenuUnDrop()
+   MenuOption( "Progbar",                 { |o| DemoProgbar( .F., o, aExitList ) } )
    MenuOption( "Say" )
       MenuDrop()
       MenuOption( "1.DemoGet2",           { |o| DemoGet2( .F., o ) } )
       MenuUnDrop()
    MenuOption( "Splitter" )
       MenuDrop()
-      MenuOption( "1.Splitter",           { |o| DemoSplitter( .F., o, aInitList ) } )
-      MenuOption( "2.XML Tree",           { |o| DemoXmlTree( .F., o ) } )
+      MenuOption( "1.Split",              { |o| DemoSplit( .F., o, aInitList ) } )
+      MenuOption( "2.Splitter",           { |o| DemoSplitter( .F., o, aInitList ) } )
+      MenuOption( "3.XML Tree",           { |o| DemoXmlTree( .F., o ) } )
       MenuUnDrop()
    MenuOption( "Tab" )
       MenuDrop()
       MenuOption( "1.Lenta",              { |o| DemoLenta( .F., o ) } )
-      MenuOption( "2.Tab",                { |o| DemoTab( .F., o ) } )
+      MenuOption( "2.Tab",                { |o| DemoTab( .F., o, aExitList ) } )
       MenuUnDrop()
    MenuOption( "Trackbar" )
       MenuDrop()
       MenuOption( "1.HTrack",             { |o| DemoHTrack( .F., o ) } )
+      MenuOption( "2.Trackbar",           { |o| DemoTrackbar( .F., o ) } )
       MenuUnDrop()
    MenuOption( "Treeview" )
       MenuDrop()
-      MenuOption( "1.Splitter",           { |o| DemoSplitter( .F., o, aInitList ) } )
-      MenuOption( "2.XML Tree",           { |o| DemoXmlTree( .F., o ) } )
+      MenuOption( "1.Split",              { |o| DemoSplit( .F., o, aInitList ) } )
+      MenuOption( "2.Splitter",           { |o| DemoSplitter( .F., o, aInitList ) } )
+      MenuOption( "3.XML Tree",           { |o| DemoXmlTree( .F., o ) } )
       MenuUnDrop()
    MenuOption( "UpDown",                  { |o| DemoGetUpDown( .F., o ) } )
    MenuOption( "Others" )
       MenuDrop()
-      MenuOption( "1.AppData",              { |o| DemoDbfData( .F., o ) } )
-      MenuOption( "2.Ini Files",            { |o| DemoIni( .F., o ) } )
+      MenuOption( "1.AppData",              { |o| DemoDbfData( .F., o, aExitList ) } )
+      MenuOption( "2.Ini Files",            { |o| DemoIni( .F., o, aExitList ) } )
       MenuOption( "3.Timer",                { |o| DemoGet2( .F., o ) } )
 
    @ 30, 60 TAB oTabLevel1 ITEMS {} SIZE 950, 650 OF oDlg
@@ -512,8 +513,11 @@ CASE cFileName == "demolistboxsub.prg";  #pragma __binarystreaminclude "demolist
 CASE cFileName == "demomonthcal.prg";    #pragma __binarystreaminclude "demomonthcal.prg" | RETURN %s
 CASE cFileName == "demomenu.prg";        #pragma __binarystreaminclude "demomenu.prg" | RETURN %s
 CASE cFileName == "demomenuxml.prg";     #pragma __binarystreaminclude "demomenuxml.prg" | RETURN %s
+CASE cFileName == "demoprogbar.prg";     #pragma __binarystreaminclude "demoprogbar.prg" | RETURN %s
 CASE cFileName == "demoshadebtn.prg";    #pragma __binarystreaminclude "demoshadebtn.prg" | RETURN %s
 CASE cFileName == "demotab.prg";         #pragma __binarystreaminclude "demotab.prg" | RETURN %s
+CASE cFileName == "demotrackbar.prg";    #pragma __binarystreaminclude "demotrackbar.prg" | RETURN %s
+CASE cFileName == "demosplit.prg";       #pragma __binarystreaminclude "demosplit.prg" | RETURN %s
 CASE cFileName == "demosplitter.prg";    #pragma __binarystreaminclude "demosplitter.prg" | RETURN %s
 CASE cFileName == "demoxmltree.prg";     #pragma __binarystreaminclude "demoxmltree.prg" | RETURN %s
 ENDCASE

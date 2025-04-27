@@ -2,130 +2,89 @@
 
 #include "hwgui.ch"
 
-STATIC oWnd
-STATIC oDlg1
-STATIC oDlg2
-STATIC oTB
-STATIC oTB1
-STATIC oTB2
-STATIC oSay
-STATIC oSayDlg1
-STATIC oSayDlg2
+FUNCTION DemoTrackbar( lWithDialog, oDlg )
 
-FUNCTION Main()
+   LOCAL oTb1, oSay1, oTB2, oSay2, oTb3, oSay3
 
-   INIT WINDOW oWnd ;
-      MAIN ;
-      TITLE "TrackBar Control - Demo" ;
-      AT    100,100 ;
-      SIZE  640,480
+   hb_Default( @lWithDialog, .T. )
 
-   MENU OF oWnd
-      MENUITEM "&Dialog 1" ACTION Dlg1()
-      MENUITEM "&Dialog 2" ACTION Dlg2()
-      MENUITEM "&Exit"     ACTION hwg_EndWindow()
-   ENDMENU
+   IF lWithDialog
+      INIT DIALOG oDlg ;
+         TITLE "TrackBar Control - Demo" ;
+         AT    0, 0 ;
+         SIZE  800, 600
+   ENDIF
 
-   @ 20,20 TRACKBAR oTB ;
-      SIZE   300,50 ;
-      RANGE  0,10 ;
-      INIT   5 ;
-      AUTOTICKS ;
-      ON CHANGE {||UpdateSay()}
+   ButtonForSample( "demotrackbar.prg" )
 
-   @ 300,200 BUTTON "Get Value" ;
-      ON CLICK {||hwg_Msginfo(str(oTB:Value))} ;
-      SIZE     100,40
-
-   @ 300,300 BUTTON "Set Value" ;
-      ON CLICK {||oTB:Value := 5,UpdateSay()} ;
-      SIZE     100,40
-
-   @ 100,100 SAY oSay ;
-      CAPTION "5" ;
-      SIZE 40,40
-
-   ACTIVATE WINDOW oWnd CENTER
-
-RETURN Nil
-
-FUNCTION UpdateSay()
-
-   oSay:SetText( ALLTRIM(str( oTB:Value )) )
-
-RETURN Nil
-
-FUNCTION Dlg1()
-
-   INIT DIALOG oDlg1 TITLE "Dialog 1" ;
-      AT 20,20 SIZE 500,300
-
-   @ 20,20 TRACKBAR oTB1 ;
-      SIZE    400,50 ;
-      RANGE   0,100 ;
-      INIT    25 ;
-      ON INIT {||hwg_Msginfo("On Init","TrackBar")} ;
-      ON CHANGE {||UpdateSayDlg1()} AUTOTICKS TOOLTIP "trackbar control"
-
-   @ 300,100 BUTTON "Get Value" ;
-      ON CLICK {||hwg_Msginfo(str(oTB1:Value))} ;
-      SIZE     100,40
-
-   @ 300,200 BUTTON "Set Value" ;
-      ON CLICK {||oTB1:Value := 25,UpdateSayDlg1()} ;
-      SIZE     100,40
-
-   @ 100,100 SAY oSayDlg1 ;
-      CAPTION "25" ;
-      SIZE    40,40
-
-   ACTIVATE DIALOG oDlg1
-
-RETURN Nil
-
-FUNCTION UpdateSayDlg1()
-
-   oSayDlg1:SetText( ALLTRIM(str( oTB1:Value )) )
-
-RETURN Nil
-
-FUNCTION Dlg2()
-
-   INIT DIALOG oDlg2 ;
-      TITLE "Dialog 2" ;
-      AT    20,20 ;
-      SIZE  500,300
-
-   @ 20,20 TRACKBAR oTB2 ;
-      OF      oDlg2 ;
-      SIZE    100,200 ;
-      RANGE   0,50 ;
+   @ 30, 100 TRACKBAR oTb1 ;
+      OF      oDlg ;
+      SIZE    50, 300 ;
+      RANGE   0, 50 ;
       INIT    50 ;
       VERTICAL ;
       AUTOTICKS ;
       TOOLTIP   "trackbar control" ;
-      ON CHANGE {||UpdateSayDlg2()}
+      ON CHANGE { || oSay1:SetText( AllTrim(str( oTb1:Value ) ) ) }
 
-   @ 300,060 BUTTON "Get Value" ;
-      ON CLICK {||hwg_Msginfo(str(oTB2:Value))} ;
-      SIZE     100,40
-
-   @ 300,100 BUTTON "Set Value" ;
-      ON CLICK {||oTB2:Value := 50,UpdateSayDlg2()} ;
-      SIZE     100,40
-
-   @ 200,100 SAY oSayDlg2 ;
+   @ 100, 100 SAY oSay1 ;
       CAPTION "50" ;
+      SIZE 40, 40
+
+   @ 100, 150 BUTTON "Get Value" ;
+      SIZE 100, 40 ;
+      ON CLICK { || hwg_Msginfo( str( oTb1:Value ) ) }
+
+   @ 100, 200 BUTTON "Set Value" ;
+      SIZE 100, 40 ;
+      ON CLICK { || oTb1:Value := 50, oSay1:SetText( AllTrim(str( oTB1:Value ) ) ) }
+
+   @ 320, 100 TRACKBAR oTb2 ;
+      SIZE   300, 50 ;
+      RANGE  0, 10 ;
+      INIT   5 ;
+      AUTOTICKS ;
+      ON CHANGE { || oSay2:SetText( AllTrim(str( oTb2:Value ) ) ) }
+
+   @ 650, 100 SAY oSay2 ;
+      CAPTION "5" ;
+      SIZE 40, 40
+
+   @ 320, 150 BUTTON "Get Value" ;
+      SIZE 100, 40 ;
+      ON CLICK { || hwg_Msginfo( str( oTb2:Value ) ) }
+
+   @ 470, 150 BUTTON "Set Value" ;
+      SIZE 100, 40 ;
+      ON CLICK { || oTb2:Value := 5, oSay2:SetText( AllTrim(str( oTB2:Value ) ) ) }
+
+   @ 320, 250 TRACKBAR oTB3 ;
+      SIZE    300, 50 ;
+      RANGE   0, 100 ;
+      INIT    25 ;
+      ; // ON INIT { || hwg_Msginfo("On Init", "TrackBar" ) } ;
+      ON CHANGE { || oSay3:SetText( AllTrim(str( oTB3:Value ) ) ) } ;
+      AUTOTICKS ;
+      TOOLTIP "trackbar control"
+
+   @ 650, 250 SAY oSay3 ;
+      CAPTION "25" ;
       SIZE    40,40
 
-   ACTIVATE DIALOG oDlg2
+   @ 320, 300 BUTTON "Get Value" ;
+      SIZE     100, 40 ;
+      ON CLICK { || hwg_Msginfo( str( oTB3:Value ) ) }
+
+   @ 470, 300 BUTTON "Set Value" ;
+      SIZE     100, 40 ;
+      ON CLICK { || oTB3:Value := 25, oSay3:SetText( AllTrim(str( oTb3:Value ) ) ) }
+
+   IF lWithDialog
+      ACTIVATE DIALOG oDlg CENTER
+   ENDIF
 
 RETURN Nil
 
-FUNCTION UpdateSayDlg2()
-
-   oSayDlg2:SetText( ALLTRIM(str( oTB2:Value )) )
-
-RETURN Nil
+#include "demo.ch"
 
 * ======================= EOF of trackbar.prg =====================

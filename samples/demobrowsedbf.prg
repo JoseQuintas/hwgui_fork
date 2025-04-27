@@ -14,11 +14,12 @@ oDlg may be a dialog or a tab page
 
 #include "hwgui.ch"
 
-FUNCTION DemoBrowseDbf( lWithDialog, oDlg )
+FUNCTION DemoBrowseDbf( lWithDialog, oDlg, aExitList )
 
    LOCAL oBrowse, aList, aItem
 
    hb_Default( @lWithDialog, .T. )
+   hb_Default( @aExitList, {} )
 
    SELECT ( Select( "browsedbf" ) ) // if already open
    USE
@@ -59,6 +60,8 @@ FUNCTION DemoBrowseDbf( lWithDialog, oDlg )
       ACTIVATE DIALOG oDlg CENTER
       CLOSE DATABASES
       fErase( "tmpbrowsedbf.dbf" )
+   ELSE
+      AAdd( aExitList, { || fErase( "tmpbrowsedbf.dbf" ) } )
    ENDIF
 
    RETURN Nil

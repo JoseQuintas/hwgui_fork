@@ -16,11 +16,12 @@
 
 #include "hwgui.ch"
 
-FUNCTION DemoIni( lWithDialog, oDlg )
+FUNCTION DemoIni( lWithDialog, oDlg, aExitList )
 
    LOCAL oGet, cIniFile
 
    hb_Default( @lWithDialog, .T. )
+   hb_Default( @aExitList, {} )
 
    cIniFile := hb_cwd() + "tmpini.ini"
 
@@ -58,6 +59,8 @@ FUNCTION DemoIni( lWithDialog, oDlg )
    IF lWithDialog
       ACTIVATE DIALOG oDlg CENTER
       fErase( cIniFile )
+   ELSE
+      Aadd( aExitList, { || fErase( cIniFile ) } )
    ENDIF
 
 RETURN Nil

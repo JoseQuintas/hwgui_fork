@@ -17,61 +17,53 @@
 
 #include "hwgui.ch"
 
-STATIC oMain, oForm, oFont, oBar := Nil
+FUNCTION DemoProgbar( lWithDialog, oDlg, aExitList )
 
-FUNCTION Main()
-
-   INIT WINDOW oMain ;
-      MAIN ;
-      TITLE "Progress Bar Sample"
-
-   MENU OF oMain
-      MENUITEM "&Exit" ACTION oMain:Close()
-      MENUITEM "&Demo" ACTION Test()
-   ENDMENU
-
-   ACTIVATE WINDOW oMain CENTER // MAXIMIZED
-
-RETURN Nil
-
-FUNCTION Test()
-
+   LOCAL oFont, oBar := Nil
    LOCAL cMsgErr := "Bar doesn't exist"
+
+   hb_Default( @lWithDialog, .T. )
 
    PREPARE FONT oFont NAME "Courier New" WIDTH 0 HEIGHT -11
 
-   INIT DIALOG oForm ;
-      CLIPPER ;
-      NOEXIT ;
-      TITLE "Progress Bar Demo" ;
-      FONT oFont ;
-      AT 0, 0 ;
-      SIZE 700, 425 ;
-      STYLE DS_CENTER + WS_VISIBLE + WS_POPUP + WS_VISIBLE + WS_CAPTION + WS_SYSMENU ;
-      ON EXIT { || Iif( oBar == Nil, .T., ( oBar:Close(),.T. ) ) }
+   IF lWithDialog
+      INIT DIALOG oDlg ;
+         CLIPPER ;
+         NOEXIT ;
+         TITLE "demoprogbar.prg - Progress Bar Demo" ;
+         FONT oFont ;
+         AT 0, 0 ;
+         SIZE 700, 425 ;
+         STYLE DS_CENTER + WS_VISIBLE + WS_POPUP + WS_VISIBLE + WS_CAPTION + WS_SYSMENU ;
+         ON EXIT { || Iif( oBar == Nil, .T., ( oBar:Close(),.T. ) ) }
+   ELSE
+      AAdd( aExitList, { || Iif( oBar == Nil, Nil, oBar:Close() ) } )
+   ENDIF
 
-      @ 300, 395 BUTTON 'Reset Bar'  ;
-         SIZE 75,25 ;
-         ON CLICK { || Iif( oBar == Nil, hwg_Msgstop( cMsgErr ), oBar:Reset() ) }
+   ButtonForSample( "demoprogbar.prg" )
 
-      @ 380, 395 BUTTON 'Step Bar'   ;
-         SIZE 75,25 ;
-         ON CLICK { || Iif(oBar == Nil, hwg_Msgstop( cMsgErr ), oBar:Step() ) }
+    @ 300, 395 BUTTON 'Reset Bar'  ;
+      SIZE 75,25 ;
+      ON CLICK { || Iif( oBar == Nil, hwg_Msgstop( cMsgErr ), oBar:Reset() ) }
 
-      @ 460, 395 BUTTON 'Create Bar' ;
-         SIZE 75,25 ;
-         ON CLICK { || oBar := HProgressBar():NewBox( "Testing ...",,,,, 10, 100 ) }
+   @ 380, 395 BUTTON 'Step Bar'   ;
+      SIZE 75,25 ;
+      ON CLICK { || Iif(oBar == Nil, hwg_Msgstop( cMsgErr ), oBar:Step() ) }
 
-      @ 540, 395 BUTTON 'Close Bar'  ;
-         SIZE 75,25 ;
-         ON CLICK { || Iif( oBar == Nil, hwg_Msgstop( cMsgErr ), ( oBar:Close(), oBar := Nil ) ) }
+   @ 460, 395 BUTTON 'Create Bar' ;
+      SIZE 75,25 ;
+      ON CLICK { || oBar := HProgressBar():NewBox( "Testing ...",,,,, 10, 100 ) }
 
-      @ 620, 395 BUTTON 'Close'      ;
-         SIZE 75,25 ;
-         ON CLICK { || oForm:Close() }
+   @ 540, 395 BUTTON 'Close Bar'  ;
+      SIZE 75,25 ;
+      ON CLICK { || Iif( oBar == Nil, hwg_Msgstop( cMsgErr ), ( oBar:Close(), oBar := Nil ) ) }
 
-      ACTIVATE DIALOG oForm
+   IF lWithDialog
+      ACTIVATE DIALOG oDlg
+   ENDIF
 
 RETURN Nil
+
+#include "demo.ch"
 
 * ============================= EOF of demoprogbar.prg =============================

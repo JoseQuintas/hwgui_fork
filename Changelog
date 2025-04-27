@@ -15,6 +15,30 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2024-04-27 10:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   - samples/demotrackbar.hbp
+   * samples/demotrackbar.prg
+     ! from 3 dialogs to 1 with 3 trackbar
+   * samples/demomenuxml.prg
+     ! changed to create xml, changed to do not need macro
+     !   from var to for each nIndex IN { var }
+   * samples/Readme.txt
+   * samples/allhbp.hbp
+   * samples/demoall.hbp
+   * samples/demoall.prg
+   * samples/demobrowsedbf.prg
+   * samples/demodbfdata.prg
+   * samples/demoini.prg
+   - samples/demoprogbar.hbp
+   * samples/demoprogbar.prg
+   * samples/demosplit.prg
+   * samples/demotab.prg
+     ! optional var aInitList to DIALOG INIT and aExitList
+     !   to samples pass init and exit routines
+     !   as example to build treeview and delete temporary files
+     !   tmpmenuxml is not deleted, to user tests changing it
+     ! more samples reusable
+
 2024-04-26 22:10 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * clean.sh
    * doc/hwgdoc_functions.html

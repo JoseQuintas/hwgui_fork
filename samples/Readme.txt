@@ -250,7 +250,7 @@ For beginners:
    demosplitter.prg    Y                        Tree control, Splitter, Tab
    demotab.prg         Y       ?    ?           Tab, owner button, combobox, dateselect, status panel
    demoxmltree.prg     Y                 YW     Show XML-Tree: Open "testxml.xml" for test.
- (*)demoprogbar.prg 12) Y                       Progress bar
+   demoprogbar.prg 12) Y                        Progress bar
  (*)demosplit.prg       Y                       Split windows
  (*)demotrackbar.prg    P                       Trackbar demo, horizontal und vertical.
 

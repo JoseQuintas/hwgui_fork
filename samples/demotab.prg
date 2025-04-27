@@ -11,11 +11,12 @@ called from all.prg - need to add here same prgs on demotab.hbp
 
 #include "hwgui.ch"
 
-FUNCTION DemoTab( lWithDialog, oDlg )
+FUNCTION DemoTab( lWithDialog, oDlg, aExitList )
 
    LOCAL oTab
 
    hb_Default( @lWithDialog, .T. )
+   hb_Default( aExitList, {} )
 
    IF lWithDialog
       INIT DIALOG oDlg ;
@@ -43,7 +44,7 @@ FUNCTION DemoTab( lWithDialog, oDlg )
    BEGIN PAGE "b.tab2" ;
       OF oTab
 
-      DemoBrowseDBF( .F., oTab )
+      DemoBrowseDBF( .F., oTab, aExitList )
 
    END PAGE OF oTab
 
