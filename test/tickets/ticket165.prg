@@ -23,7 +23,7 @@ Local oDlg, oBar
    @ 120,30 BUTTON 'Create Bar' SIZE 80,28 ;
          ON CLICK {|| oBar := HProgressBar():NewBox( "Testing ...",,,,, 10,10 ) }
    @ 220,30 BUTTON 'Close' SIZE 80,28 ON CLICK {|| oBar:Close() , oDlg:Close() } //Here if put oBar:Close(), return error, if use oBar:End() run ok! Default i get this error below.
-   
+
    // DF7BE:
    // Program runs on Windows 11 OK
    // Ubuntu LINUX:
@@ -31,17 +31,17 @@ Local oDlg, oBar
    // Speicherzugriffsfehler (Speicherabzug geschrieben) (access violation)
    // (in both cases oBar:Close() or oBar:End()
    // The GTK message above do not appear any more
-   
+
    // Attention !
    // See closed Bug ticket #52:
-   // "Progbars doesn't work under Linux"
+   // "demoprogbar doesn't work under Linux"
    // A working solution for progress bars
-   // delivered by Alain Aupeix 
+   // delivered by Alain Aupeix
    // to be found in:
    // samples/progressbar
    // For details see the Readme file in this directory.
-   
+
    ACTIVATE DIALOG oDlg
-RETURN NIL   
-   
-* =================== EOF of Ticket165.prg ======================   
+RETURN NIL
+
+* =================== EOF of Ticket165.prg ======================

@@ -1,0 +1,10 @@
+#
+# $Id$
+#
+# auto included hbmk.hbm
+
+-odemosplit
+
+demosplit.prg
+
+# ==================== EOF of demosplit.hbp ===============

@@ -8,8 +8,8 @@
 {darwin}-stop="Windows only"
 {unix}-stop="Windows only"
 
--oprogbars
+-odemoprogbar
 
-progbars.prg
+demoprogbar.prg
 
-# ==================== EOF of progbars.hbp ===============
+# ==================== EOF of demoprogbar.hbp ===============

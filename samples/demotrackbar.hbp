@@ -7,8 +7,8 @@
 {darwin}-stop="Windows only"
 {unix}-stop="Windows only"
 
--otrackbar
+-odemotrackbar
 
-trackbar.prg
+demotrackbar.prg
 
-# ==================== EOF of trackbar.hbp ===============
+# ==================== EOF of demotrackbar.hbp ===============

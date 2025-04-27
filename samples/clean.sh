@@ -45,7 +45,7 @@ rm modtitle 2> /dev/null
 rm nice 2> /dev/null
 rm nice2 2> /dev/null
 rm night 2> /dev/null
-rm progbars 2> /dev/null
+rm demoprogbar 2> /dev/null
 rm propsh 2> /dev/null
 rm pseudocm 2> /dev/null
 rm qrencode 2> /dev/null
@@ -64,11 +64,11 @@ rm testimage 2> /dev/null
 rm demoini 2> /dev/null
 rm testmenubitmap 2> /dev/null
 rm testrtf 2> /dev/null
-rm testspli 2> /dev/null
+rm demosplit 2> /dev/null
 rm testtray 2> /dev/null
 rm testtree 2> /dev/null
 rm demoonother 2> /dev/null
-rm trackbar 2> /dev/null
+rm demotrackbar 2> /dev/null
 rm tstscrlbar 2> /dev/null
 rm tstsplash 2> /dev/null
 rm tststconsapp 2> /dev/null

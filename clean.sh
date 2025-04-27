@@ -48,7 +48,7 @@ rm samples/gtk_samples/dbview 2>/dev/null
 rm samples/gtk_samples/escrita 2>/dev/null
 rm samples/gtk_samples/example 2>/dev/null
 rm samples/gtk_samples/graph 2>/dev/null
-rm samples/gtk_samples/progbars 2>/dev/null
+rm samples/gtk_samples/demoprogbar 2>/dev/null
 rm samples/gtk_samples/pseudocm 2>/dev/null
 rm samples/gtk_samples/winprn 2>/dev/null
 rm samples/gtk_samples/temp_a2.ps 2>/dev/null
@@ -113,7 +113,7 @@ delfi samples/testbrw
 delfi samples/testhmonth
 delfi samples/testrtf
 delfi samples/testsdi
-delfi samples/testspli
+delfi samples/demosplit
 delfi samples/pseudocm
 #
 # created files from sample programs

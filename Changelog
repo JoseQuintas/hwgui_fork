@@ -15,6 +15,24 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2024-04-26 22:10 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * clean.sh
+   * doc/hwgdoc_functions.html
+   * samples/Readme.txt
+   * samples/allhbp.hbp
+   * samples/clean.sh
+   * samples/demoprogbar.hbp  renamed from progbars.hbp
+   * samples/demoprogbar.prg  renamed from progbars.prg
+   * samples/demosplit.hbp    renamed from testsplit.hbp
+   * samples/demosplit.prg    renamed from testsplit.prg
+   * samples/demotrackbar.hbp renamed from trackbar.hbp
+   * samples/demotrackbar.prg renamed from trackbar.prg
+   * samples/makeallsam.sh
+   * test/tickets/ticket165.prg
+      ! rename only and update references
+      ! found wrong reference to testspli.* including .sh
+   ! NOTE: on doc updating references to new names only
+
 2024-04-26 21:10 UTC-0300 Jose Quintas jmcquintas-gmail.com
   * samples/Readme.txt
   * samples/demosplitter.prg renamed from demotreeview.prg
