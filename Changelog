@@ -14,6 +14,10 @@
  "oldlogs".
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+2025-04-27 19:18 UTC-0300 Itamar M. Lins Jr. itamarlins-gmail.com
+   * /source/gtk/drawtext.c
+    ! fix for hbrowse.prg not put 3 dots(default is none) and disable word wrapping to prevent text from spilling to the next line.
+    ! All the work is due to Grok IA. ;-) Please revise-me Wilfried Brunken or Alexander Kresin.
 
 2025-04-27 18:30 UTC-0300 Jose Quintas jmcquintas-gmail.com
   * samples/demodbfdata.prg
