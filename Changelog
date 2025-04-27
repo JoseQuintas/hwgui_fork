@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-17 18:30 UTC-0300 Jose Quintas jmcquintas-gmail.com
+  * samples/demodbfdata.prg
+    ! divide between lines to best view control names on source code
+  * samples/Readme.txt
+  * samples/demoall.hbp
+  * samples/demoall.prg
+  * samples/demotrackbar.prg
+    ! demotrackbar changed to windows only
+    ! TODO: SAY is not updated inside tabpage
+    ! no oSay:Refresh(), no oTab:Refresh(), inside DIALOG ok
 
 2025-04-27 19:15 UTC+0200 Wilfried Brunken DF7BE
 * samples/bindbf.prg
@@ -29,7 +39,7 @@
    * test/tickets/image/white.png
   ! Support ticket #89 	Curious crash:
   ! See post to ticket.
-  
+
 
 2024-04-27 10:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
    - samples/demotrackbar.hbp

@@ -23,15 +23,15 @@ demomenu.prg
 demomenuxml.prg
 demoprogbar.prg
 demotab.prg
-demotrackbar.prg
 demosplit.prg
 demosplitter.prg
 demoxmltree.prg
 
 {win}demobrowseado.prg
 {win}hbwin.hbc
+{win}demolistbox.prg
 {win}demomonthcal.prg
 {win}demoshadebtn.prg
-{win}demolistbox.prg
+{win}demotrackbar.prg
 
 # =============================== EOF of demoall.hbp ==============================

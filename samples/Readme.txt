@@ -251,8 +251,8 @@ For beginners:
    demotab.prg         Y       ?    ?           Tab, owner button, combobox, dateselect, status panel
    demoxmltree.prg     Y                 YW     Show XML-Tree: Open "testxml.xml" for test.
    demoprogbar.prg 12) Y                        Progress bar
- (*)demosplit.prg       Y                       Split windows
- (*)demotrackbar.prg    P                       Trackbar demo, horizontal und vertical.
+   demosplit.prg       Y                       Split windows
+   demotrackbar.prg    P                       Trackbar demo, horizontal und vertical.
 
  testbrowsearray.prg    Y                        Array BROWSE avoiding crashes because of bugs (see inline comments)
  bindbf.prg 10)         Y                        Usage of images from Binary DBF container

@@ -432,7 +432,9 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aExitList )
    MenuOption( "Trackbar" )
       MenuDrop()
       MenuOption( "1.HTrack",             { |o| DemoHTrack( .F., o ) } )
+#ifdef __PLATFORM__WINDOWS
       MenuOption( "2.Trackbar",           { |o| DemoTrackbar( .F., o ) } )
+#endif
       MenuUnDrop()
    MenuOption( "Treeview" )
       MenuDrop()
@@ -443,9 +445,10 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aExitList )
    MenuOption( "UpDown",                  { |o| DemoGetUpDown( .F., o ) } )
    MenuOption( "Others" )
       MenuDrop()
-      MenuOption( "1.AppData",              { |o| DemoDbfData( .F., o, aExitList ) } )
-      MenuOption( "2.Ini Files",            { |o| DemoIni( .F., o, aExitList ) } )
-      MenuOption( "3.Timer",                { |o| DemoGet2( .F., o ) } )
+      MenuOption( "1.AppData",            { |o| DemoDbfData( .F., o, aExitList ) } )
+      MenuOption( "2.Ini Files",          { |o| DemoIni( .F., o, aExitList ) } )
+      MenuOption( "3.Timer",              { |o| DemoGet2( .F., o ) } )
+      MenuUnDrop()
 
    @ 30, 60 TAB oTabLevel1 ITEMS {} SIZE 950, 650 OF oDlg
 
@@ -455,27 +458,29 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aExitList )
 
       // without sub-level
       IF Len( aOption[ 2 ] ) == 0
-         IF ValType( aOption[ 3 ] ) == "C"   // can't run on tabpage
+         IF ValType( aOption[ 3 ] ) == "C"   // can't run on tabpage use button
             @ 30, 50 BUTTON "run " + aOption[ 3 ] ;
                SIZE 200, 24 ;
                ON CLICK aOption[ 4 ]
          ELSE
-            Eval( aOption[ 3 ], oTabLevel1 )
+            Eval( aOption[ 3 ], oTabLevel1 ) // ok display sample
          ENDIF
       ELSE
-         // with sub-level
+         // with sub-level, all again
          FOR EACH oTabLevel2 IN { Nil }
+
             @ 30, 30 TAB oTabLevel2 ITEMS {} SIZE 850, 550 OF oTabLevel1
+
             FOR EACH aOption2 IN aOption[ 2 ]
 
                BEGIN PAGE aOption2[ 1 ] OF oTabLevel2
 
-               IF ValType( aOption2[ 3 ] ) == "C" // can't run on tabpage
+               IF ValType( aOption2[ 3 ] ) == "C" // can't run on tabpage use button
                   @ 30, 50 BUTTON "run " + aOption2[ 3 ] ;
                      SIZE 200, 24 ;
                      ON CLICK aOption2[ 4 ]
                ELSE
-                  Eval( aOption2[ 3 ], oTabLevel2 )
+                  Eval( aOption2[ 3 ], oTabLevel2 ) // ok display sample
                ENDIF
 
                END PAGE OF oTabLevel2

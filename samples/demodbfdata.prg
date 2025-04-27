@@ -159,17 +159,35 @@ RETURN Nil
 
 FUNCTION OpenBotons()
 
-   ControlEnable( aVar[ VAR_BUTTON_NEW ], aVar[ VAR_BUTTON_EDIT ], aVar[ VAR_BUTTON_RET ], aVar[ VAR_BUTTON_NEXT ], aVar[ VAR_BUTTON_TOP ], ;
-      aVar[ VAR_BUTTON_BOTT ], aVar[ VAR_BUTTON_DELETE ], aVar[ VAR_BUTTON_CLOSE ], aVar[ VAR_BUTTON_PRINT ] )
-   ControlDisable( aVar[ VAR_BUTTON_SAVE ] )
+   ControlEnable( ;
+      aVar[ VAR_BUTTON_NEW ], ;
+      aVar[ VAR_BUTTON_EDIT ], ;
+      aVar[ VAR_BUTTON_RET ], ;
+      aVar[ VAR_BUTTON_NEXT ], ;
+      aVar[ VAR_BUTTON_TOP ], ;
+      aVar[ VAR_BUTTON_BOTT ], ;
+      aVar[ VAR_BUTTON_DELETE ], ;
+      aVar[ VAR_BUTTON_CLOSE ], ;
+      aVar[ VAR_BUTTON_PRINT ] )
+   ControlDisable( ;
+      aVar[ VAR_BUTTON_SAVE ] )
 
 RETURN Nil
 
 FUNCTION CloseBotons()
 
-   ControlDisable( aVar[ VAR_BUTTON_NEW ], aVar[ VAR_BUTTON_EDIT ], aVar[ VAR_BUTTON_RET ], aVar[ VAR_BUTTON_NEXT ], aVar[ VAR_BUTTON_TOP ], ;
-      aVar[ VAR_BUTTON_BOTT ], aVar[ VAR_BUTTON_DELETE ], aVar[ VAR_BUTTON_PRINT ] )
-   ControlEnable( aVar[ VAR_BUTTON_SAVE ], aVar[ VAR_BUTTON_CLOSE ] )
+   ControlDisable( ;
+      aVar[ VAR_BUTTON_NEW ], ;
+      aVar[ VAR_BUTTON_EDIT ], ;
+      aVar[ VAR_BUTTON_RET ], ;
+      aVar[ VAR_BUTTON_NEXT ], ;
+      aVar[ VAR_BUTTON_TOP ], ;
+      aVar[ VAR_BUTTON_BOTT ], ;
+      aVar[ VAR_BUTTON_DELETE ], ;
+      aVar[ VAR_BUTTON_PRINT ] )
+   ControlEnable( ;
+      aVar[ VAR_BUTTON_SAVE ], ;
+      aVar[ VAR_BUTTON_CLOSE ] )
 
 RETURN Nil
 
@@ -282,10 +300,10 @@ FUNCTION SaveTab()
    ELSE
       RLock()
       REPLACE ;
-      dbfdata->Name    WITH aVar[ VAR_ONAME ], ;
-      dbfdata->Adress  WITH aVar[ VAR_OADDRESS ], ;
-      dbfdata->Fone    WITH aVar[ VAR_OPHONE ], ;
-      dbfdata->e_Mail  WITH aVar[ VAR_OMAIL ]
+         dbfdata->Name    WITH aVar[ VAR_ONAME ], ;
+         dbfdata->Adress  WITH aVar[ VAR_OADDRESS ], ;
+         dbfdata->Fone    WITH aVar[ VAR_OPHONE ], ;
+         dbfdata->e_Mail  WITH aVar[ VAR_OMAIL ]
       UNLOCK
    ENDIF
    CloseGets()
@@ -357,13 +375,23 @@ RETURN Nil
 
 FUNCTION OpenGets()
 
-   ControlEnable( aVar[ VAR_GET_CODE ], aVar[ VAR_GET_NAME ], aVar[ VAR_GET_ADDRESS ], aVar[ VAR_GET_PHONE ], aVar[ VAR_GET_MAIL ] )
+   ControlEnable( ;
+      aVar[ VAR_GET_CODE ], ;
+      aVar[ VAR_GET_NAME ], ;
+      aVar[ VAR_GET_ADDRESS ], ;
+      aVar[ VAR_GET_PHONE ], ;
+      aVar[ VAR_GET_MAIL ] )
 
 RETURN Nil
 
 FUNCTION CloseGets()
 
-   ControlDisable( aVar[ VAR_GET_CODE ], aVar[ VAR_GET_NAME ], aVar[ VAR_GET_ADDRESS ], aVar[ VAR_GET_PHONE ], aVar[ VAR_GET_MAIL ] )
+   ControlDisable( ;
+      aVar[ VAR_GET_CODE ], ;
+      aVar[ VAR_GET_NAME ], ;
+      aVar[ VAR_GET_ADDRESS ], ;
+      aVar[ VAR_GET_PHONE ], ;
+      aVar[ VAR_GET_MAIL ] )
 
 RETURN Nil
 
