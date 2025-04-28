@@ -12,58 +12,47 @@
 
 #include "hwgui.ch"
 
-STATIC oMain, oForm, oFont, oGrid
+FUNCTION DemoGrid1( lWithDialog, oDlg )
 
-FUNCTION Main()
+   LOCAL oFont, oGrid
 
-   INIT WINDOW oMain ;
-      MAIN ;
-      TITLE "Grid Sample" ;
-      AT 0,0 ;
-      SIZE hwg_Getdesktopwidth(), hwg_Getdesktopheight() - 28
+   hb_Default( @lWithDialog, .T. )
 
-   MENU OF oMain
-      MENUITEM "&Exit"      ACTION oMain:Close()
-      MENUITEM "&Grid Demo" ACTION Test()
-   ENDMENU
+   IF lWithDialog
+      PREPARE FONT oFont NAME "Courier New" WIDTH 0 HEIGHT -11
 
-   ACTIVATE WINDOW oMain CENTER
+      INIT DIALOG oDlg ;
+         CLIPPER ;
+         NOEXIT ;
+         TITLE "demogrid1.prg - Grid Demo" ;
+         FONT oFont ;
+         AT 0, 0 ;
+         SIZE 720, 480 ;
+         STYLE DS_CENTER + WS_VISIBLE + WS_POPUP + WS_VISIBLE + WS_CAPTION + WS_SYSMENU
+   ENDIF
 
-RETURN Nil
+   ButtonForSample( "demogrid1.prg" )
 
-FUNCTION Test()
+   @ 50, 100 GRID oGrid OF oDlg SIZE 600, 300 ;
+      ITEMCOUNT 1000 ;
+      ON KEYDOWN { | oCtrl, key| OnKey( oCtrl, key ) } ;
+      ON POSCHANGE { | oCtrl, nRow| OnPoschange( oCtrl, nRow ) } ;
+      ON CLICK { | oCtrl | OnClick( oCtrl ) } ;
+      ON DISPINFO { | oCtrl, nRow, nCol | OnDispInfo( oCtrl, nRow, nCol ) } ;
+      COLOR hwg_ColorC2N( "D3D3D3" ) ;
+      BACKCOLOR hwg_ColorC2N( "BEBEBE" )
 
-   PREPARE FONT oFont NAME "Courier New" WIDTH 0 HEIGHT -11
+   ADD COLUMN TO GRID oGrid HEADER "Column 1" WIDTH 150
+   ADD COLUMN TO GRID oGrid HEADER "Column 2" WIDTH 150
+   ADD COLUMN TO GRID oGrid HEADER "Column 3" WIDTH 150
 
-   INIT DIALOG oForm ;
-      CLIPPER ;
-      NOEXIT ;
-      TITLE "Grid Demo" ;
-      FONT oFont ;
-      AT 0, 0 ;
-      SIZE 700, 425 ;
-      STYLE DS_CENTER + WS_VISIBLE + WS_POPUP + WS_VISIBLE + WS_CAPTION + WS_SYSMENU
-
-      @ 10,10 GRID oGrid OF oForm SIZE 680,375 ;
-         ITEMCOUNT 10000 ;
-         ON KEYDOWN { | oCtrl, key| OnKey( oCtrl, key ) } ;
-         ON POSCHANGE { | oCtrl, nRow| OnPoschange( oCtrl, nRow ) } ;
-         ON CLICK { | oCtrl | OnClick( oCtrl ) } ;
-         ON DISPINFO { | oCtrl, nRow, nCol | OnDispInfo( oCtrl, nRow, nCol ) } ;
-         COLOR hwg_ColorC2N( "D3D3D3" ) ;
-         BACKCOLOR hwg_ColorC2N( "BEBEBE" )
-
-             ADD COLUMN TO GRID oGrid HEADER "Column 1" WIDTH 150
-             ADD COLUMN TO GRID oGrid HEADER "Column 2" WIDTH 150
-             ADD COLUMN TO GRID oGrid HEADER "Column 3" WIDTH 150
-
-             @ 620, 395 BUTTON "Close" SIZE 75,25 ON CLICK { || oForm:Close() }
-
-        ACTIVATE DIALOG oForm
+   IF lWithDialog
+      ACTIVATE DIALOG oDlg CENTER
+   ENDIF
 
 RETURN Nil
 
-FUNCTION OnKey( o, k )
+STATIC FUNCTION OnKey( o, k )
 
    //    hwg_Msginfo(str(k))
 
@@ -71,7 +60,7 @@ FUNCTION OnKey( o, k )
 
 RETURN Nil
 
-FUNCTION OnPosChange( o, row )
+STATIC FUNCTION OnPosChange( o, row )
 
    //    hwg_Msginfo( str(row) )
 
@@ -79,7 +68,7 @@ FUNCTION OnPosChange( o, row )
 
 RETURN Nil
 
-FUNCTION OnClick( o )
+STATIC FUNCTION OnClick( o )
 
    //    hwg_Msginfo( "click" )
 
@@ -87,8 +76,10 @@ FUNCTION OnClick( o )
 
 RETURN Nil
 
-FUNCTION OnDispInfo( o, x, y )
+STATIC FUNCTION OnDispInfo( o, x, y )
 
    (o) // -w3 -es2
 
 RETURN "Row: " + ltrim( str( x ) ) + " Col: " + ltrim( str( y ) )
+
+#include "demo.ch"

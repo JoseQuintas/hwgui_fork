@@ -29,9 +29,11 @@ demoxmltree.prg
 
 {win}demobrowseado.prg
 {win}hbwin.hbc
+{win}demogrid1.prg
 {win}demolistbox.prg
 {win}demomonthcal.prg
 {win}demoshadebtn.prg
 {win}demotrackbar.prg
+{win}demotree.prg
 
 # =============================== EOF of demoall.hbp ==============================

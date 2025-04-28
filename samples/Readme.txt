@@ -225,36 +225,36 @@ For beginners:
 
 10.) Complete list with footmarks
 
- Sample program      GTK2    GTK3  NLS MinGW64 Purpose
+ Sample program       GTK2    GTK3  NLS MinGW64 Purpose
  =================    ====   ====  === ======= =======
- a.prg   +) 9)         R       N    CN          Some HWGUI basics (Open DBF's, GET's, ...)
+ a.prg   +) 9)          R       N    CN          Some HWGUI basics (Open DBF's, GET's, ...)
 
- demoall.prg           ?                        group samples
-   demoaltdpicker.prg  Y                        Multiplatform substitute of Windows only DATEPICKER
-   demobrowsedbf.prg   Y       ?    ?           browse dbf
-   demobrowseado.prg   N       N                ADO Browse (TNX Itamar M. Lins Jr.). For multi platform use BROWSE.
-   democheckbox.prg    Y                        Checkboxes and tabs
-   democombobox.prg    Y                        Combobox
-   demodbfdata.prg                              Database to insert/delete/edit/navigate
-   demoget2.prg        Y       Y                Get system: Colored edit fields, time display, Tooltip ballon, HD serial number
-   demogetupdown.prg   Y                        Usage of @ <x> <y> GET UPDOWN ..
-   demohtrack.prg      Y                        Demo of HTRACK class as substitute for Windows only HTRACKBAR
-   demoini.prg         P                        Use INI file: create and read
-   demolenta.prg       Y                        Multi platform alternative for tab
-   demolistbox.prg     S       S         Y      Demo for listbox
-   demolistboxsub.prg  Y                 Y      Multi platform substitute for listbox by BROWSE.
-   demomenu.prg        Y                        Simple menu
-   demomenuxml.prg     Y                        reading/writing XML file and handling menu items while run-time (testxml.xml)
-   demomonthcal.prg    N                 Y      Calendar, Datepicker, TOOLTIP
-   demoshadebtn.prg    N       N                Shade buttons (for multi platform usage take OWNERBUTTON)
-   demosplitter.prg    Y                        Tree control, Splitter, Tab
-   demotab.prg         Y       ?    ?           Tab, owner button, combobox, dateselect, status panel
-   demoxmltree.prg     Y                 YW     Show XML-Tree: Open "testxml.xml" for test.
-   demoprogbar.prg 12) Y                        Progress bar
-   demosplit.prg       Y                        Split windows
-   demotrackbar.prg    P                        Trackbar demo, horizontal und vertical.
-(*)demogrid1.prg   +)   N       N         Y     Grid demo (HGrid class)
-(*)demotree.prg         Y                       Tree view control
+ demoall.prg            ?                        group samples
+   demoaltdpicker.prg   Y                        Multiplatform substitute of Windows only DATEPICKER
+   demobrowsedbf.prg    Y       ?    ?           browse dbf
+   demobrowseado.prg    N       N                ADO Browse (TNX Itamar M. Lins Jr.). For multi platform use BROWSE.
+   democheckbox.prg     Y                        Checkboxes and tabs
+   democombobox.prg     Y                        Combobox
+   demodbfdata.prg                               Database to insert/delete/edit/navigate
+   demoget2.prg         Y       Y                Get system: Colored edit fields, time display, Tooltip ballon, HD serial number
+   demogetupdown.prg    Y                        Usage of @ <x> <y> GET UPDOWN ..
+   demohtrack.prg       Y                        Demo of HTRACK class as substitute for Windows only HTRACKBAR
+   demoini.prg          P                        Use INI file: create and read
+   demolenta.prg        Y                        Multi platform alternative for tab
+   demolistbox.prg      S       S         Y      Demo for listbox
+   demolistboxsub.prg   Y                 Y      Multi platform substitute for listbox by BROWSE.
+   demomenu.prg         Y                        Simple menu
+   demomenuxml.prg      Y                        reading/writing XML file and handling menu items while run-time (testxml.xml)
+   demomonthcal.prg     N                 Y      Calendar, Datepicker, TOOLTIP
+   demoshadebtn.prg     N       N                Shade buttons (for multi platform usage take OWNERBUTTON)
+   demosplitter.prg     Y                        Tree control, Splitter, Tab
+   demotab.prg          Y       ?    ?           Tab, owner button, combobox, dateselect, status panel
+   demoxmltree.prg      Y                 YW     Show XML-Tree: Open "testxml.xml" for test.
+   demoprogbar.prg 12)  Y                        Progress bar
+   demosplit.prg        Y                        Split windows
+   demotrackbar.prg     P                        Trackbar demo, horizontal und vertical.
+`  demogrid1.prg   +)   N       N         Y     Grid demo (HGrid class)
+   demotree.prg         Y                       Tree view control
 
  testbrowsearray.prg    Y                        Array BROWSE avoiding crashes because of bugs (see inline comments)
  bindbf.prg 10)         Y                        Usage of images from Binary DBF container

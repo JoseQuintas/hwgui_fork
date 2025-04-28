@@ -74,7 +74,6 @@ PROCEDURE DemoAll
        { "escrita.prg",            .T., .T., .T., "Escrita" }, ;
        { "fileselect.prg",         .T., .T., .T., "File Select" }, ;
        { "graph.prg",              .T., .T., .T., "Graph" }, ;
-       { "demogrid1.prg",          .T., .F., .F., "Grid1" }, ;
        { "grid_2.prg",             .F., .F., .F., "Grid2 PostGres" }, ;
        { "grid_3.prg",             .F., .F., .F., "Grid3 PostGres" }, ;
        { "grid_4.prg",             .T., .F., .F., "Grid4" }, ;
@@ -381,6 +380,9 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aExitList )
 #endif
       MenuOption( "2.Browse Array",       { |o| DemoBrowseArray( .F., o ) } )
       MenuOption( "3.Browse DBF",         { |o| DemoBrowseDbf( .F., o, aExitList ) } )
+#ifdef __PLATFORM__WINDOWS
+      MenuOption( "4.Grid",               { |o| DemoGrid1( .F., o ) } )
+#endif
       MenuUndrop()
    MenuOption( "Button" )
       MenuDrop()
@@ -422,7 +424,8 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aExitList )
       MenuDrop()
       MenuOption( "1.Split",              { |o| DemoSplit( .F., o, aInitList ) } )
       MenuOption( "2.Splitter",           { |o| DemoSplitter( .F., o, aInitList ) } )
-      MenuOption( "3.XML Tree",           { |o| DemoXmlTree( .F., o ) } )
+      MenuOption( "3.Tree",               { |o| DemoTree( .F., o, aInitList ) } )
+      MenuOption( "4.XML Tree",           { |o| DemoXmlTree( .F., o ) } )
       MenuUnDrop()
    MenuOption( "Tab" )
       MenuDrop()
@@ -438,9 +441,10 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aExitList )
       MenuUnDrop()
    MenuOption( "Tree" )
       MenuDrop()
-      MenuOption( "1.Split",              { |o| DemoSplit( .F., o, aInitList ) } )
-      MenuOption( "2.Splitter",           { |o| DemoSplitter( .F., o, aInitList ) } )
-      MenuOption( "3.XML Tree",           { |o| DemoXmlTree( .F., o ) } )
+      MenuOption( "1.Tree",               { |o| DemoTree( .F., o, aInitList ) } )
+      MenuOption( "2.Split",              { |o| DemoSplit( .F., o, aInitList ) } )
+      MenuOption( "3.Splitter",           { |o| DemoSplitter( .F., o, aInitList ) } )
+      MenuOption( "5.XML Tree",           { |o| DemoXmlTree( .F., o ) } )
       MenuUnDrop()
    MenuOption( "UpDown",                  { |o| DemoGetUpDown( .F., o ) } )
    MenuOption( "Others" )
@@ -510,6 +514,7 @@ CASE cFileName == "demobrowseado.prg";   #pragma __binarystreaminclude "demobrow
 CASE cFileName == "demodbfdata.prg";     #pragma __binarystreaminclude "demodbfdata.prg" | RETURN %s
 CASE cFileName == "demogetupdown.prg";   #pragma __binarystreaminclude "demogetupdown.prg" | RETURN %s
 CASE cFileName == "demoget2.prg";        #pragma __binarystreaminclude "demoget2.prg" | RETURN %s
+CASE cFileName == "demogrid1.prg";       #pragma __binarystreaminclude "demogrid1.prg" | RETURN %s
 CASE cFileName == "demohtrack.prg";      #pragma __binarystreaminclude "demohtrack.prg" | RETURN %s
 CASE cFileName == "demoini.prg";         #pragma __binarystreaminclude "demoini.prg" | RETURN %s
 CASE cFileName == "demolenta.prg";       #pragma __binarystreaminclude "demolenta.prg" | RETURN %s
@@ -522,6 +527,7 @@ CASE cFileName == "demoprogbar.prg";     #pragma __binarystreaminclude "demoprog
 CASE cFileName == "demoshadebtn.prg";    #pragma __binarystreaminclude "demoshadebtn.prg" | RETURN %s
 CASE cFileName == "demotab.prg";         #pragma __binarystreaminclude "demotab.prg" | RETURN %s
 CASE cFileName == "demotrackbar.prg";    #pragma __binarystreaminclude "demotrackbar.prg" | RETURN %s
+CASE cFileName == "demotree.prg";        #pragma __binarystreaminclude "demotree.prg" | RETURN %s
 CASE cFileName == "demosplit.prg";       #pragma __binarystreaminclude "demosplit.prg" | RETURN %s
 CASE cFileName == "demosplitter.prg";    #pragma __binarystreaminclude "demosplitter.prg" | RETURN %s
 CASE cFileName == "demoxmltree.prg";     #pragma __binarystreaminclude "demoxmltree.prg" | RETURN %s
