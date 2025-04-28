@@ -28,7 +28,6 @@ hbmk2 buildpelles.hbp
 hbmk2 colrbloc.hbp
 hbmk2 dbview.hbp
 hbmk2 demodbf.hbp
-hbmk2 Dialogboxes.hbp
 hbmk2 escrita.hbp
 hbmk2 fileselect.hbp
 hbmk2 GetWinVers.hbp
@@ -63,7 +62,6 @@ hbmk2 testfunc.hbp
 hbmk2 testget1.hbp
 hbmk2 testhgt.hbp
 hbmk2 testimage.hbp
-hbmk2 testmenubitmap.hbp
 hbmk2 testrtf.hbp
 hbmk2 testtray.hbp
 hbmk2 demoonother.hbp

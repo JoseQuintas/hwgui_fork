@@ -51,6 +51,13 @@ STATIC FUNCTION ShowCode( cFileName )
       cText := MemoRead( cFileName )
    ENDIF
 
+#ifdef __PLATFORM__WINDOW
+   // if source code on linux format
+   IF ! hb_Eol() $ cText
+      cText := StrTran( cText, Chr(10), hb_Eol() )
+   ENDIF
+#endif
+
    PREPARE FONT oFont ;
       NAME "Courier New" ;
       WIDTH 0 ;

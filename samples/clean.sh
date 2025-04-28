@@ -21,7 +21,6 @@ rm bitmapbug 2> /dev/null
 rm buildpelles 2> /dev/null
 rm colrbloc 2> /dev/null
 rm dbview 2> /dev/null
-rm Dialogboxes 2> /dev/null
 rm escrita 2> /dev/null
 rm fileselect 2> /dev/null
 rm GetWinVers 2> /dev/null
@@ -56,7 +55,6 @@ rm testfunc 2> /dev/null
 rm testget1 2> /dev/null
 rm testhgt 2> /dev/null
 rm testimage 2> /dev/null
-rm testmenubitmap 2> /dev/null
 rm testrtf 2> /dev/null
 rm testtray 2> /dev/null
 rm demoonother 2> /dev/null

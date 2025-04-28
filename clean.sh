@@ -87,7 +87,6 @@ delfi samples/icons2
 rm samples/testfehl.bmp 2>/dev/null
 rm samples/testimage 2>/dev/null
 rm samples/tab 2>/dev/null
-delfi samples/Dialogboxes
 delfi samples/bitmapbug
 delfi samples/tststconsapp
 delfi samples/helloworld

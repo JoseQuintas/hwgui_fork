@@ -14,7 +14,25 @@
  "oldlogs".
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-2025-04-28 18:40 UTC-0300 JoseQuintas jmcquintas-gmail.com
+
+2025-04-28 20:50 UTC-0300 Jose Quintas jmcquintas-gmail.com
+  - samples/Dialogboxes.hbp
+  - samples/testmenubitmap.hbp
+  * samples/demodlgbox.prg renamed from Dialogboxes.prg
+  * samples/demomenubitmap.prg renamed from testmenubitmap.prg
+  * Readme.txt
+  * samples/allhbp.hbp
+  * samples/clean.sh
+  * samples/demoall.hbp
+  * samples/demoall.prg
+  * samples/makeallsam.sh
+    ! added demomenubitmap to page menu
+    ! added demodlgbox to page others
+    ! change references
+  * samples/demo.ch
+    ! On windows change text to cr/lf if needed
+
+2025-04-28 18:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/demoall.hbp
    * samples/demoall.prg
    * samples/demobrowsedbf.prg

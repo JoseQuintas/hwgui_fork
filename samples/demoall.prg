@@ -45,7 +45,6 @@ PROCEDURE DemoAll
        ;
        { "",                       .T., .F., .F., "" }, ;
        ;
-       { "demoini.prg",            .T., .F., .F., "Read/write Ini" }, ;
        { "hello.prg",              .T., .F., .F., "RichEdit, Tab, Combobox" }, ;
        { "tab.prg",                .T., .F., .F., "Tab, checkbox, editbox, combobox, browse array" }, ;
        ;
@@ -70,7 +69,6 @@ PROCEDURE DemoAll
        ; // next review
        { "colrbloc.prg",           .T., .T., .T., "Color Block" }, ;
        { "dbview.prg",             .T., .T., .T., "DBView" }, ;
-       { "dialogboxes.prg",        .T., .T., .T., "Dialogboxes" }, ;
        { "escrita.prg",            .T., .T., .T., "Escrita" }, ;
        { "fileselect.prg",         .T., .T., .T., "File Select" }, ;
        { "graph.prg",              .T., .T., .T., "Graph" }, ;
@@ -82,8 +80,6 @@ PROCEDURE DemoAll
        { "testalert.prg",          .T., .F., .F., "Test Alert" }, ;
        { "testbrwq.prg",           .T., .F., .F., "Test browse" }, ;
        { "testget1.prg",           .T., .F., .F., "Test Get 1" }, ;
-       { "testmenubitmap.prg",     .T., .F., .F., "Test Menu Bitmap" }, ;
-       { "demotree.prg",           .T., .F., .F., "Treeview Editable *** error on edit***" }, ;
        { "testrtf.prg",            .T., .F., .F., "Test RTF" }, ;
        { "tstscrlbar.prg",         .T., .T., .T., "Scrollbar" }, ;
        { "tstspach.prg",           .T., .F., .F., "Test Splash" }, ;
@@ -414,6 +410,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuDrop()
       MenuOption( "1.menu",    "demomenu.prg",    { || DemoMenu() } )
       MenuOption( "2.menuxml", "demomenuxml.prg", { || DemoMenuXml() } )
+      MenuOption( "3.menubitmap","demomenubitmap.prg", { || DemoMenuBitmap() } )
       MenuUnDrop()
    MenuOption( "Progbar",                 { |o| DemoProgbar( .F., o, aEndList ) } )
    MenuOption( "Say" )
@@ -452,6 +449,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "1.AppData",            { |o| DemoDbfData( .F., o, aEndList ) } )
       MenuOption( "2.Ini Files",          { |o| DemoIni( .F., o, aEndList ) } )
       MenuOption( "3.Timer",              { |o| DemoGet2( .F., o ) } )
+      MenuOption( "4.Dlgbox",             { |o| DemoDlgBox( .F., o ) } )
       MenuUnDrop()
 
    @ 30, 60 TAB oTabLevel1 ITEMS {} SIZE 950, 650 OF oDlg
@@ -512,6 +510,7 @@ CASE cFileName == "demoaltdpicker.prg";  #pragma __binarystreaminclude "demoaltd
 CASE cFileName == "demobrowsedbf.prg";   #pragma __binarystreaminclude "demobrowsedbf.prg" | RETURN %s
 CASE cFileName == "demobrowseado.prg";   #pragma __binarystreaminclude "demobrowseado.prg" | RETURN %s
 CASE cFileName == "demodbfdata.prg";     #pragma __binarystreaminclude "demodbfdata.prg" | RETURN %s
+CASE cFileName == "demodlgbox.prg";      #pragma __binarystreaminclude "demodlgbox.prg" | RETURN %s
 CASE cFileName == "demogetupdown.prg";   #pragma __binarystreaminclude "demogetupdown.prg" | RETURN %s
 CASE cFileName == "demoget2.prg";        #pragma __binarystreaminclude "demoget2.prg" | RETURN %s
 CASE cFileName == "demogrid1.prg";       #pragma __binarystreaminclude "demogrid1.prg" | RETURN %s
@@ -522,6 +521,7 @@ CASE cFileName == "demoini.prg";         #pragma __binarystreaminclude "demoini.
 CASE cFileName == "demolenta.prg";       #pragma __binarystreaminclude "demolenta.prg" | RETURN %s
 CASE cFileName == "demolistbox.prg";     #pragma __binarystreaminclude "demolistbox.prg" | RETURN %s
 CASE cFileName == "demolistboxsub.prg";  #pragma __binarystreaminclude "demolistboxsub.prg" | RETURN %s
+CASE cFileName == "demomenubitmap.prg";  #pragma __binarystreaminclude "demomenubitmap.prg" | RETURN %s
 CASE cFileName == "demomonthcal.prg";    #pragma __binarystreaminclude "demomonthcal.prg" | RETURN %s
 CASE cFileName == "demomenu.prg";        #pragma __binarystreaminclude "demomenu.prg" | RETURN %s
 CASE cFileName == "demomenuxml.prg";     #pragma __binarystreaminclude "demomenuxml.prg" | RETURN %s

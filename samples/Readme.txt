@@ -236,6 +236,7 @@ For beginners:
    democheckbox.prg     Y                        Checkboxes and tabs
    democombobox.prg     Y                        Combobox
    demodbfdata.prg                               Database to insert/delete/edit/navigate
+   demodlgbox.prg       Y                        Demonstrates few ready to use dialog boxes (extract from tutor)
    demoget2.prg         Y       Y                Get system: Colored edit fields, time display, Tooltip ballon, HD serial number
    demogetupdown.prg    Y                        Usage of @ <x> <y> GET UPDOWN ..
 `  demogrid1.prg +)     N       N         Y     Grid demo (HGrid class)
@@ -247,6 +248,7 @@ For beginners:
    demolistbox.prg      S       S         Y      Demo for listbox
    demolistboxsub.prg   Y                 Y      Multi platform substitute for listbox by BROWSE.
    demomenu.prg         Y                        Simple menu
+   demomenubitmap.prg   P                        Menu with bitmaps
    demomenuxml.prg      Y                        reading/writing XML file and handling menu items while run-time (testxml.xml)
    demomonthcal.prg     N                 Y      Calendar, Datepicker, TOOLTIP
    demoshadebtn.prg     N       N                Shade buttons (for multi platform usage take OWNERBUTTON)
@@ -256,7 +258,7 @@ For beginners:
    demoxmltree.prg      Y                 YW     Show XML-Tree: Open "testxml.xml" for test.
    demoprogbar.prg 12)  Y                        Progress bar
    demotrackbar.prg     P                        Trackbar demo, horizontal und vertical.
-   demotree.prg         Y                       Tree view control
+   demotree.prg         Y                        Tree view control
 
  testbrowsearray.prg    Y                        Array BROWSE avoiding crashes because of bugs (see inline comments)
  bindbf.prg 10)         Y                        Usage of images from Binary DBF container
@@ -266,7 +268,6 @@ For beginners:
  colrbloc.prg           Y                 Y      BROWSE: arrays and DBF's with colored lines and columns
  dbview.prg             Y       Y         Y      DBF access (Browse, Indexing, Codepages, Structure, ... )
  demodbf.prg            Y                 Y      Demo for Edit using command NOEXIT
- Dialogboxes.prg        Y                        Demonstrates few ready to use dialog boxes (extract from tutor)
  escrita.prg   +)       Y       Y                Tool buttons with bitmaps ("Accent Test")
  fileselect.prg         Y                        Sample for file selection menues
  GetWinVers.prg         Y                        Functions for get recent hwg_SaveFile() Windows version
@@ -300,7 +301,6 @@ For beginners:
  testget1.prg           Y                        Get system: Edit field, Checkboxes, Radio buttons, Combo box, Datepicker
  testfunc.prg           Y       Y         Y      Test and demo of standalone HWGUI (hwg_*) functions, enable/disable button.
  testimage.prg          Y       Y                Displaying images and usage of FreeImage library (IMAGE, BITMAP).
- testmenubitmap.prg     P                        Menu with bitmaps
  testrtf.prg  1)        Y  #    N          -      Create Rich text files. Need some work, the created RTFs are not compatible with newest specifications. (TO-DO for Alexander Kresin)
  teststrrev.prg         Y                        Function hwg_strrev() reverses a string for UTF-8 and handle Euro currency sign with GET
  testtray.prg           Y                 Y      Tray Message : Be care of different behavior between WinAPI and GTK
