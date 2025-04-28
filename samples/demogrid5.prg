@@ -39,25 +39,11 @@ STATIC oMain, oForm, oBrowse
 
 FUNCTION DemoGrid5( lWithDialog, oDlg, lExitList )
 
-   INIT WINDOW oMain ;
-      MAIN ;
-      TITLE "Grid Edition Sample" ;
-      AT 0,0 ;
-      SIZE hwg_Getdesktopwidth(), hwg_Getdesktopheight() - 28
-
-   MENU OF oMain
-      MENUITEM "&Exit"   ACTION oMain:Close()
-      MENUITEM "&Demo"   ACTION Test()
-   ENDMENU
-
-   ACTIVATE WINDOW oMain CENTER
-
-RETURN Nil
-
-FUNCTION Test()
-
    LOCAL aItems := {}
    LOCAL i , oFont , oGrid
+
+   hb_Default( @lWithDialog, .T. )
+   hb_Default( @lExitList, {} )
 
    PREPARE FONT oFont NAME "Courier New" WIDTH 0 HEIGHT -11
 
@@ -88,7 +74,7 @@ FUNCTION Test()
    ADD COLUMN TO GRIDEDIT aItems FIELD "Field_4" LABEL "Date"
    ADD COLUMN TO GRIDEDIT aItems FIELD "Field_5" LABEL "Memo"
 
-   INIT DIALOG oForm ;
+   INIT DIALOG oDlg ;
       CLIPPER ;
       NOEXIT ;
       TITLE "Grid Edit";
@@ -97,9 +83,8 @@ FUNCTION Test()
       FONT oFont ;
       STYLE DS_CENTER + WS_VISIBLE + WS_POPUP + WS_VISIBLE + WS_CAPTION + WS_SYSMENU
 
-
    @ 10,10 GRID oGrid ;
-      OF oForm ;
+      OF oDlg ;
       SIZE 680,375;
       ITEMCOUNT LastRec() ;
       ON KEYDOWN {|oCtrl, key| OnKey(oCtrl, key, aItems,oGrid) } ;
@@ -118,7 +103,7 @@ FUNCTION Test()
 
    @ 620, 395 BUTTON 'Close' SIZE 75,25 ON CLICK {|| oForm:close() }
 
-   ACTIVATE DIALOG oForm
+   ACTIVATE DIALOG oDlg CENTER
    CLOSE DATABASES
 
 RETURN Nil

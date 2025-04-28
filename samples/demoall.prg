@@ -380,8 +380,8 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aExitList )
       MenuOption( "3.Browse DBF",         { |o| DemoBrowseDbf( .F., o, aExitList ) } )
 #ifdef __PLATFORM__WINDOWS
       MenuOption( "4.Grid1",              { |o| DemoGrid1( .F., o ) } )
-      MenuOption( "4.Grid4",              { |o| DemoGrid4( .F., o, lExitList ) } )
-      MenuOption( "4.Grid5",              { |o| DemoGrid5( .F., o, lExitList ) } )
+      MenuOption( "4.Grid4",              { |o| DemoGrid4( .F., o, aExitList ) } )
+      MenuOption( "4.Grid5",              { |o| DemoGrid5( .F., o, aExitList ) } )
 #endif
       MenuUndrop()
    MenuOption( "Button" )
