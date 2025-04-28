@@ -17,7 +17,7 @@
 
 #include "hwgui.ch"
 
-FUNCTION DemoProgbar( lWithDialog, oDlg, aExitList )
+FUNCTION DemoProgbar( lWithDialog, oDlg, aEndList )
 
    LOCAL oFont, oBar := Nil
    LOCAL cMsgErr := "Bar doesn't exist"
@@ -37,7 +37,7 @@ FUNCTION DemoProgbar( lWithDialog, oDlg, aExitList )
          STYLE DS_CENTER + WS_VISIBLE + WS_POPUP + WS_VISIBLE + WS_CAPTION + WS_SYSMENU ;
          ON EXIT { || Iif( oBar == Nil, .T., ( oBar:Close(),.T. ) ) }
    ELSE
-      AAdd( aExitList, { || Iif( oBar == Nil, Nil, oBar:Close() ) } )
+      AAdd( aEndList, { || Iif( oBar == Nil, Nil, oBar:Close() ) } )
    ENDIF
 
    ButtonForSample( "demoprogbar.prg" )

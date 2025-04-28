@@ -23,6 +23,7 @@ demomenu.prg
 demomenuxml.prg
 demoprogbar.prg
 demotab.prg
+demotree.prg
 demosplit.prg
 demosplitter.prg
 demoxmltree.prg
@@ -36,6 +37,5 @@ demoxmltree.prg
 {win}demomonthcal.prg
 {win}demoshadebtn.prg
 {win}demotrackbar.prg
-{win}demotree.prg
 
 # =============================== EOF of demoall.hbp ==============================

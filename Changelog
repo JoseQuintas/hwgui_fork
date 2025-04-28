@@ -14,6 +14,19 @@
  "oldlogs".
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+2025-04-28 18:40 UTC-0300 JoseQuintas jmcquintas-gmail.com
+   * samples/demoall.hbp
+   * samples/demoall.prg
+   * samples/demobrowsedbf.prg
+   * samples/demogrid4.prg
+   * samples/demogrid5.prg
+   * samples/demoini.prg
+   * samples/demoprogbar.prg
+   * samples/demotab.prg
+     ! renamed lExitList to lEndList
+     ! temporary filename
+     ! TODO: grid is empty on tabpage
+
 2025-04-28 16:10 UTC-0300 Itamar M. Lins Jr. itamarlins-gmail.com
   * /source/gtk/drawtext.c
     ! Fix for PANGO < 1.56

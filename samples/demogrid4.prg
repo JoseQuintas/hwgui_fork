@@ -18,7 +18,7 @@
 #include "hwgui.ch"
 #include "common.ch"
 
-FUNCTION DemoGrid4( lWithDialog, oDlg, aExitList )
+FUNCTION DemoGrid4( lWithDialog, oDlg, aEndList )
 
    LOCAL oFont, oGrid
 
@@ -26,7 +26,7 @@ FUNCTION DemoGrid4( lWithDialog, oDlg, aExitList )
    SET DELETED ON
 
    hb_Default( @lWithDialog, .T. )
-   hb_Default( @aExitList, {} )
+   hb_Default( @aEndList, {} )
 
    SELECT ( Select( "tmpgrid5" ) )
    USE
@@ -75,7 +75,7 @@ FUNCTION DemoGrid4( lWithDialog, oDlg, aExitList )
          FErase('temp.dbf')
       END
    ELSE
-      AAdd( aExitList, { || fErase( "tmpgrid5.dbf" ) } )
+      AAdd( aEndList, { || fErase( "tmpgrid5.dbf" ) } )
    ENDIF
 
 RETURN Nil
@@ -99,6 +99,7 @@ STATIC FUNCTION FileOpen()
    fname := hwg_Selectfile( "Select File", "*.*" )
 
    // because sample may be running as part of another routine
+   // it will be deleted, no problem deleted records
    SELECT tmpgrid5
    DELETE ALL FOR RLock()
    APPEND FROM ( fname ) SDF

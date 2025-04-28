@@ -38,7 +38,7 @@ PROCEDURE DemoAll
 
    LOCAL oDlg, aItem, nIndex := 1, lCloseMenu := .F., nCont
    LOCAL lIsAvailable, lIsEXE
-   LOCAL aInitList := {}, aExitList := {}, bCode
+   LOCAL aInitList := {}, aEndList := {}, bCode
    LOCAL aList := { ;
        ; // NAME,                  WIN, LINUX, MACOS, DESCRIPTION
        { "a.prg",                  .T., .F., .F., "MDI, Tab, checkbox, combobox, browse array, others" }, ;
@@ -150,7 +150,7 @@ PROCEDURE DemoAll
 
    ButtonForSample( "demoall.prg" )
 
-   CreateAllTabPages( oDlg, aInitList, aExitList )
+   CreateAllTabPages( oDlg, aInitList, aEndList )
 
    // A STATUS PANEL may be used instead of a standard STATUS control
    ADD STATUS PANEL ;
@@ -166,7 +166,7 @@ PROCEDURE DemoAll
 
    CLOSE DATABASES
 
-   FOR EACH bCode IN aExitList
+   FOR EACH bCode IN aEndList
       Eval( bCode )
    NEXT
 
@@ -367,7 +367,7 @@ STATIC FUNCTION MenuUndrop()
 
    RETURN Nil
 
-STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aExitList )
+STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
 
    LOCAL aOption, aOption2, oTabLevel1, oTabLevel2
 
@@ -377,11 +377,11 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aExitList )
       MenuOption( "1.Browse ADO",         { |o| DemoBrowseADO( .F., o ) } )
 #endif
       MenuOption( "2.Browse Array",       { |o| DemoBrowseArray( .F., o ) } )
-      MenuOption( "3.Browse DBF",         { |o| DemoBrowseDbf( .F., o, aExitList ) } )
+      MenuOption( "3.Browse DBF",         { |o| DemoBrowseDbf( .F., o, aEndList ) } )
 #ifdef __PLATFORM__WINDOWS
       MenuOption( "4.Grid1",              { |o| DemoGrid1( .F., o ) } )
-      MenuOption( "4.Grid4",              { |o| DemoGrid4( .F., o, aExitList ) } )
-      MenuOption( "4.Grid5",              { |o| DemoGrid5( .F., o, aExitList ) } )
+      MenuOption( "4.Grid4",              { |o| DemoGrid4( .F., o, aEndList ) } )
+      MenuOption( "4.Grid5",              { |o| DemoGrid5( .F., o, aInitList, aEndList ) } )
 #endif
       MenuUndrop()
    MenuOption( "Button" )
@@ -404,7 +404,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aExitList )
    MenuOption( "Get" )
       MenuDrop()
       MenuOption( "1.DemoGet2",           { |o| DemoGet2( .F., o ) } )
-      MenuOption( "2.Editbox",            { |o| DemoIni( .F., o, aExitList ) } )
+      MenuOption( "2.Editbox",            { |o| DemoIni( .F., o, aEndList ) } )
       MenuUnDrop()
    MenuOption( "Listbox" )
       MenuDrop()
@@ -415,7 +415,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aExitList )
       MenuOption( "1.menu",    "demomenu.prg",    { || DemoMenu() } )
       MenuOption( "2.menuxml", "demomenuxml.prg", { || DemoMenuXml() } )
       MenuUnDrop()
-   MenuOption( "Progbar",                 { |o| DemoProgbar( .F., o, aExitList ) } )
+   MenuOption( "Progbar",                 { |o| DemoProgbar( .F., o, aEndList ) } )
    MenuOption( "Say" )
       MenuDrop()
       MenuOption( "1.DemoGet2",           { |o| DemoGet2( .F., o ) } )
@@ -430,7 +430,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aExitList )
    MenuOption( "Tab" )
       MenuDrop()
       MenuOption( "1.Lenta",              { |o| DemoLenta( .F., o ) } )
-      MenuOption( "2.Tab",                { |o| DemoTab( .F., o, aExitList ) } )
+      MenuOption( "2.Tab",                { |o| DemoTab( .F., o, aEndList ) } )
       MenuUnDrop()
    MenuOption( "Trackbar" )
       MenuDrop()
@@ -449,8 +449,8 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aExitList )
    MenuOption( "UpDown",                  { |o| DemoGetUpDown( .F., o ) } )
    MenuOption( "Others" )
       MenuDrop()
-      MenuOption( "1.AppData",            { |o| DemoDbfData( .F., o, aExitList ) } )
-      MenuOption( "2.Ini Files",          { |o| DemoIni( .F., o, aExitList ) } )
+      MenuOption( "1.AppData",            { |o| DemoDbfData( .F., o, aEndList ) } )
+      MenuOption( "2.Ini Files",          { |o| DemoIni( .F., o, aEndList ) } )
       MenuOption( "3.Timer",              { |o| DemoGet2( .F., o ) } )
       MenuUnDrop()
 

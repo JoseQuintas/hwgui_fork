@@ -36,7 +36,7 @@
 
 STATIC aVar
 
-FUNCTION DemoDbfData( lWithDialog, oDlg, aExitList )
+FUNCTION DemoDbfData( lWithDialog, oDlg, aEndList )
 
    //Local oFontBtn
    LOCAL oFont := Nil
@@ -44,7 +44,7 @@ FUNCTION DemoDbfData( lWithDialog, oDlg, aExitList )
    LOCAL oFontBtn
 
    hb_Default( @lWithDialog, .T. )
-   hb_Default( @aExitList, {} )
+   hb_Default( @aEndList, {} )
 
    aVar := Array(25)
    aVar[ VAR_OOPER ] := 1
@@ -151,8 +151,8 @@ FUNCTION DemoDbfData( lWithDialog, oDlg, aExitList )
       fErase( "tmpdbfdata.dbf" )
       fErase( "tmpdbfdata.ntx" )
    ELSE
-      Aadd( aExitlist, { || fErase( "tmpdbfdata.dbf" ) } )
-      Aadd( aExitlist, { || fErase( "tmpdbfdata.ntx" ) } )
+      Aadd( aEndList, { || fErase( "tmpdbfdata.dbf" ) } )
+      Aadd( aEndList, { || fErase( "tmpdbfdata.ntx" ) } )
    ENDIF
 
 RETURN Nil
