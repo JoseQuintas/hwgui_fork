@@ -39,6 +39,7 @@ FUNCTION DemoTrackbar( lWithDialog, oDlg )
       SIZE 100, 30 ;
       ON CLICK { || oTb1:Value := 50, oSay1:SetText( AllTrim(str( oTB1:Value ) ) ), oSay1:Refresh() }
 
+
    @ 320, 100 TRACKBAR oTb2 ;
       SIZE   300, 50 ;
       RANGE  0, 10 ;
@@ -58,7 +59,8 @@ FUNCTION DemoTrackbar( lWithDialog, oDlg )
       SIZE 100, 30 ;
       ON CLICK { || oTb2:Value := 5, oSay2:SetText( AllTrim(str( oTB2:Value ) ) ), oSay2:Refresh() }
 
-   @ 320, 250 TRACKBAR oTB3 ;
+
+   @ 320, 240 TRACKBAR oTB3 ;
       SIZE    300, 50 ;
       RANGE   0, 100 ;
       INIT    75 ;
@@ -67,20 +69,22 @@ FUNCTION DemoTrackbar( lWithDialog, oDlg )
       AUTOTICKS ;
       TOOLTIP "trackbar control"
 
-   @ 650, 250 SAY oSay3 ;
+   @ 650, 240 SAY oSay3 ;
       CAPTION "75" ;
       SIZE    40, 30
 
-   @ 320, 300 BUTTON "Get Value" ;
+   @ 320, 290 BUTTON "Get Value" ;
       SIZE     100, 30 ;
       ON CLICK { || hwg_Msginfo( str( oTB3:Value ) ) }
 
-   @ 470, 300 BUTTON "Set Value" ;
+   @ 470, 290 BUTTON "Set Value" ;
       SIZE     100, 30 ;
       ON CLICK { || oTB3:Value := 25, oSay3:SetText( AllTrim(str( oTb3:Value ) ) ), oSay3:Refresh() }
 
-   @ 50, 520 SAY "Update value on change trackbar fail inside tabpage" ;
+   @ 100, 350 SAY "(*) Update value on change trackbar fail inside tabpage (win)" ;
       SIZE 400, 30
+   @ 100, 380 SAY "(*) See HTrack as substitute" ;
+      SIZE 200, 30
 
    IF lWithDialog
       ACTIVATE DIALOG oDlg CENTER

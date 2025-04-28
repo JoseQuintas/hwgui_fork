@@ -74,7 +74,7 @@ PROCEDURE DemoAll
        { "escrita.prg",            .T., .T., .T., "Escrita" }, ;
        { "fileselect.prg",         .T., .T., .T., "File Select" }, ;
        { "graph.prg",              .T., .T., .T., "Graph" }, ;
-       { "grid_1.prg",             .T., .F., .F., "Grid1" }, ;
+       { "demogrid1.prg",          .T., .F., .F., "Grid1" }, ;
        { "grid_2.prg",             .F., .F., .F., "Grid2 PostGres" }, ;
        { "grid_3.prg",             .F., .F., .F., "Grid3 PostGres" }, ;
        { "grid_4.prg",             .T., .F., .F., "Grid4" }, ;
@@ -86,7 +86,7 @@ PROCEDURE DemoAll
        { "testbrwq.prg",           .T., .F., .F., "Test browse" }, ;
        { "testget1.prg",           .T., .F., .F., "Test Get 1" }, ;
        { "testmenubitmap.prg",     .T., .F., .F., "Test Menu Bitmap" }, ;
-       { "testtree.prg",           .T., .F., .F., "Treeview Editable *** error on edit***" }, ;
+       { "demotree.prg",           .T., .F., .F., "Treeview Editable *** error on edit***" }, ;
        { "testrtf.prg",            .T., .F., .F., "Test RTF" }, ;
        { "tstscrlbar.prg",         .T., .T., .T., "Scrollbar" }, ;
        { "tstspach.prg",           .T., .F., .F., "Test Splash" }, ;
@@ -436,7 +436,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aExitList )
       MenuOption( "2.Trackbar",           { |o| DemoTrackbar( .F., o ) } )
 #endif
       MenuUnDrop()
-   MenuOption( "Treeview" )
+   MenuOption( "Tree" )
       MenuDrop()
       MenuOption( "1.Split",              { |o| DemoSplit( .F., o, aInitList ) } )
       MenuOption( "2.Splitter",           { |o| DemoSplitter( .F., o, aInitList ) } )

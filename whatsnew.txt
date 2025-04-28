@@ -12,7 +12,7 @@ HWGUI code snapshot
 [+] Port to MacOS
 [+] Support QR codes encoding and decoding (with camera scan)
 [*] The qrcodegenerator by "Project Nayuki" will be ready for
-    non C99 standard compilers like Borland C. 
+    non C99 standard compilers like Borland C.
 [+] Enhanced bitmap support.
 [!] Fixes (lots of bugs tickets closed)
 
@@ -47,7 +47,7 @@ HWGUI 2.23 build 6 ( 07.11.2023 )
 HWGUI 2.23 build 5 ( 05.10.2023 )
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [+] Few drawing functions added, few modified
-[+] New commands added for new classes: 
+[+] New commands added for new classes:
  @ ... DRAWN EDIT ..., @ ... DRAWN LENTA ..., @ ... DRAWN TRACK ...,
  @ ... DRAWN BROWSE ..., @ ... DRAWN COMBO ..., @ ... DRAWN UPDOWN ...
 [+] New classes added: HDrawnEdit, HDrawnLenta, HDrawnCheck, HDrawnBrw, HDrawnCombo, HDrawnUpdown
@@ -60,7 +60,7 @@ HWGUI 2.23 build 5 ( 05.10.2023 )
 HWGUI 2.23 build 4 ( 27.07.2023 )
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [+] Gdi+ basic support added for Mingw C compiler to allow to open png and tiff files
-[+] New commands added for new classes: 
+[+] New commands added for new classes:
  @ ... BOARD ..., @ ... DRAWN ..., @ ... DRAWN CHECK ..., @ ... DRAWN RADIO ...
 [+] New classes added: HBoard, HDrawn, HDrawnCheck, HDrawnRadio,
     samples/graph.prg updated to demonstrate it
@@ -77,7 +77,7 @@ HWGUI recent code snapshot
 
 [!] Some bugs fixed.
 [!] More sample programs are running now on all platforms (port to GTK)
-[!] Borland resources are incompatible with multi platform usage and MinGW. Ported to HWGUI commands. 
+[!] Borland resources are incompatible with multi platform usage and MinGW. Ported to HWGUI commands.
 [!] More improvement for LINUX/GTK
 [+] Port of Windows only DATEPICKER to GTK by substitute solution based on MONTHCALENDAR.
 [+] BROWSE/MEMO EDIT: "Memo was modified, save ?" if "Close" button pressed.
@@ -86,7 +86,7 @@ HWGUI recent code snapshot
 [+] Support for QR-Code encoding (multi platform).
 [+] Support for DLL usage on windows added (TNX  Срђан)
 [!] winprn.prg serbian language added (TNX  Срђан)
-[+] Port to GTK3 started. 
+[+] Port to GTK3 started.
 
 HWGUI 2.23 build 2 ( 21.12.2021 )
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -113,20 +113,20 @@ HWGUI 2.23 build 1 ( 28.04.2021 )
     develop and test GTK functions on Windows for *NIX targets.
 [+] National Language Support (NLS) for internal HWGUI dialogs added. *)
 [+] Added some special helpful standalone functions (Get UTC time and date, ...).
-[*] Some "Windows only" functions ported to GTK, improvement for GTK. 
+[*] Some "Windows only" functions ported to GTK, improvement for GTK.
 [+] Support for MinGW64.
 [+] Missing build scripts for MinGW64 added.
 [+] Sample database with one field of every type.
 [+] Ressources can be inserted into exe file by hex values.
-[+] Sample program added: 
-    Class HGT for combined usage of HWGUI control elements in 
+[+] Sample program added:
+    Class HGT for combined usage of HWGUI control elements in
     Harbour gtwvg programs in multithread mode. (testhgt.prg),
     (Windows only), TNX José M. C. Quintas.
 [+] Test program for multithread demo in "test".
 [+] Some more sample programs added.
 [+] Documentation extended.
 [+] Usage of custom created mouse cursor by *.cur files.
-[!] Removed resource files for BCC for multi platform use, converted to HWGUI commands. 
+[!] Removed resource files for BCC for multi platform use, converted to HWGUI commands.
 [+] GTHWG, new GT library, added to contribs.
 [+] HLenta class added.
 [*] HOwnButton, HGraph classes extended.
@@ -335,7 +335,7 @@ HWGUI 2.16 ( 14.09.2006 )
        msrec --> aArray
     so you need to make search and replace in your programs to rename them.
 
-[*] Many bug fixes and enhancements in both GTK and Win32 versions - 
+[*] Many bug fixes and enhancements in both GTK and Win32 versions -
     see Changelog for details.
 
 HWGUI 2.15 ( 07.06.2006 )
@@ -398,7 +398,7 @@ HWGUI 2.14 ( 14.12.2004 )
 HWGUI 2.13 ( 22.07.2004 )
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-[+] New controls - classes and appropriate commands has been added - 
+[+] New controls - classes and appropriate commands has been added -
     see Changelog for details.
 
 [+] Support for Pelles C and Open Watcom C compilers has been added.
@@ -426,7 +426,7 @@ HWGUI 2.11 ( 15.10.2003 )
 
 [+] New functions has been added:
 
-       Tree_HitTest( hTree [, x, y ] ) - returns the tree item, placed in 
+       Tree_HitTest( hTree [, x, y ] ) - returns the tree item, placed in
                                          x,y coordinates ( or cursor position )
        ScreenToClient( x,y ) - converts the point coordinates from absolute
                                to window client area relative
@@ -494,7 +494,7 @@ HWGUI 2.09 ( 08.09.2003 )
 
 [*]  Some other changes:
         HRadioGroup: new method is added - SetValue( nValue ),
-        the command 'GET RADIOGROUP' is changed to 
+        the command 'GET RADIOGROUP' is changed to
         'GET RADIOGROUP [ <ogr> VAR ] <vari>' ;
         HTree: new variable added - bExpand, this codeblock should return .F.
         to prevent expanding or collapsing    ;
@@ -518,14 +518,14 @@ HWGUI 2.08 ( 08.07.2003 )
 [+] Added possibility to draw window background with a bitmap.
 
 [+] New functions are added:
-     DrawIcon( hDC,x,y,hIcon ), DrawTransparentBitmap( hDC,hBitmap,x,y), 
+     DrawIcon( hDC,x,y,hIcon ), DrawTransparentBitmap( hDC,hBitmap,x,y),
      Array2String( array ), String2Array( cString ),
      SetWindowObject( hWnd,oWnd ), GetWindowObject( hWnd ),
      SetCapture( hWnd ), ReleaseCapture(),
      RegSetBinary( handle, cKeyName, cKeyValue ),
      PlaySound( cFilename, lSync, lLoop ),
      re_SetCharFormat(), re_SetDefault(),
-     re_CharFromPos( hEdit,xPos,yPos ), re_GetTextRange( hEdit, n1, n2 ) 
+     re_CharFromPos( hEdit,xPos,yPos ), re_GetTextRange( hEdit, n1, n2 )
      DrawEdge( hDC,x1,y1,x2,y2,nFlag,nBorder ),
      ShellExecute( cFile, cOperation, cParams, cDir, nFlag )
 
@@ -556,7 +556,7 @@ HWGUI 2.07 ( 21.05.2003 )
     Appropriate commands are added:
        @ x,y TREE ...
        INSERT NODE ...
-    Look at samples/testtree.prg.
+    Look at samples/demotree.prg.
 
 [+] HTimer class is added.
 
@@ -571,7 +571,7 @@ HWGUI 2.07 ( 21.05.2003 )
 
 [+] HIcon class is added.
 
-[!] Now in ICON clause of INIT WINDOW command you should use previously 
+[!] Now in ICON clause of INIT WINDOW command you should use previously
     created oIcon object, not the icon handle.
 
 [-] Some bug fixes.
@@ -589,7 +589,7 @@ HWGUI 2.06 ( 15.11.2002 )
 
 [+] New variables and methods are added to the HBrowse class:
 
-     bPosChanged, this user defined codeblock is evaluated after each 
+     bPosChanged, this user defined codeblock is evaluated after each
           selection change in browse ;
      lAutoEdit, compatible with TSBrowse class for Fivewin ;
      lAppable - allows to add rows to the browse ;
@@ -648,7 +648,7 @@ HWGUI 2.04 ( 05.08.2002 )
      @ <x>,<y> LINE [ <oLine> ] ...
 
 [+] Added few functions, which allows to check, if another copy of this program
-    is running and to activate that copy, if so. See sample of using in 
+    is running and to activate that copy, if so. See sample of using in
     samples/designer/designer.prg
 
 [*] Some modifications in HBrowse, contributed by WHT.
@@ -697,7 +697,7 @@ HWGUI 2.02 ( 23.07.2002 )
 
 [+] HBrowse: added possibility to display bitmaps in columns.
     You can now define a codeblock for keys handling:
-         
+
         oBrw:bKeyDown := {|oBrw,key|MyFunction(oBrw,key)}
 
     Look at the sample a.prg, function OpenAbout().
@@ -719,7 +719,7 @@ HWGUI 2.01 ( 05.07.2002 )
 [+] Starting implementation of Get system.
     New commands added:
 
-    @ <x>,<y> GET ... 
+    @ <x>,<y> GET ...
     REDEFINE GET  ...
     @ <x>,<y> GET CHECKBOX ...
     REDEFINE GET CHECKBOX ...
@@ -780,10 +780,10 @@ HWGUI 2.0 beta 2 ( 14.06.2002 )
 
 HWGUI 2.0 beta ( 04.06.2002 )
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-[!] HwGUI is now OOP based. See classes hierarchy and description in 
+[!] HwGUI is now OOP based. See classes hierarchy and description in
     documentation ( doc/hwgdoc.htm ).
 
-[!] New commands are added, some are removed, see documentation 
+[!] New commands are added, some are removed, see documentation
     ( doc/hwgdoc.htm ) for details.
     Most new commands are designed for creating controls without using
     resources ( *.rc file ).

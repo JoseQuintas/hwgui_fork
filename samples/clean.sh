@@ -27,7 +27,7 @@ rm escrita 2> /dev/null
 rm fileselect 2> /dev/null
 rm GetWinVers 2> /dev/null
 rm graph 2> /dev/null
-rm grid_1 2> /dev/null
+rm demogrid1 2> /dev/null
 rm grid_4 2> /dev/null
 rm grid_5 2> /dev/null
 rm hello 2> /dev/null
@@ -66,7 +66,7 @@ rm testmenubitmap 2> /dev/null
 rm testrtf 2> /dev/null
 rm demosplit 2> /dev/null
 rm testtray 2> /dev/null
-rm testtree 2> /dev/null
+rm demotree 2> /dev/null
 rm demoonother 2> /dev/null
 rm demotrackbar 2> /dev/null
 rm tstscrlbar 2> /dev/null

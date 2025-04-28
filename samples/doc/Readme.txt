@@ -78,7 +78,7 @@ buildpelles.prg:
     Port of this sample to GTK make no sense, because
     the Pelles C compiler is only for Windows.
 
-- grid_1.prg  grid_2.prg  grid_3.prg  grid_4.prg  grid_5.prg
+- demogrid1.prg  grid_2.prg  grid_3.prg  grid_4.prg  grid_5.prg
      The grid feature is available with GTK4,
      first released in 2020. Port of HWGUI to GTK4 needed.
 

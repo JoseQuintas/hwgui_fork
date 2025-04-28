@@ -251,8 +251,10 @@ For beginners:
    demotab.prg         Y       ?    ?           Tab, owner button, combobox, dateselect, status panel
    demoxmltree.prg     Y                 YW     Show XML-Tree: Open "testxml.xml" for test.
    demoprogbar.prg 12) Y                        Progress bar
-   demosplit.prg       Y                       Split windows
-   demotrackbar.prg    P                       Trackbar demo, horizontal und vertical.
+   demosplit.prg       Y                        Split windows
+   demotrackbar.prg    P                        Trackbar demo, horizontal und vertical.
+(*)demogrid1.prg   +)   N       N         Y     Grid demo (HGrid class)
+(*)demotree.prg         Y                       Tree view control
 
  testbrowsearray.prg    Y                        Array BROWSE avoiding crashes because of bugs (see inline comments)
  bindbf.prg 10)         Y                        Usage of images from Binary DBF container
@@ -267,7 +269,6 @@ For beginners:
  fileselect.prg         Y                        Sample for file selection menues
  GetWinVers.prg         Y                        Functions for get recent hwg_SaveFile() Windows version
  graph.prg              Y                        Paint graphs (Sinus, Bar diagram)
- grid_1.prg     +)      N       N         Y      Grid demo (HGrid class)
  grid_2.prg 2)  +)      N       N         -      Grid demo, use Postgres Library, you need to link libpq.lib and libhbpg.lib
  grid_3.prg 2)  +)      N       N         -      Grid demo, use Postgres Library, you need to link libpq.lib and libhbpg.lib
  grid_4.prg     +)      N       N         Y      File Viewer
@@ -303,7 +304,6 @@ For beginners:
  testrtf.prg  1)        Y  #    N          -      Create Rich text files. Need some work, the created RTFs are not compatible with newest specifications. (TO-DO for Alexander Kresin)
  teststrrev.prg         Y                        Function hwg_strrev() reverses a string for UTF-8 and handle Euro currency sign with GET
  testtray.prg           Y                 Y      Tray Message : Be care of different behavior between WinAPI and GTK
- testtree.prg           Y                        Tree view control
  tstprdos.prg 3)        N       N                Print on LPT, outdated, see 3)
  tstscrlbar.prg         P                        Scrollbar (GTK: Compilable, but no scroll function, more info in comment lines)
  tstsplash.prg          P                        SPLASH Demo, displays image at start as logo for n millisecs: OK with WinAPI, compilable for GTK, but splash window is empty.

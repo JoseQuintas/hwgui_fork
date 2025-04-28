@@ -7,8 +7,8 @@
 {darwin}-stop="Windows only"
 {unix}-stop="Windows only"
 
--ogrid_1
+-odemogrid1
 
-grid_1.prg
+demogrid1.prg
 
-# ==================== EOF of grid_1.hbp ===============
+# ==================== EOF of demogrid1.hbp ===============

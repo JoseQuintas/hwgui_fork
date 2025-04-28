@@ -33,7 +33,7 @@ hbmk2 escrita.hbp
 hbmk2 fileselect.hbp
 hbmk2 GetWinVers.hbp
 hbmk2 graph.hbp
-hbmk2 grid_1.hbp
+hbmk2 demogrid1.hbp
 hbmk2 grid_4.hbp
 hbmk2 grid_5.hbp
 hbmk2 hello.hbp
@@ -72,7 +72,7 @@ hbmk2 testmenubitmap.hbp
 hbmk2 testrtf.hbp
 hbmk2 demosplit.hbp
 hbmk2 testtray.hbp
-hbmk2 testtree.hbp
+hbmk2 demotree.hbp
 hbmk2 demoonother.hbp
 hbmk2 demotrackbar.hbp
 hbmk2 tstscrlbar.hbp
