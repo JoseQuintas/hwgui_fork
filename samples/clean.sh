@@ -15,7 +15,6 @@
 #
 rm a 2> /dev/null
 rm allhbp 2> /dev/null
-rm demobnrowsearray 2> /dev/null
 rm bincnts 2> /dev/null
 rm bindbf 2> /dev/null
 rm bitmapbug 2> /dev/null
@@ -27,7 +26,6 @@ rm escrita 2> /dev/null
 rm fileselect 2> /dev/null
 rm GetWinVers 2> /dev/null
 rm graph 2> /dev/null
-rm demogrid1 2> /dev/null
 rm grid_4 2> /dev/null
 rm grid_5 2> /dev/null
 rm hello 2> /dev/null
@@ -45,7 +43,6 @@ rm modtitle 2> /dev/null
 rm nice 2> /dev/null
 rm nice2 2> /dev/null
 rm night 2> /dev/null
-rm demoprogbar 2> /dev/null
 rm propsh 2> /dev/null
 rm pseudocm 2> /dev/null
 rm qrencode 2> /dev/null
@@ -61,14 +58,10 @@ rm testfunc 2> /dev/null
 rm testget1 2> /dev/null
 rm testhgt 2> /dev/null
 rm testimage 2> /dev/null
-rm demoini 2> /dev/null
 rm testmenubitmap 2> /dev/null
 rm testrtf 2> /dev/null
-rm demosplit 2> /dev/null
 rm testtray 2> /dev/null
-rm demotree 2> /dev/null
 rm demoonother 2> /dev/null
-rm demotrackbar 2> /dev/null
 rm tstscrlbar 2> /dev/null
 rm tstsplash 2> /dev/null
 rm tststconsapp 2> /dev/null

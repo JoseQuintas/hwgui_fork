@@ -75,7 +75,6 @@ rm samples/testfunc 2>/dev/null
 rm samples/winprn 2>/dev/null
 delfi samples/winprn.c
 rm samples/colrbloc 2>/dev/null
-rm samples/demotree 2>/dev/null
 rm samples/bindbf 2>/dev/null
 rm samples/hexbincnt  2>/dev/null
 rm samples/imageview 2>/dev/null
@@ -113,7 +112,6 @@ delfi samples/testbrw
 delfi samples/testhmonth
 delfi samples/testrtf
 delfi samples/testsdi
-delfi samples/demosplit
 delfi samples/pseudocm
 #
 # created files from sample programs

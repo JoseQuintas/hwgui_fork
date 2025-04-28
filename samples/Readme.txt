@@ -238,6 +238,7 @@ For beginners:
    demodbfdata.prg                               Database to insert/delete/edit/navigate
    demoget2.prg         Y       Y                Get system: Colored edit fields, time display, Tooltip ballon, HD serial number
    demogetupdown.prg    Y                        Usage of @ <x> <y> GET UPDOWN ..
+`  demogrid1.prg   +)   N       N         Y     Grid demo (HGrid class)
    demohtrack.prg       Y                        Demo of HTRACK class as substitute for Windows only HTRACKBAR
    demoini.prg          P                        Use INI file: create and read
    demolenta.prg        Y                        Multi platform alternative for tab
@@ -247,13 +248,12 @@ For beginners:
    demomenuxml.prg      Y                        reading/writing XML file and handling menu items while run-time (testxml.xml)
    demomonthcal.prg     N                 Y      Calendar, Datepicker, TOOLTIP
    demoshadebtn.prg     N       N                Shade buttons (for multi platform usage take OWNERBUTTON)
+   demosplit.prg        Y                        Split windows
    demosplitter.prg     Y                        Tree control, Splitter, Tab
    demotab.prg          Y       ?    ?           Tab, owner button, combobox, dateselect, status panel
    demoxmltree.prg      Y                 YW     Show XML-Tree: Open "testxml.xml" for test.
    demoprogbar.prg 12)  Y                        Progress bar
-   demosplit.prg        Y                        Split windows
    demotrackbar.prg     P                        Trackbar demo, horizontal und vertical.
-`  demogrid1.prg   +)   N       N         Y     Grid demo (HGrid class)
    demotree.prg         Y                       Tree view control
 
  testbrowsearray.prg    Y                        Array BROWSE avoiding crashes because of bugs (see inline comments)

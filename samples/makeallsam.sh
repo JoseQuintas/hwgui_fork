@@ -33,7 +33,6 @@ hbmk2 escrita.hbp
 hbmk2 fileselect.hbp
 hbmk2 GetWinVers.hbp
 hbmk2 graph.hbp
-hbmk2 demogrid1.hbp
 hbmk2 grid_4.hbp
 hbmk2 grid_5.hbp
 hbmk2 hello.hbp
@@ -51,7 +50,6 @@ hbmk2 modtitle.hbp
 hbmk2 nice.hbp
 hbmk2 nice2.hbp
 hbmk2 night.hbp
-hbmk2 demoprogbar.hbp
 hbmk2 propsh.hbp
 hbmk2 pseudocm.hbp
 hbmk2 qrencode.hbp
@@ -67,14 +65,10 @@ hbmk2 testfunc.hbp
 hbmk2 testget1.hbp
 hbmk2 testhgt.hbp
 hbmk2 testimage.hbp
-hbmk2 demoini.hbp
 hbmk2 testmenubitmap.hbp
 hbmk2 testrtf.hbp
-hbmk2 demosplit.hbp
 hbmk2 testtray.hbp
-hbmk2 demotree.hbp
 hbmk2 demoonother.hbp
-hbmk2 demotrackbar.hbp
 hbmk2 tstscrlbar.hbp
 hbmk2 tstsplash.hbp
 hbmk2 tststconsapp.hbp
