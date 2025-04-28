@@ -30,6 +30,8 @@ demoxmltree.prg
 {win}demobrowseado.prg
 {win}hbwin.hbc
 {win}demogrid1.prg
+{win}demogrid4.prg
+{win}demogrid5.prg
 {win}demolistbox.prg
 {win}demomonthcal.prg
 {win}demoshadebtn.prg

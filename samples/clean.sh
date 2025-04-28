@@ -26,8 +26,6 @@ rm escrita 2> /dev/null
 rm fileselect 2> /dev/null
 rm GetWinVers 2> /dev/null
 rm graph 2> /dev/null
-rm grid_4 2> /dev/null
-rm grid_5 2> /dev/null
 rm hello 2> /dev/null
 rm helpdemo 2> /dev/null
 rm helpstatic 2> /dev/null

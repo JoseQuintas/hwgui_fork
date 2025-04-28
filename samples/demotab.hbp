@@ -1,9 +1,0 @@
-#
-# update demoall.hbp too, it calls demotab
-#
-
-demotab.prg
-democheckbox.prg
-demobrowsedbf.prg
-
--odemotab

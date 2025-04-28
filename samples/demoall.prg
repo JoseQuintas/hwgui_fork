@@ -76,8 +76,6 @@ PROCEDURE DemoAll
        { "graph.prg",              .T., .T., .T., "Graph" }, ;
        { "grid_2.prg",             .F., .F., .F., "Grid2 PostGres" }, ;
        { "grid_3.prg",             .F., .F., .F., "Grid3 PostGres" }, ;
-       { "grid_4.prg",             .T., .F., .F., "Grid4" }, ;
-       { "grid_5.prg",             .T., .F., .F., "Grid5" }, ;
        { "helpstatic.prg",         .T., .T., .T., "Help Static" }, ;
        { "icons.prg",              .T., .T., .T., "Icons" }, ;
        { "icons2.prg",             .T., .T., .T., "Icons2" }, ;
@@ -381,7 +379,9 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aExitList )
       MenuOption( "2.Browse Array",       { |o| DemoBrowseArray( .F., o ) } )
       MenuOption( "3.Browse DBF",         { |o| DemoBrowseDbf( .F., o, aExitList ) } )
 #ifdef __PLATFORM__WINDOWS
-      MenuOption( "4.Grid",               { |o| DemoGrid1( .F., o ) } )
+      MenuOption( "4.Grid1",              { |o| DemoGrid1( .F., o ) } )
+      MenuOption( "4.Grid4",              { |o| DemoGrid4( .F., o, lExitList ) } )
+      MenuOption( "4.Grid5",              { |o| DemoGrid5( .F., o, lExitList ) } )
 #endif
       MenuUndrop()
    MenuOption( "Button" )
@@ -515,6 +515,8 @@ CASE cFileName == "demodbfdata.prg";     #pragma __binarystreaminclude "demodbfd
 CASE cFileName == "demogetupdown.prg";   #pragma __binarystreaminclude "demogetupdown.prg" | RETURN %s
 CASE cFileName == "demoget2.prg";        #pragma __binarystreaminclude "demoget2.prg" | RETURN %s
 CASE cFileName == "demogrid1.prg";       #pragma __binarystreaminclude "demogrid1.prg" | RETURN %s
+CASE cFileName == "demogrid4.prg";       #pragma __binarystreaminclude "demogrid4.prg" | RETURN %s
+CASE cFileName == "demogrid5.prg";       #pragma __binarystreaminclude "demogrid5.prg" | RETURN %s
 CASE cFileName == "demohtrack.prg";      #pragma __binarystreaminclude "demohtrack.prg" | RETURN %s
 CASE cFileName == "demoini.prg";         #pragma __binarystreaminclude "demoini.prg" | RETURN %s
 CASE cFileName == "demolenta.prg";       #pragma __binarystreaminclude "demolenta.prg" | RETURN %s

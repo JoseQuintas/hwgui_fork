@@ -238,7 +238,9 @@ For beginners:
    demodbfdata.prg                               Database to insert/delete/edit/navigate
    demoget2.prg         Y       Y                Get system: Colored edit fields, time display, Tooltip ballon, HD serial number
    demogetupdown.prg    Y                        Usage of @ <x> <y> GET UPDOWN ..
-`  demogrid1.prg   +)   N       N         Y     Grid demo (HGrid class)
+`  demogrid1.prg +)     N       N         Y     Grid demo (HGrid class)
+   demogrid4.prg +)     N       N         Y      File Viewer
+   demogrid5.prg +)     N       N         -      Grid Editor
    demohtrack.prg       Y                        Demo of HTRACK class as substitute for Windows only HTRACKBAR
    demoini.prg          P                        Use INI file: create and read
    demolenta.prg        Y                        Multi platform alternative for tab
@@ -271,8 +273,6 @@ For beginners:
  graph.prg              Y                        Paint graphs (Sinus, Bar diagram)
  grid_2.prg 2)  +)      N       N         -      Grid demo, use Postgres Library, you need to link libpq.lib and libhbpg.lib
  grid_3.prg 2)  +)      N       N         -      Grid demo, use Postgres Library, you need to link libpq.lib and libhbpg.lib
- grid_4.prg     +)      N       N         Y      File Viewer
- grid_5.prg     +)      N       N         -      Grid Editor
  hello.prg      +)      R                        Some elements: Edit field, tabs, tree view, combobox, ...
  helpdemo.prg 6) 7)     N       N                Context help using windows help (Shellexecute crashes)
  helpstatic.prg         Y                        Static help text

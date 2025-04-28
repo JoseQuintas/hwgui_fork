@@ -33,8 +33,6 @@ hbmk2 escrita.hbp
 hbmk2 fileselect.hbp
 hbmk2 GetWinVers.hbp
 hbmk2 graph.hbp
-hbmk2 grid_4.hbp
-hbmk2 grid_5.hbp
 hbmk2 hello.hbp
 hbmk2 helpdemo.hbp
 hbmk2 helpstatic.hbp

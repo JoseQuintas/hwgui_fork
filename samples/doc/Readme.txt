@@ -54,7 +54,7 @@ sample programs.
 
 
 
-2.) grid_5.prg
+2.) demogrid5.prg
     Grid Editor (crashes, if click on button "Insert","Change","Delete")
 
 
@@ -78,7 +78,7 @@ buildpelles.prg:
     Port of this sample to GTK make no sense, because
     the Pelles C compiler is only for Windows.
 
-- demogrid1.prg  grid_2.prg  grid_3.prg  grid_4.prg  grid_5.prg
+- demogrid1.prg  grid_2.prg  grid_3.prg  demogrid4.prg  demogrid5.prg
      The grid feature is available with GTK4,
      first released in 2020. Port of HWGUI to GTK4 needed.
 
@@ -129,7 +129,7 @@ List of sample programs with bugs
 (Handle it as a "TO-DO list")
 
 
-grid_5.prg    (Windows only)
+demogrid5.prg    (Windows only)
 nice2.prg     (Windows only)
 tab.prg
 testbrw.prg

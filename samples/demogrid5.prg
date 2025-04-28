@@ -1,5 +1,5 @@
 /*
- * $Id: grid_5.prg,v 1.1 2004/04/05 14:16:35 rodrigo_moreno Exp $
+ * $Id: demogrid5.prg,v 1.1 2004/04/05 14:16:35 rodrigo_moreno Exp $
  *
  * HWGUI - Harbour Win32 GUI library source code:
  * HGrid class
@@ -37,7 +37,7 @@ STATIC oMain, oForm, oBrowse
           => ;
           aadd(<aGrid>, {<cField>, <cLabel>, <cPicture>, <.lReadonly.>, <{bValid}>, <aList>})
 
-FUNCTION Main()
+FUNCTION DemoGrid5( lWithDialog, oDlg, lExitList )
 
    INIT WINDOW oMain ;
       MAIN ;
@@ -419,4 +419,4 @@ STATIC FUNCTION mydelete( oGrid )
 
 RETURN Nil
 
-* ============================== EOF of grid_5.prg ================================
+* ============================== EOF of demogrid5.prg ================================

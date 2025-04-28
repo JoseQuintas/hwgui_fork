@@ -74,8 +74,6 @@
 ../samples/buildpelles.hbp
 ../samples/demoonother.hbp ## old test_bot.prg
 ../samples/demogrid1.hbp
-../samples/grid_4.hbp
-../samples/grid_5.hbp
 ../samples/hello.hbp
 ../samples/nice.hbp
 ../samples/testbrw.hbp

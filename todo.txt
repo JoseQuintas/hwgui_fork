@@ -14,7 +14,7 @@ Tasks by DF7BE
 
 List:  Samples not running or have bugs (Fix bugs, if time available, low priority):
   1.) WinAPI
-      grid_5.prg     crashes, if click on button "Change":
+      demogrid5.prg  crashes, if click on button "Change":
                      Hint: commenting out this line without crash:
                      //   ADD COLUMN TO GRIDEDIT aItems FIELD "Field_2" LABEL "Char" PICTURE "@!" //READONLY
       nice2.prg      Seems to be outdated, starts only in background, kill with Task Manager
