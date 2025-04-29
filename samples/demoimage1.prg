@@ -31,7 +31,7 @@
 
 FUNCTION DemoImage1()
 
-   LOCAL oFormMain, oFontMain
+   LOCAL oDlg, oFontMain
    LOCAL cDirSep := hwg_GetDirSep()
    LOCAL cImageMain, cImagepath
    LOCAL oBmp
@@ -70,7 +70,7 @@ FUNCTION DemoImage1()
 #endif
 
 * The background image was tiled, if size is smaller than window.
-   INIT DIALOG oFormMain ;
+   INIT DIALOG oDlg ;
       ;// MAIN ;
       ;// APPNAME "Hwgui sample" ;
       FONT oFontMain BACKGROUND BITMAP oBmp ;   && HBitmap():AddFile( cImageMain ) ;
@@ -81,9 +81,9 @@ FUNCTION DemoImage1()
 
    //hwg_msginfo( cImageMain + CHR(10)+  cImagepath + "ok.ico" )
 
-  MENU OF oFormMain
+  MENU OF oDlg
       MENU TITLE "&Exit"
-         MENUITEM "&Quit" ACTION oFormMain:Close()
+         MENUITEM "&Quit" ACTION oDlg:Close()
       ENDMENU
 #ifdef __PLATFORM__WINDOWS
       MENU TITLE "&Dialog"
@@ -92,14 +92,14 @@ FUNCTION DemoImage1()
 #endif
    ENDMENU
 
-   ACTIVATE DIALOG oFormMain CENTER
+   ACTIVATE DIALOG oDlg CENTER
 
 RETURN Nil
 
 * Dialog with background
 FUNCTION Teste( cimgpfad )
 
-   LOCAL oModDlg, obg , obitmap , oIcon , cbitmap
+   LOCAL oDlg, obg , obitmap , oIcon , cbitmap
 
    cbitmap := "astro.bmp"
 
@@ -118,14 +118,14 @@ FUNCTION Teste( cimgpfad )
       hwg_msgStop( "File " + cimgpfad + "hwgui_24x24.ico" + " not found" )
    ENDIF
 
-   INIT DIALOG oModDlg ;
+   INIT DIALOG oDlg ;
       TITLE "Dialog with background image" ;
       AT 210,10  ;
       SIZE 300,300 ;
       ICON oIcon ;
       BACKGROUND BITMAP obitmap  && HBitmap():AddFile(cimgpfad + "astro.bmp" )
 
-   ACTIVATE DIALOG oModDlg CENTER
+   ACTIVATE DIALOG oDlg CENTER
 
 RETURN Nil
 

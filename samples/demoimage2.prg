@@ -22,7 +22,6 @@
 
 #include "hwgui.ch"
 
-MEMVAR oMainWindow
 MEMVAR oObj_Window, oObj_Dialog
 MEMVAR cVal_Window, cVal_Dialog, oImg_Window, oImg_Dialog
 MEMVAR cCmd
@@ -33,7 +32,7 @@ MEMVAR nMainX, nMainY
 
 FUNCTION DemoImage2()
 
-   PUBLIC oMainWindow
+   LOCAL oDlg
    PUBLIC oObj_Window, oObj_Dialog
    PUBLIC cVal_Window, cVal_Dialog, oImg_Window, oImg_Dialog
    PUBLIC cCmd
@@ -57,18 +56,18 @@ FUNCTION DemoImage2()
    oImg_Window := HBitmap():AddString( "Window" , cVal_Wbmp )
    oImg_Dialog := HBitmap():AddString( "Dialog" , cVal_Dbmp )
 
-   INIT DIALOG oMainWindow ;
+   INIT DIALOG oDlg ;
       TITLE "demoimage2.prg - Dialog icon test" ;
       AT 100,80 ;
       SIZE 300, 300 ;
       ICON oObj_Window
 
-   nMainX := oMainWindow:nLeft + 60
-   nMainY := oMainWindow:nTop + 175
+   nMainX := oDlg:nLeft + 60
+   nMainY := oDlg:nTop + 175
 
-   MENU OF oMainWindow
+   MENU OF oDlg
       MENU TITLE "&Exit"
-        MENUITEM "&Quit" ACTION oMainWindow:Close()
+        MENUITEM "&Quit" ACTION oDlg:Close()
       ENDMENU
       MENU TITLE "&Dialog"
         MENUITEM "&Open" ACTION Test()
@@ -89,28 +88,31 @@ FUNCTION DemoImage2()
    @  50, 60 BITMAP oImg_Window
    @ 160, 60 BITMAP oImg_Dialog
 
-   @  30, 150 SAY "Window Bitmap" SIZE 80,32
-   @ 140, 150 SAY "Dialog Bitmap" SIZE 80,32
+   @  30, 150 SAY "Window Bitmap" ;
+      SIZE 80,32
+   @ 140, 150 SAY "Dialog Bitmap" ;
+      SIZE 80,32
 #endif
 
-   ACTIVATE DIALOG oMainWindow CENTER
+   ACTIVATE DIALOG oDlg CENTER
 
 RETURN NIL
 
 STATIC FUNCTION Test()
 
-   LOCAL cTitle := "Dialog icon", oDialog
-   LOCAL ctext  := "-- Dialog --"
-   LOCAL ctxt   := "icon displayed with @x,y Bitmap"
+   LOCAL oDlg
 
-//  INIT DIALOG oDialog TITLE cTitle AT oMainWindow:nLeft+60,oMainWindow:nTop+175  SIZE 400,400 ;
-   INIT DIALOG oDialog ;
-      TITLE cTitle AT nMainX, nMainY ;
+   INIT DIALOG oDlg ;
+      TITLE "-- Dialog --" ;
+      AT nMainX, nMainY ;
       SIZE 400,400 ;
       ICON oObj_Dialog
 
-   @ 10 , 20  SAY ctext SIZE 270, 90
-   @ 20 , 120 SAY ctxt  SIZE 180, 48
+   @ 10 , 20  SAY "-- Dialog --" ;
+      SIZE 270, 90
+
+   @ 20 , 120 SAY "icon displayed with @x,y Bitmap" ;
+      SIZE 180, 48
 
 /*
   GTK: crashes here with core dump memory access violation,
@@ -124,9 +126,9 @@ STATIC FUNCTION Test()
 
    @ 150,350 BUTTON "OK" ;
       SIZE 100, 32 ;
-      ON CLICK {|| oDialog:Close() }
+      ON CLICK {|| oDlg:Close() }
 
-   ACTIVATE DIALOG oDialog CENTER
+   ACTIVATE DIALOG oDlg CENTER
 
   RETURN Nil
 
