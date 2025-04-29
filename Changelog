@@ -15,6 +15,24 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-29 13:45 UTC+0200 Wilfried Brunken DF7BE
+* samples/demodlgbox.prg
+ ! Bugfix LINUX:
+ ! ../samples/demo.ch(7) Warning W0003  Variable 'OSAY4' declared but not used in function
+ ! 'DEMODLGBOX(32)'
+ ! Attention !!!!!!!!
+ ! hbmk2: Error: Referenced, missing, but unknown function(s):
+ !      HWG_INSERTBITMAPMENU()
+ ! Function is Windows only !!
+ ! See comment in
+ ! demoMenuBitmap.prg:
+ !  Need to port functions HWG_INSERTBITMAPMENU() and
+ !  HWG__INSERTBITMAPMENU() to GTK
+ !   Source files : menu_c.c and menu.prg
+ !   (source\winapi\menu.prg)
+ ! so build of samples/demoall.hbp fails.
+
+
 2025-04-28 21:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
   * samples/Readme.txt
   + samples/demomdi.prg

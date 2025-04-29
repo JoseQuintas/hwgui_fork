@@ -21,6 +21,10 @@
 
    It is an extract vom the tutorial:
    ==> Getting started / Standard dialogs
+   
+  April 2025: Bugfix on LINUX:
+  ../samples/demo.ch(7) Warning W0003  Variable 'OSAY4' declared but not used in function
+  'DEMODLGBOX(32)'
 
  */
 
@@ -29,8 +33,12 @@
 
 FUNCTION DemoDlgBox( lWithDialog, oDlg )
 
-   LOCAL oFont, oFontC, oSay3, oSay4, oSay5, oSay6, oSay7
+   LOCAL oFont, oFontC, oSay3, oSay5, oSay6, oSay7
    LOCAL nChoic, cRes, arr := {"White","Blue","Green","Red"}
+   
+#ifndef __GTK__   
+   LOCAL oSay4
+#endif   
 
    hb_Default( @lWithDialog, .T. )
 
