@@ -268,6 +268,7 @@ For beginners:
  colrbloc.prg           Y                 Y      BROWSE: arrays and DBF's with colored lines and columns
  dbview.prg             Y       Y         Y      DBF access (Browse, Indexing, Codepages, Structure, ... )
  demodbf.prg            Y                 Y      Demo for Edit using command NOEXIT
+ demomdi.prg            ?                        Demo of MDI using democheckbox
  escrita.prg   +)       Y       Y                Tool buttons with bitmaps ("Accent Test")
  fileselect.prg         Y                        Sample for file selection menues
  GetWinVers.prg         Y                        Functions for get recent hwg_SaveFile() Windows version

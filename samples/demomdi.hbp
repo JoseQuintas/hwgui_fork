@@ -1,0 +1,9 @@
+#
+# $Id$
+#
+# auto included hbmk.hbm
+
+-stop={!win}
+
+demomdi.prg
+democheckbox.prg

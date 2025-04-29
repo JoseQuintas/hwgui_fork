@@ -15,6 +15,13 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-28 21:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
+  * samples/Readme.txt
+  + samples/demomdi.prg
+  + samples/demomdi.hbp
+    ! MDI sample with democheckbox.prg reuse as MDIChild
+    ! Once windows only, do not change .sh files
+
 2025-04-28 20:50 UTC-0300 Jose Quintas jmcquintas-gmail.com
   - samples/Dialogboxes.hbp
   - samples/testmenubitmap.hbp
