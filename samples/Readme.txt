@@ -230,13 +230,13 @@ For beginners:
  a.prg   +) 9)          R       N    CN          Some HWGUI basics (Open DBF's, GET's, ...)
 
  demoall.prg            ?                        group samples
-   demoaltdpicker.prg   Y                        Multiplatform substitute of Windows only DATEPICKER
    demobrowsedbf.prg    Y       ?    ?           browse dbf
    demobrowseado.prg    N       N                ADO Browse (TNX Itamar M. Lins Jr.). For multi platform use BROWSE.
    democheckbox.prg     Y                        Checkboxes and tabs
    democombobox.prg     Y                        Combobox
    demodbfdata.prg                               Database to insert/delete/edit/navigate
    demodlgbox.prg       Y                        Demonstrates few ready to use dialog boxes (extract from tutor)
+   demoget1.prg         Y                        Get system: Edit field, Checkboxes, Radio buttons, Combo box, Datepicker
    demoget2.prg         Y       Y                Get system: Colored edit fields, time display, Tooltip ballon, HD serial number
    demogetupdown.prg    Y                        Usage of @ <x> <y> GET UPDOWN ..
 `  demogrid1.prg +)     N       N         Y     Grid demo (HGrid class)
@@ -299,7 +299,6 @@ For beginners:
  testalert.prg          N       N                Clipper style Alert() replacement, delivered by Alex Strickland (TNX !)
  demoonother.prg        P                        bOther Test: Press key, after key up the scan code is displayed.
  testbrw.prg            Y  #                     Another BROWSE test (bug on GTK see docu)
- testget1.prg           Y                        Get system: Edit field, Checkboxes, Radio buttons, Combo box, Datepicker
  testfunc.prg           Y       Y         Y      Test and demo of standalone HWGUI (hwg_*) functions, enable/disable button.
  testimage.prg          Y       Y                Displaying images and usage of FreeImage library (IMAGE, BITMAP).
  testrtf.prg  1)        Y  #    N          -      Create Rich text files. Need some work, the created RTFs are not compatible with newest specifications. (TO-DO for Alexander Kresin)

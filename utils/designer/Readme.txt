@@ -104,7 +104,7 @@ Contents:
   There are three examples of 'forms' included - testget1.xml,
   testget2.xml and testdbf1.xml, which implements the
   functionality of the examples in
-  samples/testget1.prg, samples / demoget2.prg and
+  samples/demoget1.prg, samples / demoget2.prg and
   samples/demodbf. prg.
 
 3. Some notes for HwGUI applications

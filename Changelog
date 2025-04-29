@@ -15,6 +15,26 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-29 20:20 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   - samples/demoaltdpicker.prg
+     ! removed, it was part of another
+   * samples/demoget1.prg renamed from testget1.prg
+     ! datepicker substitute visible on windows too
+     ! Platform windows text at right of datepicker and substitute
+     ! Removed monthcal dialog already on demomonthcal.prg
+   * clean.sh
+   * doc/hwgdoc_functions.html
+   * samples/Readme.txt
+   * samples/allhbp.hbp
+   * samples/clean.sh
+   * utils/designer/Readme.txt
+   * utils/designer/files.txt
+   * whatsnew.txt
+     ! references to new names
+   * demoall.hbp
+   * demoall.prg
+     ! Added demoget1 on pages "datepicker" and "radiobutton"
+
 2025-04-29 16:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/demoall.prg
      ! moved dateselect and altdpicker to page "get"

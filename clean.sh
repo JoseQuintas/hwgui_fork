@@ -60,7 +60,6 @@ delfi samples/testbrowsearray.c
 delfi samples/demoall
 rm samples/a 2>/dev/null
 rm samples/a.log 2>/dev/null
-rm samples/testget1 2>/dev/null
 rm samples/bincnts 2>/dev/null
 delfi samples/GetWinVers
 delfi samples/demodbf

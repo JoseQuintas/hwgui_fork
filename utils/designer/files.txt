@@ -15,8 +15,8 @@ Files in directory:
     - samples\example.prg    -  Sample source file, uses the testget1.xml and testget2.xml
     - samples\bldexam.bat    -  the .bat to compile the sample
 
-    - samples\testget1.xml   -  sample forms, created with Designer
-    - samples\testget2.xml
+    - samples\demoget1.xml   -  sample forms, created with Designer
+    - samples\demoget2.xml
     - samples\testdbf1.xml
     - samples\example.xml
 

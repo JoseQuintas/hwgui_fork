@@ -252,8 +252,8 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "3.Browse DBF",         { |o| DemoBrowseDbf( .F., o, aEndList ) } )
 #ifdef __PLATFORM__WINDOWS
       MenuOption( "4.Grid1",              { |o| DemoGrid1( .F., o ) } )
-      MenuOption( "4.Grid4",              { |o| DemoGrid4( .F., o, aEndList ) } )
-      MenuOption( "4.Grid5",              { |o| DemoGrid5( .F., o, aInitList, aEndList ) } )
+      MenuOption( "5.Grid4",              { |o| DemoGrid4( .F., o, aEndList ) } )
+      MenuOption( "6.Grid5",              { |o| DemoGrid5( .F., o, aInitList, aEndList ) } )
 #endif
       MenuUndrop()
    MenuOption( "Button" )
@@ -265,12 +265,13 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuUnDrop()
    MenuOption( "Checkbox",                { |o| DemoCheckbox( .F., o ) } )
    MenuOption( "Combobox",                { |o| DemoCombobox( .F., o ) } )
+   MenuOption( "Radiobutton",             { |o| DemoGet1( .F., o ) } )
    MenuOption( "Get" )
       MenuDrop()
       MenuOption( "1.DemoGet2",             { |o| DemoGet2( .F., o ) } )
       MenuOption( "2.Editbox",              { |o| DemoIni( .F., o, aEndList ) } )
       MenuOption( "3.DateSelect",           { |o| DemoDateSelect( .F., o ) } )
-      MenuOption( "4.Alt.DPicker",          { |o| DemoAltDPicker( .F., o ) } )
+      MenuOption( "4.Datepicker",           { |o| DemoGet1( .F., o ) } )
       MenuUnDrop()
    MenuOption( "Image" )
       MenuDrop()
@@ -388,32 +389,41 @@ STATIC FUNCTION AddToCompile( oTabLevel1 )
 
    LOCAL aList := { ;
        ; // NAME,                  WIN, LINUX, MACOS, DESCRIPTION
+       ;
+       ;  // neeed compile
+       ;
        { "a.prg",                  .T., .F., .F., "MDI, Tab, checkbox, combobox, browse array, others" }, ;
        { "demomdi.prg",            .T., .F., .F., "MDI window" }, ;
-       { "hello.prg",              .T., .F., .F., "RichEdit, Tab, Combobox" }, ;
+       { "demoonother.prg",        .T., .F., .F., "ON OTHER MESSAGES" }, ;
+       { "tstscrlbar.prg",         .T., .T., .T., "Scrollbar" }, ;
+       ;
+       ; // verify
+       ;
+       { "graph.prg",              .T., .T., .T., "Graph" }, ;
+       ;
        { "tab.prg",                .T., .F., .F., "Tab, checkbox, editbox, combobox, browse array" }, ;
        { "testbrowsearr.prg",      .T., .T., .T., "browse array editable" }, ;
-       { "demoonother.prg",        .T., .F., .F., "ON OTHER MESSAGES" }, ;
        { "nice.prg",               .T., .F., .F., "Nice button" }, ;
-       { "nice2.prg",              .T., .F., .F., "Nice button 2 ***?***" }, ;
        { "colrbloc.prg",           .T., .T., .T., "Color Block" }, ;
        { "dbview.prg",             .T., .T., .T., "DBView" }, ;
-       { "escrita.prg",            .T., .T., .T., "Escrita" }, ;
        { "fileselect.prg",         .T., .T., .T., "File Select" }, ;
-       { "graph.prg",              .T., .T., .T., "Graph" }, ;
+       { "helpstatic.prg",         .T., .T., .T., "Help Static" }, ;
+       { "testbrw.prg",            .T., .F., .F., "Test browse" }, ;
+       { "tstsplash.prg",          .T., .F., .F., "Test Splash" }, ;
+       { "twolistbox.prg",         .T., .F., .F., "Two List Box" }, ;
+       ;
+       ; // try later
+       ;
+       { "escrita.prg",            .T., .T., .T., "Escrita" }, ;
+       { "hello.prg",              .T., .F., .F., "RichEdit, Tab, Combobox" }, ;
        { "grid_2.prg",             .F., .F., .F., "Grid2 PostGres" }, ;
        { "grid_3.prg",             .F., .F., .F., "Grid3 PostGres" }, ;
-       { "helpstatic.prg",         .T., .T., .T., "Help Static" }, ;
-       { "testalert.prg",          .T., .F., .F., "Test Alert" }, ;
-       { "testbrw.prg",            .T., .F., .F., "Test browse" }, ;
-       { "testget1.prg",           .T., .F., .F., "Test Get 1" }, ;
-       { "testrtf.prg",            .T., .F., .F., "Test RTF" }, ;
-       { "tstscrlbar.prg",         .T., .T., .T., "Scrollbar" }, ;
-       { "tstspach.prg",           .T., .F., .F., "Test Splash" }, ;
-       { "twolistbox.prg",         .T., .F., .F., "Two List Box" }, ;
        { "helpdemo.prg",           .T., .T., .T., "Help Demo ***outdated***" }, ;
        { "hole.prg",               .T., .F., .F., "Ole ***error***" }, ;
+       { "nice2.prg",              .T., .F., .F., "Nice button 2 ***?***" }, ;
        { "propsh.prg",             .T., .F., .F., "Propsheet ***error***" }, ;
+       { "testalert.prg",          .T., .F., .F., "Test Alert" }, ;
+       { "testrtf.prg",            .T., .F., .F., "Test RTF" }, ;
        { "testtray.prg",           .T., .F., .F., "Test Tray ***Error***" }, ;
        { "tstprdos.prg",           .T., .F., .F., "test DOS ***outdated***" } }
 
@@ -462,12 +472,12 @@ CASE cFileName == "demo.ch";             #pragma __binarystreaminclude "demo.ch"
 CASE cFileName == "demoall.prg";         #pragma __binarystreaminclude "demoall.prg" | RETURN %s
 CASE cFileName == "democheckbox.prg";    #pragma __binarystreaminclude "democheckbox.prg" | RETURN %s
 CASE cFileName == "democombobox.prg";    #pragma __binarystreaminclude "democombobox.prg" | RETURN %s
-CASE cFileName == "demoaltdpicker.prg";  #pragma __binarystreaminclude "demoaltdpicker.prg" | RETURN %s
 CASE cFileName == "demobrowsedbf.prg";   #pragma __binarystreaminclude "demobrowsedbf.prg" | RETURN %s
 CASE cFileName == "demobrowseado.prg";   #pragma __binarystreaminclude "demobrowseado.prg" | RETURN %s
 CASE cFileName == "demodbfdata.prg";     #pragma __binarystreaminclude "demodbfdata.prg" | RETURN %s
 CASE cFileName == "demodlgbox.prg";      #pragma __binarystreaminclude "demodlgbox.prg" | RETURN %s
 CASE cFileName == "demogetupdown.prg";   #pragma __binarystreaminclude "demogetupdown.prg" | RETURN %s
+CASE cFileName == "demoget1.prg";        #pragma __binarystreaminclude "demoget1.prg" | RETURN %s
 CASE cFileName == "demoget2.prg";        #pragma __binarystreaminclude "demoget2.prg" | RETURN %s
 CASE cFileName == "demogrid1.prg";       #pragma __binarystreaminclude "demogrid1.prg" | RETURN %s
 CASE cFileName == "demogrid4.prg";       #pragma __binarystreaminclude "demogrid4.prg" | RETURN %s

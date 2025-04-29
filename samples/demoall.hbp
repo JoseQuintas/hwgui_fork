@@ -9,12 +9,12 @@
 {win}hbwin.hbc
 
 demoall.prg
-demoaltdpicker.prg
 demobrowsedbf.prg
 democheckbox.prg
 democombobox.prg
 demodbfdata.prg
 demodlgbox.prg
+demoget1.prg
 demoget2.prg
 demogetupdown.prg
 demohtrack.prg

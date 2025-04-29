@@ -683,7 +683,7 @@ HWGUI 2.02 ( 23.07.2002 )
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 [*] GET system implementation is much extended.
-    Look at the sample testget2.prg.
+    Look at the sample demoget2.prg.
     PICTURE clause is added to GET commands - and it works as in Clipper.
     Editing of GET items became more close to Clipper's ( handling of Insert
     key, ReadExit() using ).
