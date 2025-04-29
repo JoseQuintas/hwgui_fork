@@ -396,7 +396,7 @@ METHOD OBMP2FILE( cfilename , name ) CLASS HBitmap
 
    LOCAL i , hbmp
    // LOCAL j, ncoun  && Debug
- 
+
    hbmp := NIL
    // Search for bitmap in object
    FOR EACH i IN ::aBitmaps
@@ -408,13 +408,13 @@ METHOD OBMP2FILE( cfilename , name ) CLASS HBitmap
 //         ncoun := 0
 //         * Write out table of contents (TOC)
 //         FOR EACH j IN ::aBitmaps
-//          ncoun := ncoun  + 1 
+//          ncoun := ncoun  + 1
 //          hwg_writelog(ALLTRIM(STR(ncoun)) + ": " + ::name)
 //         NEXT
          RETURN NIL
       ENDIF
    NEXT
-   
+
    hwg_SaveBitMap( cfilename, hbmp )
 
    RETURN NIL
@@ -535,11 +535,11 @@ METHOD AddFile( name, hDC, lTransparent, nWidth, nHeight ) CLASS HBitmap
    ::nWidth  := aBmpSize[ 1 ]
    ::nHeight := aBmpSize[ 2 ]
    AAdd( ::aBitmaps, Self )
-   
+
    // ::name is here the filename
    // hwg_Writelog("nWidth=" + ALLTRIM(STR(:: nWidth)) + ;
    //            " nHeight="  + ALLTRIM(STR(::nHeight)) + ;
-   //            " name=" +  ::name )  
+   //            " name=" +  ::name )
 
    RETURN Self
 
@@ -635,7 +635,7 @@ CLASS HIcon INHERIT HObject
    METHOD AddResource( name, nWidth, nHeight, nFlags, lOEM )
    METHOD AddFile( name, nWidth, nHeight )
    METHOD AddString( name, cVal , nWidth, nHeight )
-   METHOD Draw( hDC, x, y )   INLINE hwg_Drawicon( hDC, ::handle, x, y )
+   METHOD Draw( hDC, x, y )   INLINE hwg_DrawiconEx( hDC, ::handle, x, y )
    METHOD RELEASE()
    // PNG support prepared for further Windows releases
    METHOD AddPngString( name, cVal )

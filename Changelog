@@ -15,6 +15,22 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-29 16:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demoall.prg
+     ! moved dateselect and altdpicker to page "get"
+     ! moved monthcal to page "others"
+     ! removed page "date"
+   * samples/demoimage1.prg
+   * samples/demoimage2.prg
+     ! variable oDlg for dialogs, from PUBLIC to LOCAL
+   * samples/imageview.prg
+   * source/winapi/drawwidg.prg
+     ! win LoadImage() accept resize, ok for sendmessage() not for DrawIcon()
+     ! DrawIconEx() can resize and can draw png
+     ! Changed from hwg_DrawIcon() to hwg_DrawIconEx()
+     ! Test imageview on W11, load ico and png and ok including resize
+     ! These options was available only to GTK on sample
+
 2025-04-29 14:30 UTC-0300 Jose Quintas jmcquintas-gmail.com
    - icons2.hbp
    * clean.sh

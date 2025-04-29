@@ -39,7 +39,7 @@ FUNCTION MAIN()
       MAIN ;
       TITLE "HWGUI image viewer with zoom" ;
       AT 0,0 ;
-      SIZE hwg_Getdesktopwidth(), hwg_Getdesktopheight() - 28
+      SIZE 800, 600
 
    MENU OF oMain
       MENU TITLE "&Exit"
@@ -48,10 +48,8 @@ FUNCTION MAIN()
       MENU TITLE "&Load"
          MENUITEM "&Bitmap" ACTION ViewImg("bmp",nZoom)
          MENUITEM "&JPEG" ACTION ViewImg("jpg",nZoom)
-#ifndef __PLATFORM__WINDOWS
          MENUITEM "&PNG" ACTION ViewImg("png",nZoom)
          MENUITEM "&ICON" ACTION ViewImg("ico",nZoom)
-#endif
       ENDMENU
       MENU TITLE "&Resize"
          MENUITEM "&Set zoom factor" ACTION ZoomImg()
