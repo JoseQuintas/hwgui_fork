@@ -37,8 +37,6 @@ hbmk2 helpdemo.hbp
 hbmk2 helpstatic.hbp
 hbmk2 hexbincnt.hbp
 hbmk2 hole.hbp
-hbmk2 icons.hbp
-hbmk2 icons2.hbp
 hbmk2 iesample.hbp
 hbmk2 imageview.hbp
 hbmk2 memocmp.hbp

@@ -82,7 +82,6 @@ rm samples/testbmpcr 2>/dev/null
 rm samples/qrencode 2>/dev/null
 rm samples/graph 2>/dev/null
 rm samples/helpstatic 2>/dev/null
-delfi samples/icons2
 rm samples/testfehl.bmp 2>/dev/null
 rm samples/testimage 2>/dev/null
 rm samples/tab 2>/dev/null

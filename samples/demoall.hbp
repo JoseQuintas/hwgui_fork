@@ -18,7 +18,8 @@ demodlgbox.prg
 demoget2.prg
 demogetupdown.prg
 demohtrack.prg
-demoicon1.prg
+demoimage1.prg
+demoimage2.prg
 demoini.prg
 demolenta.prg
 demolistboxsub.prg

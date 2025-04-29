@@ -280,7 +280,8 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuUnDrop()
    MenuOption( "Image" )
       MenuDrop()
-      MenuOption( "1.DemoIcon1", "demoicon1.prg", { || DemoIcon1() } )
+      MenuOption( "1.DemoImage1", "demoimage1.prg", { || DemoImage1() } )
+      MenuOption( "1.DemoImage2", "demoimage2.prg", { || DemoImage2() } )
       MenuUnDrop()
    MenuOption( "Listbox" )
       MenuDrop()
@@ -405,7 +406,6 @@ STATIC FUNCTION AddToCompile( oTabLevel1 )
        { "grid_2.prg",             .F., .F., .F., "Grid2 PostGres" }, ;
        { "grid_3.prg",             .F., .F., .F., "Grid3 PostGres" }, ;
        { "helpstatic.prg",         .T., .T., .T., "Help Static" }, ;
-       { "icons2.prg",             .T., .T., .T., "Icons2" }, ;
        { "testalert.prg",          .T., .F., .F., "Test Alert" }, ;
        { "testbrwq.prg",           .T., .F., .F., "Test browse" }, ;
        { "testget1.prg",           .T., .F., .F., "Test Get 1" }, ;
@@ -476,6 +476,8 @@ CASE cFileName == "demogrid4.prg";       #pragma __binarystreaminclude "demogrid
 CASE cFileName == "demogrid5.prg";       #pragma __binarystreaminclude "demogrid5.prg" | RETURN %s
 CASE cFileName == "demohtrack.prg";      #pragma __binarystreaminclude "demohtrack.prg" | RETURN %s
 CASE cFileName == "demoini.prg";         #pragma __binarystreaminclude "demoini.prg" | RETURN %s
+CASE cFileName == "demoimage1.prg";      #pragma __binarystreaminclude "demoimage1.prg" | RETURN %s
+CASE cFileName == "demoimage2.prg";      #pragma __binarystreaminclude "demoimage2.prg" | RETURN %s
 CASE cFileName == "demolenta.prg";       #pragma __binarystreaminclude "demolenta.prg" | RETURN %s
 CASE cFileName == "demolistbox.prg";     #pragma __binarystreaminclude "demolistbox.prg" | RETURN %s
 CASE cFileName == "demolistboxsub.prg";  #pragma __binarystreaminclude "demolistboxsub.prg" | RETURN %s

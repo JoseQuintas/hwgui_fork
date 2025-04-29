@@ -243,6 +243,8 @@ For beginners:
    demogrid4.prg +)     N       N         Y      File Viewer
    demogrid5.prg +)     N       N         -      Grid Editor
    demohtrack.prg       Y                        Demo of HTRACK class as substitute for Windows only HTRACKBAR
+   demoimage1.prg       Y                        Icons and background bitmaps
+   demoimage2.prg       Y                        Icons and bitmaps using hex values
    demoini.prg          P                        Use INI file: create and read
    demolenta.prg        Y                        Multi platform alternative for tab
    demolistbox.prg      S       S         Y      Demo for listbox
@@ -280,8 +282,6 @@ For beginners:
  helpstatic.prg         Y                        Static help text
  hexbincnt.prg 11)      Y                        Handling of binary resources with hex values.
  hole.prg   2) 4)       N       N                MS Agent Control (not running on Windows 11)
- icons.prg              Y                        Icons and background bitmaps
- icons2.prg             Y                        Icons and bitmaps using hex values
  memocmp.prg.           Y                        Edit and compare memo's an get size
  menumod.prg            Y                        Handling menu items while run-time in dialogs.
  modtitle.prg           Y                        Sample for modifying a main window title in HWGUI

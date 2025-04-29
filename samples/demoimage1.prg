@@ -3,7 +3,7 @@
  *
  * HWGUI - Harbour Win32 and Linux (GTK) GUI library
  *
- *  demoicon1.prg
+ *  demoimage1.prg
  *
  * Sample for icons and background
  * bitmaps
@@ -29,7 +29,7 @@
 
 #include "hwgui.ch"
 
-FUNCTION DemoIcon1()
+FUNCTION DemoImage1()
 
    LOCAL oFormMain, oFontMain
    LOCAL cDirSep := hwg_GetDirSep()
@@ -74,7 +74,7 @@ FUNCTION DemoIcon1()
       ;// MAIN ;
       ;// APPNAME "Hwgui sample" ;
       FONT oFontMain BACKGROUND BITMAP oBmp ;   && HBitmap():AddFile( cImageMain ) ;
-      TITLE "demoicon1.prg - Icon sample" ;
+      TITLE "demoimage1.prg - Icon sample" ;
       AT 0,0 ;
       SIZE nPosX,nPosY - 30 ;
       ICON oIconEXE STYLE WS_POPUP +  WS_CAPTION + WS_SYSMENU
@@ -129,4 +129,4 @@ FUNCTION Teste( cimgpfad )
 
 RETURN Nil
 
-* ================================== EOF of demoicon1.prg ==============================
+* ================================== EOF of demoimage1.prg ==============================

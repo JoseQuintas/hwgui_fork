@@ -15,6 +15,23 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-29 14:30 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   - icons2.hbp
+   * clean.sh
+   * samples/Readme.txt
+   * samples/allhbp.hbp
+   * samples/clean.sh
+   * samples/demoall.hbp
+   * samples/demoall.prg
+   * samples/demoimage1.prg renamed from demoico2.prg (icon.prg)
+   * samples/demoimage2.prg renamed from icons2/prg
+     ! samples uses ico and bmp
+     ! Both on demoall as button on page "image"
+     ! Review later about variables names and type
+     ! NOTE: Update references about previous commit too
+     ! NOTE2: "ToCompile" list will be smaller, but there are
+     !        samples that need to continue external like MDI.
+
 2025-04-29 13:30 UTC-0300 Jose Quintas jmcquintas-gmail.com
    - icons.hbp
    * clean.sh
