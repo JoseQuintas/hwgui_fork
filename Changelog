@@ -15,6 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-29 13:30 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   - icons.hbp
+   * clean.sh
+   * samples/clean.sh
+   * samples/demoall.hbp
+   * samples/demoall.prg
+   * samples/demoicon1.prg renamed from icons.prg
+     ! changed to dialog, added as button on page "image"
+
 2025-04-29 12:01 UTC-0300 Jose Quintas jmcquintas-gmail.com
   * demoall.hbp
   * demoall.prg

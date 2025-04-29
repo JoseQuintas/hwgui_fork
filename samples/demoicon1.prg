@@ -3,7 +3,7 @@
  *
  * HWGUI - Harbour Win32 and Linux (GTK) GUI library
  *
- *  icons.prg
+ *  demoicon1.prg
  *
  * Sample for icons and background
  * bitmaps
@@ -27,10 +27,9 @@
     *  GTK/Linux:  Yes
     *  GTK/Win  :  Yes
 
-
 #include "hwgui.ch"
 
-FUNCTION Main()
+FUNCTION DemoIcon1()
 
    LOCAL oFormMain, oFontMain
    LOCAL cDirSep := hwg_GetDirSep()
@@ -71,16 +70,16 @@ FUNCTION Main()
 #endif
 
 * The background image was tiled, if size is smaller than window.
-   INIT WINDOW oFormMain ;
-      MAIN ;
-      APPNAME "Hwgui sample" ;
+   INIT DIALOG oFormMain ;
+      ;// MAIN ;
+      ;// APPNAME "Hwgui sample" ;
       FONT oFontMain BACKGROUND BITMAP oBmp ;   && HBitmap():AddFile( cImageMain ) ;
-      TITLE "Icon sample" ;
+      TITLE "demoicon1.prg - Icon sample" ;
       AT 0,0 ;
       SIZE nPosX,nPosY - 30 ;
       ICON oIconEXE STYLE WS_POPUP +  WS_CAPTION + WS_SYSMENU
 
-   hwg_msginfo( cImageMain + CHR(10)+  cImagepath + "ok.ico" )
+   //hwg_msginfo( cImageMain + CHR(10)+  cImagepath + "ok.ico" )
 
   MENU OF oFormMain
       MENU TITLE "&Exit"
@@ -93,7 +92,7 @@ FUNCTION Main()
 #endif
    ENDMENU
 
-   oFormMain:Activate()
+   ACTIVATE DIALOG oFormMain CENTER
 
 RETURN Nil
 
@@ -107,8 +106,7 @@ FUNCTION Teste( cimgpfad )
    obitmap := HBitmap():AddFile(cimgpfad + cbitmap )
    oIcon := HIcon():AddFile( cimgpfad + "hwgui_24x24.ico" )
 
-     hwg_msginfo( cimgpfad + cbitmap + CHR(10) +  cimgpfad + "hwgui_24x24.ico" )
-
+   hwg_msginfo( cimgpfad + cbitmap + CHR(10) +  cimgpfad + "hwgui_24x24.ico" )
 
    obg := NIL
 
@@ -127,8 +125,8 @@ FUNCTION Teste( cimgpfad )
       ICON oIcon ;
       BACKGROUND BITMAP obitmap  && HBitmap():AddFile(cimgpfad + "astro.bmp" )
 
-   ACTIVATE DIALOG oModDlg
+   ACTIVATE DIALOG oModDlg CENTER
 
 RETURN Nil
 
-* ================================== EOF of icons.prg ==============================
+* ================================== EOF of demoicon1.prg ==============================

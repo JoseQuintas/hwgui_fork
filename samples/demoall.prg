@@ -278,6 +278,10 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "1.DemoGet2",           { |o| DemoGet2( .F., o ) } )
       MenuOption( "2.Editbox",            { |o| DemoIni( .F., o, aEndList ) } )
       MenuUnDrop()
+   MenuOption( "Image" )
+      MenuDrop()
+      MenuOption( "1.DemoIcon1", "demoicon1.prg", { || DemoIcon1() } )
+      MenuUnDrop()
    MenuOption( "Listbox" )
       MenuDrop()
       MenuOption( "1.Listbox Alt",        { |o| DemoListBoxSub( .F., o ) } )
@@ -401,7 +405,6 @@ STATIC FUNCTION AddToCompile( oTabLevel1 )
        { "grid_2.prg",             .F., .F., .F., "Grid2 PostGres" }, ;
        { "grid_3.prg",             .F., .F., .F., "Grid3 PostGres" }, ;
        { "helpstatic.prg",         .T., .T., .T., "Help Static" }, ;
-       { "icons.prg",              .T., .T., .T., "Icons" }, ;
        { "icons2.prg",             .T., .T., .T., "Icons2" }, ;
        { "testalert.prg",          .T., .F., .F., "Test Alert" }, ;
        { "testbrwq.prg",           .T., .F., .F., "Test browse" }, ;

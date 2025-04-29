@@ -30,7 +30,6 @@ rm helpdemo 2> /dev/null
 rm helpstatic 2> /dev/null
 rm hexbincnt 2> /dev/null
 rm hole 2> /dev/null
-rm icons 2> /dev/null
 rm icons2 2> /dev/null
 rm iesample 2> /dev/null
 rm imageview 2> /dev/null
