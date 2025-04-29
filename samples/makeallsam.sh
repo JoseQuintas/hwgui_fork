@@ -38,7 +38,6 @@ hbmk2 helpstatic.hbp
 hbmk2 hexbincnt.hbp
 hbmk2 hole.hbp
 hbmk2 iesample.hbp
-hbmk2 imageview.hbp
 hbmk2 memocmp.hbp
 hbmk2 menumod.hbp
 hbmk2 modtitle.hbp

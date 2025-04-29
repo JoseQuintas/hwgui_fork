@@ -77,7 +77,6 @@ delfi samples/winprn.c
 rm samples/colrbloc 2>/dev/null
 rm samples/bindbf 2>/dev/null
 rm samples/hexbincnt  2>/dev/null
-rm samples/imageview 2>/dev/null
 rm samples/testbmpcr 2>/dev/null
 rm samples/qrencode 2>/dev/null
 rm samples/graph 2>/dev/null

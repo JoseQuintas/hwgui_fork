@@ -43,7 +43,7 @@ PROCEDURE DemoAll
       AT 0,0 ;
       SIZE 1024, 768 ;
       BACKCOLOR 16772062 ;
-      STYLE WS_MAXIMIZEBOX + WS_MINIMIZEBOX + WS_SYSMENU ;
+      STYLE WS_POPUP + WS_CAPTION + WS_MAXIMIZEBOX + WS_MINIMIZEBOX + WS_SYSMENU ;
       ON INIT { || DemoAllEvalList( aInitList ) }
 
    ButtonForSample( "demoall.prg" )
@@ -274,8 +274,9 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuUnDrop()
    MenuOption( "Image" )
       MenuDrop()
-      MenuOption( "1.DemoImage1", "demoimage1.prg", { || DemoImage1() } )
-      MenuOption( "1.DemoImage2", "demoimage2.prg", { || DemoImage2() } )
+      MenuOption( "1.Image view", "demoimageview.prg", { || demoimageview() } )
+      MenuOption( "2.DemoImage1", "demoimage1.prg",    { || DemoImage1() } )
+      MenuOption( "3.DemoImage2", "demoimage2.prg",    { || DemoImage2() } )
       MenuUnDrop()
    MenuOption( "Listbox" )
       MenuDrop()
@@ -404,7 +405,7 @@ STATIC FUNCTION AddToCompile( oTabLevel1 )
        { "grid_3.prg",             .F., .F., .F., "Grid3 PostGres" }, ;
        { "helpstatic.prg",         .T., .T., .T., "Help Static" }, ;
        { "testalert.prg",          .T., .F., .F., "Test Alert" }, ;
-       { "testbrwq.prg",           .T., .F., .F., "Test browse" }, ;
+       { "testbrw.prg",            .T., .F., .F., "Test browse" }, ;
        { "testget1.prg",           .T., .F., .F., "Test Get 1" }, ;
        { "testrtf.prg",            .T., .F., .F., "Test RTF" }, ;
        { "tstscrlbar.prg",         .T., .T., .T., "Scrollbar" }, ;
