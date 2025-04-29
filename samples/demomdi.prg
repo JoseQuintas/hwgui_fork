@@ -19,8 +19,12 @@ FUNCTION DemoMDI()
          MENUITEM "Checkbox" ACTION DlgCheckbox()
       ENDMENU
       MENU TITLE "Window"
-         MENUITEM "Tile"  ;
+         MENUITEM "Tile Horizontal"  ;
             ACTION  hwg_Sendmessage( HWindow():GetMain():handle, WM_MDITILE, MDITILE_HORIZONTAL, 0 )
+         MENUITEM "Tile Vertical" ;
+            ACTION hwg_Sendmessage( HWindow():GetMain():handle, WM_MDITILE, MDITILE_VERTICAL, 0 )
+         MENUITEM "Cascade" ;
+            ACTION hwg_Sendmessage( HWindow():GetMain():handle, WM_MDICASCADE, 0, 0 )
       ENDMENU
    ENDMENU
 

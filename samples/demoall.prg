@@ -36,62 +36,7 @@ STATIC aMenuOptions := {}, nMenuLevel := 0
 
 PROCEDURE DemoAll
 
-   LOCAL oDlg, aItem, nIndex := 1, lCloseMenu := .F., nCont
-   LOCAL lIsAvailable, lIsEXE
-   LOCAL aInitList := {}, aEndList := {}, bCode
-   LOCAL aList := { ;
-       ; // NAME,                  WIN, LINUX, MACOS, DESCRIPTION
-       { "a.prg",                  .T., .F., .F., "MDI, Tab, checkbox, combobox, browse array, others" }, ;
-       ;
-       { "",                       .T., .F., .F., "" }, ;
-       ;
-       { "hello.prg",              .T., .F., .F., "RichEdit, Tab, Combobox" }, ;
-       { "tab.prg",                .T., .F., .F., "Tab, checkbox, editbox, combobox, browse array" }, ;
-       ;
-       ; // controls
-       ;
-       { "testbrowsearr.prg",      .T., .T., .T., "browse array editable" }, ;
-       { "demoonother.prg",        .T., .F., .F., "ON OTHER MESSAGES" }, ;
-       ;
-       { "",                       .F., .F., .F., "" }, ;
-       ;
-       ; // not recommended. Move to contrib ?
-       ;
-       { "",                       .F., .F., .F., "" }, ;
-       { "",                       .F., .F., .F., "" }, ;
-       ;
-       ; // first review
-       { "nice.prg",               .T., .F., .F., "Nice button" }, ;
-       { "nice2.prg",              .T., .F., .F., "Nice button 2 ***?***" }, ;
-       ;
-       { "",                       .F., .F., .F., "" }, ;
-       ;
-       ; // next review
-       { "colrbloc.prg",           .T., .T., .T., "Color Block" }, ;
-       { "dbview.prg",             .T., .T., .T., "DBView" }, ;
-       { "escrita.prg",            .T., .T., .T., "Escrita" }, ;
-       { "fileselect.prg",         .T., .T., .T., "File Select" }, ;
-       { "graph.prg",              .T., .T., .T., "Graph" }, ;
-       { "grid_2.prg",             .F., .F., .F., "Grid2 PostGres" }, ;
-       { "grid_3.prg",             .F., .F., .F., "Grid3 PostGres" }, ;
-       { "helpstatic.prg",         .T., .T., .T., "Help Static" }, ;
-       { "icons.prg",              .T., .T., .T., "Icons" }, ;
-       { "icons2.prg",             .T., .T., .T., "Icons2" }, ;
-       { "testalert.prg",          .T., .F., .F., "Test Alert" }, ;
-       { "testbrwq.prg",           .T., .F., .F., "Test browse" }, ;
-       { "testget1.prg",           .T., .F., .F., "Test Get 1" }, ;
-       { "testrtf.prg",            .T., .F., .F., "Test RTF" }, ;
-       { "tstscrlbar.prg",         .T., .T., .T., "Scrollbar" }, ;
-       { "tstspach.prg",           .T., .F., .F., "Test Splash" }, ;
-       { "twolistbox.prg",         .T., .F., .F., "Two List Box" }, ;
-       { "helpdemo.prg",           .T., .T., .T., "Help Demo ***outdated***" }, ;
-       { "hole.prg",               .T., .F., .F., "Ole ***error***" }, ;
-       { "propsh.prg",             .T., .F., .F., "Propsheet ***error***" }, ;
-       { "testtray.prg",           .T., .F., .F., "Test Tray ***Error***" }, ;
-       { "tstprdos.prg",           .T., .F., .F., "test DOS ***outdated***" }, ;
-       ;
-       { "",                       .F., .F., .F., "" }, ;
-       { "notexist",               .F., .F., .F., "Test for menu, about not available" } }
+   LOCAL oDlg, aInitList := {}, aEndList := {}, bCode
 
    INIT DIALOG oDlg ;
       TITLE "demoall.prg - Show Samples on screen, and others on menu" ;
@@ -100,49 +45,6 @@ PROCEDURE DemoAll
       BACKCOLOR 16772062 ;
       STYLE WS_MAXIMIZEBOX + WS_MINIMIZEBOX + WS_SYSMENU ;
       ON INIT { || DemoAllEvalList( aInitList ) }
-
-   MENU OF oDlg
-      FOR nCont = 1 TO Len( aList ) // not sure about Xharbour for/each
-         IF Mod( nCont, 10 ) == 1 // 10 options by group
-            MENU TITLE "Samples" + Str( nIndex, 1 )
-            nIndex     += 1
-            lCloseMenu := .T.
-         ENDIF
-         FOR EACH aItem IN { aList[ nCont ] } // for/each isolate aItem to codeblock
-            IF Empty( aItem[ 1 ] )
-               SEPARATOR
-               LOOP
-            ENDIF
-            lIsAvailable := aItem[ __IS_AVAILABLE ]
-            lIsExe       := Right( aItem[ 1 ], 4 ) == ".prg"
-            IF lIsAvailable
-               IF lIsExe
-                  MENUITEM aItem[ 1 ] + " - " + aItem[ 5 ] ACTION { || ExecuteExe( aItem[ 1 ] ) }
-               ELSE
-                  MENUITEM aItem[ 1 ] + " - " + aItem[ 5 ] ACTION { || Do( aItem[ 1 ] ) }
-               ENDIF
-            ELSE
-               MENU TITLE aItem[ 1 ] + " - " + aItem[ 5 ] + " not available"
-               ENDMENU
-            ENDIF
-         NEXT
-         IF Mod( nCont, 10 ) == 0 // 10 options by group
-            ENDMENU
-            lCloseMenu := .F.
-         ENDIF
-      NEXT
-      IF lCloseMenu // close menu if not closed before
-         ENDMENU
-      ENDIF
-      MENU TITLE "Tests/Exit"
-         MENUITEM "For tests check PRG/HBP/EXE" ACTION { || CheckPrgHbpExe() }
-         MENUITEM "Display current DLG Size" ACTION { || ;
-            hwg_MsgInfo( "Width: " + Ltrim( Str( oDlg:nWidth ) ) + " - " + ;
-               "Height:" + Ltrim( Str( oDlg:nHeight ) ) ) }
-         MENUITEM "Refresh Dilaog" ACTION { || oDlg:refresh() }
-         MENUITEM "&Exit" ACTION hwg_EndWindow()
-      ENDMENU
-   ENDMENU
 
    ButtonForSample( "demoall.prg" )
 
@@ -229,39 +131,13 @@ STATIC FUNCTION ExecuteExe( cFileName )
 
    RETURN Nil
 
-STATIC FUNCTION DemoAllEvalList( aInitList )
+STATIC FUNCTION DemoAllEvalList( aCodeList )
 
    LOCAL bCode
 
-   FOR EACH bCode IN aInitList
+   FOR EACH bCode IN aCodeList
       Eval( bCode )
    NEXT
-
-   RETURN Nil
-
-STATIC FUNCTION CheckPrgHbpExe()
-
-   LOCAL aItem, cFile, lWithHbp, lWithExe
-   LOCAL cTxtPrg := "No HBP" + hb_Eol() + hb_Eol()
-   LOCAL cTxtHbp := "With HBP" + hb_Eol() + hb_Eol()
-
-   FOR EACH aItem IN Directory( "*.prg" )
-      cFile := aItem[ F_NAME ]
-      cFile := Substr( cFile, 1, Len( cFile ) - 4 )
-      lWithHbp := File( cFile + ".hbp" )
-      lWithExe := File( cFile + ".exe" )
-      IF ! lWithHbp
-         cTxtPrg += Pad( cFile, 20 )
-         cTxtPrg += iif( lWithExe, "EXE_YES", "EXE_NO" )
-         cTxtPrg += hb_Eol()
-      ELSEIF ! ( lWithExe )
-         cTxtHbp += Pad( cFile, 20 )
-         cTxtHbp += "EXE_" + iif( lWithExe, "YES", "NO" )
-         cTxtHbp += hb_Eol()
-      ENDIF
-   NEXT
-   hwg_MsgInfo( cTxtPrg )
-   hwg_MsgInfo( cTxtHbp )
 
    RETURN Nil
 
@@ -410,7 +286,9 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuDrop()
       MenuOption( "1.menu",    "demomenu.prg",    { || DemoMenu() } )
       MenuOption( "2.menuxml", "demomenuxml.prg", { || DemoMenuXml() } )
+#ifdef __PLATFORM__WINDOWS
       MenuOption( "3.menubitmap","demomenubitmap.prg", { || DemoMenuBitmap() } )
+#endif
       MenuUnDrop()
    MenuOption( "Progbar",                 { |o| DemoProgbar( .F., o, aEndList ) } )
    MenuOption( "Say" )
@@ -495,8 +373,85 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
 
    NEXT
 
+   BEGIN PAGE "ToCompile" OF oTabLevel1
+
+      AddToCompile( oTabLevel1 )
+
+   END PAGE OF oTabLevel1
+
    RETURN Nil
 
+STATIC FUNCTION AddToCompile( oTabLevel1 )
+
+   LOCAL aList := { ;
+       ; // NAME,                  WIN, LINUX, MACOS, DESCRIPTION
+       { "a.prg",                  .T., .F., .F., "MDI, Tab, checkbox, combobox, browse array, others" }, ;
+       { "demomdi.prg",            .T., .F., .F., "MDI window" }, ;
+       { "hello.prg",              .T., .F., .F., "RichEdit, Tab, Combobox" }, ;
+       { "tab.prg",                .T., .F., .F., "Tab, checkbox, editbox, combobox, browse array" }, ;
+       { "testbrowsearr.prg",      .T., .T., .T., "browse array editable" }, ;
+       { "demoonother.prg",        .T., .F., .F., "ON OTHER MESSAGES" }, ;
+       { "nice.prg",               .T., .F., .F., "Nice button" }, ;
+       { "nice2.prg",              .T., .F., .F., "Nice button 2 ***?***" }, ;
+       { "colrbloc.prg",           .T., .T., .T., "Color Block" }, ;
+       { "dbview.prg",             .T., .T., .T., "DBView" }, ;
+       { "escrita.prg",            .T., .T., .T., "Escrita" }, ;
+       { "fileselect.prg",         .T., .T., .T., "File Select" }, ;
+       { "graph.prg",              .T., .T., .T., "Graph" }, ;
+       { "grid_2.prg",             .F., .F., .F., "Grid2 PostGres" }, ;
+       { "grid_3.prg",             .F., .F., .F., "Grid3 PostGres" }, ;
+       { "helpstatic.prg",         .T., .T., .T., "Help Static" }, ;
+       { "icons.prg",              .T., .T., .T., "Icons" }, ;
+       { "icons2.prg",             .T., .T., .T., "Icons2" }, ;
+       { "testalert.prg",          .T., .F., .F., "Test Alert" }, ;
+       { "testbrwq.prg",           .T., .F., .F., "Test browse" }, ;
+       { "testget1.prg",           .T., .F., .F., "Test Get 1" }, ;
+       { "testrtf.prg",            .T., .F., .F., "Test RTF" }, ;
+       { "tstscrlbar.prg",         .T., .T., .T., "Scrollbar" }, ;
+       { "tstspach.prg",           .T., .F., .F., "Test Splash" }, ;
+       { "twolistbox.prg",         .T., .F., .F., "Two List Box" }, ;
+       { "helpdemo.prg",           .T., .T., .T., "Help Demo ***outdated***" }, ;
+       { "hole.prg",               .T., .F., .F., "Ole ***error***" }, ;
+       { "propsh.prg",             .T., .F., .F., "Propsheet ***error***" }, ;
+       { "testtray.prg",           .T., .F., .F., "Test Tray ***Error***" }, ;
+       { "tstprdos.prg",           .T., .F., .F., "test DOS ***outdated***" } }
+
+   LOCAL oTab, aOption, lClosePage, nCount, lIsAvailable, nPage
+
+   @ 30, 60 TAB oTab ITEMS {} SIZE 950, 650 OF oTabLevel1
+
+   lClosePage := .F.
+   nCount     := 0
+   nPage      := 1
+   FOR EACH aOption IN aList
+      lIsAvailable := aOption[ __IS_AVAILABLE ]
+      IF lIsAvailable
+         IF Mod( nCount, 10 ) == 0
+            IF lClosePage
+               END PAGE OF oTab
+            ENDIF
+            BEGIN PAGE "ToCompile" + Str( nPage, 1 ) OF oTab
+            lClosePage := .T.
+            nCount     := 0
+            nPage      += 1
+         ENDIF
+         @ 10, 60 + ( nCount * 30 ) BUTTON aOption[1] ;
+            OF oTab ;
+            SIZE 150, 24 ;
+            ON CLICK { || ExecuteExe( aOption[ 1 ] ) }
+
+         @ 200, 60 + ( nCount * 30 ) SAY aOption[ 5 ] ;
+            SIZE 400, 24
+
+         nCount += 1
+
+      ENDIF
+   NEXT
+   IF lClosePage
+      END PAGE OF oTab
+   ENDIF
+
+   RETURN Nil
 
 // only test
 FUNCTION LoadResourceDemo( cFileName )

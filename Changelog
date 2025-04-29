@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-29 12:01 UTC-0300 Jose Quintas jmcquintas-gmail.com
+  * demoall.hbp
+  * demoall.prg
+    ! move menu to a page "ToCompile" and add buttons and description
+    ! demomenubitmap windows only
+  * demomdi.prg
+    ! added options to tile horizontal, tile vertical, cascade
+
 2025-04-29 13:45 UTC+0200 Wilfried Brunken DF7BE
 * samples/demodlgbox.prg
  ! Bugfix LINUX:

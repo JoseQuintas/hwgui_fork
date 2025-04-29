@@ -6,6 +6,7 @@
 # because demotab call modules, update here if update demotab.hbp
 
 -odemoall
+{win}hbwin.hbc
 
 demoall.prg
 demoaltdpicker.prg
@@ -21,7 +22,6 @@ demoini.prg
 demolenta.prg
 demolistboxsub.prg
 demomenu.prg
-demomenubitmap.prg
 demomenuxml.prg
 demoprogbar.prg
 demotab.prg
@@ -31,12 +31,12 @@ demosplitter.prg
 demoxmltree.prg
 
 {win}demobrowseado.prg
-{win}hbwin.hbc
 {win}demogrid1.prg
 {win}demogrid4.prg
 {win}demogrid5.prg
 {win}demolistbox.prg
 {win}demomonthcal.prg
+{win}demomenubitmap.prg
 {win}demoshadebtn.prg
 {win}demotrackbar.prg
 
