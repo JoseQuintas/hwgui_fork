@@ -34,7 +34,7 @@ It is all
 
 STATIC aMenuOptions := {}, nMenuLevel := 0
 
-PROCEDURE DemoAll
+FUNCTION DemoAll()
 
    LOCAL oDlg, aInitList := {}, aEndList := {}, bCode
 
@@ -68,7 +68,7 @@ PROCEDURE DemoAll
       Eval( bCode )
    NEXT
 
-   RETURN
+   RETURN Nil
 
 STATIC FUNCTION CreatePanel( oDlg, nLeft, nTop, nWidth, nHeight )
 
@@ -395,6 +395,7 @@ STATIC FUNCTION AddToCompile( oTabLevel1 )
        { "a.prg",                  .T., .F., .F., "MDI, Tab, checkbox, combobox, browse array, others" }, ;
        { "demomdi.prg",            .T., .F., .F., "MDI window" }, ;
        { "demoonother.prg",        .T., .F., .F., "ON OTHER MESSAGES" }, ;
+       { "nice.prg",               .T., .F., .F., "Nice button, only WINDOW, not DIALOG" }, ;
        { "tstscrlbar.prg",         .T., .T., .T., "Scrollbar" }, ;
        ;
        ; // verify
@@ -403,7 +404,6 @@ STATIC FUNCTION AddToCompile( oTabLevel1 )
        ;
        { "tab.prg",                .T., .F., .F., "Tab, checkbox, editbox, combobox, browse array" }, ;
        { "testbrowsearr.prg",      .T., .T., .T., "browse array editable" }, ;
-       { "nice.prg",               .T., .F., .F., "Nice button" }, ;
        { "colrbloc.prg",           .T., .T., .T., "Color Block" }, ;
        { "dbview.prg",             .T., .T., .T., "DBView" }, ;
        { "fileselect.prg",         .T., .T., .T., "File Select" }, ;
