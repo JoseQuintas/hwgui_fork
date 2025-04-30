@@ -15,6 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-30 13:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demoall.prg
+     ! changed to function for tests
+   * nice.prg
+     ! visual and variables
+   * samples/testmdi.hbp
+   * samples/testmdi.prg
+     ! for tests purpose
+     ! to test a existing sample on different situations, without extra source code
+     ! check on menu if want window, MDI, tabpage, tabpage2, panel
+     ! when call sample from testmdi it will use what is checked
+
 2025-04-30 15:25 UTC+0200 Wilfried Brunken DF7BE
 * source/gtk/drawtext.c
   ! Urgent bugfix on LINUX:
