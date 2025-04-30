@@ -122,9 +122,16 @@ HB_FUNC( HWG_DRAWTEXT )
 
         // Free memory
         g_free(cText);
+        
+ /* DF7BE : This message appears in a lot of number running test program
+    test/tickets/ticket204.prg
+    and has no effect, the sample runs OK.
+    So removed the output of this error message !
     } else {
         fprintf(stderr, "Error: Empty text in HWG_DRAWTEXT\n");
     }
+ */ 
+  }
 }
 
 HB_FUNC( HWG_GETTEXTMETRIC )

@@ -15,6 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-30 15:25 UTC+0200 Wilfried Brunken DF7BE
+* source/gtk/drawtext.c
+  ! Urgent bugfix on LINUX:
+  ! Not needed message output
+  ! "Error: Empty text in HWG_DRAWTEXT"
+  ! The sample runs at its best, see
+  ! comment line in source at line 126.
+  ! The output of this message removed.
+
 2025-04-29 20:20 UTC-0300 Jose Quintas jmcquintas-gmail.com
    - samples/demoaltdpicker.prg
      ! removed, it was part of another
