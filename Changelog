@@ -15,64 +15,9 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2025-05-01 19:15 UTC-0300 Jose Quintas jmcquintas-gmail.com
-   * samples/nice2.prg
-     ! only reference to demonice.prg
-   - samples/nice.hbp
-   * samples/Readme.txt
-   * samples/demoall.hbp
-   * samples/demoall.prg
-   * samples/demonice.prg renamed from nice.prg
-     ! Nice button works on dialog if created on INIT
-     ! if added to tabpage, it assumes handle of tab, not tabpage
-     ! it is allways visible on all tabpages
-     ! Added as dialog on demoall
-     ! NOTE: source code of nicebutton is a codeblock now,
-     !       it is on dialog INIT
-     ! NOTE2: New errorsys with values helps to solve this
-     !        It shows that handle was 0, window do not exists
-     ! TODO: Not sure if it is possible change nice button routine
-     !       to use tabpage handle
-
-2025-05-01 18:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
-   * source/herrsys.prg
-     ! add value list
-     !
-     ! error message, after to change errorsys
-     !
-     ! Error BASE/1070  Argument error: ==
-     ! Called from (b)HWG_ERRSYS(20)
-     ! Called from (b)HWG_FINDPARENT(542)
-     ! Called from ASCAN(0)
-     ! Called from HWG_FINDPARENT(542)
-     ! Called from HWG_FINDSELF(561)
-     ! Called from HWG_NICEBUTTPROC(134)
-     ! Called from HWG_DLGBOXINDIRECT(0)
-     ! Called from HDIALOG:ACTIVATE(176)
-     ! Called from MAIN(64)
-     ! (1) = Type: N Value: 0
-     ! (2) = Type: P Value: <pointer>
-     !
-     ! Last lines show values that cause error
-     ! without to need debug routines
-     !
-     ! About error: I am testing nice button on dialog
-     ! Dialog do not have handle once it will be created later
-     ! It is a test only, of a not common use
-     ! Once it needs handle, try later on dialog INIT
-
-2025-05-01 16:45 UTC-0300 Jose Quintas jmcquintas-gmail.com
-   * demoimage2.prg
-     ! difference linux
-     !
-     ! Is possible to change hwgui about this
-     ! and do not need anymore #ifdef on source code?
-     ! At a first look, seems on linux to translate @ ICON to @ BITMAP
-     ! and no more #ifdef on source code
-
-2025-05-01 16:37 UTC-0300 Itamar M. Lins Jr. itamarlins-gmail.com
-   * source/gtk/menu_c.c
-   ! fix for warning: Gtk-CRITICAL **: 16:08:22.677: gtk_box_pack: assertion 'child->parent == NULL' failed
+2025-05-01 16:55 UTC-0300 Itamar M. Lins Jr. itamarlins-gmail.com
+   * source/gtk/drawtext.c
+     ! small fix word wrapping Pango > 1.56 Ubuntu version 25.04
 
 2025-05-01 16:15 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * demoimage2.prg
