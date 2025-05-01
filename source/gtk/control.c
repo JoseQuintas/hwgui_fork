@@ -547,7 +547,7 @@ HB_FUNC( HWG_CREATEUPDOWNCONTROL )
    adj = gtk_adjustment_new( ( gdouble ) hb_parnl( 6 ),      // value
          ( gdouble ) hb_parnl( 7 ),     // lower
          ( gdouble ) hb_parnl( 8 ),     // upper
-         1, 1, 1 );
+         1, 1, 0 ); //step_increment, page_increment, page_size (0 for disable warning: GtkSpinButton: setting an adjusttment with nom-zero page size is deprecated)
    GtkWidget *hCtrl = gtk_spin_button_new( ( GtkAdjustment * ) adj, 0.5, 0 );
 
    GtkFixed *box = getFixedBox( ( GObject * ) HB_PARHANDLE( 1 ) );
