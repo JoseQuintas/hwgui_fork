@@ -55,15 +55,12 @@
 ../samples/graph.hbp
 ../samples/helpstatic.hbp
 ../samples/hexbincnt.hbp
-../samples/icons.hbp
 ../samples/menumod.hbp
 ../samples/modtitle.hbp
 ../samples/pseudocm.hbp
-../samples/simpleedit.hbp
 ../samples/stretch.hbp
 ../samples/tab.hbp
 ../samples/testfunc.hbp
-../samples/testimage.hbp
 ../samples/TwoLstSub.hbp
 ../samples/winprn.hbp
 #

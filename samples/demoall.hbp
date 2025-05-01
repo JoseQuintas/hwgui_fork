@@ -9,6 +9,7 @@
 {win}hbwin.hbc
 
 demoall.prg
+demobitmap.prg
 demobrowsedbf.prg
 democheckbox.prg
 democombobox.prg
@@ -27,6 +28,7 @@ demolistboxsub.prg
 demomenu.prg
 demomenuxml.prg
 demoprogbar.prg
+demosedit.prg
 demotab.prg
 demotree.prg
 demosplit.prg

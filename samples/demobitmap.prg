@@ -1,6 +1,6 @@
 /*
  *
- * testimage.prg
+ * demobitmap.prg
  *
  * Test program sample for displaying images and usage of FreeImage library.
  *
@@ -21,11 +21,13 @@
 
 #include "hwgui.ch"
 
-FUNCTION Main()
+FUNCTION DemoBitmap( lWithDialog, oDlg )
 
-   LOCAL odlg, oSayMain
+   LOCAL oSayMain
    LOCAL nameimg
    LOCAL cs := hwg_GetDirSep()
+
+   hb_Default( @lWithDialog, .T. )
 
    nameimg := ".." + cs + "image" + cs + "astro.bmp"
 /*
@@ -39,25 +41,29 @@ FUNCTION Main()
       hwg_msginfo( "File >" + nameimg + "< not found", "Error" )
    ENDIF
 
-   INIT Dialog oDlg ;
-      AT 0,0 ;
-      SIZE 500,400 ;
-      CLIPPER ;
-      NOEXIT ;
-      NOEXITESC
+   IF lWithDialog
+      INIT Dialog oDlg ;
+         AT 0,0 ;
+         SIZE 500,400 ;
+         CLIPPER ;
+         NOEXIT ;
+         NOEXITESC
+   ENDIF
 
 * This command requires FreeImage
 *@ 30, 10 IMAGE oSayMain SHOW nameimg OF oDlg SIZE 100, 90
 *
 * BITMAP:
 * Supported formats: bmp, jpg
-   @ 30, 10 BITMAP oSayMain ;
+   @ 30, 100 BITMAP oSayMain ;
       SHOW nameimg ;
       OF oDlg ;
       SIZE 100, 90
 
-   ACTIVATE Dialog oDlg center
+   IF lWithDialog
+      ACTIVATE Dialog oDlg center
+   ENDIF
 
 RETURN Nil
 
-* ================ EOF of testimage.prg ===========================
+* ================ EOF of demobitmap.prg ===========================

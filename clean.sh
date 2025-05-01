@@ -81,7 +81,6 @@ rm samples/qrencode 2>/dev/null
 rm samples/graph 2>/dev/null
 rm samples/helpstatic 2>/dev/null
 rm samples/testfehl.bmp 2>/dev/null
-rm samples/testimage 2>/dev/null
 rm samples/tab 2>/dev/null
 delfi samples/bitmapbug
 delfi samples/tststconsapp
@@ -95,7 +94,6 @@ delfi samples/tstscrlbar
 delfi samples/tstcombo
 delfi samples/testxml
 delfi samples/testtray
-delfi samples/simpleedit
 delfi samples/checkbox
 delfi samples/datepicker
 delfi samples/dlgbrwdbf

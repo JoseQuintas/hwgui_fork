@@ -230,6 +230,7 @@ For beginners:
  a.prg   +) 9)          R       N    CN          Some HWGUI basics (Open DBF's, GET's, ...)
 
  demoall.prg            ?                        group samples
+   demobitmap.prg       Y       Y                Displaying images and usage of FreeImage library (IMAGE, BITMAP).
    demobrowsedbf.prg    Y       ?    ?           browse dbf
    demobrowseado.prg    N       N                ADO Browse (TNX Itamar M. Lins Jr.). For multi platform use BROWSE.
    democheckbox.prg     Y                        Checkboxes and tabs
@@ -253,14 +254,15 @@ For beginners:
    demomenubitmap.prg   P                        Menu with bitmaps
    demomenuxml.prg      Y                        reading/writing XML file and handling menu items while run-time (testxml.xml)
    demomonthcal.prg     N                 Y      Calendar, Datepicker, TOOLTIP
+   demoprogbar.prg 12)  Y                        Progress bar
+   demosedit.prg        Y                        Simple text editor demonstrating hwg_Memoedit()
    demoshadebtn.prg     N       N                Shade buttons (for multi platform usage take OWNERBUTTON)
    demosplit.prg        Y                        Split windows
    demosplitter.prg     Y                        Tree control, Splitter, Tab
    demotab.prg          Y       ?    ?           Tab, owner button, combobox, dateselect, status panel
-   demoxmltree.prg      Y                 YW     Show XML-Tree: Open "testxml.xml" for test.
-   demoprogbar.prg 12)  Y                        Progress bar
    demotrackbar.prg     P                        Trackbar demo, horizontal und vertical.
    demotree.prg         Y                        Tree view control
+   demoxmltree.prg      Y                 YW     Show XML-Tree: Open "testxml.xml" for test.
 
  testbrowsearray.prg    Y                        Array BROWSE avoiding crashes because of bugs (see inline comments)
  bindbf.prg 10)         Y                        Usage of images from Binary DBF container
@@ -292,7 +294,6 @@ For beginners:
  pseudocm.prg           Y                        Pseudo context menu
  qrencode.prg 1) 2)     Y                        Encode QR code from string an convert to monochrome bitmap.
  qrencodedll.prg 1)     N       N                Encode QR code like qrencode.prg by using a DLL (for multi platform usage see contrib/qrencode)
- simpleedit.prg         Y                        Simple text editor demonstrating hwg_Memoedit()
  stretch.prg            Y  #                     Sample for resizing bitmaps (background), some bugs (as test program)
  tab.prg                Y  #              -      Sample for Tabs
  tabs_toolt             Y                        Sample for tabs with tooltips (TNX Alain Aupeix)
@@ -300,7 +301,6 @@ For beginners:
  demoonother.prg        P                        bOther Test: Press key, after key up the scan code is displayed.
  testbrw.prg            Y  #                     Another BROWSE test (bug on GTK see docu)
  testfunc.prg           Y       Y         Y      Test and demo of standalone HWGUI (hwg_*) functions, enable/disable button.
- testimage.prg          Y       Y                Displaying images and usage of FreeImage library (IMAGE, BITMAP).
  testrtf.prg  1)        Y  #    N          -      Create Rich text files. Need some work, the created RTFs are not compatible with newest specifications. (TO-DO for Alexander Kresin)
  teststrrev.prg         Y                        Function hwg_strrev() reverses a string for UTF-8 and handle Euro currency sign with GET
  testtray.prg           Y                 Y      Tray Message : Be care of different behavior between WinAPI and GTK

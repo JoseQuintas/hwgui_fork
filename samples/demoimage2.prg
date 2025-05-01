@@ -30,15 +30,16 @@ MEMVAR cHexDbmp , cHexDico , cHexWbmp , cHexWico
 MEMVAR cVal_WIco , cVal_Wbmp , cVal_DIco , cVal_Dbmp
 MEMVAR nMainX, nMainY
 
-FUNCTION DemoImage2()
+FUNCTION DemoImage2( lWithDialog, oDlg )
 
-   LOCAL oDlg
    PUBLIC oObj_Window, oObj_Dialog
    PUBLIC cVal_Window, cVal_Dialog, oImg_Window, oImg_Dialog
    PUBLIC cCmd
    PUBLIC cHexDbmp , cHexDico , cHexWbmp , cHexWico
    PUBLIC cVal_WIco , cVal_Wbmp , cVal_DIco , cVal_Dbmp
    PUBLIC nMainX, nMainY
+
+   hb_Default( @lWithDialog, .T. )
 
    cCmd := "Test main Window"
 
@@ -56,81 +57,54 @@ FUNCTION DemoImage2()
    oImg_Window := HBitmap():AddString( "Window" , cVal_Wbmp )
    oImg_Dialog := HBitmap():AddString( "Dialog" , cVal_Dbmp )
 
-   INIT DIALOG oDlg ;
-      TITLE "demoimage2.prg - Dialog icon test" ;
-      AT 100,80 ;
-      SIZE 300, 300 ;
-      ICON oObj_Window
+   IF lWithDialog
+      INIT DIALOG oDlg ;
+         TITLE "demoimage2.prg - Dialog icon test" ;
+         AT 100,80 ;
+         SIZE 640, 480 ;
+         ICON oObj_Window
+   ENDIF
+
+   ButtonForSample( "demoimage2.prg" )
 
    nMainX := oDlg:nLeft + 60
    nMainY := oDlg:nTop + 175
 
-   MENU OF oDlg
-      MENU TITLE "&Exit"
-        MENUITEM "&Quit" ACTION oDlg:Close()
-      ENDMENU
-      MENU TITLE "&Dialog"
-        MENUITEM "&Open" ACTION Test()
-      ENDMENU
-   ENDMENU
-
-   @  20, 0 SAY cCmd SIZE 250,40
+   @  20, 100 SAY cCmd SIZE 250,40
 
 #ifdef __GTK__
 /* Does not work on Windows (Format *.ico) */
-   @  50,60 BITMAP oObj_Window
-   @ 160,60 BITMAP oObj_Dialog
+   @  50, 160 BITMAP oObj_Window
+   @ 160, 160 BITMAP oObj_Dialog
    && --------------------
-   @  30, 150 SAY "Window icon" SIZE 80,32
-   @ 140, 150 SAY "Dialog icon" SIZE 80,32
+   @  30, 250 SAY "Window icon" SIZE 80,32
+   @ 140, 250 SAY "Dialog icon" SIZE 80,32
 #else
 
-   @  50, 60 BITMAP oImg_Window
-   @ 160, 60 BITMAP oImg_Dialog
+   @  50, 160 BITMAP oImg_Window
+   @ 160, 160 BITMAP oImg_Dialog
 
-   @  30, 150 SAY "Window Bitmap" ;
+   @  30, 250 SAY "Window Bitmap" ;
       SIZE 80,32
-   @ 140, 150 SAY "Dialog Bitmap" ;
+   @ 140, 250 SAY "Dialog Bitmap" ;
       SIZE 80,32
 #endif
-
-   ACTIVATE DIALOG oDlg CENTER
-
-RETURN NIL
-
-STATIC FUNCTION Test()
-
-   LOCAL oDlg
-
-   INIT DIALOG oDlg ;
-      TITLE "-- Dialog --" ;
-      AT nMainX, nMainY ;
-      SIZE 400,400 ;
-      ICON oObj_Dialog
-
-   @ 10 , 20  SAY "-- Dialog --" ;
-      SIZE 270, 90
-
-   @ 20 , 120 SAY "icon displayed with @x,y Bitmap" ;
-      SIZE 180, 48
 
 /*
   GTK: crashes here with core dump memory access violation,
   if dialog is called twice.
 */
 #ifdef __GTK__
-   @ 210, 118 BITMAP   oObj_Dialog
+   @ 270, 160 BITMAP   oObj_Dialog
 #else
-   @ 210, 118 BITMAP   oImg_Dialog
+   @ 270, 160 BITMAP   oImg_Dialog
 #endif
 
-   @ 150,350 BUTTON "OK" ;
-      SIZE 100, 32 ;
-      ON CLICK {|| oDlg:Close() }
+   IF lWithDialog
+      ACTIVATE DIALOG oDlg CENTER
+   ENDIF
 
-   ACTIVATE DIALOG oDlg CENTER
-
-  RETURN Nil
+RETURN NIL
 
 STATIC FUNCTION Init_Hexvars()
 
@@ -1046,5 +1020,7 @@ cHexWico := ;
 
 
 RETURN NIL
+
+#include "demo.ch"
 
 * ================= EOF of demoimage2.prg =================

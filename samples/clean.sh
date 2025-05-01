@@ -41,7 +41,6 @@ rm propsh 2> /dev/null
 rm pseudocm 2> /dev/null
 rm qrencode 2> /dev/null
 rm qrencodedll 2> /dev/null
-rm simpleedit 2> /dev/null
 rm stretch 2> /dev/null
 rm tab 2> /dev/null
 rm testalert 2> /dev/null
@@ -50,7 +49,6 @@ rm testbrw 2> /dev/null
 rm testchild 2> /dev/null
 rm testfunc 2> /dev/null
 rm testhgt 2> /dev/null
-rm testimage 2> /dev/null
 rm testrtf 2> /dev/null
 rm testtray 2> /dev/null
 rm demoonother 2> /dev/null

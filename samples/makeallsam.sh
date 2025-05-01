@@ -48,7 +48,6 @@ hbmk2 propsh.hbp
 hbmk2 pseudocm.hbp
 hbmk2 qrencode.hbp
 hbmk2 qrencodedll.hbp
-hbmk2 simpleedit.hbp
 hbmk2 stretch.hbp
 hbmk2 tab.hbp
 hbmk2 tabs_toolt.hbp
@@ -57,7 +56,6 @@ hbmk2 testbmpcr.hbp
 hbmk2 testbrw.hbp
 hbmk2 testfunc.hbp
 hbmk2 testhgt.hbp
-hbmk2 testimage.hbp
 hbmk2 testrtf.hbp
 hbmk2 testtray.hbp
 hbmk2 demoonother.hbp

@@ -34,7 +34,7 @@ It is all
 
 STATIC aMenuOptions := {}, nMenuLevel := 0
 
-FUNCTION DemoAll()
+FUNCTION Main()
 
    LOCAL oDlg, aInitList := {}, aEndList := {}, bCode
 
@@ -272,12 +272,14 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "2.Editbox",              { |o| DemoIni( .F., o, aEndList ) } )
       MenuOption( "3.DateSelect",           { |o| DemoDateSelect( .F., o ) } )
       MenuOption( "4.Datepicker",           { |o| DemoGet1( .F., o ) } )
+      MenuOption( "5.Simple Edit", "demosedit.prg", { || DemoSEdit() } )
       MenuUnDrop()
    MenuOption( "Image" )
       MenuDrop()
-      MenuOption( "1.Image view", "demoimageview.prg", { || demoimageview() } )
-      MenuOption( "2.DemoImage1", "demoimage1.prg",    { || DemoImage1() } )
-      MenuOption( "3.DemoImage2", "demoimage2.prg",    { || DemoImage2() } )
+      MenuOption( "1.DemoImage2",                      { |o| DemoImage2( .F., o ) } )
+      MenuOption( "2.demobitmap",                      { |o| DemoBitmap( .F., o ) } )
+      MenuOption( "3.DemoImage1", "demoimage1.prg",    { || DemoImage1() } )
+      MenuOption( "4.Image view", "demoimageview.prg", { || demoimageview() } )
       MenuUnDrop()
    MenuOption( "Listbox" )
       MenuDrop()
@@ -470,6 +472,7 @@ FUNCTION LoadResourceDemo( cFileName )
 DO CASE
 CASE cFileName == "demo.ch";             #pragma __binarystreaminclude "demo.ch" | RETURN %s
 CASE cFileName == "demoall.prg";         #pragma __binarystreaminclude "demoall.prg" | RETURN %s
+CASE cFileName == "demobitmap.prg";      #pragma __binarystreaminclude "demobitmap.prg" | RETURN %s
 CASE cFileName == "democheckbox.prg";    #pragma __binarystreaminclude "democheckbox.prg" | RETURN %s
 CASE cFileName == "democombobox.prg";    #pragma __binarystreaminclude "democombobox.prg" | RETURN %s
 CASE cFileName == "demobrowsedbf.prg";   #pragma __binarystreaminclude "demobrowsedbf.prg" | RETURN %s
@@ -494,6 +497,7 @@ CASE cFileName == "demomonthcal.prg";    #pragma __binarystreaminclude "demomont
 CASE cFileName == "demomenu.prg";        #pragma __binarystreaminclude "demomenu.prg" | RETURN %s
 CASE cFileName == "demomenuxml.prg";     #pragma __binarystreaminclude "demomenuxml.prg" | RETURN %s
 CASE cFileName == "demoprogbar.prg";     #pragma __binarystreaminclude "demoprogbar.prg" | RETURN %s
+CASE cFileName == "demosedit.prg";       #pragma __binarystreaminclude "demosedit.prg" | RETURN %s
 CASE cFileName == "demoshadebtn.prg";    #pragma __binarystreaminclude "demoshadebtn.prg" | RETURN %s
 CASE cFileName == "demotab.prg";         #pragma __binarystreaminclude "demotab.prg" | RETURN %s
 CASE cFileName == "demotrackbar.prg";    #pragma __binarystreaminclude "demotrackbar.prg" | RETURN %s
