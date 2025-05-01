@@ -14,6 +14,9 @@
  "oldlogs".
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+2025-05-01 16:37 UTC-0300 Itamar M. Lins Jr. itamarlins-gmail.com
+   * source/gtk/menu_c.c
+   ! fix for warning: Gtk-CRITICAL **: 16:08:22.677: gtk_box_pack: assertion 'child->parent == NULL' failed
 
 2025-05-01 16:15 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * demoimage2.prg
