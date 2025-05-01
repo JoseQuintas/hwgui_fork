@@ -12,10 +12,10 @@
  * Copyright 2002 Alexander S.Kresin <alex@kresin.ru>
  * www - http://www.kresin.ru
  * Copyright 2020-2025 Wilfried Brunken, DF7BE
- 
- * All functions of this file are former found in 
- * hmisc.prg of source/winapi and source/gtk 
- 
+
+ * All functions of this file are former found in
+ * hmisc.prg of source/winapi and source/gtk
+
 */
 
 #include "hwgui.ch"
@@ -33,8 +33,8 @@ FUNCTION hwg_RdLn(nhandle, lrembltab)
 
  IF lrembltab == NIL
    lrembltab := .F.
- ENDIF 
- xarray := {} 
+ ENDIF
+ xarray := {}
  nnumbytes := 1
  nnumbytes2 := 0
  bEOL := .F.
@@ -46,14 +46,14 @@ FUNCTION hwg_RdLn(nhandle, lrembltab)
  buffer := " "
  buffer2 := " "
 //   lbEOF := .F.
- ceoltype := "U" 
+ ceoltype := "U"
 
     DO WHILE ( nnumbytes != 0 ) .AND. ( .NOT. bEOL )
        nnumbytes := FREAD(nhandle,@buffer,1)  && Read 1 Byte
        * If read nothing, EOF is reached
        IF nnumbytes < 1
 //        lbEOF := .T.
-        IF .NOT. EMPTY(xLine)  
+        IF .NOT. EMPTY(xLine)
         * Last line may be without line ending
           xLine := hwg_RmCr(xLine)
           * Remove SUB 0x1A = CHR(26) = EOF marker
@@ -66,7 +66,7 @@ FUNCTION hwg_RdLn(nhandle, lrembltab)
         ELSE
          RETURN {"",.T.,0,ceoltype}
         ENDIF
-       ENDIF        
+       ENDIF
        * Detect MacOS: First appearance of CR alone
         IF ( .NOT. bMacOS ) .AND. ( buffer == CHR(13) )
        * End of line reached ?
@@ -87,18 +87,18 @@ FUNCTION hwg_RdLn(nhandle, lrembltab)
           ELSE
                 RETURN {"",.T.,0,ceoltype}
           ENDIF
-         ENDIF 
+         ENDIF
          * Line ending for Windows: must be LF (continue reading)
          * Before this, CR CHR(13) is read, but ignored
           IF .NOT. ( buffer2 == CHR(10) )
             * Windows : ignore read character
             bMacOS := .T.
-            ceoltype := "M" 
+            ceoltype := "M"
             * Set file pointer one byte backwards (is first character of following line)
             FSEEK (nhandle, -1 , 1 )
           ELSE
            ceoltype := "W"
-          ENDIF 
+          ENDIF
        ELSE
          * UNIX / LINUX (only LF)
           IF buffer == CHR(10)
@@ -107,11 +107,11 @@ FUNCTION hwg_RdLn(nhandle, lrembltab)
            * Ignore EOL character
            buffer := ""
           ENDIF
-       ENDIF 
+       ENDIF
         * Otherwise complete the line
         xLine := xLine + buffer
 
-      * Successful read   
+      * Successful read
 
       * Prefill buffer for next read
        buffer := " "
@@ -167,7 +167,7 @@ LOCAL npos, lendf
 
 IF xLine == NIL
  xLine := ""
-ENDIF 
+ENDIF
 
 * Remove blanks
  lendf := .F.
@@ -190,7 +190,7 @@ ENDIF
   ENDIF
  ENDDO
 
-RETURN xLine 
+RETURN xLine
 
 FUNCTION hwg_Max(a,b)
 IF a >= b
@@ -570,7 +570,7 @@ FUNCTION hwg_EOLStyle()
 * MacOS
    RETURN CHR(13)
 #else
-   * LINUX and other UNIX'e (Free BSD, ...) 
+   * LINUX and other UNIX'e (Free BSD, ...)
    RETURN CHR(10)
 #endif
 #endif
@@ -1081,36 +1081,36 @@ FUNCTION hwg_deb_is_object(oObj)
    ENDIF
 
    RETURN lret
-   
+
 * Returns .T:, if oObj is a valid object
 FUNCTION hwg_is_object(oObj)
 LOCAL lret
   IF oObj == NIL
    RETURN .F.
-  ENDIF 
+  ENDIF
   lret := .F.
-  IF Valtype(oObj) == "O" 
+  IF Valtype(oObj) == "O"
      lret := .T.
   ENDIF
-RETURN lret 
+RETURN lret
 
 * Returns a table of contents (TOC) of a bitmap object (name's)
 FUNCTION hwg_bitmapTOC(oBitmap)
 
    LOCAL oBmp, aretu
-   
+
    IF .NOT. hwg_is_object(oBitmap)
     RETURN {}
    ENDIF
-   
+
    aretu := {}
-   
+
    FOR EACH oBmp IN oBitmap:aBitmaps
       AADD(aretu,oBmp:name)
    NEXT
- 
- RETURN aretu  
- 
+
+ RETURN aretu
+
 FUNCTION BMPSize2Logfile(oBitmap,name)
 LOCAL bhandle , aBmpSize, nWidth, nHeight, bmpnam, i
 
@@ -1131,10 +1131,10 @@ LOCAL bhandle , aBmpSize, nWidth, nHeight, bmpnam, i
    aBmpSize  := hwg_Getbitmapsize( bhandle )
    nWidth  := aBmpSize[ 1 ]
    nHeight := aBmpSize[ 2 ]
-   
+
    hwg_WriteLog("name=" + bmpnam + " nWidth= " + ALLTRIM(STR(nWidth)) + ;
     " nHeight=" +  ALLTRIM(STR(nHeight)) )
- 
+
  RETURN NIL
 
   * Only for debug purposes:
@@ -1148,7 +1148,7 @@ LOCAL bhandle , aBmpSize, nWidth, nHeight, bmpnam, i
           hwg_WriteLog(ALLTRIM(STR(nindiz)) + ": " + "Element not of type C")
         ENDIF
       NEXT
-   RETURN NIL 
+   RETURN NIL
 
 FUNCTION hwg_leading0(ce)
 
@@ -1632,21 +1632,21 @@ FUNCTION hwg_ProcFileExt(pFiname,pFiext,lupper,ctestdirsep)
    * or replace an existing extension.
    * pFiname : The filename to be processed (optional with full path)
    * pFiext  : The new file extension
-   *           may be NIL or empty to remove a file extension 
+   *           may be NIL or empty to remove a file extension
    * lupper  : Windows only (parameter ignored on UNIX/LINUX):
    *           Set to .T. , if extension is set to upper case
    *           .F. : preserve case (default)
    * ctestdirsep : Only for test purposes:
    * Modify the directory separator, default
    * is the return value of function hwg_GetDirSep(),
-   * so it is assigned correct by the used operating system   
+   * so it is assigned correct by the used operating system
    *
    * Sample call: hwg_ProcFileExt("TEST.TXT","PRG")
    * returns the value "TEST.PRG"
    * pFiname may contain a full path.
    * DOS, Windows and UNIX/LINUX/MacOS filenames
    * are supported.
-   * 
+   *
 
    LOCAL sfifullnam , sFiname , sFiext , nSlash , nPunkt && , nslashr
 
@@ -1667,7 +1667,7 @@ FUNCTION hwg_ProcFileExt(pFiname,pFiext,lupper,ctestdirsep)
    ELSE
      ctestdirsep := SUBSTR(ALLTRIM(ctestdirsep),1,1)
    ENDIF
-   
+
    * Trim strings
    sFiext := ALLTRIM(pFiext)
 
@@ -1683,14 +1683,14 @@ FUNCTION hwg_ProcFileExt(pFiname,pFiext,lupper,ctestdirsep)
    * Also path names may contain dots!
    nSlash := RAT(ctestdirsep,sFiname)
    nPunkt := RAT(".", sFiname )
-   
-  
+
+
   * Another special case:
   * /home/temp./test + "prg" ==> /home/temp./test.prg
-  * Bugfix of 2024-10-03 by DF7BE, case 5 in testfunc.prg:
+  * Bugfix of 2024-10-03 by DF7BE, case 5 in demofunc.prg:
   * ==> /home/temp.prg
-  * Need to set another directory separator (if tested on windows)!  
- 
+  * Need to set another directory separator (if tested on windows)!
+
    IF nPunkt == 0
       * Without extension: add extension
       IF EMPTY(sFiext)
@@ -1746,16 +1746,16 @@ ENDIF
 
 zuende  := .F.
 coutput := ""
-// nbyread := 0   && Debug 
- 
+// nbyread := 0   && Debug
+
  handle := FOPEN(cfilename,0)  && READ_ONLY / zum Lesen
  IF handle < 0
   * Cannot open file
   RETURN ""
  ENDIF
- 
-cbuffer := SPACE(nbufsize) 
- 
+
+cbuffer := SPACE(nbufsize)
+
   DO WHILE .NOT. zuende
   anzbytes := FREAD(handle,@cbuffer,nbufsize)
 //  nbyread := nbyread + anzbytes   && Debug
@@ -1765,11 +1765,11 @@ cbuffer := SPACE(nbufsize)
   * Collect data
   coutput := coutput + cbuffer
   * Clear buffer for next read
-  cbuffer := SPACE(nbufsize) 
-  ENDDO 
+  cbuffer := SPACE(nbufsize)
+  ENDDO
  FCLOSE(handle)
 // hwg_MsgInfo("Bytes read=" +  ALLTRIM(STR(anzbytes)) )    && Debug
-RETURN coutput 
+RETURN coutput
 
 * FUNCTION HWG_QRENCODE() moved to contrib\qrencode\libqrencode.prg
 
@@ -1783,10 +1783,10 @@ FUNCTION hwg_CBmp2file(cbitmap,cbitmapfile)
 
   IF cbitmapfile == NIL
    cbitmapfile := "bitmap.bmp"
-  ENDIF 
+  ENDIF
 
    MEMOWRIT( cbitmapfile, cbitmap )
-   
+
 RETURN NIL
 
 
@@ -1805,21 +1805,21 @@ ENDIF
 * Processing steps:
 * Save bitmap in a temporary file (extracted for bitmap object)
 * and read it afterwards for return value
-* 
+*
 
   cTmp := hwg_CreateTempfileName() + ".bmp"
-  
+
   // hwg_Msginfo(cTmp)
   // hwg_Msginfo(cname)
-  
-  obmp:OBMP2FILE(cTmp,cname) 
+
+  obmp:OBMP2FILE(cTmp,cname)
 
   cBitmap := MEMOREAD(cTmp)
 
   * And remove the EOF marker
-   cBitmap := hwg_delEOFMarker(cBitmap) 
-  
-RETURN cBitmap 
+   cBitmap := hwg_delEOFMarker(cBitmap)
+
+RETURN cBitmap
 
 
 
@@ -1828,7 +1828,7 @@ FUNCTION hwg_Stretch_BMP_i(cbmp, clocname, nWidth, nHeight )
 LOCAL cTmp, oBmp
 #ifdef __PLATFORM__WINDOWS
  LOCAL ctempfilename
-#endif 
+#endif
 
    IF cbmp == NIL
     RETURN ""
@@ -1840,30 +1840,30 @@ LOCAL cTmp, oBmp
    IF nHeight == nil
       nHeight := 0
    ENDIF
-   
+
    IF clocname == NIL
      clocname := ""
    ENDIF
 
 
-   * Do not resize, return original 
-   IF  (nWidth < 1) .OR. (nHeight) < 1 
+   * Do not resize, return original
+   IF  (nWidth < 1) .OR. (nHeight) < 1
     RETURN cbmp
    ENDIF
-   
+
 * First write bitmap string into a temporary file
   cTmp := hwg_CreateTempfileName() + ".bmp"
   * The pure filename of the temporary file is stored as bitmap name,
   * so remove the directory path !
   * ==> not needed for LINUX !
-#ifdef __PLATFORM__WINDOWS  
+#ifdef __PLATFORM__WINDOWS
   ctempfilename := hwg_BaseName(cTmp)
 #endif
   IF .NOT. MEMOWRIT(cTmp,cbmp)
   * Returns .T., if success
    RETURN ""
-  ENDIF 
-  
+  ENDIF
+
   * Create bitmap object by read the temporary file and resize it at loading
   *  AddFile( name, hDC, lTransparent, nWidth, nHeight )
   *  (hDC is not needed here, lTransparent is not available on GTK )
@@ -1873,20 +1873,20 @@ LOCAL cTmp, oBmp
   oBmp := HBitmap():AddFile(cTmp,,.F.,nWidth,nHeight)
   FErase( cTmp )
 
-   
+
   // hwg_Writelog("clocname=" + clocname + " ctempfilename=" + ctempfilename)
   // hwg_BMPTOC2Logfile(oBmp)
-  
-  
+
+
   * Rename from temporary to previous name
 #ifdef __PLATFORM__WINDOWS
   oBmp := hwg_BMPRename(oBmp,ctempfilename,clocname)
 #else
   oBmp := hwg_BMPRename(oBmp,cTmp,clocname)
-#endif  
-  
+#endif
+
   // hwg_BMPTOC2Logfile(oBmp)
- 
+
   * Extract string from bitmap
   * Bitmap object may contain more than one bitmap !
   * See sample program winprn.prg (compiled with QR code option):
@@ -1895,27 +1895,27 @@ LOCAL cTmp, oBmp
   * After renaming:
   * 1: astro
   * 2: qrcode
-  
+
    cbmp := hwg_bpmObj2String(oBmp,clocname)
 
 RETURN cbmp
-  
 
-* ================================================================================ 
+
+* ================================================================================
 
 
 FUNCTION hwg_BMPRename(oBitmap,cnamold,cnamnew)
 
  LOCAL  i
- 
+
  IF oBitmap == NIL
   RETURN NIL
- ENDIF 
-  
+ ENDIF
+
  IF cnamold == NIL
    RETURN NIL
  ENDIF
- 
+
  IF cnamnew == NIL
    RETURN NIL
  ENDIF
@@ -1936,7 +1936,7 @@ FUNCTION hwg_BMPRename(oBitmap,cnamold,cnamnew)
 FUNCTION hwg_delEOFMarker(CBinrec)
 
 LOCAL nlaenge
-  IF CBinrec == NIL 
+  IF CBinrec == NIL
     RETURN ""
   ENDIF
   nlaenge := LEN(CBinrec)
@@ -1947,12 +1947,12 @@ LOCAL nlaenge
    ENDIF
   ENDIF
   RETURN CBinrec
-  
+
 FUNCTION hwg_BMPxyfromBinary(cbpm)
 
 * BITMAPFILEHEADER (14 Byte) + BITMAPINFOHEADER (40 Byte) = 54 (0x36)
-* 18 0x12 LONG int32_t 4 Bytes Width   x  
-* 22 0x16 LONG int32_t 4 Bytes Height  y  
+* 18 0x12 LONG int32_t 4 Bytes Width   x
+* 22 0x16 LONG int32_t 4 Bytes Height  y
 * Add 1, because index starts with 0 in C, so xpos= 19, ypos= 23
 
 LOCAL nx, ny
@@ -1968,25 +1968,25 @@ ENDIF
 IF .NOT. ( SUBSTR(cbpm,1,2) == "BM")
  RETURN {0,0}
 ENDIF
-* Get the values from header structure 
+* Get the values from header structure
 nx := Bin2L(SUBSTR(cbpm,19,4))
 ny := Bin2L(SUBSTR(cbpm,23,4))
 * nx and ny may be negative, this is a "top-down" bitmap,
 * the usual case is the bottom-up bitmap.
 
 * Now return result array
-RETURN { nx,ny }   
+RETURN { nx,ny }
 
 
 FUNCTION hwg_BMPuniquename(cprefix)
  IF nuniquenr == NIL
    nuniquenr := 0
- ENDIF  
+ ENDIF
  IF cprefix == NIL
    cprefix := "name"
  ENDIF
- nuniquenr := nuniquenr + 1  
-RETURN cprefix + ALLTRIM(STR(nuniquenr))   
+ nuniquenr := nuniquenr + 1
+RETURN cprefix + ALLTRIM(STR(nuniquenr))
 
 FUNCTION hwg_oBitmap2file(oBitmap,cbmpname,coutfilename )
 
@@ -2001,7 +2001,7 @@ ENDIF
 
 IF cbmpname == NIL
  cbmpname := ""
-ENDIF 
+ENDIF
 
 oBitmap:OBMP2FILE(coutfilename,cbmpname)
 RETURN NIL
@@ -2009,7 +2009,7 @@ RETURN NIL
 /*
 Windows BITMAPINFOHEADER
 
-Offset (hex)    Offset (dec)    Size (bytes) 
+Offset (hex)    Offset (dec)    Size (bytes)
 12              18              4              the bitmap width in pixels (signed integer)
 16              22              4              the bitmap height in pixels (signed integer)
 */

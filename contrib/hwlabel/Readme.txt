@@ -19,7 +19,7 @@ Contents
 4.  Build programs
 5.  Additional information
 6.  References
-7.  Appendix  
+7.  Appendix
 
 
 1. Preface
@@ -27,7 +27,7 @@ Contents
 "Label" is an important feature in business applications for
 example to label envelopes of letters to customers.
 In CLLOG [1] it is necessary for labelling QSL cards.
-The label feature is supported by Harbour for console 
+The label feature is supported by Harbour for console
 applications and needs direct access to the printer port.
 Also it is necessary, to write printer control sequences
 only for your used printer model into the label file.
@@ -57,7 +57,7 @@ CP 437 and CP850.
 
 It is very easy to check for this:
 Compile and run the following HWGUI sample:
-hwgui\samples\testfunc.prg
+hwgui\samples\demofunc.prg
 
 Then press button "hwg_Has_Win_Euro_Support":
 If the value "True" is returned, the used Harbour version is OK.
@@ -65,7 +65,7 @@ Otherwise you need to get the recent Harbour version.
 
 On LINUX there must be the same prerequisite, because this
 codepage is used for the coding in the label file.
- 
+
 
 2. The Label Editor
 -------------------
@@ -94,7 +94,7 @@ You can insert the label editor in your own HWGUI application.
 The instructions are found in the inline comment of hwlbledt.prg.
 
 A console version of the label editor is also available as
-"lbledit.prg", compile it with 
+"lbledit.prg", compile it with
 hbmk2 lbledit.prg.
 
 Also an additional advice:
@@ -111,8 +111,8 @@ function "hwlabel_translcp()".
     correct. This bug will bee fixed as soon as possible.
     We recommend to use only labels with one lane (Number of labels across = 1 ).
 
-2.) The result of a contents line may not exceed the width of label. 
-    The output of the macro and function calls may be shorter than defined 
+2.) The result of a contents line may not exceed the width of label.
+    The output of the macro and function calls may be shorter than defined
     in the contents line, so if the result on the printer or the printer preview
     is OK to you, than you can ignore the following warning of the label editor
     finishing the contents edit:
@@ -160,8 +160,8 @@ With the "hbmk2" utility (LINUX and Windows):
  hbmk2 hwlbledt.hbp
  hbmk2 hwlblsample.hbp
 
- 
- 
+
+
 5. Additional information
 -------------------------
 
@@ -174,14 +174,14 @@ For the next issue of hwlabel:
 - More than 1 lane (Number of labels across > 2)
 
 
- 
+
 
 6. References
 -------------
 
   [1] Project "CLLOG":
       https://sourceforge.net/projects/cllog/
- 
+
   [2] Spence, Rick (Co-Developer of Clipper):
        Clipper Programming Guide, Second Edition Version 5.
        Microtrend Books, Slawson Communication Inc., San Marcos, CA, 1991
@@ -191,7 +191,7 @@ For the next issue of hwlabel:
 7. Appendix
 -----------
 
-Table 1: 
+Table 1:
 --------
 
 American standard label formats
@@ -199,7 +199,7 @@ American standard label formats
 
  Bahnen  Zoll            mm       Breite Hoehe  l.Rand        horz.A vert.A. <== German description
          size in inch   in mm     width  height left margin
-           
+
  1      3 1/2 x 15/16  88,9x23,8  35     5       0               1      0
  2      3 1/2 x 15/16  88,9x23,8  35     5       0               1      2
  3      3 1/2 x 15/16  88,9x23,8  35     5       0               1      2
@@ -231,14 +231,14 @@ POSTCODE    C    10
 TOWN        C    25
 STATE       C    25
 COUNTRY     C    25
-ACCOUNT     N    10 
+ACCOUNT     N    10
 
 
 
 Table 3:
 --------
 
-Functions for label printing 
+Functions for label printing
 (Function reference for use in label file)
 
  Shortened functions for label printing and filter strings
@@ -287,7 +287,7 @@ Printer character sets:
  136 : CHINESEBIG5        CP950, big5.et-0
  161 : GREEK              CP1253
  162 : TURKISH            CP1254, -iso8859-9
- 163 : VIETNAMESE         CP1258 
+ 163 : VIETNAMESE         CP1258
  177 : HEBREW             CP1255, -iso8859-8
  178 : ARABIC             CP1256, -iso8859-6
  186 : BALTIC             CP1257, -iso8859-13
@@ -295,25 +295,25 @@ Printer character sets:
  222 : THAI               CP874,  -iso8859-11
  238 : EAST EUROPE        EE_CHARSET
  255 : OEM
- 
+
  The number of the left column is the numerical value
  for method SetMode() of the HWinPrn class,
  parameter nCharset.
- 
- 
+
+
  Escape sequences of macro interpreter
  -------------------------------------
- 
+
   The PUBLIC Variable "EC" stands for CHR(27) (Escape),
  saves space in the label file.
 
  So a function call is written like this:
   EC+"&SMA(); Small"
 
- 
+
  Table 5:
  --------
- 
+
 Reference of set modes called by macro interpreter:
 
 FUNCTION MDE(lElite, lCond, nLineInch, lBold, lItalic, lUnder, nLineMax , nCharset)  Call METHOD SetMode()
@@ -334,14 +334,14 @@ FUNCTION O_NEWLINE()        New line
 FUNCTION O_PRTTXT(ctext)    PrintText(ctext)
 FUNCTION O_NPG()            NextPage
 
-   
-  
+
+
  Internet links
  --------------
 
  See "6. References"
 
-  
+
 
  Modification summary
  --------------------
@@ -349,7 +349,7 @@ FUNCTION O_NPG()            NextPage
   Date (YYYY-MM-DD)  SVN     Description
   ----------         ------- ----------------------------------------------------------------
   2022-07-04         r3095   Second issue with macro interpeter
-  2022-06-16         r3079   First issue  
+  2022-06-16         r3079   First issue
 
 ================================= EOF of Readme.txt ================================================
 

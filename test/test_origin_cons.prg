@@ -4,7 +4,7 @@
 * Test for origin path handling on
 * Harbour console application
 * (this is also realized in sample program
-*   "samples\testfunc.prg")
+*   "samples\demofunc.prg")
 *
 * compile with:
 * hbmk2 test_origin_cons.prg
@@ -50,7 +50,7 @@ ENDIF
 
 WAIT "Quit: Press any key ==>"
 RETURN NIL
-  
+
 
 
 
@@ -58,7 +58,7 @@ RETURN NIL
 FUNCTION PWD()
 * Returns the curent directory with trailing \ or /
 * so you can add a file name after the returned value:
-* fullpath := PWD() + "FILE.EXT" 
+* fullpath := PWD() + "FILE.EXT"
 * ================================================================= *
 
 LOCAL oDir
@@ -173,7 +173,7 @@ FUNCTION hwg_GetDirSep()
 HB_FUNC( HWG_CHDIR )
 {
    hb_retl( HB_ISCHAR( 1 ) && chdir( hb_parc( 1 ) ) );
-}   
+}
 
 #pragma ENDDUMP
 

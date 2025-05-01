@@ -334,6 +334,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "4.MonthCal",           { |o| DemoMonthCal( .F., o ) } )
 #endif
       MenuOption( "5.Timer",              { |o| DemoGet2( .F., o ) } )
+      MenuOption( "6.Functions",          { |o| DemoFunc( .F., o ) } )
       MenuUnDrop()
 
    @ 30, 60 TAB oTabLevel1 ITEMS {} SIZE 950, 650 OF oDlg
@@ -479,6 +480,7 @@ CASE cFileName == "demobrowsedbf.prg";   #pragma __binarystreaminclude "demobrow
 CASE cFileName == "demobrowseado.prg";   #pragma __binarystreaminclude "demobrowseado.prg" | RETURN %s
 CASE cFileName == "demodbfdata.prg";     #pragma __binarystreaminclude "demodbfdata.prg" | RETURN %s
 CASE cFileName == "demodlgbox.prg";      #pragma __binarystreaminclude "demodlgbox.prg" | RETURN %s
+CASE cFileName == "demofunc.prg";        #pragma __binarystreaminclude "demofunc.prg" | RETURN %s
 CASE cFileName == "demogetupdown.prg";   #pragma __binarystreaminclude "demogetupdown.prg" | RETURN %s
 CASE cFileName == "demoget1.prg";        #pragma __binarystreaminclude "demoget1.prg" | RETURN %s
 CASE cFileName == "demoget2.prg";        #pragma __binarystreaminclude "demoget2.prg" | RETURN %s

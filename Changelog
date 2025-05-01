@@ -15,7 +15,30 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2024-05-01 10:30 UTC-0300 Jose Quintas jmcquintas-gmail.com
+2025-05-01 12:30 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   - samples/testfunc.hbp
+   * clean.sh
+   * contrib/hwlabel/Readme.txt
+   * doc/GTK3.txt
+   * doc/hwdoc_functions.html
+   * samples/Readme.txt
+   * samples/allhbp.hbp
+   * samples/clean.sh
+   * samples/demoall.hbp
+   * samples/demoall.prg
+   * samples/demofunc.prg renamed from testfunc.prg
+   * samples/makeallsam.sh
+   * source/cross/hmisccross.prg
+   * test/test_origin_cons.prg
+     ! added demofunc.prg and update references
+     ! on demofunc.prg renamed variable testfunc??? to oDlgMain
+     !    update commented code too
+   * contrib/hwlabel/Readme_de.txt
+     ! Update references.
+     ! TODO: Please confirm about codepage ok
+     !       commit with this file only, to revert if needed
+
+2025-05-01 10:30 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/ademoimage2.prg
      ! wrong information on samples
      ! On windows ICO is not same as IMAGE

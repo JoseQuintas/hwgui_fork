@@ -237,6 +237,7 @@ For beginners:
    democombobox.prg     Y                        Combobox
    demodbfdata.prg                               Database to insert/delete/edit/navigate
    demodlgbox.prg       Y                        Demonstrates few ready to use dialog boxes (extract from tutor)
+   demofunc.prg         Y       Y         Y      Test and demo of standalone HWGUI (hwg_*) functions, enable/disable button.
    demoget1.prg         Y                        Get system: Edit field, Checkboxes, Radio buttons, Combo box, Datepicker
    demoget2.prg         Y       Y                Get system: Colored edit fields, time display, Tooltip ballon, HD serial number
    demogetupdown.prg    Y                        Usage of @ <x> <y> GET UPDOWN ..
@@ -300,7 +301,6 @@ For beginners:
  testalert.prg          N       N                Clipper style Alert() replacement, delivered by Alex Strickland (TNX !)
  demoonother.prg        P                        bOther Test: Press key, after key up the scan code is displayed.
  testbrw.prg            Y  #                     Another BROWSE test (bug on GTK see docu)
- testfunc.prg           Y       Y         Y      Test and demo of standalone HWGUI (hwg_*) functions, enable/disable button.
  testrtf.prg  1)        Y  #    N          -      Create Rich text files. Need some work, the created RTFs are not compatible with newest specifications. (TO-DO for Alexander Kresin)
  teststrrev.prg         Y                        Function hwg_strrev() reverses a string for UTF-8 and handle Euro currency sign with GET
  testtray.prg           Y                 Y      Tray Message : Be care of different behavior between WinAPI and GTK

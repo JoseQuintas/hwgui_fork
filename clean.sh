@@ -70,7 +70,6 @@ rm samples/night   2>/dev/null
 rm samples/TwoLstSub 2>/dev/null
 rm samples/dbview 2>/dev/null
 rm samples/dbview.c 2>/dev/null
-rm samples/testfunc 2>/dev/null
 rm samples/winprn 2>/dev/null
 delfi samples/winprn.c
 rm samples/colrbloc 2>/dev/null
