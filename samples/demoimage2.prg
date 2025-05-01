@@ -41,8 +41,6 @@ FUNCTION DemoImage2( lWithDialog, oDlg )
 
    hb_Default( @lWithDialog, .T. )
 
-   cCmd := "Test main Window"
-
    Init_Hexvars()
 
    cVal_WIco := hwg_cHex2Bin(cHexWico)
@@ -70,8 +68,6 @@ FUNCTION DemoImage2( lWithDialog, oDlg )
    nMainX := oDlg:nLeft + 60
    nMainY := oDlg:nTop + 175
 
-   @  20, 100 SAY cCmd SIZE 250,40
-
 #ifdef __GTK__
 /* Does not work on Windows (Format *.ico) */
    @  50, 160 BITMAP oObj_Window
@@ -79,14 +75,21 @@ FUNCTION DemoImage2( lWithDialog, oDlg )
    && --------------------
    @  30, 250 SAY "Window icon" SIZE 80,32
    @ 140, 250 SAY "Dialog icon" SIZE 80,32
+
+
 #else
+   @  50, 160 ICON oObj_Window
+   @ 160, 160 ICON oObj_Dialog
 
-   @  50, 160 BITMAP oImg_Window
-   @ 160, 160 BITMAP oImg_Dialog
+   @  30, 250 SAY "Window icon" SIZE 80,32
+   @ 140, 250 SAY "Dialog icon" SIZE 80,32
 
-   @  30, 250 SAY "Window Bitmap" ;
+   @ 350, 160 BITMAP oImg_Window
+   @ 460, 160 BITMAP oImg_Dialog
+
+   @ 330, 250 SAY "Window Bitmap" ;
       SIZE 80,32
-   @ 140, 250 SAY "Dialog Bitmap" ;
+   @ 440, 250 SAY "Dialog Bitmap" ;
       SIZE 80,32
 #endif
 
@@ -96,8 +99,6 @@ FUNCTION DemoImage2( lWithDialog, oDlg )
 */
 #ifdef __GTK__
    @ 270, 160 BITMAP   oObj_Dialog
-#else
-   @ 270, 160 BITMAP   oImg_Dialog
 #endif
 
    IF lWithDialog

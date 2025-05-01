@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2024-05-01 10:30 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/ademoimage2.prg
+     ! wrong information on samples
+     ! On windows ICO is not same as IMAGE
+     ! @ BITMAP for images, and @ ICON for icons
+     ! On winapi too. DrawImage(), DrawIconEx()
+     ! Now sample shows ICO and BMP on windows too
+
 2025-05-01 08:30 UTC-0300 Jose Quintas jmcquintas-gmail.com
    - samples/simpleedit.hbp
    - samples/testimage.hbp
