@@ -155,7 +155,7 @@ FUNCTION DemoFunc( lWithDialog, oDlg )
    ButtonForSample( "demofunc.prg" )
 
    IF lWithDialog
-      @ 25, 100 + nspcbutton BUTTON oButton1 ;
+      @ 25, 60 + nspcbutton BUTTON oButton1 ;
          CAPTION "Exit" ;
          SIZE 75,nheight ;
          FONT oFont ;
@@ -163,33 +163,33 @@ FUNCTION DemoFunc( lWithDialog, oDlg )
          TOOLTIP "Terminate Program"
    ENDIF
 
-   @ 127, 100 + nspcbutton BUTTON oButton2 ;
+   @ 127, 60 + nspcbutton BUTTON oButton2 ;
       CAPTION "CENTURY ON"   ;
       SIZE 120,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK  { | | CENT_ON() }
 
-   @ 277, 100 + nspcbutton BUTTON oButton3 ;
+   @ 277, 60 + nspcbutton BUTTON oButton3 ;
       CAPTION "CENTURY OFF"   ;
       SIZE 120,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK  { | | CENT_OFF() }
 
-   @ 407, 100 + nspcbutton BUTTON oButton4 ;
+   @ 407, 60 + nspcbutton BUTTON oButton4 ;
       CAPTION "DATE()"   ;
          SIZE 120,nheight FONT oFont  ;
          STYLE WS_TABSTOP+BS_FLAT ;
          ON CLICK { | |Funkt(DATE(),"D","DATE()") }
 
-   @ 537, 100 + nspcbutton BUTTON oButton5 ;
+   @ 537, 60 + nspcbutton BUTTON oButton5 ;
       CAPTION "Summary"   ;
       SIZE 120,nheight FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | |  fSUMM() }
 
-   @ 25, 100 + nspcbutton * 2 BUTTON oButton6 ;
+   @ 25, 60 + nspcbutton * 2 BUTTON oButton6 ;
       CAPTION "hwg_GetUTCTimeDate()" ;
       SIZE 218,nheight ;
       FONT oFont  ;
@@ -197,7 +197,7 @@ FUNCTION DemoFunc( lWithDialog, oDlg )
       ON CLICK ;
        { | |Funkt(hwg_GetUTCTimeDate(),"C","hwg_GetUTCTimeDate()") }
 
-   @ 250, 100 + nspcbutton * 2 BUTTON oButton7 ;
+   @ 250, 60 + nspcbutton * 2 BUTTON oButton7 ;
       CAPTION "hwg_getCentury()" ;
       SIZE 218,nheight ;
       FONT oFont  ;
@@ -206,84 +206,84 @@ FUNCTION DemoFunc( lWithDialog, oDlg )
 
    /* Sample for a Windows only function,
       use a intermediate function with compiler switch for platform windows   */
-   @ 505, 100 + nspcbutton * 2 BUTTON oButton8 ;
+   @ 505, 60 + nspcbutton * 2 BUTTON oButton8 ;
       CAPTION "hwg_GetWindowsDir()" ;
       SIZE 218,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | | Funkt(GET_WINDIR(),"C","hwg_GetWindowsDir()") }
 
-   @ 25, 100 + nspcbutton * 3 BUTTON oButton9 ;
+   @ 25, 60 + nspcbutton * 3 BUTTON oButton9 ;
       CAPTION "hwg_GetTempDir()" ;
       SIZE 218,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | |Funkt(hwg_GetTempDir(),"C","hwg_GetTempDir()") }
 
-   @ 250, 100 + nspcbutton * 3 BUTTON oButton9 ;
+   @ 250, 60 + nspcbutton * 3 BUTTON oButton9 ;
       CAPTION "hwg_CreateTempfileName()" ;
       SIZE 218,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | |Funkt(hwg_CreateTempfileName(),"C","hwg_CreateTempfileName()") }
 
-   @ 505, 100 + nspcbutton * 3 BUTTON oButton12 ;
+   @ 505, 60 + nspcbutton * 3 BUTTON oButton12 ;
       CAPTION "GetWindowsDir Full" ;
       SIZE 218,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | | Funkt(GET_WINDIR_FULL(),"C","GET_WINDIR_FULL()") }
 
-   @ 25, 100 + nspcbutton * 4 BUTTON oButton10 ;
+   @ 25, 60 + nspcbutton * 4 BUTTON oButton10 ;
       CAPTION "Test Button" ;
       SIZE 140,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | | Hwg_MsgInfo("This is a test without any function") }
 
-   @ 180, 100 + nspcbutton * 4 BUTTON oButton11 ;
+   @ 180, 60 + nspcbutton * 4 BUTTON oButton11 ;
       CAPTION "Deactivate Test Button" ;
       SIZE 140,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | | TstButt_Deact(oButton10) }
 
-   @ 340, 100 + nspcbutton * 4 BUTTON oButton13 ;
+   @ 340, 60 + nspcbutton * 4 BUTTON oButton13 ;
       CAPTION "Activate Test Button" ;
       SIZE 140,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | | TstButt_Act(oButton10) }
 
-   @ 25, 100 + nspcbutton * 5 BUTTON oButton15 ;
+   @ 25, 60 + nspcbutton * 5 BUTTON oButton15 ;
       CAPTION "CurDir()" ;
       SIZE 140,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | | Funkt(CurDir(),"C","CurDir()") }
 
-   @ 180, 100 + nspcbutton * 5 BUTTON oButton16 ;
+   @ 180, 60 + nspcbutton * 5 BUTTON oButton16 ;
       CAPTION "hwg_CurDir()" ;
       SIZE 140,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | | Funkt(hwg_CurDir(),"C","hwg_CurDir()") }
 
-   @ 25, 100 + nspcbutton * 6  BUTTON oButton17 ;
+   @ 25, 60 + nspcbutton * 6  BUTTON oButton17 ;
       CAPTION "hwg_GetDateANSI()" ;
       SIZE 140,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | | Funkt(hwg_GetDateANSI(),"C","hwg_GetDateANSI()") }
 
-   @ 180, 100 + nspcbutton * 6 BUTTON oButton18 ;
+   @ 180, 60 + nspcbutton * 6 BUTTON oButton18 ;
       CAPTION "hwg_GetUTCDateANSI()" ;
       SIZE 140,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | | Funkt(hwg_GetUTCDateANSI(),"C","hwg_GetUTCDateANSI()") }
 
-   @ 340, 100 + nspcbutton * 6 BUTTON oButton19 ;
+   @ 340, 60 + nspcbutton * 6 BUTTON oButton19 ;
       CAPTION "hwg_GetUTCTime()" ;
       SIZE 140,nheight ;
       FONT oFont  ;
@@ -291,104 +291,104 @@ FUNCTION DemoFunc( lWithDialog, oDlg )
       ON CLICK { | | Funkt(hwg_GetUTCTime(),"C","hwg_GetUTCTime()") }
 
    * Hide / recovery of mouse cursor in extra dialog
-   @ 25, 100 + nspcbutton * 7 BUTTON oButton20 ;
+   @ 25, 60 + nspcbutton * 7 BUTTON oButton20 ;
       CAPTION "Cursor functions" ;
       SIZE 140,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | | HIDE_CURSOR ( oFont , nheight , oDlg ) }
 
-   @ 25, 100 + nspcbutton * 8 BUTTON oButton22 ;
+   @ 25, 60 + nspcbutton * 8 BUTTON oButton22 ;
       CAPTION "hwg_IsLeapYear()" ;
       SIZE 140,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | | TestLeapYear() }
 
-   @ 180, 100 + nspcbutton * 7 BUTTON oButton23 ;
+   @ 180, 60 + nspcbutton * 7 BUTTON oButton23 ;
       CAPTION "hwg_Has_Win_Euro_Support()" ;
       SIZE 140,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
          ON CLICK { | |  Funkt(hwg_Has_Win_Euro_Support(),"L","hwg_Has_Win_Euro_Support()" ) }
 
-   @ 340, 100 + nspcbutton * 7 BUTTON oButton24 ;
+   @ 340, 60 + nspcbutton * 7 BUTTON oButton24 ;
       CAPTION "hwg_FileModTimeU()" ;
       SIZE 140,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | |  Test_FileModTimeU() }
 
-   @ 505, 100 + nspcbutton * 7 BUTTON oButton25 ;
+   @ 505, 60 + nspcbutton * 7 BUTTON oButton25 ;
       CAPTION "hwg_FileModTime()" ;
       SIZE 140,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | |  Test_FileModTime() }
 
-   @ 505, 100 + nspcbutton * 6 BUTTON oButton26 ;
+   @ 505, 60 + nspcbutton * 6 BUTTON oButton26 ;
       CAPTION "hwg_Get_Time_Shift()" ;
       SIZE 140,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | | Funkt(hwg_Get_Time_Shift(),"N","hwg_Get_Time_Shift()") }
 
-   @ 505, 100 + nspcbutton * 4 BUTTON oButton27 CAPTION "New caption Test Button" ;
+   @ 505, 60 + nspcbutton * 4 BUTTON oButton27 CAPTION "New caption Test Button" ;
       SIZE 160,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | | oButton10:SetText("New Caption") }
 
-   @ 25, 100 + nspcbutton * 9 BUTTON oButton22 ;
+   @ 25, 60 + nspcbutton * 9 BUTTON oButton22 ;
       CAPTION "hwg_MsgYesNoCancel()" ;
       SIZE 140,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | | Test_MsgYesNoCancel() }
 
-   @ 25, 100 + nspcbutton * 10 BUTTON oButton28 ;
+   @ 25, 60 + nspcbutton * 10 BUTTON oButton28 ;
       CAPTION "hwg_GUIType()" ;
       SIZE 140,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | | Funkt(hwg_GUIType(),"C","hwg_GUIType()") }
 
-   @ 180, 100 + nspcbutton * 10 BUTTON oButton29 ;
+   @ 180, 60 + nspcbutton * 10 BUTTON oButton29 ;
       CAPTION "hwg_RunApp()" ;
       SIZE 140,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | | do_the_RunApp() }
 
-    @ 340, 100 + nspcbutton * 10 BUTTON obutton37 ;
+    @ 340, 60 + nspcbutton * 10 BUTTON obutton37 ;
        CAPTION "hwg_RunConsoleApp()" ;
        SIZE 140,nheight ;
        FONT oFont  ;
        STYLE WS_TABSTOP+BS_FLAT ;
        ON CLICK { | | do_the_RunConsoleApp() }
 
-   @ 25, 100 + nspcbutton * 11 BUTTON oButton30 ;
+   @ 25, 60 + nspcbutton * 11 BUTTON oButton30 ;
       CAPTION "hwg_HdSerial()" ;
       SIZE 140,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | | Test_hwg_HdSerial() }
 
-   @ 180, 100 + nspcbutton * 11 BUTTON oButton31 ;
+   @ 180, 60 + nspcbutton * 11 BUTTON oButton31 ;
       CAPTION "hwg_HdGetSerial()" ;
       SIZE 140,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | | Test_hwg_HdGetSerial() }
 
-   @ 25, 100 + nspcbutton * 12 BUTTON oButton32 ;
+   @ 25, 60 + nspcbutton * 12 BUTTON oButton32 ;
       CAPTION "hwg_ProcFileExt()" ;
       SIZE 140,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | | Test_hwg_ProcFileExt() }
 
-   @ 25, 100 + nspcbutton * 13 BUTTON oButton22 ;
+   @ 25, 60 + nspcbutton * 13 BUTTON oButton22 ;
       CAPTION "hwg_MsgOkCancel()" ;
       SIZE 140,nheight ;
       FONT oFont  ;
@@ -397,35 +397,35 @@ FUNCTION DemoFunc( lWithDialog, oDlg )
 
    /* Added August 2024 also for MacOS port */
 
-    @ 25, 100 + nspcbutton * 14 BUTTON oButton33 ;
+    @ 25, 60 + nspcbutton * 14 BUTTON oButton33 ;
        CAPTION "OS()" ;
        SIZE 140,nheight ;
        FONT oFont  ;
        STYLE WS_TABSTOP+BS_FLAT ;
        ON CLICK { | | Test_hb_os() }
 
-    @ 25, 100 + nspcbutton * 15 BUTTON oButton34 ;
+    @ 25, 60 + nspcbutton * 15 BUTTON oButton34 ;
        CAPTION "Build date" ;
        SIZE 140,nheight ;
        FONT oFont  ;
        STYLE WS_TABSTOP+BS_FLAT ;
        ON CLICK { | | Test_BuildDatetime() }
 
-    @ 25, 100 + nspcbutton * 16 BUTTON oButton35 ;
+    @ 25, 60 + nspcbutton * 16 BUTTON oButton35 ;
        CAPTION "Origin path" ;
        SIZE 140,nheight ;
        FONT oFont  ;
        STYLE WS_TABSTOP+BS_FLAT ;
        ON CLICK { | | Test_originpath(coriginp) }
 
-   @ 180 , 100 + nspcbutton * 8 BUTTON obutton36 ;
+   @ 180 , 60 + nspcbutton * 8 BUTTON obutton36 ;
       CAPTION "hwg_EOLStyle()" ;
       SIZE 140,nheight ;
       FONT oFont  ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { | | Test_hwg_EOLStyle() }
 
-   @ 25, 100 + nspcbutton * 17 BUTTON obutton38 ;
+   @ 25, 60 + nspcbutton * 17 BUTTON obutton38 ;
       CAPTION "hwg_GetEpoch()" ;
       SIZE 140,nheight ;
       FONT oFont  ;

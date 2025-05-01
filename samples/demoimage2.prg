@@ -43,10 +43,10 @@ FUNCTION DemoImage2( lWithDialog, oDlg )
 
    Init_Hexvars()
 
-   cVal_WIco := hwg_cHex2Bin(cHexWico)
-   cVal_Wbmp := hwg_cHex2Bin(cHexWbmp)
-   cVal_DIco := hwg_cHex2Bin(cHexDico)
-   cVal_Dbmp := hwg_cHex2Bin(cHexDbmp)
+   cVal_WIco := hwg_cHex2Bin( cHexWico )
+   cVal_Wbmp := hwg_cHex2Bin( cHexWbmp )
+   cVal_DIco := hwg_cHex2Bin( cHexDico )
+   cVal_Dbmp := hwg_cHex2Bin( cHexDbmp )
 
    * ICO
    oObj_Window := HIcon():AddString( "Window" , cVal_WIco )
@@ -78,19 +78,22 @@ FUNCTION DemoImage2( lWithDialog, oDlg )
 
 
 #else
-   @  50, 160 ICON oObj_Window
-   @ 160, 160 ICON oObj_Dialog
+   @  50, 100 ICON oObj_Window
+   @ 160, 100 ICON oObj_Dialog
 
-   @  30, 250 SAY "Window icon" SIZE 80,32
-   @ 140, 250 SAY "Dialog icon" SIZE 80,32
+   @  30, 190 SAY "Window icon" SIZE 80,32
+   @ 140, 190 SAY "Dialog icon" SIZE 80,32
 
-   @ 350, 160 BITMAP oImg_Window
-   @ 460, 160 BITMAP oImg_Dialog
+   @ 350, 100 BITMAP oImg_Window
+   @ 460, 100 BITMAP oImg_Dialog
 
-   @ 330, 250 SAY "Window Bitmap" ;
-      SIZE 80,32
-   @ 440, 250 SAY "Dialog Bitmap" ;
-      SIZE 80,32
+   @ 330, 190 SAY "Window Bitmap" ;
+      SIZE 80, 32
+   @ 440, 190 SAY "Dialog Bitmap" ;
+      SIZE 80, 32
+
+   @ 50, 300 BITMAP HBitmap():AddString( "Dialog", DemoImgResource( "d.bmp" ) )
+   @ 160, 300 ICON   HIcon():AddString( "Dialog", DemoImgResource( "d.ico" ) )
 #endif
 
 /*
@@ -106,6 +109,20 @@ FUNCTION DemoImage2( lWithDialog, oDlg )
    ENDIF
 
 RETURN NIL
+
+STATIC FUNCTION DemoImgResource( cFileName )
+
+   DO CASE
+#ifdef __PLATFORM__WINDOWS
+   CASE cFileName == "d.bmp"; #pragma __binarystreaminclude "..\image\d.bmp" | RETURN %s
+   CASE cFileName == "d.ico"; #pragma __binarystreaminclude "..\image\d.ico" | RETURN %s
+#else
+   CASE cFileName == "d.bmp"; #pragma __binarystreaminclude "../image/d.bmp" | RETURN %s
+   CASE cFileName == "d.ico"; #pragma __binarystreaminclude "../image/d.ico" | RETURN %s
+#endif
+   ENDCASE
+   RETURN Nil
+
 
 STATIC FUNCTION Init_Hexvars()
 

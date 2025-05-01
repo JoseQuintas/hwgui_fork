@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-01 14:10 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demofunc.prg
+     ! Adjust position, last button was out of dialog
+   * samples/demoimage2.prg
+     ! Another alternative to image resource using #pragma
+     ! It is same used on demoall.prg for ".prg"
+     ! Any type of file can be used, including dll, exe
+
 2025-05-01 12:30 UTC-0300 Jose Quintas jmcquintas-gmail.com
    - samples/testfunc.hbp
    * clean.sh
