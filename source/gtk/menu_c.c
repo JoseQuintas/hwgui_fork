@@ -115,15 +115,52 @@ HB_FUNC( HWG__ADDMENUITEM )
 /*
  *  SetMenu( hWnd, hMenu ) --> lResult
  */
+// HWG__SETMENU: Sets a menu (e.g., GtkMenuBar) as a child of a GtkBox in a window.
+// Parameters:
+// - HB_PARHANDLE(1): Handle to the parent window (GObject*).
+// - HB_PARHANDLE(2): Handle to the menu widget (GtkWidget*, typically GtkMenuBar).
+// Returns: 1 on success, 0 on failure (if the parent is not a GtkBox).
 HB_FUNC( HWG__SETMENU )
 {
-   GObject * handle = (GObject*) HB_PARHANDLE(1);
-   GtkFixed * box = getFixedBox( handle );
-   GtkWidget * vbox = gtk_widget_get_parent( (GtkWidget*)box );
-   gtk_box_pack_start( GTK_BOX (vbox), (GtkWidget*)HB_PARHANDLE(2), FALSE, FALSE, 0);
-   gtk_box_reorder_child(GTK_BOX(vbox), (GtkWidget*)HB_PARHANDLE(2), 0);
-   gtk_widget_show( (GtkWidget*)HB_PARHANDLE(2) );
-   hb_retl(1);
+    // Cast the first parameter to a GObject* to access the window handle.
+    GObject * handle = (GObject*) HB_PARHANDLE(1);
+    // Cast the second parameter to a GtkWidget* to access the menu widget.
+    GtkWidget * menu = (GtkWidget*) HB_PARHANDLE(2);
+    // Retrieve the GtkFixed container associated with the window using a custom function.
+    GtkFixed * box = getFixedBox(handle);
+    // Get the parent widget of the GtkFixed, expected to be a GtkBox (e.g., GtkVBox).
+    GtkWidget * vbox = gtk_widget_get_parent((GtkWidget*)box);
+
+    // Check if the parent widget is a valid GtkBox. If not, log a warning and return failure.
+    if (!GTK_IS_BOX(vbox)) {
+        g_warning("Parent widget is not a GtkBox!");
+        hb_retl(0); // Return 0 to indicate failure.
+        return;
+    }
+
+    // Check if the menu widget already has a parent (i.e., is attached to another container).
+    GtkWidget * parent = gtk_widget_get_parent(menu);
+    if (parent != NULL) {
+        // Increment the reference count to prevent the menu widget from being destroyed.
+        g_object_ref(menu);
+        // Remove the menu widget from its current parent container.
+        gtk_container_remove(GTK_CONTAINER(parent), menu);
+    }
+
+    // Add the menu widget to the GtkBox, with no expansion, no filling, and 0 padding.
+    gtk_box_pack_start(GTK_BOX(vbox), menu, FALSE, FALSE, 0);
+    // Reorder the menu widget to the first position in the GtkBox.
+    gtk_box_reorder_child(GTK_BOX(vbox), menu, 0);
+    // Make the menu widget visible.
+    gtk_widget_show(menu);
+
+    // If the menu had a parent, release the extra reference added earlier.
+    if (parent != NULL) {
+        g_object_unref(menu);
+    }
+
+    // Return 1 to indicate success.
+    hb_retl(1);
 }
 
 HB_FUNC( HWG_GETMENUHANDLE )
