@@ -15,6 +15,33 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-01 18:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * source/herrsys.prg
+     ! add value list
+     !
+     ! error message, after to change errorsys
+     !
+     ! Error BASE/1070  Argument error: ==
+     ! Called from (b)HWG_ERRSYS(20)
+     ! Called from (b)HWG_FINDPARENT(542)
+     ! Called from ASCAN(0)
+     ! Called from HWG_FINDPARENT(542)
+     ! Called from HWG_FINDSELF(561)
+     ! Called from HWG_NICEBUTTPROC(134)
+     ! Called from HWG_DLGBOXINDIRECT(0)
+     ! Called from HDIALOG:ACTIVATE(176)
+     ! Called from MAIN(64)
+     ! (1) = Type: N Value: 0
+     ! (2) = Type: P Value: <pointer>
+     !
+     ! Last lines show values that cause error
+     ! without to need debug routines
+     !
+     ! About error: I am testing nice button on dialog
+     ! Dialog do not have handle once it will be created later
+     ! It is a test only, of a not common use
+     ! Once it needs handle, try later on dialog INIT
+
 2025-05-01 16:45 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * demoimage2.prg
      ! difference linux

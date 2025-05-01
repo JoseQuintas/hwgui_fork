@@ -26,6 +26,7 @@ STATIC FUNCTION DefError( oError )
 
    LOCAL cMessage
    LOCAL cDOSError
+   LOCAL xArg
 
    // By default, division by zero results in zero
    IF oError:genCode == EG_ZERODIV
@@ -57,6 +58,19 @@ STATIC FUNCTION DefError( oError )
    ENDIF
 
    cMessage += hwg_Trace()
+
+   // include more
+
+   IF ValType( oError:Args ) == "A"
+      cMessage += Chr(13) + Chr(10)
+      FOR EACH xArg IN oError:Args
+         cMessage += [(] + Ltrim( Str( xArg:__EnumIndex() ) ) + [) = Type: ] + ValType( xArg )
+         IF xArg != NIL
+            cMessage +=  [ Value: ] + Alltrim( hb_ValToExp( xArg ) )
+         ENDIF
+         cMessage += Chr(13) + Chr(10)
+      NEXT
+   ENDIF
 
    //included aditional informations
 
