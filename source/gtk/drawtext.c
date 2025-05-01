@@ -94,12 +94,10 @@ HB_FUNC( HWG_DRAWTEXT )
         // Disable justification for natural alignment
         pango_layout_set_justify(hDC->layout, 0);
         // Disable word wrapping to prevent text from spilling to the next line
-        void configure_layout(PangoLayout *layout) {
-        #if defined(PANGO_VERSION_CHECK) && PANGO_VERSION_CHECK(1,56,0)        
+        if (pango_version() >= PANGO_VERSION_ENCODE(1, 56, 0)) {
           pango_layout_set_wrap(hDC->layout, PANGO_WRAP_NONE);
-        #else
-          pango_layout_set_width(layout, -1);
-        #endif
+        } else {
+          pango_layout_set_width(hDC->layout, -1);
         }
         // Treat as a single paragraph to prevent line breaks
         pango_layout_set_single_paragraph_mode(hDC->layout, TRUE);
