@@ -10,25 +10,30 @@ STATIC FUNCTION ButtonForSample( cFileName, oDlg )
 
    cRunName := StrTran( cFileName, ".prg", "" )
 
-   @ 33, 30 OWNERBUTTON ;
+   @ 10, 30 OWNERBUTTON ;
       OF       oDlg ;
-      SIZE     200, 24 ;
-      TEXT     cFileName ;
+      SIZE     50, 24 ;
+      TEXT     "Dlg" ;
       HSTYLES ;
-         HStyle():New( {16759929,16772062}, 1 ), ;
-         HStyle():New( {16759929}, 1,, 3, 0 ), ;
-         HStyle():New( {16759929}, 1,, 2, 12164479 ) ;
+      HStyle():New( {0xffffff,0xdddddd}, 1,, 1 ), ;
+      HStyle():New( {0xffffff,0xdddddd}, 2,, 1 ), ;
+      HStyle():New( {0xffffff,0xdddddd}, 1,, 2, 8421440 ) ;
       ON CLICK { || iif( cRunName == "demoall", "", Do( cRunName ) ) }
 
-   @ 250, 30 OWNERBUTTON ;
+   @ 70, 30 OWNERBUTTON ;
       OF oDlg ;
-      SIZE 100, 24 ;
-      TEXT "show code" ;
+      SIZE 50, 24 ;
+      TEXT "Code" ;
       HSTYLES ;
-         HStyle():New( {16759929,16772062}, 1 ), ;
-         HStyle():New( {16759929}, 1,, 3, 0 ), ;
-         HStyle():New( {16759929}, 1,, 2, 12164479 ) ;
+      HStyle():New( {0xffffff,0xdddddd}, 1,, 1 ), ;
+      HStyle():New( {0xffffff,0xdddddd}, 2,, 1 ), ;
+      HStyle():New( {0xffffff,0xdddddd}, 1,, 2, 8421440 ) ;
       ON CLICK { || ShowCode( cFileName ) }
+
+   @ 130, 30 SAY cFileName ;
+      OF oDlg ;
+      SIZE 200, 24 ;
+      BACKCOLOR 0xffffff
 
    RETURN Nil
 

@@ -1,0 +1,10 @@
+#
+# $Id$
+#
+# auto included hbmk.hbm
+
+-odemotab
+
+demotab.prg
+democheckbox.prg
+demobrowsedbf.prg

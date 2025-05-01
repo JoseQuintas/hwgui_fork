@@ -15,6 +15,24 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-04-30 17:50 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demo.ch
+     ! smaller buttons color white
+   + demotab.hbp
+     ! previous delete by mistake, it uses 3 PRGs
+   * samples/testmdi.hbp
+   * samples/testmdi.prg
+     ! An easy way to change filename to be tested
+     ! Added working panel
+     !
+     ! test using demotrackbar.prg
+     !
+     ! on DIALOG ok
+     ! on MDICHILD do not update SAY values
+     ! on TABPAGE do not update SAY values
+     ! on TABPAGE and PANEL can't move trackbar
+     ! Is there anything I forgot to include on source code?
+
 2025-04-30 13:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/demoall.prg
      ! changed to function for tests

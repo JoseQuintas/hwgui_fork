@@ -7,6 +7,8 @@ demomdi.prg
 FUNCTION DemoMDI()
 
    LOCAL oDlg
+   LOCAL cSampleName := "demotrackbar.prg"
+   LOCAL bCodeSample := { |o| DemoTrackBar( .F., o ) }
 
    INIT WINDOW oDlg ;
       MDI ;
@@ -15,8 +17,8 @@ FUNCTION DemoMDI()
       BACKCOLOR 16772062
 
    MENU OF oDlg
-      MENU TITLE "Sample"
-         MENUITEM "checkbox.prg" ACTION DlgSample()
+      MENU TITLE "ExecuteSample"
+         MENUITEM cSampleName ACTION DlgSample( cSampleName, bCodeSample )
       ENDMENU
       MENU TITLE "Option"
          MENUITEM "Window" ID 1001 ;
@@ -44,10 +46,10 @@ FUNCTION DemoMDI()
 
    RETURN Nil
 
-STATIC FUNCTION DlgSample()
+STATIC FUNCTION DlgSample( cSampleName, bCodeSample )
 
-   LOCAL oDlg, lIsWindow, lIsTabPage, lIsTabPage2, lIsPanel
-   LOCAL lIsMDI, oTab, nCont, nPageCount := 0
+   LOCAL oDlg, oTab, oPanel, nCont, nPageCount := 0
+   LOCAL lIsWindow, lIsTabPage, lIsTabPage2, lIsPanel, lIsMDI
 
    lIsWindow    := hwg_IsCheckedMenuItem( ,1001 )
    lIsTabPage   := hwg_IsCheckedMenuItem( ,1002 )
@@ -63,30 +65,40 @@ STATIC FUNCTION DlgSample()
 
       INIT WINDOW oDlg ;
          MDICHILD ;
-         TITLE "democheckbox.prg" ;
+         TITLE cSampleName ;
          SIZE 800, 600 ;
          STYLE WS_VISIBLE + WS_OVERLAPPEDWINDOW
 
    CASE lIsWindow
 
       INIT WINDOW oDlg ;
-         TITLE "democheckbox.prg" ;
+         TITLE cSampleName ;
          SIZE 800, 600 ;
          STYLE WS_VISIBLE + WS_OVERLAPPEDWINDOW
 
    OTHERWISE
 
       INIT DIALOG oDlg ;
-         TITLE "democheckbox.prg" ;
+         TITLE cSampleName ;
          SIZE 800, 600 ;
          STYLE WS_VISIBLE + WS_OVERLAPPEDWINDOW
 
    ENDCASE
 
    IF lIsTabPage .OR. lIsTabPage2
-      @ 3, 10 TAB oTab ITEMS {} OF oDlg SIZE 700, 500
+      @ 3, 10 TAB oTab ;
+         ITEMS {} ;
+         OF oDlg ;
+         SIZE 700, 500 ;
+         STYLE SS_OWNERDRAW
    ELSE
-      DemoCheckbox( .F., oDlg )
+      IF lIsPanel
+         @ 3, 100 PANEL oPanel ;
+            SIZE 700, 500 ;
+            STYLE SS_OWNERDRAW ;
+            BACKCOLOR 16772062
+      ENDIF
+      Eval( bCodeSample, iif( lIsPanel, oPanel, oDlg ) )
    ENDIF
 
    FOR nCont = 1 TO nPageCount
@@ -94,9 +106,13 @@ STATIC FUNCTION DlgSample()
       BEGIN PAGE "TabPage" OF oTab
 
       IF lIsPanel
+         @ 3, 60 PANEL oPanel ;
+            SIZE 700, 500 ;
+            STYLE SS_OWNERDRAW ;
+            BACKCOLOR 16772062
       ENDIF
 
-      DemoCheckbox( .F., oTab )
+      Eval( bCodeSample, iif( lIsPanel, oPanel, oTab ) )
 
       END PAGE OF oTab
 
