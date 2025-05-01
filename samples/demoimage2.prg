@@ -70,8 +70,13 @@ FUNCTION DemoImage2( lWithDialog, oDlg )
 
 // Note: On linux can be used BITMAP for all
 
+#ifdef __PLATFORM__WINDOWS
    @  50, 100 ICON oObj_Window
    @ 160, 100 ICON oObj_Dialog
+#else
+   @  50, 100 BITMAP oObj_Window
+   @ 160, 100 BITMAP oObj_Dialog
+#endif
 
    @  30, 190 SAY "Window icon" SIZE 80,32
    @ 140, 190 SAY "Dialog icon" SIZE 80,32
@@ -87,8 +92,13 @@ FUNCTION DemoImage2( lWithDialog, oDlg )
    @ 50, 300 BITMAP HBitmap():AddString( "Dialog", DemoImgResource( "d.bmp" ) )
    @ 30, 390 SAY "bmp #pragma" SIZE 80, 32
 
+#ifdef __PLATFORM__WINDOWS
    @ 160, 300 ICON   HIcon():AddString( "Dialog", DemoImgResource( "d.ico" ) )
    @ 140, 390 SAY "ico  #pragma" SIZE 80, 32
+#else
+   @ 160, 300 BITMAP HBitmap():AddString( "Dialog", DemoImgResource( "d.ico" ) )
+   @ 140, 390 SAY "ico  #pragma" SIZE 80, 32
+#endif
 
 /*
   GTK: crashes here with core dump memory access violation,
