@@ -444,7 +444,7 @@ FUNCTION DemoFunc( lWithDialog, oDlg )
 
 RETURN Nil
 
-STATIC FUNCTION HIDE_CURSOR ( oFont , nheight , lDlgMain )
+STATIC FUNCTION HIDE_CURSOR ( oFont , nheight , oDlgMain )
 
    LOCAL odlg , oButton1 , oButton2 , oButton3 , ncursor , hmain
 
@@ -455,7 +455,7 @@ STATIC FUNCTION HIDE_CURSOR ( oFont , nheight , lDlgMain )
    ncursor := 0
 
    * For hiding mouse cursor on main window
-   //     hmain := lDlgMain:handle
+   //     hmain := oDlgMain:handle
 
    INIT DIALOG odlg ;
       TITLE "Hide / show cursor"  ;
