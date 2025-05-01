@@ -17,8 +17,8 @@ Inhalt
 4.  Programme übersetzen
 5.  Zusätzliche Informationen
 6.  Referenzen
-7.  Anhang  
-  
+7.  Anhang
+
 
 1. Vorwort
 ----------
@@ -50,13 +50,13 @@ Link zu CLLOG siehe Kapitel "Internet-Links".
 "hwlabel" ist die Portierung dieses Leistungsmerkmales zu HWGUI
 unter Nutzung der "HWinPrn" Klasse,
 damit ist es bereit für eine "Multi Platform" Anwendung und
-unabhängig vom verwendeten Drucker-Modell. 
+unabhängig vom verwendeten Drucker-Modell.
 
 
 1.1 Voraussetzungen
 -------------------
 
-Um dieses Modul verwenden zu können, wird die Harbour-Version, 
+Um dieses Modul verwenden zu können, wird die Harbour-Version,
 die die Codepage "CP858" für die Unterstützung
 des Euro-Währungszeichens beinhaltet, benötigt.
 Diese Codepage unterstützt die Zeichensätze "Latin" für die meisten
@@ -64,7 +64,7 @@ westlichen Sprachen wie frühere Codepages CP 437 und CP850.
 
 Es ist sehr leicht, dieses zu überprüfen:
 Übersetzen Sie das folgende  HWGUI-Besipielprogramm und führen es aus:
-hwgui\samples\testfunc.prg
+hwgui\samples\demofunc.prg
 
 Betätigen Sie den Knopf "hwg_Has_Win_Euro_Support":
 Wenn "True" angezeigt wird, ist die eingesetzte Harbour-Version in Ordnung.
@@ -87,7 +87,7 @@ Es die selbe wie CP850 mit einer Ausnahme:
 Das Euro-Währungszeichen ist 0xD5 oder CHR(213).
 Dieses passt bestens für die meisten Sprachen der westlichen Welt.
 Weitere Codepage-Unterstützungen sind in Planung für zukünftige Versionen von HWLABEL.
-CP850/CP858 ist besser kompatibel mit den früher verwendeten Codepages CP437 für 
+CP850/CP858 ist besser kompatibel mit den früher verwendeten Codepages CP437 für
 mehrfache Sprachunterstützung.
 
 Die Grundversion von "hwlabel" unterstützt Englisch (Default) und Deutsch.
@@ -98,7 +98,7 @@ Der Label-Editor enthält auch eine Hilfe-Funktion mit der
 Beschreibung von Parametern und Inhalten.
 
 Sie können den Label-Editor auch in Ihr eigenes HWGUI-Programm integrieren.
-Die Anweisungen dazu (in englischer Sprache) finden Sie in den 
+Die Anweisungen dazu (in englischer Sprache) finden Sie in den
 Kommentarzeilen von "hwlbledt.prg".
 
 Dazu noch ein wichtiger Hinweis:
@@ -129,7 +129,7 @@ hbmk2 lbledit.prg.
 2.) Das Ergebnis einer Inhalts-Zeile darf die Breite des Labels (width of label)
     keinesfalls überschreiten.
     Das Ergebnis von Funktions- und Macro-Aufrufen kann oft kürzer als
-    die tatsächliche Länge sein. 
+    die tatsächliche Länge sein.
     Wenn der Ausdruck oder das Bild in der Druckvorschau Ihren Wünschen enstpricht,
     können Sie die folgende Warnung beim Verlassen des Dialoges für die
     Bearbeitung der Inhalte getrost ignorieren:
@@ -138,7 +138,7 @@ Warnung!
 Länge der Zeile nn
 überschreitet möglicherweise die
 Breite des Aufklebers.
-Aktuelle Länge ist : nn 
+Aktuelle Länge ist : nn
 
 
 
@@ -184,7 +184,7 @@ Mit dem Programm "hbmk2" (LINUX und Windows):
  hbmk2 hwlbledt.hbp
  hbmk2 hwlblsample.hbp
 
- 
+
 5. Zusätzliche Informationen
 ----------------------------
 
@@ -196,7 +196,7 @@ Quelltextdateien.
 Für die nächste Version von hwlabel
 
 - Mehr als eine Bahn (Number of labels across > 2)
- 
+
 
 6. Referenzen
 -------------
@@ -208,18 +208,18 @@ Für die nächste Version von hwlabel
        Clipper Programming Guide, Second Edition Version 5.
        Microtrend Books, Slawson Communication Inc., San Marcos, CA, 1991
        ISBN 0-915391-41-4
- 
+
 
 7. Anhang
 ---------
 
-Tabelle 1: 
+Tabelle 1:
 ----------
 Amerikanische Standardetikettenformate
 
  Bahnen  Zoll            mm       Breite Hoehe  l.Rand        horz.A vert.A.
-         size in inch   in mm     width  height left margin 
-           
+         size in inch   in mm     width  height left margin
+
  1      3 1/2 x 15/16  88,9x23,8  35     5       0               1      0
  2      3 1/2 x 15/16  88,9x23,8  35     5       0               1      2
  3      3 1/2 x 15/16  88,9x23,8  35     5       0               1      2
@@ -251,7 +251,7 @@ POSTCODE    C    10
 TOWN        C    25
 STATE       C    25
 COUNTRY     C    25
-ACCOUNT     N    10 
+ACCOUNT     N    10
 
 
 Tabelle 3:
@@ -302,7 +302,7 @@ Drucker-Zeichensätze:
  136 : CHINESEBIG5        CP950, big5.et-0
  161 : GREEK              CP1253
  162 : TURKISH            CP1254, -iso8859-9
- 163 : VIETNAMESE         CP1258 
+ 163 : VIETNAMESE         CP1258
  177 : HEBREW             CP1255, -iso8859-8
  178 : ARABIC             CP1256, -iso8859-6
  186 : BALTIC             CP1257, -iso8859-13
@@ -310,26 +310,26 @@ Drucker-Zeichensätze:
  222 : THAI               CP874,  -iso8859-11
  238 : EAST EUROPE        EE_CHARSET
  255 : OEM
- 
+
  Die Ziffer in der linken Spalte kennzeichnet den
  numerischen Wert zur Übergabe an die
  Methode SetMode() der Klasse HWinPrn,
  Parameter nCharset.
 
- 
+
  Escape-Sequenzen des Macro-Interpreters
  ----------------------------------------
- 
+
   Die PUBLIC Variable "EC" steht für CHR(27) (Escape),
   spart Platz in der Label-Datei.
 
   Auf diese Weise wird ein Funktions-Aufruf wie folgt geschrieben:
   EC+"&SMA(); Small"
 
- 
+
 Tabelle 5:
 ----------
- 
+
 Referenz für "Set Modus"-Funktionen, die vom Macro-Interpreter aufgerufen werden:
 
 FUNCTION MDE(lElite, lCond, nLineInch, lBold, lItalic, lUnder, nLineMax , nCharset)  Aufruf Methode SetMode()
@@ -353,18 +353,18 @@ FUNCTION O_NPG()            Neue Seite
 
  Internet-Links
  --------------
- 
+
  Siehe "6. Referenzen"
 
- 
- 
+
+
  Änderungsübersicht
  ------------------
 
   Datum (YYYY-MM-DD) SVN     Beschreibung
   ----------         ------- ----------------------------------------------------------------
   2022-07-04         r3095   Zweite Ausgabe mit Macro-Interpeter
-  2022-06-16         r3079   Erste Ausgabe  
+  2022-06-16         r3079   Erste Ausgabe
 
 
 ================================= EOF of Readme_de.txt ================================================
