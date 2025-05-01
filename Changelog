@@ -14,6 +14,11 @@
  "oldlogs".
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+
+2025-05-01 16:15 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * demoimage2.prg
+     ! filename on linux, show image on linux too
+
 2025-05-01 14:30 UTC-0300 Itamar M. Lins Jr. itamarlins-gmail.com
    * source/gtk/control.c
    ! small fix for disable warning: GtkSpinButton: setting an adjustment with nom-zero page size is deprecated

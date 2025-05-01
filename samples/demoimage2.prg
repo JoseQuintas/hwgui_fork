@@ -68,16 +68,8 @@ FUNCTION DemoImage2( lWithDialog, oDlg )
    nMainX := oDlg:nLeft + 60
    nMainY := oDlg:nTop + 175
 
-#ifdef __GTK__
-/* Does not work on Windows (Format *.ico) */
-   @  50, 160 BITMAP oObj_Window
-   @ 160, 160 BITMAP oObj_Dialog
-   && --------------------
-   @  30, 250 SAY "Window icon" SIZE 80,32
-   @ 140, 250 SAY "Dialog icon" SIZE 80,32
+// Note: On linux can be used BITMAP for all
 
-
-#else
    @  50, 100 ICON oObj_Window
    @ 160, 100 ICON oObj_Dialog
 
@@ -93,8 +85,10 @@ FUNCTION DemoImage2( lWithDialog, oDlg )
       SIZE 80, 32
 
    @ 50, 300 BITMAP HBitmap():AddString( "Dialog", DemoImgResource( "d.bmp" ) )
+   @ 30, 390 SAY "bmp #pragma" SIZE 80, 32
+
    @ 160, 300 ICON   HIcon():AddString( "Dialog", DemoImgResource( "d.ico" ) )
-#endif
+   @ 140, 390 SAY "ico  #pragma" SIZE 80, 32
 
 /*
   GTK: crashes here with core dump memory access violation,
@@ -117,8 +111,8 @@ STATIC FUNCTION DemoImgResource( cFileName )
    CASE cFileName == "d.bmp"; #pragma __binarystreaminclude "..\image\d.bmp" | RETURN %s
    CASE cFileName == "d.ico"; #pragma __binarystreaminclude "..\image\d.ico" | RETURN %s
 #else
-   CASE cFileName == "d.bmp"; #pragma __binarystreaminclude "../image/d.bmp" | RETURN %s
-   CASE cFileName == "d.ico"; #pragma __binarystreaminclude "../image/d.ico" | RETURN %s
+   CASE cFileName == "d.bmp"; #pragma __binarystreaminclude "../image/D.bmp" | RETURN %s
+   CASE cFileName == "d.ico"; #pragma __binarystreaminclude "../image/D.ico" | RETURN %s
 #endif
    ENDCASE
    RETURN Nil
