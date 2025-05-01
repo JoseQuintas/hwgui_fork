@@ -15,6 +15,25 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-01 19:15 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/nice2.prg
+     ! only reference to demonice.prg
+   - samples/nice.hbp
+   * samples/Readme.txt
+   * samples/demoall.hbp
+   * samples/demoall.prg
+   * samples/demonice.prg renamed from nice.prg
+     ! Nice button works on dialog if created on INIT
+     ! if added to tabpage, it assumes handle of tab, not tabpage
+     ! it is allways visible on all tabpages
+     ! Added as dialog on demoall
+     ! NOTE: source code of nicebutton is a codeblock now,
+     !       it is on dialog INIT
+     ! NOTE2: New errorsys with values helps to solve this
+     !        It shows that handle was 0, window do not exists
+     ! TODO: Not sure if it is possible change nice button routine
+     !       to use tabpage handle
+
 2025-05-01 18:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * source/herrsys.prg
      ! add value list

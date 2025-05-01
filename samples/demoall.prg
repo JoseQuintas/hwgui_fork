@@ -259,8 +259,9 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
    MenuOption( "Button" )
       MenuDrop()
       MenuOption( "1.OwnerButton",        { |o| DemoOwner( .F., o ) } )
-#ifdef __PLATFORM_WINDOWS
+#ifdef __PLATFORM__WINDOWS
       MenuOption( "2.ShadeButton",        { |o| DemoShadeBtn( .F., o ) } )
+      MenuOption( "3.NiceButton", "nicebutton.prg", { || DemoNice() } )
 #endif
       MenuUnDrop()
    MenuOption( "Checkbox",                { |o| DemoCheckbox( .F., o ) } )

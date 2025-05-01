@@ -78,7 +78,7 @@ STATIC FUNCTION _Testen()
    @ 10 ,10 NICEBUTTON  [NICEBUTT] ;
       OF odlg ;
       ID IDC_1 ;
-      SIZE 40,40  && See nice.prg
+      SIZE 40,40  && See demonice.prg
 
    * redefine nicebutton o1  caption "teste" of odlg id IDC_1 Red 125 Green 201 blue 36 ;
    *  STYLE WS_CHILD+WS_VISIBLE

@@ -43,6 +43,7 @@ demoxmltree.prg
 {win}demolistbox.prg
 {win}demomonthcal.prg
 {win}demomenubitmap.prg
+{win}demonice.prg
 {win}demoshadebtn.prg
 {win}demotrackbar.prg
 

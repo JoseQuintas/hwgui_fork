@@ -255,6 +255,7 @@ For beginners:
    demomenubitmap.prg   P                        Menu with bitmaps
    demomenuxml.prg      Y                        reading/writing XML file and handling menu items while run-time (testxml.xml)
    demomonthcal.prg     N                 Y      Calendar, Datepicker, TOOLTIP
+   demonice.prg         N       N                Demo of NICEBUTTON
    demoprogbar.prg 12)  Y                        Progress bar
    demosedit.prg        Y                        Simple text editor demonstrating hwg_Memoedit()
    demoshadebtn.prg     N       N                Shade buttons (for multi platform usage take OWNERBUTTON)
@@ -288,7 +289,6 @@ For beginners:
  memocmp.prg.           Y                        Edit and compare memo's an get size
  menumod.prg            Y                        Handling menu items while run-time in dialogs.
  modtitle.prg           Y                        Sample for modifying a main window title in HWGUI
- nice.prg               N       N                Demo of NICEBUTTON
  nice2.prg              N  #    N         -      Demo of NICEBUTTON (2), starts only in background, kill with Task Manager (Bug!)
  night.prg              Y                        "ADD HEADER PANEL" for a night mode application
  propsh.prg             N  #    N                Property sheet
