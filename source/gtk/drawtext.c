@@ -29,6 +29,15 @@
 /* Avoid warnings from GCC */
 #include "warnings.h"
 
+/* Pango revision:
+ Need to define, if Pango less than 1.56 
+ to avoid compile error:
+ error: ‘PANGO_WRAP_NONE’ undeclared 
+*/
+#ifndef PANGO_WRAP_NONE
+#define PANGO_WRAP_NONE 3
+#endif
+
 extern void hwg_parse_color( HB_ULONG ncolor, GdkColor * pColor );
 extern void hwg_setcolor( cairo_t * cr, long int nColor );
 extern GtkWidget * GetActiveWindow( void );

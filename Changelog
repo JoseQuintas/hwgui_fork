@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+
+2025-05-02 12:40 UTC+0200 Wilfried Brunken DF7BE
+* source/gtk/drawtext.c
+  ! Bugfix Pango < 1.56:
+  ! Must be declared !!!!!!!!!!!!!!!!!!
+  ! error: ‘PANGO_WRAP_NONE’ undeclared 
+
+
 2025-05-01 21:10 UTC-0300 Jose Quintas jmcquintas-gmail.com
    - nice2.hbp
    - nice2.prg
