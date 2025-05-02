@@ -55,19 +55,24 @@ FUNCTION DemoNice( lWithDialog, oDlg, aInitList )
       size 60,40 ;
       red 215 green 76  blue 108
 
-   @ 100, 200 nicebutton [Culik] ;
+   @ 300, 150 nicebutton [Culik] ;
       of oDlg ;
       ;//id 102 ;
       size 40,40 ;
       red 136 green 157 blue 234 ;
       on click { || oDlg:Close() }
 
-   @ 100, 250 nicebutton [guimaraes] ;
+   @ 100, 200 nicebutton [guimaraes] ;
       of oDlg ;
       ;//id 102 ;
-      size 60,60 ;
+      size 150, 40 ;
       red 198 green 045 blue 215 ;
       on click { || oDlg:Close() }
+
+   @ 300, 200 NICEBUTTON  [NICEBUTT] ;
+      OF odlg ;
+      ID IDC_1 ;
+      SIZE 100, 40  && See demonice.prg
 
    RETURN Nil
       }

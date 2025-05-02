@@ -96,7 +96,7 @@ FUNCTION DemoGet1( lWithDialog, oDlg )
    @ 300, 70 GET COMBOBOX oCombo ;
       VAR cm ;
       ITEMS aCombo ;
-      SIZE 100, 150
+      SIZE 100, 24
 #else
    @ 20, 170 GET COMBOBOX oCombo ;
       VAR cm ;
