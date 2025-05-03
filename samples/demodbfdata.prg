@@ -140,7 +140,7 @@ FUNCTION DemoDbfData( lWithDialog, oDlg, aEndList )
 
    @ 400, 113 OWNERBUTTON aVar[ VAR_BUTTON_CLOSE ] ;
       OF oDlg  ;
-      ON CLICK { || iif( lWithDialog, oDlg:Close(), hwg_MsgInfo( "Disabled here" ) ) } ;
+      ON CLICK { || iif( lWithDialog, oDlg:Close(), hwg_MsgInfo( "no action here" ) ) } ;
       SIZE 44, 38 ;
       FLAT ;
       TEXT "Close"

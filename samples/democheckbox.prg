@@ -78,7 +78,7 @@ FUNCTION DemoCheckBox( lWithDialog, oDlg )
       STYLE    WS_TABSTOP+BS_FLAT ;
       ON CLICK {|| ;
          DisplayResults( lCheckbox1, lCheckbox2, lCheckbox3 ), ;
-         oDlg:Close() }
+         iif( lWithDialog, oDlg:Close(), Nil ) }
 
    @ 45, 70  GET CHECKBOX oCheckbox1 ;
       VAR      lCheckbox1 ;

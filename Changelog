@@ -15,6 +15,21 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-03 15:50 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demo.ch
+     ! hwg_ShowHelp() is ok, removed commented old code
+     ! Thanks Wilfried, better result using it
+   * samples/democheckbox.prg
+   * samples/demodbfdata.prg
+   * samples/demoget1.prg
+   * samples/demoget2.prg
+   * samples/demoshadebtn.prg
+     ! on buttons that close dialog, only a text message
+     ! when running without dialog (lWithDialog=.F.)
+   ! NOTE: demoget1/2 are used to show more than one control
+   !    more than one TABPAGE have same sample
+   !    Changing them, solve several tabpages at same time
+
 2025-05-03 14:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
    ! Only a comment:
    ! When reuse sample on demoall it is running on TABPAGE.

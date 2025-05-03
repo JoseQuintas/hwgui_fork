@@ -117,7 +117,7 @@ FUNCTION DemoShadeBtn( lWithDialog, oDlg )
       HIGHLIGHT 20 ;
       TEXT "Close" ;
       FONT oFont ;
-      ON CLICK {||oDlg:Close()}
+      ON CLICK { || iif( lWithDialog, oDlg:Close(), hwg_MsgInfo( "No action here" ) ) }
 
    @ 340, 100 SHADEBUTTON ;
       SIZE 100,36 ;

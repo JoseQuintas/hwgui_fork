@@ -40,7 +40,7 @@ STATIC FUNCTION ButtonForSample( cFileName, oDlg )
 STATIC FUNCTION ShowCode( cFileName )
 
    LOCAL cText  && Not used any more: oDlg, oEdit, oFont
-   
+
    LOCAL lnmodal
 
    BEGIN SEQUENCE WITH __BreakBlock()
@@ -64,31 +64,6 @@ STATIC FUNCTION ShowCode( cFileName )
       cText := StrTran( cText, Chr(10), hb_Eol() )
    ENDIF
 #endif
-
-/*
-   PREPARE FONT oFont ;
-      NAME "Courier New" ;
-      WIDTH 0 ;
-      HEIGHT -13
-
-
-
-   INIT DIALOG oDlg ;
-      TITLE cFileName ;
-      SIZE 800, 600 ;
-      FONT oFont
-
-   @ 10, 10 EDITBOX oEdit ;
-      CAPTION cText ;
-      SIZE    780, 580 ;
-      ; // FONT    oFont
-      STYLE   ES_MULTILINE + ES_AUTOVSCROLL + WS_VSCROLL + WS_HSCROLL
-
-   ACTIVATE DIALOG oDlg CENTER
-   
-  */ 
-  
- 
 
 #ifdef __PLATFORM__WINDOWS
 lnmodal := .T.
