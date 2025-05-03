@@ -4,9 +4,8 @@
 
  moved from demobrowseado.prg Itamar Lins
 
- called from demomenumt.prg
- called from demoall.prg
- called from demotab.prg
+ it is called from demomenumt.prg
+ it is called from demoall.prg
 
 note:
 oDlg may be a dialog or a tab page
@@ -58,8 +57,10 @@ FUNCTION DemoBrowseDbf( lWithDialog, oDlg, aEndList )
 
    IF lWithDialog
       ACTIVATE DIALOG oDlg CENTER
+#ifndef DEMOALL
       CLOSE DATABASES
       fErase( "tmpbrowsedbf.dbf" )
+#endif
    ELSE
       AAdd( aEndList, { || fErase( "tmpbrowsedbf.dbf" ) } )
    ENDIF

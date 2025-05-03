@@ -25,7 +25,7 @@
 #define GET_HEIGHT 10
 #define GET_OBJECT 11
 
-STATIC oMain, oForm, oBrowse
+STATIC oMain, oBrowse
 
 #xcommand ADD COLUMN TO GRIDEDIT <aGrid> ;
             FIELD <cField>               ;
@@ -110,12 +110,14 @@ FUNCTION DemoGrid5( lWithDialog, oDlg, aInitList, aEndList )
    @  90, 390 BUTTON 'Change'  SIZE 75,25 ON CLICK {|| OnClick( oGrid, aItems ) }
    @ 170, 390 BUTTON 'Delete'  SIZE 75,25 ON CLICK {|| OnKey( oGrid, VK_DELETE, aItems ) }
    IF lWithDialog
-      @ 330, 390 BUTTON 'Close' SIZE 75,25 ON CLICK {|| oForm:close() }
+      @ 330, 390 BUTTON 'Close' SIZE 75,25 ON CLICK {|| oDlg:close() }
 
       ACTIVATE DIALOG oDlg CENTER
+#ifndef DEMOALL
       CLOSE DATABASES
       fErase( cFileName + ".dbf" )
       fErase( cFileName + ".dbt" )
+#endif
    ELSE
       @ 250, 390 BUTTON "Refresh" SIZE 75,25 ON CLICK {|| oGrid:Refresh() }
       // called from demoall

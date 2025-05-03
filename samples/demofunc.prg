@@ -69,15 +69,16 @@ Other functions:
 #endif
 
 #ifdef __PLATFORM__WINDOWS
-   #define BUTTON_HEIGHT 18
+   #define BUTTON_HEIGHT 20
 #ELSE
    #define BUTTON_HEIGHT 25
 #endif
+#define BUTTON_WIDTH 200
 // On GTK3 buttons are greater, than need more space between buttons
 #ifdef __GTK3__
    #define LINE_HEIGHT 35
 #else
-   #define LINE_HEIGHT 25
+   #define LINE_HEIGHT 30
 #endif
 
 MEMVAR cDirSep , bgtk , ndefaultcsrtype
@@ -164,71 +165,71 @@ FUNCTION DemoFunc( lWithDialog, oDlg )
    IF lWithDialog
       @ ColPos(), nRowPos BUTTON oButton1 ;
          CAPTION "Exit" ;
-         SIZE 75, BUTTON_HEIGHT ;
+         SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
          FONT oFont ;
-         STYLE WS_TABSTOP+BS_FLAT ON CLICK { || oDlg:Close() } ;
+         STYLE WS_TABSTOP + BS_FLAT ON CLICK { || oDlg:Close() } ;
          TOOLTIP "Terminate Program"
    ENDIF
 
    @ ColPos(), nRowPos BUTTON oButton10 ;
       CAPTION "Enabled" ;
-      SIZE 140, BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { || oButton11:Enable(), oButton11:SetText( "Enabled" ), oButton10:SetText( "Disabled" ), oButton10:Disable() }
 
    @ ColPos(), nRowPos BUTTON oButton11 ;
       CAPTION "Enabled" ;
-      SIZE 140, BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { || oButton10:Enable(), oButton10:SetText( "Enabled" ), oButton11:SetText( "Disabled" ), oButton11:Disable() }
 
-   @ ColPos(), nRowPos BUTTON oButton27 CAPTION "Caption Update 0" ;
-      SIZE 160,BUTTON_HEIGHT ;
+   @ ColPos(), nRowPos BUTTON oButton27 CAPTION "Caption Updated 0" ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { || oButton27:SetText( "Caption Updated " + Ltrim( Str( ++nQtClicks, 3 ) ) ) }
 
    @ ColPos(), nRowPos BUTTON oButton2 ;
       CAPTION "CENTURY ON"   ;
-      SIZE 120, BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK  { | | CENT_ON() }
 
    @ ColPos(), nRowPos BUTTON oButton3 ;
       CAPTION "CENTURY OFF"   ;
-      SIZE 120, BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK  { | | CENT_OFF() }
 
    @ ColPos(), nRowPos BUTTON oButton4 ;
       CAPTION "DATE()"   ;
-         SIZE 120, BUTTON_HEIGHT FONT oFont  ;
-         STYLE WS_TABSTOP+BS_FLAT ;
+         SIZE BUTTON_WIDTH, BUTTON_HEIGHT FONT oFont  ;
+         STYLE WS_TABSTOP + BS_FLAT ;
          ON CLICK { | |Funkt(DATE(),"D","DATE()") }
 
    @ ColPos(), nRowPos BUTTON oButton5 ;
       CAPTION "Summary"   ;
-      SIZE 120, BUTTON_HEIGHT FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT FONT oFont  ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | |  fSUMM() }
 
    @ ColPos(), nRowPos BUTTON oButton6 ;
       CAPTION "hwg_GetUTCTimeDate()" ;
-      SIZE 200, BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK ;
        { | |Funkt(hwg_GetUTCTimeDate(),"C","hwg_GetUTCTimeDate()") }
 
    @ ColPos(), nRowPos BUTTON oButton7 ;
       CAPTION "hwg_getCentury()" ;
-      SIZE 200, BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | Funkt(hwg_getCentury(),"O","hwg_getCentury()") }
 
    /* Sample for a Windows only function,
@@ -236,201 +237,201 @@ FUNCTION DemoFunc( lWithDialog, oDlg )
 
    @ ColPos(), nRowPos BUTTON oButton8 ;
       CAPTION "hwg_GetWindowsDir()" ;
-      SIZE 180, BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | Funkt(GET_WINDIR(),"C","hwg_GetWindowsDir()") }
 
    @ ColPos(), nRowPos BUTTON oButton9 ;
       CAPTION "hwg_GetTempDir()" ;
-      SIZE 180, BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | |Funkt(hwg_GetTempDir(),"C","hwg_GetTempDir()") }
 
    @ ColPos(), nRowPos BUTTON oButton9 ;
       CAPTION "hwg_CreateTempfileName()" ;
-      SIZE 180, BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | |Funkt(hwg_CreateTempfileName(),"C","hwg_CreateTempfileName()") }
 
    @ ColPos(), nRowPos BUTTON oButton12 ;
       CAPTION "GetWindowsDir Full" ;
-      SIZE 180, BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | Funkt(GET_WINDIR_FULL(),"C","GET_WINDIR_FULL()") }
 
    @ ColPos(), nRowPos BUTTON oButton15 ;
       CAPTION "CurDir()" ;
-      SIZE 140,BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | Funkt(CurDir(),"C","CurDir()") }
 
    @ ColPos(), nRowPos BUTTON oButton16 ;
       CAPTION "hwg_CurDir()" ;
-      SIZE 140,BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | Funkt(hwg_CurDir(),"C","hwg_CurDir()") }
 
    @ ColPos(), nRowPos  BUTTON oButton17 ;
       CAPTION "hwg_GetDateANSI()" ;
-      SIZE 140,BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | Funkt(hwg_GetDateANSI(),"C","hwg_GetDateANSI()") }
 
    @ ColPos(), nRowPos BUTTON oButton18 ;
       CAPTION "hwg_GetUTCDateANSI()" ;
-      SIZE 140,BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | Funkt(hwg_GetUTCDateANSI(),"C","hwg_GetUTCDateANSI()") }
 
    @ ColPos(), nRowPos BUTTON oButton19 ;
       CAPTION "hwg_GetUTCTime()" ;
-      SIZE 140,BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | Funkt(hwg_GetUTCTime(),"C","hwg_GetUTCTime()") }
 
    * Hide / recovery of mouse cursor in extra dialog
    @ ColPos(), nRowPos BUTTON oButton20 ;
       CAPTION "Cursor functions" ;
-      SIZE 140,BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | HIDE_CURSOR ( oFont, oDlg ) }
 
    @ ColPos(), nRowPos BUTTON oButton22 ;
       CAPTION "hwg_IsLeapYear()" ;
-      SIZE 140,BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | TestLeapYear() }
 
    @ ColPos(), nRowPos BUTTON oButton23 ;
       CAPTION "hwg_Has_Win_Euro_Support()" ;
-      SIZE 140,BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
          ON CLICK { | |  Funkt(hwg_Has_Win_Euro_Support(),"L","hwg_Has_Win_Euro_Support()" ) }
 
    @ ColPos(), nRowPos BUTTON oButton24 ;
       CAPTION "hwg_FileModTimeU()" ;
-      SIZE 140,BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | |  Test_FileModTimeU() }
 
    @ ColPos(), nRowPos BUTTON oButton25 ;
       CAPTION "hwg_FileModTime()" ;
-      SIZE 140,BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | |  Test_FileModTime() }
 
    @ ColPos(), nRowPos BUTTON oButton26 ;
       CAPTION "hwg_Get_Time_Shift()" ;
-      SIZE 140,BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | Funkt(hwg_Get_Time_Shift(),"N","hwg_Get_Time_Shift()") }
 
    @ ColPos(), nRowPos BUTTON oButton22 ;
       CAPTION "hwg_MsgYesNoCancel()" ;
-      SIZE 140,BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | Test_MsgYesNoCancel() }
 
    @ ColPos(), nRowPos BUTTON oButton28 ;
       CAPTION "hwg_GUIType()" ;
-      SIZE 140,BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | Funkt(hwg_GUIType(),"C","hwg_GUIType()") }
 
    @ ColPos(), nRowPos BUTTON oButton29 ;
       CAPTION "hwg_RunApp()" ;
-      SIZE 140,BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | do_the_RunApp() }
 
     @ ColPos(), nRowPos BUTTON obutton37 ;
        CAPTION "hwg_RunConsoleApp()" ;
-       SIZE 140,BUTTON_HEIGHT ;
+       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
        FONT oFont  ;
-       STYLE WS_TABSTOP+BS_FLAT ;
+       STYLE WS_TABSTOP + BS_FLAT ;
        ON CLICK { | | do_the_RunConsoleApp() }
 
    @ ColPos(), nRowPos BUTTON oButton30 ;
       CAPTION "hwg_HdSerial()" ;
-      SIZE 140,BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | Test_hwg_HdSerial() }
 
    @ ColPos(), nRowPos BUTTON oButton31 ;
       CAPTION "hwg_HdGetSerial()" ;
-      SIZE 140,BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | Test_hwg_HdGetSerial() }
 
    @ ColPos(), nRowPos BUTTON oButton32 ;
       CAPTION "hwg_ProcFileExt()" ;
-      SIZE 140,BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | Test_hwg_ProcFileExt() }
 
    @ ColPos(), nRowPos BUTTON oButton22 ;
       CAPTION "hwg_MsgOkCancel()" ;
-      SIZE 140,BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | Test_hwg_MsgOkCancel() }
 
    /* Added August 2024 also for MacOS port */
 
     @ ColPos(), nRowPos BUTTON oButton33 ;
        CAPTION "OS()" ;
-       SIZE 140,BUTTON_HEIGHT ;
+       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
        FONT oFont  ;
-       STYLE WS_TABSTOP+BS_FLAT ;
+       STYLE WS_TABSTOP + BS_FLAT ;
        ON CLICK { | | Test_hb_os() }
 
     @ ColPos(), nRowPos BUTTON oButton34 ;
        CAPTION "Build date" ;
-       SIZE 140,BUTTON_HEIGHT ;
+       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
        FONT oFont  ;
-       STYLE WS_TABSTOP+BS_FLAT ;
+       STYLE WS_TABSTOP + BS_FLAT ;
        ON CLICK { | | Test_BuildDatetime() }
 
     @ ColPos(), nRowPos BUTTON oButton35 ;
        CAPTION "Origin path" ;
-       SIZE 140,BUTTON_HEIGHT ;
+       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
        FONT oFont  ;
-       STYLE WS_TABSTOP+BS_FLAT ;
+       STYLE WS_TABSTOP + BS_FLAT ;
        ON CLICK { | | Test_originpath(coriginp) }
 
    @ ColPos(), nRowPos BUTTON obutton36 ;
       CAPTION "hwg_EOLStyle()" ;
-      SIZE 140,BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | Test_hwg_EOLStyle() }
 
    @ ColPos(), nRowPos BUTTON obutton38 ;
       CAPTION "hwg_GetEpoch()" ;
-      SIZE 140,BUTTON_HEIGHT ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | Test_hwg_GetEpoch() }
 
    /* Last  obuttonxx is obutton38 */
@@ -470,26 +471,26 @@ STATIC FUNCTION HIDE_CURSOR ( oFont, oDlgMain )
 
    @ 25 , 35 BUTTON oButton1 ;
       CAPTION "hwg_ShowCursor(.F.)" ;
-      SIZE 140,BUTTON_HEIGHT ;
+      SIZE 140, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK ;
-        { | | Funkt( ncursor := hwg_ShowCursor(.F.,hmain,ndefaultcsrtype),"N","hwg_ShowCursor(.F.)") , ;
+        { || Funkt( ncursor := hwg_ShowCursor(.F.,hmain,ndefaultcsrtype),"N","hwg_ShowCursor(.F.)") , ;
             hwg_Setfocus(oButton2:handle) }
 
    @ 180 , 35 BUTTON oButton2 ;
       CAPTION "hwg_ShowCursor(.T.)" ;
-      SIZE 140,BUTTON_HEIGHT FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      SIZE 140, BUTTON_HEIGHT FONT oFont  ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK ;
-        { | | Funkt( ncursor := hwg_ShowCursor(.T.,hmain,ndefaultcsrtype),"N","hwg_ShowCursor(.T.)") }
+        { || Funkt( ncursor := hwg_ShowCursor(.T.,hmain,ndefaultcsrtype),"N","hwg_ShowCursor(.T.)") }
 
    @ 25 , 70 BUTTON oButton3 ;
       CAPTION "Return" ;
-      SIZE 140,BUTTON_HEIGHT ;
+      SIZE 140, BUTTON_HEIGHT ;
       FONT oFont  ;
-      STYLE WS_TABSTOP+BS_FLAT ;
-      ON CLICK { | | odlg:Close }
+      STYLE WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || odlg:Close }
 
    ACTIVATE DIALOG odlg CENTER
 
@@ -604,31 +605,31 @@ STATIC FUNCTION TestLeapYear()
 
    INIT DIALOG oTestLeapYear ;
       TITLE "hwg_IsLeapYear()" ;
-      AT 738,134 ;
-      SIZE 516,336 ;
+      AT 738, 134 ;
+      SIZE 516, 336 ;
       NOEXIT ;
       STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
 
-   @ 54,44 SAY oLabel1 ;
+   @ 54, 44 SAY oLabel1 ;
       CAPTION "Enter a year 1583 and higher"  ;
-      SIZE 380,22
+      SIZE 380, 22
 
-   @ 61,102 GET oEditbox1 ;
+   @ 61, 102 GET oEditbox1 ;
       VAR nyeart  ;
-      SIZE 325,24 ;
+      SIZE 325, 24 ;
       STYLE WS_BORDER   ;
       PICTURE "9999"
 
-   @ 63,181 BUTTON oButton1 ;
+   @ 63, 181 BUTTON oButton1 ;
       CAPTION "OK"   ;
-      SIZE 80,32 ;
-      STYLE WS_TABSTOP+BS_FLAT   ;
+      SIZE 80, 32 ;
+      STYLE WS_TABSTOP + BS_FLAT   ;
       ON CLICK { | | Res_LeapYear(nyeart) }
 
-   @ 200,181 BUTTON oButton2 ;
+   @ 200, 181 BUTTON oButton2 ;
       CAPTION "Cancel"   ;
-      SIZE 80,32 ;
-      STYLE WS_TABSTOP+BS_FLAT   ;
+      SIZE 80, 32 ;
+      STYLE WS_TABSTOP + BS_FLAT   ;
       ON CLICK { | | oTestLeapYear:Close() }
 
    ACTIVATE DIALOG oTestLeapYear CENTER
@@ -639,7 +640,7 @@ STATIC FUNCTION Res_LeapYear( nyeart )
 
    LOCAL cRet
 
-   cRet := IIF(hwg_IsLeapYear(nyeart), "TRUE","FALSE")
+   cRet := IIF( hwg_IsLeapYear(nyeart), "TRUE", "FALSE" )
    hwg_MsgInfo("Result of Res_LeapYear(" + ALLTRIM(STR(nyeart)) + ")=" + cRet , "hwg_IsLeapYear()" )
 
 RETURN Nil
@@ -659,7 +660,7 @@ STATIC FUNCTION Test_FileModTimeU()
    LOCAL fn, ctim
 
    fn := FILE_SEL()
-   IF EMPTY(fn)
+   IF EMPTY( fn )
       RETURN NIL
    ENDIF
    ctim := hwg_FileModTimeU(fn)
@@ -779,30 +780,30 @@ STATIC FUNCTION _hwg_RunApp(cpcmd)
 
   INIT DIALOG _hwg_RunApp_test ;
      TITLE cpcmd ;
-     AT 315,231 ;
-     SIZE 940,239 ;
+     AT 315, 231 ;
+     SIZE 940, 239 ;
      STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
 
 
    @ 80,32 SAY oLabel1 ;
       CAPTION "Enter command line for run an external program"  ;
-      SIZE 587,22
+      SIZE 587, 22
 
    @ 80,71 GET oEditbox1 ;
       VAR cCmd  ;
-      SIZE 772,24 ;
+      SIZE 772, 24 ;
       STYLE WS_BORDER
 
    @ 115,120 BUTTON oButton1 ;
       CAPTION "Run" ;
-      SIZE 80,32 ;
-      STYLE WS_TABSTOP+BS_FLAT ;
-      ON CLICK {|| _hwg_RunApp_test:Close() }
+      SIZE 80, 32 ;
+      STYLE WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || _hwg_RunApp_test:Close() }
 
-   @ 809,120 BUTTON oButton2 ;
-      CAPTION "Cancel" SIZE 80,32 ;
-      STYLE WS_TABSTOP+BS_FLAT ;
-      ON CLICK {|| cCmd := "" , _hwg_RunApp_test:Close() }
+   @ 809, 120 BUTTON oButton2 ;
+      CAPTION "Cancel" SIZE 80, 32 ;
+      STYLE WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || cCmd := "" , _hwg_RunApp_test:Close() }
 
    ACTIVATE DIALOG _hwg_RunApp_test CENTER
 * RETURN _hwg_RunApp_test:lresult
@@ -854,30 +855,30 @@ STATIC FUNCTION GetCValue(cPreset,cTitle,cQuery,nlaenge,lcaval)
 
    INIT DIALOG _enterC ;
       TITLE cTitle ;
-      AT 315,231 ;
+      AT 315, 231 ;
       SIZE 940,239 ;
       STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
 
-   @ 80,32 SAY oLabel1 ;
+   @ 80, 32 SAY oLabel1 ;
       CAPTION cQuery ;
       SIZE 587,22
 
-   @ 80,71 GET oEditbox1 ;
+   @ 80, 71 GET oEditbox1 ;
       VAR cNewValue  ;
-      SIZE 772,24 ;
+      SIZE 772, 24 ;
       STYLE WS_BORDER
 
-   @ 115,120 BUTTON oButton1 ;
+   @ 115, 120 BUTTON oButton1 ;
       CAPTION "OK" ;
-      SIZE 80,32 ;
-      STYLE WS_TABSTOP+BS_FLAT ;
-      ON CLICK {|| lcancel := .F. , _enterC:Close() }
+      SIZE 80, 32 ;
+      STYLE WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || lcancel := .F. , _enterC:Close() }
 
    @ 809,120 BUTTON oButton2 ;
       CAPTION "Cancel" ;
-      SIZE 80,32 ;
-      STYLE WS_TABSTOP+BS_FLAT ;
-      ON CLICK {|| _enterC:Close() }
+      SIZE 80, 32 ;
+      STYLE WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || _enterC:Close() }
 
    ACTIVATE DIALOG _enterC CENTER
 
@@ -932,14 +933,14 @@ STATIC FUNCTION Test_hwg_ProcFileExt()
 
   INIT DIALOG oDlg ;
      TITLE "hwg_ProcFileExt()" ;
-     AT 488,108 ;
-     SIZE 528,605 ;   && Previous: SIZE 528,465
+     AT 488, 108 ;
+     SIZE 528, 605 ;   && Previous: SIZE 528,465
      STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
 
 
    @ 130,13 SAY oLabel16 ;
       CAPTION "Set to file extension .prg"  ;
-      SIZE 271,22
+      SIZE 271, 22
 
    * After test case number in comment line: the expected result
 
@@ -950,111 +951,111 @@ STATIC FUNCTION Test_hwg_ProcFileExt()
 
    @ 237,50 SAY oLabel2 ;
       CAPTION ">"  ;
-      SIZE 29,22
+      SIZE 29, 22
 
    @ 338,50 SAY oLabel3 ;
       CAPTION hwg_ProcFileExt("test.txt","prg")  ;
-      SIZE 162,22
+      SIZE 162, 22
    * 2 C:\temp.dir\test.prg
 
    @ 40,100 SAY oLabel4 ;
       CAPTION "C:\temp.dir\test.txt"  ;
-      SIZE 135,22
+      SIZE 135, 22
 
    @ 237,100 SAY oLabel5 ;
       CAPTION ">"  ;
-      SIZE 29,20
+      SIZE 29, 20
 
    @ 338,100 SAY oLabel6 ;
       CAPTION hwg_ProcFileExt("C:\temp.dir\test.txt","prg",,"\")  ;
-      SIZE 155,22
+      SIZE 155, 22
 
    * 3 C:\temp.\test.prg
    @ 40,150 SAY oLabel7 ;
       CAPTION "C:\temp.\test"  ;
-      SIZE 97,22
+      SIZE 97, 22
 
    @ 237,150 SAY oLabel8 ;
       CAPTION ">"  ;
-      SIZE 29,22
+      SIZE 29, 22
 
    @ 338,150 SAY oLabel9 ;
       CAPTION hwg_ProcFileExt("C:\temp.\test","prg",,"\")  ;
-      SIZE 158,22
+      SIZE 158, 22
 
    * 4 : /home/temp.dir/test.prg
    @ 40,200 SAY oLabel10 ;
       CAPTION "/home/temp.dir/test.txt"  ;
-      SIZE 169,22
+      SIZE 169, 22
 
    @ 237,200 SAY oLabel11 ;
       CAPTION ">"  ;
-      SIZE 29,22
+      SIZE 29, 22
 
    @ 338,200 SAY oLabel12 ;
       CAPTION hwg_ProcFileExt("/home/temp.dir/test.txt","prg",,"/")  ;
-      SIZE 161,22
+      SIZE 161, 22
 
    * 5 : /home/temp./test.prg
    @ 40,250 SAY oLabel13 ;
       CAPTION "/home/temp./test"  ;
-      SIZE 133,22
+      SIZE 133, 22
 
    @ 237,250 SAY oLabel14 ;
       CAPTION ">"  ;
-      SIZE 29,22
+      SIZE 29, 22
 
    @ 338,250 SAY oLabel15 ;
       CAPTION hwg_ProcFileExt("/home/temp./test","prg",,"/")  ;
-      SIZE 157,22
+      SIZE 157, 22
 
    * 6 : /home/temp./test
    * Remove a file extension
-   @ 40,300 SAY oLabel17 ;
+   @ 40, 300 SAY oLabel17 ;
       CAPTION "/home/temp./test.xyz"  ;
-      SIZE 134,22
+      SIZE 134, 22
 
    @ 237,300 SAY oLabel18 ;
       CAPTION ">"  ;
-      SIZE 29,22
+      SIZE 29, 22
 
    @ 338,300 SAY oLabel19 ;
       CAPTION hwg_ProcFileExt("/home/temp./test.xyz","",,"/")  ;
-      SIZE 157,22
+      SIZE 157, 22
 
    * 7 : /home/temp./test
    * There is no file extension to remove
-   @ 40,350 SAY oLabel20 ;
+   @ 40, 350 SAY oLabel20 ;
       CAPTION "/home/temp./test"  ;
-      SIZE 134,22
+      SIZE 134, 22
 
    @ 237,350 SAY oLabel21 ;
       CAPTION ">"  ;
-      SIZE 29,22
+      SIZE 29, 22
 
    @ 338,350 SAY oLabel22 ;
       CAPTION hwg_ProcFileExt("/home/temp./test",,,"/")  ;
-      SIZE 157,22
+      SIZE 157, 22
 
    * 8 : /home/temp/test
    * Same as 7, but no dot in directory name
    * There is no file extension to remove
    @ 40,400 SAY oLabel23 ;
       CAPTION "/home/temp/test"  ;
-      SIZE 134,22
+      SIZE 134, 22
 
    @ 237,400 SAY oLabel24 ;
       CAPTION ">"  ;
-      SIZE 29,22
+      SIZE 29, 22
 
    @ 338,400 SAY oLabel25 ;
       CAPTION hwg_ProcFileExt("/home/temp/test",,,"/")  ;
-      SIZE 157,22
+      SIZE 157, 22
 
 
    @ 205,508 BUTTON oButton1 CAPTION "OK"   ;
-      SIZE 80,32 ;
-      STYLE WS_TABSTOP+BS_FLAT ;
+      SIZE 80, 32 ;
+      STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK {|| oDlg:Close() }
 
    ACTIVATE DIALOG oDlg CENTER
@@ -1136,7 +1137,7 @@ STATIC FUNCTION ColPos()
       nColPos := 20
       nRowPos := 80
    ELSE
-      nColPos += 220
+      nColPos += 250
       IF nColPos > 600
          nRowPos += LINE_HEIGHT
          nColPos := 20

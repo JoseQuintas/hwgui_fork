@@ -28,14 +28,14 @@ FUNCTION DemoGrid4( lWithDialog, oDlg, aEndList )
    hb_Default( @lWithDialog, .T. )
    hb_Default( @aEndList, {} )
 
-   SELECT ( Select( "tmpgrid5" ) )
+   SELECT ( Select( "tmpgrid4" ) )
    USE
 
-   IF ! File( "tmpgrid5.dbf" )
-      DBCreate( "tmpgrid5.dbf", {{"LINE", "C", 300, 0}} )
+   IF ! File( "tmpgrid4.dbf" )
+      DBCreate( "tmpgrid4.dbf", {{"LINE", "C", 300, 0}} )
    ENDIF
 
-   USE ( "tmpgrid5" )
+   USE ( "tmpgrid4" )
 
    IF lWithDialog
       PREPARE FONT oFont NAME "Courier New" WIDTH 0 HEIGHT -11
@@ -71,11 +71,11 @@ FUNCTION DemoGrid4( lWithDialog, oDlg, aEndList )
    IF lWithDialog
       ACTIVATE DIALOG oDlg CENTER
       CLOSE DATABASES
-      IF File('temp.dbf')
-         FErase('temp.dbf')
-      END
+#ifndef DEMOALL
+      FErase( "tmpgrid4.dbf" )
+#endif
    ELSE
-      AAdd( aEndList, { || fErase( "tmpgrid5.dbf" ) } )
+      AAdd( aEndList, { || fErase( "tmpgrid4.dbf" ) } )
    ENDIF
 
 RETURN Nil
@@ -100,7 +100,7 @@ STATIC FUNCTION FileOpen()
 
    // because sample may be running as part of another routine
    // it will be deleted, no problem deleted records
-   SELECT tmpgrid5
+   SELECT tmpgrid4
    DELETE ALL FOR RLock()
    APPEND FROM ( fname ) SDF
 RETURN Nil

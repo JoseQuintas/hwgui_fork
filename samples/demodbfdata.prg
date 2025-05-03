@@ -147,9 +147,11 @@ FUNCTION DemoDbfData( lWithDialog, oDlg, aEndList )
 
    IF lWithDialog
       ACTIVATE DIALOG oDlg CENTER
+#ifndef DEMOALL
       CLOSE DATABASES
       fErase( "tmpdbfdata.dbf" )
       fErase( "tmpdbfdata.ntx" )
+#endif
    ELSE
       Aadd( aEndList, { || fErase( "tmpdbfdata.dbf" ) } )
       Aadd( aEndList, { || fErase( "tmpdbfdata.ntx" ) } )

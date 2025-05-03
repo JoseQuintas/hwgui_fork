@@ -43,19 +43,19 @@ FUNCTION DemoProgbar( lWithDialog, oDlg, aEndList )
    ButtonForSample( "demoprogbar.prg" )
 
     @ 300, 395 BUTTON 'Reset Bar'  ;
-      SIZE 75,25 ;
+      SIZE 75, 25 ;
       ON CLICK { || Iif( oBar == Nil, hwg_Msgstop( cMsgErr ), oBar:Reset() ) }
 
    @ 380, 395 BUTTON 'Step Bar'   ;
-      SIZE 75,25 ;
-      ON CLICK { || Iif(oBar == Nil, hwg_Msgstop( cMsgErr ), oBar:Step() ) }
+      SIZE 75, 25 ;
+      ON CLICK { || Iif( oBar == Nil, hwg_Msgstop( cMsgErr ), oBar:Step() ) }
 
    @ 460, 395 BUTTON 'Create Bar' ;
-      SIZE 75,25 ;
+      SIZE 75, 25 ;
       ON CLICK { || oBar := HProgressBar():NewBox( "Testing ...",,,,, 10, 100 ) }
 
    @ 540, 395 BUTTON 'Close Bar'  ;
-      SIZE 75,25 ;
+      SIZE 75, 25 ;
       ON CLICK { || Iif( oBar == Nil, hwg_Msgstop( cMsgErr ), ( oBar:Close(), oBar := Nil ) ) }
 
    IF lWithDialog

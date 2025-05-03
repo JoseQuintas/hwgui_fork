@@ -15,6 +15,29 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-03 04:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   - demotab.hbp
+   - demotab.prg
+     ! removed previous sample
+   * demotab.prg renamed from tab.prg
+     ! substitute
+   * samples/demoall.hbp
+   * samples/demoall.prg
+   * samples/demobrowsedbf.prg
+   * samples/demodbfdata.prg
+   * samples/demogrid4.prg
+   * samples/demogrid5.prg
+   * samples/demoprogbar.prg
+     ! adjust on end routines when called as dialog from demoall
+   * samples/demofunc.prg
+     ! adjust on button width
+   !
+   ! ISSUE DETECTED guilib.ch on test of ownerbutton
+   ! controlname is used twice:
+   ! <ctrlname> := ctrl():New(); hwg_SetCtrlName( <ctrlname>, (<ctrlname>) )
+   ! Button name used was oButton[ ++nButtonCount ]
+   ! Result is invalid counter
+
 2025-05-02 20:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
    - samples/hole.hbp
    - samples/hole.prg

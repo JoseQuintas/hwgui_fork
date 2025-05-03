@@ -33,6 +33,7 @@ It is all
 #include "directry.ch"
 
 STATIC aMenuOptions := {}, nMenuLevel := 0
+STATIC nRowPos := -1, nColPos := -1
 
 FUNCTION Main()
 
@@ -179,9 +180,24 @@ STATIC FUNCTION DemoBrowseArray()
    RETURN Nil
 
 // to be external
+STATIC FUNCTION ColPos()
+
+   IF nColPos == -1
+      nColPos := 10
+      nRowPos := 60
+   ELSE
+      nColPos += 150
+      IF nColPos > 700
+         nRowPos += 50
+         nColPos := 10
+      ENDIF
+   ENDIF
+
+   RETURN nColPos
+
 STATIC FUNCTION DemoOwner( lWithDialog, oDlg )
 
-   LOCAL oBtn1, oBtn2, oBtn3
+   LOCAL oButton := Array(100), nButtonCount := 0, nCont
    LOCAL oStyleNormal  := HStyle():New( {16759929,16772062}, 1 )
    LOCAL oStylePressed := HStyle():New( {16759929}, 1,, 3, 0 )
    LOCAL oStyleOver    := HStyle():New( {16759929}, 1,, 2, 12164479 )
@@ -190,25 +206,29 @@ STATIC FUNCTION DemoOwner( lWithDialog, oDlg )
       HStyle():New( {0xffffff,0xdddddd}, 2,, 1 ), ;
       HStyle():New( {0xffffff,0xdddddd}, 1,, 2, 8421440 ) }
 
-   @ 10, 150 OWNERBUTTON oBtn1 ;
-      OF       oDlg ;
-      SIZE     60, 24;
-      TEXT     "But.1" ;
-      ON CLICK { || hwg_MsgInfo( "Button 1" ) }
+   FOR nCont = 1 TO 10
 
-   @ 10, 200 OWNERBUTTON oBtn2 ;
-      OF       oDlg ;
-      SIZE     60, 24 ;
-      TEXT     "But.2" ;
-      ON CLICK { || hwg_MsgInfo( "Button 2" ) }
-   oBtn2:aStyle := aBtn2Style
+      @ ColPos(), nRowPos OWNERBUTTON oButton[ ++nButtonCount ] ;
+         OF       oDlg ;
+         SIZE     100, 24;
+         TEXT     "Button " + Ltrim( Str( nButtonCount ) ) ;
+         ON CLICK { || hwg_MsgInfo( "Click" ) }
 
-   @ 10, 250 OWNERBUTTON oBtn3 ;
-      OF       oDlg ;
-      SIZE     60, 24 ;
-      HSTYLES oStyleNormal, oStylePressed, oStyleOver ;
-      TEXT     "But.3" ;
-      ON CLICK { || hwg_MsgInfo( "Button 3" ) }
+      @ ColPos(), nRowPos OWNERBUTTON oButton[ ++nButtonCount ] ;
+         OF       oDlg ;
+         SIZE     100, 24 ;
+         TEXT     "Button " + Ltrim( Str( nButtonCount ) ) ;
+         ON CLICK { || hwg_MsgInfo( "Click" ) }
+      oButton[ nButtonCount - 1 ]:aStyle := aBtn2Style
+
+      @ ColPos(), nRowPos OWNERBUTTON oButton[ ++nButtonCount ] ;
+         OF       oDlg ;
+         SIZE     100, 24 ;
+         HSTYLES oStyleNormal, oStylePressed, oStyleOver ;
+         TEXT     "Button " + Ltrim( Str( nButtonCount ) ) ;
+         ON CLICK { || hwg_MsgInfo( "Click" ) }
+
+   NEXT
 
    (lWithDialog) // not used, warning -w3 -es2
 
@@ -243,6 +263,9 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
 
    LOCAL aOption, aOption2, oTabLevel1, oTabLevel2
 
+   // Because execute all samples
+   // if an error occurs, may be a debug windows help to solve error
+
    MenuOption( "Browse" )
       MenuDrop()
 #ifdef __PLATFORM__WINDOWS
@@ -251,9 +274,9 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "2.Browse Array",       { |o| DemoBrowseArray( .F., o ) } )
       MenuOption( "3.Browse DBF",         { |o| DemoBrowseDbf( .F., o, aEndList ) } )
 #ifdef __PLATFORM__WINDOWS
-      MenuOption( "4.Grid1",              { |o| DemoGrid1( .F., o ) } )
-      MenuOption( "5.Grid4",              { |o| DemoGrid4( .F., o, aEndList ) } )
-      MenuOption( "6.Grid5",              { |o| DemoGrid5( .F., o, aInitList, aEndList ) } )
+      MenuOption( "4.Grid1",   "demogrid.prg",      { || DemoGrid1() } )
+      MenuOption( "5.Grid4",   "demogrid4.prg",     { || DemoGrid4() } )
+      MenuOption( "6.Grid5",   "demogrid5.prg",     { || DemoGrid5() } )
 #endif
       MenuUndrop()
    MenuOption( "Button" )
@@ -405,7 +428,6 @@ STATIC FUNCTION AddToCompile( oTabLevel1 )
        ; // verify
        ;
        { "graph.prg",              .T., .T., .T., "Graph" }, ;
-       { "tab.prg",                .T., .F., .F., "Tab, checkbox, editbox, combobox, browse array" }, ;
        { "testbrowsearr.prg",      .T., .T., .T., "browse array editable" }, ;
        { "colrbloc.prg",           .T., .T., .T., "Color Block" }, ;
        { "dbview.prg",             .T., .T., .T., "DBView" }, ;

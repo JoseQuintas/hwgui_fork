@@ -294,7 +294,6 @@ For beginners:
  qrencode.prg 1) 2)     Y                        Encode QR code from string an convert to monochrome bitmap.
  qrencodedll.prg 1)     N       N                Encode QR code like qrencode.prg by using a DLL (for multi platform usage see contrib/qrencode)
  stretch.prg            Y  #                     Sample for resizing bitmaps (background), some bugs (as test program)
- tab.prg                Y  #              -      Sample for Tabs
  tabs_toolt             Y                        Sample for tabs with tooltips (TNX Alain Aupeix)
  testalert.prg          N       N                Clipper style Alert() replacement, delivered by Alex Strickland (TNX !)
  demoonother.prg        P                        bOther Test: Press key, after key up the scan code is displayed.

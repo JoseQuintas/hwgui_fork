@@ -58,7 +58,9 @@ FUNCTION DemoIni( lWithDialog, oDlg, aEndList )
 
    IF lWithDialog
       ACTIVATE DIALOG oDlg CENTER
+#ifndef DEMOALL
       fErase( cIniFile )
+#endif
    ELSE
       Aadd( aEndList, { || fErase( cIniFile ) } )
    ENDIF

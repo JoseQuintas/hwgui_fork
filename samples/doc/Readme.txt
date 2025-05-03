@@ -130,8 +130,7 @@ List of sample programs with bugs
 
 
 demogrid5.prg    (Windows only)
-nice2.prg     (Windows only)
-tab.prg
+demotab.prg
 testbrw.prg
 testchild.prg (Windows only) - movewd to test/samples/
 testrtf.prg   (Windows only)
