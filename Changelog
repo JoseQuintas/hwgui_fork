@@ -15,6 +15,13 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-03 14:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   ! Only a comment:
+   ! When reuse sample on demoall it is running on TABPAGE.
+   ! On this situation oDLG is a TABPAGE not a DIALOG
+   ! On sample, if lWithDialog=.F., oDlg:Close() need to be hide.
+   ! I will review, forgot to do this on some samples
+
 2025-05-03 16:30 UTC+0200 Wilfried Brunken DF7BE
 * samples/demo.ch
   ! Hello Jose,
