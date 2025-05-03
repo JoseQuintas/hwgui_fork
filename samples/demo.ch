@@ -39,7 +39,9 @@ STATIC FUNCTION ButtonForSample( cFileName, oDlg )
 
 STATIC FUNCTION ShowCode( cFileName )
 
-   LOCAL oDlg, oEdit, oFont, cText
+   LOCAL cText  && Not used any more: oDlg, oEdit, oFont
+   
+   LOCAL lnmodal
 
    BEGIN SEQUENCE WITH __BreakBlock()
       cText := &( [LoadResourceDemo( "] + cFileName + [" )] )
@@ -63,10 +65,13 @@ STATIC FUNCTION ShowCode( cFileName )
    ENDIF
 #endif
 
+/*
    PREPARE FONT oFont ;
       NAME "Courier New" ;
       WIDTH 0 ;
       HEIGHT -13
+
+
 
    INIT DIALOG oDlg ;
       TITLE cFileName ;
@@ -80,5 +85,17 @@ STATIC FUNCTION ShowCode( cFileName )
       STYLE   ES_MULTILINE + ES_AUTOVSCROLL + WS_VSCROLL + WS_HSCROLL
 
    ACTIVATE DIALOG oDlg CENTER
+   
+  */ 
+  
+ 
+
+#ifdef __PLATFORM__WINDOWS
+lnmodal := .T.
+#else
+lnmodal := .F.
+#endif
+
+hwg_ShowHelp(cText,cFileName,"Close",,lnmodal)
 
    RETURN Nil

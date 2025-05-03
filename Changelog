@@ -15,6 +15,26 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-03 16:30 UTC+0200 Wilfried Brunken DF7BE
+* samples/demo.ch
+  ! Hello Jose,
+  ! Bugfix: Show code, cannot scroll in demo code,
+  ! but using hwg_ShowHelp() allows scrolling
+  ! with the arrow keys in the window.
+  ! (for further revision in may be possible to
+  !  use fonts for better display)
+  ! I hope, that is OK for you.
+  ! Also in some demos the
+  ! program crashes with INVALID CLASS MEMBER
+  ! when pressing the OK button
+  ! (for example, need to fix):
+  ! - Radio Button
+  ! - Tab "Say", DEMOGET2
+  ! and some more.
+  ! Please check.
+  ! With regards and TNX
+
+
 2025-05-03 04:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
    - demotab.hbp
    - demotab.prg
