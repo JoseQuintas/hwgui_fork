@@ -15,12 +15,32 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-02 20:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   - samples/hole.hbp
+   - samples/hole.prg
+     ! removed, demobrowseado.prg is a working sample of OLE
+   - samples/night.hbp
+   * samples/demonight.prg renamed from night.prg
+   * samples/demoupdown.prg renamed from demogetupdown.prg
+   * clean.sh
+   * doc/hwgdoc_commands.html
+   * samples/Readme.txt
+   * samples/clean.sh
+   * samples/demoall.hbp
+   * samples/demoall.prg
+   * samples/makeallsam.sh
+     ! rename and update references
+   * samples/*.prg
+     ! change all ACTIVATE to CENTER
+   * samples/demofunc.prg
+     ! review 4 buttons
+     ! Now can reorder buttons using copy/paste
 
 2025-05-02 12:40 UTC+0200 Wilfried Brunken DF7BE
 * source/gtk/drawtext.c
   ! Bugfix Pango < 1.56:
   ! Must be declared !!!!!!!!!!!!!!!!!!
-  ! error: ‘PANGO_WRAP_NONE’ undeclared 
+  ! error: ‘PANGO_WRAP_NONE’ undeclared
 
 
 2025-05-01 21:10 UTC-0300 Jose Quintas jmcquintas-gmail.com

@@ -273,7 +273,7 @@ ENDIF
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { || frm_bitmap:Close() }
 
-   ACTIVATE DIALOG frm_bitmap
+   ACTIVATE DIALOG frm_bitmap CENTER
 
 RETURN NIL
 

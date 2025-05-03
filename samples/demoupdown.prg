@@ -17,7 +17,7 @@
 #include "hwgui.ch"
 
 
-FUNCTION DemoGetUpDown( lWithDialog, oDlg )
+FUNCTION DemoUpDown( lWithDialog, oDlg )
 
    LOCAL n_Key2, o_Number, o_get
 
@@ -33,12 +33,12 @@ FUNCTION DemoGetUpDown( lWithDialog, oDlg )
 
    IF lWithDialog
       INIT DIALOG oDlg ;
-         TITLE "demogetupdown.prg - Ticket #19"  ;
+         TITLE "demoupdown.prg - Ticket #19"  ;
          AT 200,100 SIZE 500,500 ;
          // ON EXIT { || hwg_MsgYesNo( "OK to quit ?" ) }
    ENDIF
 
-   ButtonForSample( "demogetupdown.prg" )
+   ButtonForSample( "demoupdown.prg" )
 
    @ 200, 100 GET UPDOWN o_get ;
       VAR o_Number ;
@@ -82,4 +82,4 @@ RETURN Nil
  *   at this point o_Number:Value()  should return 2
  *   but the value of the o_Number is 1
 
-* ====== EOF of demogetupdown.prg ======
+* ====== EOF of demoupdown.prg ======

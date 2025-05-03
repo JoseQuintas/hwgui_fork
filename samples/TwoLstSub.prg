@@ -201,7 +201,7 @@ FUNCTION Teste()
       STYLE    WS_TABSTOP + BS_FLAT ;
       ON CLICK { || Hilfe() }
 
-   ACTIVATE DIALOG _frm_2browsboxsel
+   ACTIVATE DIALOG _frm_2browsboxsel CENTER
    * Returns thze array with results.
    * Empty array, if pressed "Cancel" Button
 

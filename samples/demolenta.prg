@@ -68,7 +68,7 @@ FUNCTION DemoLenta( lWithDialog, oDlg )
    @ 20, 106 EDITBOX "07/05/1840" OF oPane1 SIZE 100, 26
 
    IF lWithDialog
-      ACTIVATE DIALOG oDlg
+      ACTIVATE DIALOG oDlg CENTER
 
       oFont:Release()
    ENDIF

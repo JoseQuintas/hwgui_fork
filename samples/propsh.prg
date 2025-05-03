@@ -187,8 +187,8 @@ FUNCTION OpenConfig()
 
    hwg_PropertySheet( hwg_Getactivewindow(),{ aDlg1, aDlg2 }, "Sheet Example" )
 
-   activate dialog aDlg1
-   activate dialog aDlg2
+   activate dialog aDlg1 CENTER
+   activate dialog aDlg2 CENTER
 
 RETURN Nil
 

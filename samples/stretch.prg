@@ -51,8 +51,6 @@
 * Need to declare a colour defined as
 * transparent.
 
-
-
 #define BYHEXDUMP
 
 #include "hwgui.ch"
@@ -74,8 +72,6 @@ FUNCTION Main( lStretch )
 #endif
 
    //LOCAL c
-
-
 
    // Here default is resized image
    // But works only with WinAPI, not GTK.
@@ -123,8 +119,8 @@ FUNCTION Main( lStretch )
     * Strech it by hwg_Stretch_BMP_i()
     * Returns a bitmap binary string image and must be converted to a bitmap
     * object
-     cBmp := hwg_Stretch_BMP_i( hwg_cHex2Bin(ini_hwgui_bmp()), "hwgui" ,nPosX, nPosY)
-     oBmp := HBitmap():AddString("hwgui",cBmp)  && Write streched bmp to object variable
+     cBmp := hwg_Stretch_BMP_i( hwg_cHex2Bin( ini_hwgui_bmp() ), "hwgui" ,nPosX, nPosY)
+     oBmp := HBitmap():AddString( "hwgui", cBmp )  && Write streched bmp to object variable
 
       * ALternative method on : LINUX: Stretch by GTK function
 //      oBmp := HBitmap():AddString( "hwgui", hwg_cHex2Bin(ini_hwgui_bmp()) , nPosX, nPosY )
@@ -133,12 +129,11 @@ FUNCTION Main( lStretch )
 
     ENDIF
 
-
     * Check for transparent
     * Color white (FFFFFF = 16777215) handled as transparent color,
     * Default is 00FFF.
      CHECK_FILE( cImagePath + "cancel.bmp" )
-     oBitmtrsp := HBitmap():AddFile(cImagePath + "cancel.bmp",,.F.)
+     oBitmtrsp := HBitmap():AddFile( cImagePath + "cancel.bmp",, .F. )
 
     * ===========
     * Debug tests
@@ -148,12 +143,8 @@ FUNCTION Main( lStretch )
      // hwg_MsgStop("oBmp is not an object!","Error")
      // ENDIF
 
-
     // Write TOC of bitmap to logfile
     //  BMPTOC2Logfile(oBmp)
-
-
-
 
      * Display size of recent desktop, it is equal to the size of screen.
    hwg_msginfo("X=" + STR(nPosX) + CHR(10) + "Y=" + STR(nPosY) + CHR(10) + ;
@@ -170,7 +161,6 @@ FUNCTION Main( lStretch )
          OF oFormMain ;
          SIZE nPosX - 10, nPosY - 100 // Here resize of background image (stretch)
          // 301, 160
-
 
       * Transparent test
       @ 110,100 BITMAP oBitmtrsp  ;
@@ -217,7 +207,6 @@ FUNCTION Main( lStretch )
 
 RETURN Nil
 
-
 FUNCTION CHECK_FILE ( cfi )
 
    * Check, if file exist, otherwise terminate program
@@ -229,15 +218,16 @@ FUNCTION CHECK_FILE ( cfi )
 RETURN Nil
 
 FUNCTION BMPTOC2Logfile(oBitmap)
+
      LOCAL atoc
+
      atoc :=  hwg_bitmapTOC(oBitmap)
      hwg_Debug_logarrayC(atoc)
+
 RETURN NIL
 
-
-
-
 FUNCTION ini_hwgui_bmp()
+
 RETURN "42 4D 36 C2 00 00 00 00 00 00 36 04 00 00 28 00 " + ;
 "00 00 2D 01 00 00 A0 00 00 00 01 00 08 00 00 00 " + ;
 "00 00 00 BE 00 00 C4 0E 00 00 C4 0E 00 00 00 00 " + ;
@@ -3346,6 +3336,5 @@ RETURN "42 4D 36 C2 00 00 00 00 00 00 36 04 00 00 28 00 " + ;
 "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF " + ;
 "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF " + ;
 "FF FF FF 00 00 00 "
-
 
 * ==================== EOF of stretch.prg ============

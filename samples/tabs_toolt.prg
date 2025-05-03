@@ -109,7 +109,7 @@ INIT DIALOG oDlg ;
    COLOR hwg_ColorC2N("FF0000")
 
 
-ACTIVATE DIALOG oDlg
+ACTIVATE DIALOG oDlg CENTER
 oFont:Release()
 if oDlg:lresult
    hwg_EndWindow()

@@ -253,7 +253,7 @@ STATIC FUNCTION BrwArrayGetElem( oBrow, cgetf )
       ON CLICK { | | lcancel := .T. , oDlg:Close() } ;
       TOOLTIP "Return to array browse list without saving modifications"
 
-   ACTIVATE DIALOG oDlg
+   ACTIVATE DIALOG oDlg CENTER
 
    * Cancelled ?
    IF lcancel

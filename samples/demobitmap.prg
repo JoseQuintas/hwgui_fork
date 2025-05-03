@@ -61,7 +61,7 @@ FUNCTION DemoBitmap( lWithDialog, oDlg )
       SIZE 100, 90
 
    IF lWithDialog
-      ACTIVATE Dialog oDlg center
+      ACTIVATE Dialog oDlg CENTER
    ENDIF
 
 RETURN Nil

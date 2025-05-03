@@ -34,8 +34,7 @@ FUNCTION Main()
 *   Parameter            Font Name,Breite,Hoehe
    //oFont := HFont():Add( "Courier", 0, -14 )
 
-   INIT WINDOW oWndMain ;
-      MAIN ;
+   INIT DIALOG oWndMain ;
       TITLE "Default title"  ;
       AT 200,100 ;
       SIZE 500,500 ;
@@ -50,7 +49,7 @@ FUNCTION Main()
          MENUITEM "&Name sorted title"  ACTION Titel2()
       ENDMENU
    ENDMENU
-   ACTIVATE WINDOW oWndMain CENTER
+   ACTIVATE DIALOG oWndMain CENTER
 
 RETURN Nil
 

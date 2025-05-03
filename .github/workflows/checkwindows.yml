@@ -19,7 +19,7 @@ jobs:
     steps:
 
     - name: load mingw
-      uses: dawidd6/action-download-artifact@v2
+      uses: dawidd6/action-download-artifact@v9
       with:
          workflow: buildall.yml
          workflow_conclusion: success
@@ -28,7 +28,7 @@ jobs:
          repo: JoseQuintas/sefazclass
 
     - name: load harbour32
-      uses: dawidd6/action-download-artifact@v2
+      uses: dawidd6/action-download-artifact@v9
       with:
          workflow: buildall.yml
          workflow_conclusion: success

@@ -27,14 +27,14 @@ memvar oFont, oForm, oBar, isTimer, n, oMessage, cTitle, nLarge, nHigh
 // ======================
 
 // ============================================================================
-function main(cLeft,cTop,more) 
+function main(cLeft,cTop,more)
 // ============================================================================
 local oTimer, oFont
 
 * Better dsign for all platforms
 #ifdef __PLATFORM__WINDOWS
    PREPARE FONT oFont NAME "Courier New" WIDTH 0 HEIGHT -1
-#else   
+#else
    oFont:= HFont():Add( "Serif",0,-13)
 #endif
 
@@ -87,7 +87,7 @@ INIT DIALOG oForm CLIPPER NOEXIT TITLE cTitle FONT oFont ;
      @ 30,45 PROGRESSBAR oBar SIZE 200+nLarge, 20 BARWIDTH 10 QUANTITY 100
      SetTimer(oForm,@oTimer)
 
-     ACTIVATE DIALOG oForm
+     ACTIVATE DIALOG oForm CENTER
 
 oTimer:End()
 
@@ -103,7 +103,7 @@ function res_progbar(opbar)
 
 hb_run("wmctrl -a '"+cTitle+"'")
 
-return .F. 
+return .F.
 
 // ============================================================================
 Static Function SetTimer( oDlg,oTimer )
@@ -152,7 +152,7 @@ hb_run("wmctrl -a '"+cTitle+"'")
 if n/100 == 100
    RES_PROGBAR ( obar )
 endif
-   
+
 return Nil
 
 // ======================

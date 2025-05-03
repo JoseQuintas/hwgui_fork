@@ -325,7 +325,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "3.Splitter",           { |o| DemoSplitter( .F., o, aInitList ) } )
       MenuOption( "5.XML Tree",           { |o| DemoXmlTree( .F., o ) } )
       MenuUnDrop()
-   MenuOption( "UpDown",                  { |o| DemoGetUpDown( .F., o ) } )
+   MenuOption( "UpDown",                  { |o| DemoUpDown( .F., o ) } )
    MenuOption( "Others" )
       MenuDrop()
       MenuOption( "1.AppData",            { |o| DemoDbfData( .F., o, aEndList ) } )
@@ -336,6 +336,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
 #endif
       MenuOption( "5.Timer",              { |o| DemoGet2( .F., o ) } )
       MenuOption( "6.Functions",          { |o| DemoFunc( .F., o ) } )
+      MenuOption( "7.Night",    "demonight.prg", { || DemoNight() } )
       MenuUnDrop()
 
    @ 30, 60 TAB oTabLevel1 ITEMS {} SIZE 950, 650 OF oDlg
@@ -394,18 +395,16 @@ STATIC FUNCTION AddToCompile( oTabLevel1 )
    LOCAL aList := { ;
        ; // NAME,                  WIN, LINUX, MACOS, DESCRIPTION
        ;
-       ;  // neeed compile
+       ;  // need compile
        ;
        { "a.prg",                  .T., .F., .F., "MDI, Tab, checkbox, combobox, browse array, others" }, ;
        { "demomdi.prg",            .T., .F., .F., "MDI window" }, ;
        { "demoonother.prg",        .T., .F., .F., "ON OTHER MESSAGES" }, ;
-       { "nice.prg",               .T., .F., .F., "Nice button, only WINDOW, not DIALOG" }, ;
        { "tstscrlbar.prg",         .T., .T., .T., "Scrollbar" }, ;
        ;
        ; // verify
        ;
        { "graph.prg",              .T., .T., .T., "Graph" }, ;
-       ;
        { "tab.prg",                .T., .F., .F., "Tab, checkbox, editbox, combobox, browse array" }, ;
        { "testbrowsearr.prg",      .T., .T., .T., "browse array editable" }, ;
        { "colrbloc.prg",           .T., .T., .T., "Color Block" }, ;
@@ -415,16 +414,11 @@ STATIC FUNCTION AddToCompile( oTabLevel1 )
        { "testbrw.prg",            .T., .F., .F., "Test browse" }, ;
        { "tstsplash.prg",          .T., .F., .F., "Test Splash" }, ;
        { "twolistbox.prg",         .T., .F., .F., "Two List Box" }, ;
-       ;
-       ; // try later
-       ;
        { "escrita.prg",            .T., .T., .T., "Escrita" }, ;
        { "hello.prg",              .T., .F., .F., "RichEdit, Tab, Combobox" }, ;
        { "grid_2.prg",             .F., .F., .F., "Grid2 PostGres" }, ;
        { "grid_3.prg",             .F., .F., .F., "Grid3 PostGres" }, ;
        { "helpdemo.prg",           .T., .T., .T., "Help Demo ***outdated***" }, ;
-       { "hole.prg",               .T., .F., .F., "Ole ***error***" }, ;
-       { "nice2.prg",              .T., .F., .F., "Nice button 2 ***?***" }, ;
        { "propsh.prg",             .T., .F., .F., "Propsheet ***error***" }, ;
        { "testalert.prg",          .T., .F., .F., "Test Alert" }, ;
        { "testrtf.prg",            .T., .F., .F., "Test RTF" }, ;
@@ -482,7 +476,7 @@ CASE cFileName == "demobrowseado.prg";   #pragma __binarystreaminclude "demobrow
 CASE cFileName == "demodbfdata.prg";     #pragma __binarystreaminclude "demodbfdata.prg" | RETURN %s
 CASE cFileName == "demodlgbox.prg";      #pragma __binarystreaminclude "demodlgbox.prg" | RETURN %s
 CASE cFileName == "demofunc.prg";        #pragma __binarystreaminclude "demofunc.prg" | RETURN %s
-CASE cFileName == "demogetupdown.prg";   #pragma __binarystreaminclude "demogetupdown.prg" | RETURN %s
+CASE cFileName == "demoupdown.prg";      #pragma __binarystreaminclude "demoupdown.prg" | RETURN %s
 CASE cFileName == "demoget1.prg";        #pragma __binarystreaminclude "demoget1.prg" | RETURN %s
 CASE cFileName == "demoget2.prg";        #pragma __binarystreaminclude "demoget2.prg" | RETURN %s
 CASE cFileName == "demogrid1.prg";       #pragma __binarystreaminclude "demogrid1.prg" | RETURN %s

@@ -18,7 +18,7 @@ demodlgbox.prg
 demofunc.prg
 demoget1.prg
 demoget2.prg
-demogetupdown.prg
+demoupdown.prg
 demohtrack.prg
 demoimageview.prg
 demoimage1.prg
@@ -28,6 +28,7 @@ demolenta.prg
 demolistboxsub.prg
 demomenu.prg
 demomenuxml.prg
+demonight.prg
 demoprogbar.prg
 demosedit.prg
 demotab.prg

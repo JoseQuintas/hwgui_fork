@@ -1206,7 +1206,7 @@ yofs := nOffset + 120
    @ 375, yofs  BUTTON oButton3 CAPTION cHelp SIZE 80,32 ;
         STYLE WS_TABSTOP+BS_FLAT ON CLICK { || HELP( cHTopic ,PROCLINE(), cHVar ) }
 
-   ACTIVATE DIALOG oDlgcCombo1
+   ACTIVATE DIALOG oDlgcCombo1 CENTER
 * RETURN oDlgcCombo1:lresult
 RETURN nRetu
 

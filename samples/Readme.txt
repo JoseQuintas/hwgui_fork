@@ -240,7 +240,7 @@ For beginners:
    demofunc.prg         Y       Y         Y      Test and demo of standalone HWGUI (hwg_*) functions, enable/disable button.
    demoget1.prg         Y                        Get system: Edit field, Checkboxes, Radio buttons, Combo box, Datepicker
    demoget2.prg         Y       Y                Get system: Colored edit fields, time display, Tooltip ballon, HD serial number
-   demogetupdown.prg    Y                        Usage of @ <x> <y> GET UPDOWN ..
+   demoupdown.prg       Y                        Usage of @ <x> <y> GET UPDOWN ..
 `  demogrid1.prg +)     N       N         Y     Grid demo (HGrid class)
    demogrid4.prg +)     N       N         Y      File Viewer
    demogrid5.prg +)     N       N         -      Grid Editor
@@ -256,6 +256,7 @@ For beginners:
    demomenuxml.prg      Y                        reading/writing XML file and handling menu items while run-time (testxml.xml)
    demomonthcal.prg     N                 Y      Calendar, Datepicker, TOOLTIP
    demonice.prg         N       N                Demo of NICEBUTTON
+   demonight.prg        Y                        "ADD HEADER PANEL" for a night mode application
    demoprogbar.prg 12)  Y                        Progress bar
    demosedit.prg        Y                        Simple text editor demonstrating hwg_Memoedit()
    demoshadebtn.prg     N       N                Shade buttons (for multi platform usage take OWNERBUTTON)
@@ -285,12 +286,9 @@ For beginners:
  helpdemo.prg 6) 7)     N       N                Context help using windows help (Shellexecute crashes)
  helpstatic.prg         Y                        Static help text
  hexbincnt.prg 11)      Y                        Handling of binary resources with hex values.
- hole.prg   2) 4)       N       N                MS Agent Control (not running on Windows 11)
  memocmp.prg.           Y                        Edit and compare memo's an get size
  menumod.prg            Y                        Handling menu items while run-time in dialogs.
  modtitle.prg           Y                        Sample for modifying a main window title in HWGUI
- nice2.prg              N  #    N         -      Demo of NICEBUTTON (2), starts only in background, kill with Task Manager (Bug!)
- night.prg              Y                        "ADD HEADER PANEL" for a night mode application
  propsh.prg             N  #    N                Property sheet
  pseudocm.prg           Y                        Pseudo context menu
  qrencode.prg 1) 2)     Y                        Encode QR code from string an convert to monochrome bitmap.

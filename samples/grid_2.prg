@@ -66,7 +66,7 @@ FUNCTION Test()
       SIZE 75,25 ;
       ON CLICK { || oForm:Close() }
 
-   ACTIVATE DIALOG oForm
+   ACTIVATE DIALOG oForm CENTER
 
 RETURN Nil
 

@@ -106,7 +106,7 @@ STATIC FUNCTION DlgGet()
       TEXT "Close" ;
       COLOR hwg_ColorC2N("0000FF")
 
-   ACTIVATE DIALOG oModDlg
+   ACTIVATE DIALOG oModDlg CENTER
 
 RETURN Nil
 

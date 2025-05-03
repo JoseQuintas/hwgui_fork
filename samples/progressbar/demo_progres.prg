@@ -31,7 +31,7 @@ memvar lprogress
 
 memvar otest
 // ============================================================================
-function main() 
+function main()
 // ============================================================================
 local oFont
 
@@ -43,8 +43,8 @@ PUBLIC otest
 
 * Better dsign for all platforms
 #ifdef __PLATFORM__WINDOWS
-   PREPARE FONT oFont NAME "MS Sans Serif" WIDTH 0 HEIGHT -12 
-#else   
+   PREPARE FONT oFont NAME "MS Sans Serif" WIDTH 0 HEIGHT -12
+#else
    oFont:= HFont():Add( "Serif",0,-13)
 #endif
 
@@ -63,12 +63,12 @@ INIT DIALOG otest CLIPPER NOEXIT TITLE "Progress test" FONT oFont ;
        ENDMENU
      ENDMENU
 
-     ACTIVATE DIALOG otest
+     ACTIVATE DIALOG otest CENTER
 
 return NIL
 
 // ============================================================================
-function RunDemo() 
+function RunDemo()
 // ============================================================================
 local tabfiles:={ "1003236_10151902282894923.jpg",;
                   "20140921_ 00.jpg",;
@@ -95,33 +95,33 @@ local oBar
 * On Windows, the progbar is supported by the WinAPI
 
 * Create progbar object
-                       
+
 // NewBox( cTitle, nLeft, nTop, nWidth, nHeight, maxPos, nRange, bExit,  Percent )
 // Default values:
-//                 ^ 0    ^ 0   ^220-40 ^55      ^ 20    ^ 100   ^ none  ^none 
+//                 ^ 0    ^ 0   ^220-40 ^55      ^ 20    ^ 100   ^ none  ^none
 
   oBar := HProgressBar():NewBox( "Treating image file  ..." ,,,350,,    LEN(tabfiles) , 100  )
-  
+
   * By this, make experiments:
   * ::nLimit   := iif( nRange != Nil, Int( ::nRange / ::maxPos ), 1 )
   * By setting 100/100, the prog bars starts with 1% step, stopping at 17
   * (=LEN(tabfiles) )
   * By setting LEN(tabfiles)/100
   * The progbar steps with 5% and stop also at 17.
- 
-  * So need to step for this case 100/17 = 5,888
-  * Be careful with bExit, may crash !  
 
-// This is not running !  
+  * So need to step for this case 100/17 = 5,888
+  * Be careful with bExit, may crash !
+
+// This is not running !
 //  @ 0,0 PROGRESSBAR oBar SIZE 350, 55 BARWIDTH 300 QUANTITY len(tabfiles)
 
 * On WinAPI, the only way to display the treated file by add them
-* into the title headline of StepBar()   
-   
+* into the title headline of StepBar()
+
 for rg=1 to len(tabfiles)
 //       "Treating image file "+ltrim(str(rg))+" / "+ltrim(str(len(tabfiles)))+"#!"+space(30-len(tabfiles[rg]))+tabfiles[rg]+chr(10)+"Treating files")
     StepBar(oBar,"Treating image file "+ltrim(str(rg))+" / "+ltrim(str(len(tabfiles))) ;
-     + " : " + ALLTRIM(tabfiles[rg]) ) 
+     + " : " + ALLTRIM(tabfiles[rg]) )
     hwg_sleep(SLEEP_WINDOWS)
 
     * Debug:
@@ -153,7 +153,7 @@ next
 
 // kill -9 `ps aux | grep progress | awk '{print $2}'`
 // hb_run("kill -9 "+cStdOut)
-  
+
   hb_run( "kill -9 `ps -ef | grep progress | grep -v grep | grep -v demo | awk '{print $2}'`" )
 
 lprogress=.f.
@@ -192,7 +192,7 @@ RETURN oBar
 FUNCTION ResetBar(oBar,cTitle)
 Iif( oBar == Nil, hwg_Msgstop( "oBar is NIL" ), oBar:RESET( cTitle ) )
 RETURN oBar
- 
+
 #endif
 
 * ========================= EOF of demo_progres.prg ==============================================

@@ -172,7 +172,7 @@ FUNCTION OpenRel( oText )
       ON CLICK {||hwg_EndDialog()} ;
       SIZE 80,32
 
-   ACTIVATE DIALOG oDlg
+   ACTIVATE DIALOG oDlg CENTER
 
 RETURN
 

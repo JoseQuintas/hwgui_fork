@@ -192,7 +192,7 @@ STATIC FUNCTION NewItem( nItem )
       ID IDCANCEL ;
       SIZE 100, 32
 
-   ACTIVATE DIALOG oDlg
+   ACTIVATE DIALOG oDlg CENTER
 
    * Trim from GET
 

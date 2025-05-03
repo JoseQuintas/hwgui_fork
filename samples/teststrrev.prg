@@ -213,7 +213,7 @@ LOCAL cstring, cneustr
       STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | Strrev:Close() }
 
-   ACTIVATE DIALOG Strrev
+   ACTIVATE DIALOG Strrev CENTER
 // RETURN Strrev:lresult
 
 
@@ -260,7 +260,7 @@ nneu    := nmaxchars
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK {||  setmaxchars:Close() }
 
-   ACTIVATE DIALOG setmaxchars
+   ACTIVATE DIALOG setmaxchars CENTER
 
    IF .NOT. lAbbruch  && not cancelled or ESC key
     nmaxchars := nneu

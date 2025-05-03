@@ -59,7 +59,7 @@ FUNCTION DemoProgbar( lWithDialog, oDlg, aEndList )
       ON CLICK { || Iif( oBar == Nil, hwg_Msgstop( cMsgErr ), ( oBar:Close(), oBar := Nil ) ) }
 
    IF lWithDialog
-      ACTIVATE DIALOG oDlg
+      ACTIVATE DIALOG oDlg CENTER
    ENDIF
 
 RETURN Nil

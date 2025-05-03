@@ -76,7 +76,7 @@ FUNCTION _menudialog()
       ENDMENU
    ENDMENU
 
-   ACTIVATE DIALOG oDialg
+   ACTIVATE DIALOG oDialg CENTER
 
 RETURN Nil
 
@@ -121,7 +121,7 @@ FUNCTION NewItem( nItem )
       ID IDCANCEL ;
       SIZE 100, 32
 
-   ACTIVATE DIALOG oDlg
+   ACTIVATE DIALOG oDlg CENTER
 
    * Trim from GET
 

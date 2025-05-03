@@ -55,7 +55,7 @@ STATIC FUNCTION Test()
 
    oVar:helpid := 4
 
-   ACTIVATE DIALOG oModDlg
+   ACTIVATE DIALOG oModDlg CENTER
 
 RETURN Nil
 

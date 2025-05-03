@@ -173,7 +173,7 @@ STATIC FUNCTION ZoomImg()
       SIZE 75,25 ;
       ON CLICK {|| oForm:Close() }
 
-   ACTIVATE DIALOG oForm
+   ACTIVATE DIALOG oForm CENTER
 
    IF .NOT. lcancel
       hwg_MsgInfo("Zoom factor set to " +  ALLTRIM(STR(nZoom)) )

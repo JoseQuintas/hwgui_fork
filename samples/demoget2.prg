@@ -109,7 +109,7 @@ FUNCTION DemoGet2( lWithDialog, oDlg )
    ReadExit( .T. )
 
    IF lWithDialog
-      ACTIVATE DIALOG oDlg
+      ACTIVATE DIALOG oDlg CENTER
 
       oTimer:End()
 
@@ -160,7 +160,7 @@ FUNCTION TestBallon()
       SIZE 100, 40 ;
       TOOLTIP "ToolTip do Button 1"
 
-   ACTIVATE DIALOG oWnd
+   ACTIVATE DIALOG oWnd CENTER
 
 RETURN Nil
 
