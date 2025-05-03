@@ -87,7 +87,6 @@ delfi samples/hello
 delfi samples/arraybrowse
 delfi samples/progressbar/progress
 delfi samples/progressbar/demo_progres
-delfi samples/tabs_toolt
 delfi samples/tstscrlbar
 delfi samples/tstcombo
 delfi samples/testxml

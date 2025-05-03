@@ -12,6 +12,7 @@ How to reutilize samples:
 2) If send lWithDialog=.F. sample do not create dialog, use dialog from parameter
 3) Add on sample ButtonForSample( "name", oDlg ) to show buttons
 4) Add on sample at the end #include "demo.ch"
+5) Check close dialog (oDlg:Close()) once sample will run on tabpage, oDlg will be a Tab
 
 Depending on sample, it can be used on a dialog or tab page (send oTab and not oDlg)
 if not, add a button call to it.
@@ -286,6 +287,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "2.ShadeButton",        { |o| DemoShadeBtn( .F., o ) } )
       MenuOption( "3.NiceButton", "nicebutton.prg", { || DemoNice() } )
 #endif
+      MenuOption( "4.demofunc",          { |o| DemoFunc( .F., o ) } )
       MenuUnDrop()
    MenuOption( "Checkbox",                { |o| DemoCheckbox( .F., o ) } )
    MenuOption( "Combobox",                { |o| DemoCombobox( .F., o ) } )
@@ -332,7 +334,8 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
    MenuOption( "Tab" )
       MenuDrop()
       MenuOption( "1.Lenta",              { |o| DemoLenta( .F., o ) } )
-      MenuOption( "2.Tab",                { |o| DemoTab( .F., o, aEndList ) } )
+      MenuOption( "2.Tab",                { |o| DemoTab( .F., o ) } )
+      MenuOption( "3.Tab/Tooltip",        { |o| DemoTabTool( .F., o ) } )
       MenuUnDrop()
    MenuOption( "Trackbar" )
       MenuDrop()
@@ -519,6 +522,7 @@ CASE cFileName == "demoprogbar.prg";     #pragma __binarystreaminclude "demoprog
 CASE cFileName == "demosedit.prg";       #pragma __binarystreaminclude "demosedit.prg" | RETURN %s
 CASE cFileName == "demoshadebtn.prg";    #pragma __binarystreaminclude "demoshadebtn.prg" | RETURN %s
 CASE cFileName == "demotab.prg";         #pragma __binarystreaminclude "demotab.prg" | RETURN %s
+CASE cFileName == "demotabtool.prg";     #pragma __binarystreaminclude "demotabtool.prg" | RETURN %s
 CASE cFileName == "demotrackbar.prg";    #pragma __binarystreaminclude "demotrackbar.prg" | RETURN %s
 CASE cFileName == "demotree.prg";        #pragma __binarystreaminclude "demotree.prg" | RETURN %s
 CASE cFileName == "demosplit.prg";       #pragma __binarystreaminclude "demosplit.prg" | RETURN %s
