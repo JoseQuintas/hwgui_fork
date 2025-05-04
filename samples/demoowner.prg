@@ -10,7 +10,7 @@ STATIC nRowPos := -1, nColPos := -1
 
 FUNCTION DemoOwner( lWithDialog, oDlg )
 
-   LOCAL oButton := Array(100), nButtonCount := 0, nCont
+   LOCAL oButton := Array(30), nIndex, nLayout
    LOCAL aStyle1 := { ;
       HStyle():New( {16759929,16772062}, 1 ), ;             // normal
       HStyle():New( {16759929}, 1,, 3, 0 ), ;               // pressed
@@ -32,29 +32,38 @@ FUNCTION DemoOwner( lWithDialog, oDlg )
 
    ButtonForSample( "demoowner.prg" )
 
-   FOR nCont = 1 TO 10
+   FOR nIndex = 1 TO 30
 
-      @ ColPos(), nRowPos OWNERBUTTON oButton[ nButtonCount + 1 ] ;
-         OF       oDlg ;
-         SIZE     100, 24;
-         TEXT     "Button " + Ltrim( Str( nButtonCount + 1 ) ) ;
-         ON CLICK { || hwg_MsgInfo( "Click" ) }
+      nLayout := Mod( nIndex, 3 ) + 1
 
-      @ ColPos(), nRowPos OWNERBUTTON oButton[ nButtonCount + 2 ] ;
-         OF       oDlg ;
-         SIZE     100, 24 ;
-         TEXT     "Button " + Ltrim( Str( nButtonCount + 2 ) ) ;
-         ON CLICK { || hwg_MsgInfo( "Click" ) }
-      oButton[ nButtonCount + 2 ]:aStyle := aStyle1
+      DO CASE
+      CASE nLayout == 1
 
-      @ ColPos(), nRowPos OWNERBUTTON oButton[ nButtonCount + 3 ] ;
-         OF       oDlg ;
-         SIZE     100, 24 ;
-         HSTYLES aStyle2[ 1 ], aStyle2[ 2 ], aStyle2[ 3 ] ;
-         TEXT     "Button " + Ltrim( Str( nButtonCount + 3 ) ) ;
-         ON CLICK { || hwg_MsgInfo( "Click" ) }
+         @ ColPos(), nRowPos OWNERBUTTON oButton[ nIndex ] ;
+               OF       oDlg ;
+               SIZE     100, 24;
+               TEXT     "Button " + Ltrim( Str( nIndex ) ) ;
+               ON CLICK { || hwg_MsgInfo( "Click" ) }
 
-      nButtonCount += 4
+      CASE nLayout == 2
+
+         @ ColPos(), nRowPos OWNERBUTTON oButton[ nIndex ] ;
+            OF       oDlg ;
+            SIZE     100, 24 ;
+            TEXT     "Button " + Ltrim( Str( nIndex ) ) ;
+            ON CLICK { || hwg_MsgInfo( "Click" ) }
+         oButton[ nIndex ]:aStyle := aStyle1
+
+      CASE nLayout == 3
+
+         @ ColPos(), nRowPos OWNERBUTTON oButton[ nIndex ] ;
+            OF       oDlg ;
+            SIZE     100, 24 ;
+            HSTYLES aStyle2[ 1 ], aStyle2[ 2 ], aStyle2[ 3 ] ;
+            TEXT     "Button " + Ltrim( Str( nIndex ) ) ;
+            ON CLICK { || hwg_MsgInfo( "Click" ) }
+
+      ENDCASE
 
    NEXT
 
