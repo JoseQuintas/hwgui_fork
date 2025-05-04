@@ -1,3 +1,8 @@
+/*
+demoowner.prg
+
+modified from tutorial
+*/
 
 #include "hwgui.ch"
 
