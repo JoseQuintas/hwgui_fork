@@ -114,16 +114,17 @@ FUNCTION DemoGrid5( lWithDialog, oDlg, aInitList, aEndList )
 
       ACTIVATE DIALOG oDlg CENTER
 #ifndef DEMOALL
+      // can be caleed as dialog from demoall
       CLOSE DATABASES
       fErase( cFileName + ".dbf" )
       fErase( cFileName + ".dbt" )
 #endif
    ELSE
       @ 250, 390 BUTTON "Refresh" SIZE 75,25 ON CLICK {|| oGrid:Refresh() }
-      // called from demoall
-      AAdd( aEndList, { || fErase( cFileName + ".dbf") } )
-      AAdd( aEndList, { || fErase( cFileName + ".dbt") } )
    ENDIF
+   // called from demoall
+   AAdd( aEndList, { || fErase( cFileName + ".dbf") } )
+   AAdd( aEndList, { || fErase( cFileName + ".dbt") } )
 
 RETURN Nil
 

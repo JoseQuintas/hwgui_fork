@@ -140,7 +140,7 @@ FUNCTION DemoDbfData( lWithDialog, oDlg, aEndList )
 
    @ 400, 113 OWNERBUTTON aVar[ VAR_BUTTON_CLOSE ] ;
       OF oDlg  ;
-      ON CLICK { || iif( lWithDialog, oDlg:Close(), hwg_MsgInfo( "no action here" ) ) } ;
+      ON CLICK { || iif( lWithDialog, oDlg:Close(), hwg_MsgInfo( "No action here" ) ) } ;
       SIZE 44, 38 ;
       FLAT ;
       TEXT "Close"
@@ -152,10 +152,9 @@ FUNCTION DemoDbfData( lWithDialog, oDlg, aEndList )
       fErase( "tmpdbfdata.dbf" )
       fErase( "tmpdbfdata.ntx" )
 #endif
-   ELSE
-      Aadd( aEndList, { || fErase( "tmpdbfdata.dbf" ) } )
-      Aadd( aEndList, { || fErase( "tmpdbfdata.ntx" ) } )
    ENDIF
+   Aadd( aEndList, { || fErase( "tmpdbfdata.dbf" ) } )
+   Aadd( aEndList, { || fErase( "tmpdbfdata.ntx" ) } )
 
 RETURN Nil
 

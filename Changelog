@@ -15,7 +15,29 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2025-05-04 12:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
+2025-05-04 15:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   - samples/testbrw.hbp
+   * samples/demobrowsebmp.prg renamed from testbrw.prg
+     ! added to demoall
+   * samples/demodlgbox.prg
+     ! added hwg_DlgShowHelp()
+   * samples/demodbfdata.prg
+   * samples/demogrid4.prg
+   * samples/demogrid5.prg
+     ! review delete temporary files
+   * samples/demoget1.prg
+   * samples/demoget2.prg
+     ! text of button
+   * clean.sh
+   * samples/Readme.txt
+   * samples/allhbp.hbp
+   * samples/clean.sh
+   * samples/demoall.hbp
+   * samples/demotabtool.prg
+   * samples/doc/Readme.txt
+   * samples/makeallsam.sh
+     ! update references
+
    * samples/demoowner.prg
    * samples/demofunc.prg
      ! These samples use init values on static vars for nRowPos/nColPos

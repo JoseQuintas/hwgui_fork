@@ -67,10 +67,8 @@
 ../samples/a.hbp
 ../samples/buildpelles.hbp
 ../samples/demomdi.hbp
-../samples/demoonother.hbp ## old test_bot.prg
+../samples/demoonother.hbp
 ../samples/hello.hbp
-../samples/nice.hbp
-../samples/testbrw.hbp
 ../samples/testrtf.hbp
 ../samples/tstscrlbar.hbp
 ../samples/tstsplash.hbp

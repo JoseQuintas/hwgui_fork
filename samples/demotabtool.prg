@@ -43,7 +43,7 @@ FUNCTION DemoTabTool( lWithDialog, oDlg )
      CAPTION "Quit";
      ON CLICK { || iif( lWithDialog, ;
                         iif( AskYesNo( oDlg ), oDlg:Close(), Nil ), ;
-                        hwg_MsgInfo( "no action here" ) ) } ;
+                        hwg_MsgInfo( "No action here" ) ) } ;
      SIZE 40,24 ;
      COLOR hwg_ColorC2N("#FF0000") ;
      TOOLTIP "Quit ?"

@@ -21,7 +21,7 @@
 
    It is an extract vom the tutorial:
    ==> Getting started / Standard dialogs
-   
+
   April 2025: Bugfix on LINUX:
   ../samples/demo.ch(7) Warning W0003  Variable 'OSAY4' declared but not used in function
   'DEMODLGBOX(32)'
@@ -35,10 +35,10 @@ FUNCTION DemoDlgBox( lWithDialog, oDlg )
 
    LOCAL oFont, oFontC, oSay3, oSay5, oSay6, oSay7
    LOCAL nChoic, cRes, arr := {"White","Blue","Green","Red"}
-   
-#ifndef __GTK__   
+
+#ifndef __GTK__
    LOCAL oSay4
-#endif   
+#endif
 
    hb_Default( @lWithDialog, .T. )
 
@@ -116,6 +116,17 @@ FUNCTION DemoDlgBox( lWithDialog, oDlg )
    @ 300, 340 BUTTON "hwg_WChoice()" ;
       SIZE 180, 28 ;
       ON CLICK {||oSay7:SetText( Iif( (nChoic := hwg_WChoice(arr,"Tutorial",,,oFontC,,,,,"Ok","Cancel")) == 0, "", arr[nChoic] ) )}
+
+#ifdef __PLATFORM__WINDOWS
+      #define DEMO_SHOW_MODAL .T.
+#else
+      #define DEMO_SHOW_MODAL .F.
+#endif
+   #define DEMO_SHOW_TEXT "this will a ready to use dialog"
+
+   @ 20, 400 BUTTON "hwg_ShowHelp()" ;
+      SIZE 180, 28 ;
+      ON CLICK { || hwg_ShowHelp( DEMO_SHOW_TEXT, "demo", "Close", , DEMO_SHOW_MODAL ) }
 
    @ 500, 340 SAY oSay7 CAPTION "" ;
       SIZE 80, 24 ;

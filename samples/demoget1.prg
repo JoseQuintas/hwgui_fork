@@ -144,12 +144,12 @@ FUNCTION DemoGet1( lWithDialog, oDlg )
    @ 20, 310 BUTTON "Ok" ;
       ID IDOK  ;
       SIZE 100, 32 ;
-      ON CLICK { || hwg_MsgInfo( "No action here" ) }
+      ON CLICK { || hwg_MsgInfo( "No action" ) }
 
    @ 180, 310 BUTTON "Cancel" ;
       ID IDCANCEL  ;
       SIZE 100, 32 ;
-      ON CLICK { || hwg_MsgInfo( "No action here" ) }
+      ON CLICK { || hwg_MsgInfo( "No action" ) }
 
    @ 340, 310 BUTTON "Cal_Dialog" ;
       SIZE 100, 32 ;

@@ -220,9 +220,10 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "3.Browse DBF",         { |o| DemoBrowseDbf( .F., o, aEndList ) } )
 #ifdef __PLATFORM__WINDOWS
       MenuOption( "4.Grid1",   "demogrid.prg",      { || DemoGrid1() } )
-      MenuOption( "5.Grid4",   "demogrid4.prg",     { || DemoGrid4() } )
-      MenuOption( "6.Grid5",   "demogrid5.prg",     { || DemoGrid5() } )
+      MenuOption( "5.Grid4",   "demogrid4.prg",     { || DemoGrid4(,,aEndList) } )
+      MenuOption( "6.Grid5",   "demogrid5.prg",     { || DemoGrid5(,,,aEndList) } )
 #endif
+      MenuOption( "7.BrowseBMP",          { |o| DemoBrowseBmp( .F., o ) } )
       MenuUndrop()
    MenuOption( "Button" )
       MenuDrop()
@@ -380,7 +381,6 @@ STATIC FUNCTION AddToCompile( oTabLevel1 )
        { "dbview.prg",             .T., .T., .T., "DBView" }, ;
        { "fileselect.prg",         .T., .T., .T., "File Select" }, ;
        { "helpstatic.prg",         .T., .T., .T., "Help Static" }, ;
-       { "testbrw.prg",            .T., .F., .F., "Test browse" }, ;
        { "tstsplash.prg",          .T., .F., .F., "Test Splash" }, ;
        { "twolistbox.prg",         .T., .F., .F., "Two List Box" }, ;
        { "escrita.prg",            .T., .T., .T., "Escrita" }, ;
@@ -440,6 +440,7 @@ CASE cFileName == "demoall.prg";         #pragma __binarystreaminclude "demoall.
 CASE cFileName == "demobitmap.prg";      #pragma __binarystreaminclude "demobitmap.prg" | RETURN %s
 CASE cFileName == "democheckbox.prg";    #pragma __binarystreaminclude "democheckbox.prg" | RETURN %s
 CASE cFileName == "democombobox.prg";    #pragma __binarystreaminclude "democombobox.prg" | RETURN %s
+CASE cFileName == "demobrowsebmp.prg";   #pragma __binarystreaminclude "demobrowsebmp.prg" | RETURN %s
 CASE cFileName == "demobrowsedbf.prg";   #pragma __binarystreaminclude "demobrowsedbf.prg" | RETURN %s
 CASE cFileName == "demobrowseado.prg";   #pragma __binarystreaminclude "demobrowseado.prg" | RETURN %s
 CASE cFileName == "demodbfdata.prg";     #pragma __binarystreaminclude "demodbfdata.prg" | RETURN %s

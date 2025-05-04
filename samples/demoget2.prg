@@ -95,7 +95,7 @@ FUNCTION DemoGet2( lWithDialog, oDlg )
       SIZE 100, 32 ;
       ON CLICK { || ;
          iif( lWithDialog, oDlg:lResult := .T., Nil ), ;
-         iif( lWithDialog, hwg_EndDialog(), hwg_MsgInfo( "No action here" ) ) }
+         iif( lWithDialog, oDlg:Close(), hwg_MsgInfo( "No action here" ) ) }
 
    @ 180, 350 BUTTON "Cancel" ;
       ID IDCANCEL ;

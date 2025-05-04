@@ -109,7 +109,7 @@ hello.prg : Need for full port TO GTK:
         ==> this was the screenshot with the further design
             on Windows.
 
-testbrw.prg:
+demobrowsebmp.prg:
 Crash on GTK fixed,
 (crashes with no PROPS2ARR at ENTER or click)
 ==>
@@ -131,7 +131,7 @@ List of sample programs with bugs
 
 demogrid5.prg    (Windows only)
 demotab.prg
-testbrw.prg
+demobrowsebmp.prg
 testchild.prg (Windows only) - movewd to test/samples/
 testrtf.prg   (Windows only)
 

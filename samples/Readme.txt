@@ -231,6 +231,7 @@ For beginners:
 
  demoall.prg            ?                        group samples
    demobitmap.prg       Y       Y                Displaying images and usage of FreeImage library (IMAGE, BITMAP).
+   demobrowsebmp.prg    Y  #                     Another BROWSE test using bmp (bug on GTK see docu)
    demobrowsedbf.prg    Y       ?    ?           browse dbf
    demobrowseado.prg    N       N                ADO Browse (TNX Itamar M. Lins Jr.). For multi platform use BROWSE.
    democheckbox.prg     Y                        Checkboxes and tabs
@@ -297,7 +298,6 @@ For beginners:
  stretch.prg            Y  #                     Sample for resizing bitmaps (background), some bugs (as test program)
  testalert.prg          N       N                Clipper style Alert() replacement, delivered by Alex Strickland (TNX !)
  demoonother.prg        P                        bOther Test: Press key, after key up the scan code is displayed.
- testbrw.prg            Y  #                     Another BROWSE test (bug on GTK see docu)
  testrtf.prg  1)        Y  #    N          -      Create Rich text files. Need some work, the created RTFs are not compatible with newest specifications. (TO-DO for Alexander Kresin)
  teststrrev.prg         Y                        Function hwg_strrev() reverses a string for UTF-8 and handle Euro currency sign with GET
  testtray.prg           Y                 Y      Tray Message : Be care of different behavior between WinAPI and GTK
