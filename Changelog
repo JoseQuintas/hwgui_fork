@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-04 09:30 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demoall.hbp
+   * samples/demoall.prg
+   + samples/demoowner.prg
+     ! source code of demoowner was inside demoall.prg
+     ! on this way, ownerbutton code have a best view
+     ! changed ++nButtonCount to avoid wrong counter
+
 2025-05-03 19:30 UTC-0300 Jose Quintas jmcquintas-gmail.com
   * samples/demoall.hbp
   * samples/demoall.prg

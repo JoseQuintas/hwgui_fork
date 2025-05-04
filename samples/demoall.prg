@@ -34,7 +34,6 @@ It is all
 #include "directry.ch"
 
 STATIC aMenuOptions := {}, nMenuLevel := 0
-STATIC nRowPos := -1, nColPos := -1
 
 FUNCTION Main()
 
@@ -177,61 +176,6 @@ STATIC FUNCTION DemoBrowseArray()
    oBrowse:AddColumn( HColumn():New( "Name",  { | v, o | (v), o:aArray[ o:nCurrent, 1 ] }, "C", 16, 0 ) )
    oBrowse:AddColumn( HColumn():New( "Age",   { | v, o | (v), o:aArray[ o:nCurrent, 2 ] }, "N", 6, 0 ) )
    oBrowse:AddColumn( HColumn():New( "Number",{ | v, o | (v), o:aArray[ o:nCurrent, 3 ] }, "N", 8, 0 ) )
-
-   RETURN Nil
-
-// to be external
-STATIC FUNCTION ColPos()
-
-   IF nColPos == -1
-      nColPos := 10
-      nRowPos := 60
-   ELSE
-      nColPos += 150
-      IF nColPos > 700
-         nRowPos += 50
-         nColPos := 10
-      ENDIF
-   ENDIF
-
-   RETURN nColPos
-
-STATIC FUNCTION DemoOwner( lWithDialog, oDlg )
-
-   LOCAL oButton := Array(100), nButtonCount := 0, nCont
-   LOCAL oStyleNormal  := HStyle():New( {16759929,16772062}, 1 )
-   LOCAL oStylePressed := HStyle():New( {16759929}, 1,, 3, 0 )
-   LOCAL oStyleOver    := HStyle():New( {16759929}, 1,, 2, 12164479 )
-   LOCAL aBtn2Style    := { ;
-      HStyle():New( {0xffffff,0xdddddd}, 1,, 1 ), ;
-      HStyle():New( {0xffffff,0xdddddd}, 2,, 1 ), ;
-      HStyle():New( {0xffffff,0xdddddd}, 1,, 2, 8421440 ) }
-
-   FOR nCont = 1 TO 10
-
-      @ ColPos(), nRowPos OWNERBUTTON oButton[ ++nButtonCount ] ;
-         OF       oDlg ;
-         SIZE     100, 24;
-         TEXT     "Button " + Ltrim( Str( nButtonCount ) ) ;
-         ON CLICK { || hwg_MsgInfo( "Click" ) }
-
-      @ ColPos(), nRowPos OWNERBUTTON oButton[ ++nButtonCount ] ;
-         OF       oDlg ;
-         SIZE     100, 24 ;
-         TEXT     "Button " + Ltrim( Str( nButtonCount ) ) ;
-         ON CLICK { || hwg_MsgInfo( "Click" ) }
-      oButton[ nButtonCount - 1 ]:aStyle := aBtn2Style
-
-      @ ColPos(), nRowPos OWNERBUTTON oButton[ ++nButtonCount ] ;
-         OF       oDlg ;
-         SIZE     100, 24 ;
-         HSTYLES oStyleNormal, oStylePressed, oStyleOver ;
-         TEXT     "Button " + Ltrim( Str( nButtonCount ) ) ;
-         ON CLICK { || hwg_MsgInfo( "Click" ) }
-
-   NEXT
-
-   (lWithDialog) // not used, warning -w3 -es2
 
    RETURN Nil
 
@@ -518,6 +462,7 @@ CASE cFileName == "demomenubitmap.prg";  #pragma __binarystreaminclude "demomenu
 CASE cFileName == "demomonthcal.prg";    #pragma __binarystreaminclude "demomonthcal.prg" | RETURN %s
 CASE cFileName == "demomenu.prg";        #pragma __binarystreaminclude "demomenu.prg" | RETURN %s
 CASE cFileName == "demomenuxml.prg";     #pragma __binarystreaminclude "demomenuxml.prg" | RETURN %s
+CASE cFileName == "demoowner.prg";       #pragma __binarystreaminclude "demoowner.prg" | RETURN %s
 CASE cFileName == "demoprogbar.prg";     #pragma __binarystreaminclude "demoprogbar.prg" | RETURN %s
 CASE cFileName == "demosedit.prg";       #pragma __binarystreaminclude "demosedit.prg" | RETURN %s
 CASE cFileName == "demoshadebtn.prg";    #pragma __binarystreaminclude "demoshadebtn.prg" | RETURN %s
