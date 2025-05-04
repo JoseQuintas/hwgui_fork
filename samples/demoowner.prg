@@ -10,15 +10,7 @@ STATIC nRowPos := -1, nColPos := -1
 
 FUNCTION DemoOwner( lWithDialog, oDlg )
 
-   LOCAL oButton := Array(30), nIndex, nLayout
-   LOCAL aStyle1 := { ;
-      HStyle():New( {16759929,16772062}, 1 ), ;             // normal
-      HStyle():New( {16759929}, 1,, 3, 0 ), ;               // pressed
-      HStyle():New( {16759929}, 1,, 2, 12164479 ) }         // over
-   LOCAL aStyle2    := { ;
-      HStyle():New( {0xffffff,0xdddddd}, 1,, 1 ), ;         // normal
-      HStyle():New( {0xffffff,0xdddddd}, 2,, 1 ), ;         // pressed
-      HStyle():New( {0xffffff,0xdddddd}, 1,, 2, 8421440 ) } // over
+   LOCAL oButton := Array(30), nIndex, nLayout, aStyle1, aStyle2
 
    hb_Default( @lWithDialog, .T. )
 
@@ -47,6 +39,13 @@ FUNCTION DemoOwner( lWithDialog, oDlg )
 
       CASE nLayout == 2
 
+         // :aStyle use array
+
+         aStyle1 := { ;
+            HStyle():New( {16759929,16772062}, 1 ), ;             // normal
+            HStyle():New( {16759929}, 1,, 3, 0 ), ;               // pressed
+            HStyle():New( {16759929}, 1,, 2, 12164479 ) }         // over
+
          @ ColPos(), nRowPos OWNERBUTTON oButton[ nIndex ] ;
             OF       oDlg ;
             SIZE     100, 24 ;
@@ -55,6 +54,13 @@ FUNCTION DemoOwner( lWithDialog, oDlg )
          oButton[ nIndex ]:aStyle := aStyle1
 
       CASE nLayout == 3
+
+         // HSTYLES use 3 values
+
+         aStyle2    := { ;
+            HStyle():New( {0xffffff,0xdddddd}, 1,, 1 ), ;         // normal
+            HStyle():New( {0xffffff,0xdddddd}, 2,, 1 ), ;         // pressed
+            HStyle():New( {0xffffff,0xdddddd}, 1,, 2, 8421440 ) } // over
 
          @ ColPos(), nRowPos OWNERBUTTON oButton[ nIndex ] ;
             OF       oDlg ;

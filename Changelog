@@ -15,6 +15,10 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-04 12:15 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demoowner.prg
+     ! Now user can copy any layout code using one copy/past
+
 2025-05-04 12:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/demoowner.prg
      ! Simplify, to add more "layout" later, as example using image
