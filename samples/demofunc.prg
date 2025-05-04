@@ -101,6 +101,10 @@ FUNCTION DemoFunc( lWithDialog, oDlg )
 
    hb_Default( @lWithDialog, .T. )
 
+   // when called from another program
+   nColPos := -1
+   nRowPos := -1
+
 * === Get origin path (this were the exe file is located) ===
 *              For multi platform usage !
 *

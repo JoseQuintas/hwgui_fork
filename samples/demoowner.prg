@@ -14,6 +14,10 @@ FUNCTION DemoOwner( lWithDialog, oDlg )
 
    hb_Default( @lWithDialog, .T. )
 
+   // when called from another program
+   nRowPos := -1
+   nColPos := -1
+
    IF lWithDialog
       INIT DIALOG oDlg ;
          TITLE "demoowner.prg - ownerbutton" ;

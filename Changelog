@@ -15,6 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-04 12:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demoowner.prg
+   * samples/demofunc.prg
+     ! These samples use init values on static vars for nRowPos/nColPos
+     ! Added init values at each run, or position will be wrong
+
 2025-05-04 12:15 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/demoowner.prg
      ! Now user can copy any layout code using one copy/past
