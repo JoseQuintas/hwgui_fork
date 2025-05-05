@@ -15,6 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-05 12:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   - samples/GetWinVers.prg
+     ! Removed, and added to demofunc.prg
+   * samples/demofunc.prg
+     ! Removed MsgYesNoCancel() and others already on demodlgbox.prg
+     ! added from GetWinVers.prg
+   * samples/testsamples.prg
+     ! More tests
+
 2025-05-05 01:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/testsamples.prg
      ! test samples, to help do not forgot some things

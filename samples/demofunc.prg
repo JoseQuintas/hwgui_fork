@@ -37,7 +37,6 @@
  hwg_ShowCursor()
  hwg_GetCursorType() && GTK only
  hwg_IsLeapYear ( nyear )
- hwg_MsgYesNoCancel(...)
  hwg_GUIType()
  hwg_RunApp()
  hwg_Has_Win_Euro_Support()
@@ -345,13 +344,6 @@ FUNCTION DemoFunc( lWithDialog, oDlg )
       STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | Funkt(hwg_Get_Time_Shift(),"N","hwg_Get_Time_Shift()") }
 
-   @ ColPos(), nRowPos BUTTON oButton22 ;
-      CAPTION "hwg_MsgYesNoCancel()" ;
-      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
-      FONT oFont  ;
-      STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | | Test_MsgYesNoCancel() }
-
    @ ColPos(), nRowPos BUTTON oButton28 ;
       CAPTION "hwg_GUIType()" ;
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
@@ -394,13 +386,6 @@ FUNCTION DemoFunc( lWithDialog, oDlg )
       STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | Test_hwg_ProcFileExt() }
 
-   @ ColPos(), nRowPos BUTTON oButton22 ;
-      CAPTION "hwg_MsgOkCancel()" ;
-      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
-      FONT oFont  ;
-      STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | | Test_hwg_MsgOkCancel() }
-
    /* Added August 2024 also for MacOS port */
 
     @ ColPos(), nRowPos BUTTON oButton33 ;
@@ -437,6 +422,41 @@ FUNCTION DemoFunc( lWithDialog, oDlg )
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { | | Test_hwg_GetEpoch() }
+
+   @ ColPos(), nRowPos BUTTON oButton22 ;
+      CAPTION "hwg_IsWindows()" ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
+      FONT oFont  ;
+      STYLE WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || hwg_MsgInfo( "Is Windows?" + hb_ValToExp( hwg_IsWindows() ) ) }
+
+   @ ColPos(), nRowPos BUTTON oButton22 ;
+      CAPTION "hwg_IsWin7()" ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
+      FONT oFont  ;
+      STYLE WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || hwg_MsgInfo( "Is Win7?" + hb_ValToExp( hwg_IsWin7() ) ) }
+
+   @ ColPos(), nRowPos BUTTON oButton22 ;
+      CAPTION "hwg_IsWin10()" ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
+      FONT oFont  ;
+      STYLE WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || hwg_MsgInfo( "Is Win10?" + hb_ValToExp( hwg_IsWin10() ) ) }
+
+   @ ColPos(), nRowPos BUTTON oButton22 ;
+      CAPTION "hwg_GetWinMinorVers()" ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
+      FONT oFont  ;
+      STYLE WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || hwg_MsgInfo( "WinMinorVers:" + hb_ValToExp( hwg_GetWinMinorVers() ) ) }
+
+   @ ColPos(), nRowPos BUTTON oButton22 ;
+      CAPTION "hwg_GetWinMajorVers()" ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
+      FONT oFont  ;
+      STYLE WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || hwg_MsgInfo( "WinMajorVers:" + hb_ValToExp( hwg_GetWinMajorVers() ) ) }
 
    /* Last  obuttonxx is obutton38 */
 
@@ -684,33 +704,6 @@ STATIC FUNCTION Test_FileModTime()
    ctim := hwg_FileModTime(fn)
    hwg_MsgInfo("Modification date and time (local) of file" + ;
       CHR(10) + fn + " is :" + CHR(10) +  ctim, "Result of hwg_FileModTime()")
-
-RETURN Nil
-
-STATIC FUNCTION Test_MsgYesNoCancel()
-
-   LOCAL nretu
-
-   nretu := hwg_MsgYesNoCancel("Press a button")
-   * yes    = 1
-   * no     = 2
-   * cancel = 0
-
-   hwg_MsgInfo( STR( nretu ) , "Return value of hwg_MsgYesNoCancel()" )
-
-RETURN Nil
-
-STATIC FUNCTION Test_hwg_MsgOkCancel()
-
-   LOCAL nretu
-
-   nretu := hwg_MsgOkCancel("Press a button")
-
-#ifdef __PLATFORM__WINDOWS
-   hwg_MsgInfo( STR( nretu ) , "Return value of hwg_MsgOkCancel()" )
-#else
-   hwg_MsgInfo( IIF( nretu , ".T.",".F." ) , "Return value of hwg_MsgOkCancel()" )
-#endif
 
 RETURN Nil
 

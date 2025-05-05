@@ -33,11 +33,11 @@ PROCEDURE Main
          cTxt += Str( nCounter, 6 ) + " "
          cTxt += pad( aFile[ 1 ], 20 )
          cTxt += pad( iif( lNoHbp, "no hbp ", "" ), 10 )
-         cTxt += pad( iif( lWindow, "use window ", "" ), 15 )
-         cTxt += pad( iif( lNoButton, "no button ", "" ), 12 )
-         cTxt += Pad( iif( lNoDefault, "no default", "" ), 12 )
+         cTxt += pad( iif( lWindow, "window->dialog ", "" ), 16 )
+         cTxt += pad( iif( lNoButton, "ButtonForSample ", "" ), 16 )
+         cTxt += Pad( iif( lNoDefault, "no default for oDlg", "" ), 18 )
          cTxt += Pad( iif( lNoPragma, "no pragma", "" ), 10 )
-         cTxt += iif( lmdi, "MDI", "" )
+         cTxt += iif( lmdi, "MDI (external demoall)", "" )
          ? cTxt
       ENDIF
    NEXT
