@@ -30,7 +30,6 @@ hbmk2 dbview.hbp
 hbmk2 demodbf.hbp
 hbmk2 escrita.hbp
 hbmk2 fileselect.hbp
-hbmk2 GetWinVers.hbp
 hbmk2 graph.hbp
 hbmk2 hello.hbp
 hbmk2 helpdemo.hbp

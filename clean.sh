@@ -41,7 +41,6 @@ rm utils/hbpad/hbpad 2>/dev/null
 #
 # Samples only for LINUX/GTK
 # and optional generated C source file
-rm samples/gtk_samples/GetWinVers 2>/dev/null
 rm samples/gtk_samples/a 2>/dev/null
 rm samples/a.log 2>/dev/null
 rm samples/gtk_samples/dbview 2>/dev/null
@@ -62,7 +61,6 @@ rm samples/a 2>/dev/null
 rm samples/a.log 2>/dev/null
 rm samples/bincnts 2>/dev/null
 delfi samples/GetWinVers
-delfi samples/demodbf
 delfi samples/fileselect
 rm samples/stretch 2>/dev/null
 rm samples/escrita 2>/dev/null

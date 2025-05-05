@@ -15,6 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-05 12:42 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   - samples/GetWinVers.hbp
+   * clean.sh
+   * samples/Readme.txt
+   * samples/allhbp.hbp
+   * samples/clean.sh
+   * samples/makeallsam.sh
+     ! forgot to update references to GetWinVers on previous commit
+
 2025-05-05 12:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
    - samples/GetWinVers.prg
      ! Removed, and added to demofunc.prg

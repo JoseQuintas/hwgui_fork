@@ -280,7 +280,6 @@ For beginners:
  demomdi.prg            ?                        Demo of MDI using democheckbox
  escrita.prg   +)       Y       Y                Tool buttons with bitmaps ("Accent Test")
  fileselect.prg         Y                        Sample for file selection menues
- GetWinVers.prg         Y                        Functions for get recent hwg_SaveFile() Windows version
  graph.prg              Y                        Paint graphs (Sinus, Bar diagram)
  grid_2.prg 2)  +)      N       N         -      Grid demo, use Postgres Library, you need to link libpq.lib and libhbpg.lib
  grid_3.prg 2)  +)      N       N         -      Grid demo, use Postgres Library, you need to link libpq.lib and libhbpg.lib

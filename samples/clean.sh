@@ -23,7 +23,6 @@ rm colrbloc 2> /dev/null
 rm dbview 2> /dev/null
 rm escrita 2> /dev/null
 rm fileselect 2> /dev/null
-rm GetWinVers 2> /dev/null
 rm graph 2> /dev/null
 rm hello 2> /dev/null
 rm helpdemo 2> /dev/null
