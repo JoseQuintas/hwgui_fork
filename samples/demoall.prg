@@ -274,7 +274,6 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "2.Editbox",              { |o| DemoIni( .F., o, aEndList ) } )
       MenuOption( "3.DateSelect",           { |o| DemoDateSelect( .F., o ) } )
       MenuOption( "4.Datepicker",           { |o| DemoGet1( .F., o ) } )
-      MenuOption( "5.Simple Edit", "demosedit.prg", { || DemoSEdit() } )
       MenuUnDrop()
    MenuOption( "Image" )
       MenuDrop()
@@ -497,7 +496,6 @@ CASE cFileName == "demomenuxml.prg";     #pragma __binarystreaminclude "demomenu
 CASE cFileName == "demonice.prg";        #pragma __binarystreaminclude "demonice.prg" | RETURN %s
 CASE cFileName == "demoowner.prg";       #pragma __binarystreaminclude "demoowner.prg" | RETURN %s
 CASE cFileName == "demoprogbar.prg";     #pragma __binarystreaminclude "demoprogbar.prg" | RETURN %s
-CASE cFileName == "demosedit.prg";       #pragma __binarystreaminclude "demosedit.prg" | RETURN %s
 CASE cFileName == "demoshadebtn.prg";    #pragma __binarystreaminclude "demoshadebtn.prg" | RETURN %s
 CASE cFileName == "demotab.prg";         #pragma __binarystreaminclude "demotab.prg" | RETURN %s
 CASE cFileName == "demotabtool.prg";     #pragma __binarystreaminclude "demotabtool.prg" | RETURN %s

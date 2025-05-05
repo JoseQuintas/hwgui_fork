@@ -25,9 +25,9 @@ PROCEDURE Main
       lWindow    := "init window" $ Lower( cTxt )
       lNoButton  := ! ( "demo.ch" $ Lower( cTxt ) .AND. "buttonforsample" $ Lower( cTxt ) )
       lmdi       := " mdi" $ Lower( cTxt )
-      lNoDefault := "lWithDialog" $ cTxt .AND. ! "hbDefault( @lWithDialog" $ cTxt
+      lNoDefault := "lWithDialog" $ cTxt .AND. ! "hb_Default( @lWithDialog" $ cTxt
       lNoPragma  := ! lNoButton .AND. ! Lower( aFile[ 1 ] ) $ Lower( cTxtPragma )
-      IF lNoHbp .OR. lWindow .OR. lNoButton .OR. ! lNoDefault .OR. lNoPragma
+      IF lNoHbp .OR. lWindow .OR. lNoButton .OR. lNoDefault .OR. lNoPragma
          nCounter++
          cTxt := ""
          cTxt += Str( nCounter, 6 ) + " "
@@ -37,7 +37,7 @@ PROCEDURE Main
          cTxt += pad( iif( lNoButton, "ButtonForSample ", "" ), 16 )
          cTxt += Pad( iif( lNoDefault, "no default for oDlg", "" ), 18 )
          cTxt += Pad( iif( lNoPragma, "no pragma", "" ), 10 )
-         cTxt += iif( lmdi, "MDI (external demoall)", "" )
+         cTxt += iif( lmdi, "MDI (external)", "" )
          ? cTxt
       ENDIF
    NEXT

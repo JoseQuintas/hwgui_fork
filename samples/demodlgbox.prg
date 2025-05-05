@@ -156,9 +156,15 @@ FUNCTION DemoDlgBox( lWithDialog, oDlg )
          xValue := hwg_SelectFolder( "Select folder" ), ;
          hwg_MsgInfo( "Value: " + hb_ValToExp( xValue ) ) }
 
-IF lWithDialog
-   ACTIVATE DIALOG oDlg CENTER
-ENDIF
+   @ ColPos(), nRowPos BUTTON "hwg_MemoEdit()" ;
+      SIZE 180, 28 ;
+      ON CLICK { |xValue| ;
+         xValue := hwg_MemoEdit( "single text" ), ;
+         hwg_MsgInfo( xValue ) }
+
+   IF lWithDialog
+      ACTIVATE DIALOG oDlg CENTER
+   ENDIF
 
 RETURN Nil
 

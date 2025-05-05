@@ -259,7 +259,6 @@ For beginners:
    demonice.prg         N       N                Demo of NICEBUTTON
    demonight.prg        Y                        "ADD HEADER PANEL" for a night mode application
    demoprogbar.prg 12)  Y                        Progress bar
-   demosedit.prg        Y                        Simple text editor demonstrating hwg_Memoedit()
    demoshadebtn.prg     N       N                Shade buttons (for multi platform usage take OWNERBUTTON)
    demosplit.prg        Y                        Split windows
    demosplitter.prg     Y                        Tree control, Splitter, Tab
