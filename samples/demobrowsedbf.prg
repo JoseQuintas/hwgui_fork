@@ -37,7 +37,7 @@ FUNCTION DemoBrowseDbf( lWithDialog, oDlg, aEndList )
    ENDIF
 
 // on demo.ch
-   ButtonForSample( "demobrowsedbf.prg", oDlg )
+   ButtonForSample( "demobrowsedbf.prg" )
 
    @ 20, 80 BROWSE oBrowse ;
       OF oDlg ;

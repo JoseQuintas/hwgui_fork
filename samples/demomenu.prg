@@ -30,7 +30,7 @@ FUNCTION DemoMenu( lWithDialog, oDlg )
    ENDMENU
 
    // do not remove button
-   ButtonForSample( "demomenu.prg", oDlg )
+   ButtonForSample( "demomenu.prg" )
 
    IF lWithDialog
       ACTIVATE DIALOG oDlg ;

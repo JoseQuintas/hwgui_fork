@@ -43,7 +43,7 @@ FUNCTION DemoListboxsub( lWithDialog, oDlg )
          FONT oFont
    ENDIF
 
-   ButtonForSample( "demolistboxsub" )
+   ButtonForSample( "demolistboxsub.prg" )
 
    // Please dimensionize size of BROWSE window so that it is enough space to display
    // all items in oItemso with additional reserve about 20 pixels.

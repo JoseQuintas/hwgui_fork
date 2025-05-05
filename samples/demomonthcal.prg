@@ -37,7 +37,7 @@ FUNCTION DemoMonthCal( lWithDialog, oDlg )
    PREPARE FONT oFontMonthCal1 NAME "Arial" WIDTH 0 HEIGHT -12
 
 // on demo.ch
-   ButtonForSample( "demomonthcal.prg", oDlg )
+   ButtonForSample( "demomonthcal.prg" )
 
    // On Win11 event on change occurs at any time
    @ 20, 50 MONTHCALENDAR oMonthCal1 ;

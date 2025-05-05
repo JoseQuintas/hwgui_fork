@@ -27,7 +27,7 @@ FUNCTION DemoSplitter( lWithDialog, oDlg, aInitList )
    ENDIF
 
 // on demo.ch
-   ButtonForSample( "demosplitter.prg", oDlg )
+   ButtonForSample( "demosplitter.prg" )
 
    @ 10, 60 TREE oTree ;
       OF oDlg ;

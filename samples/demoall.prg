@@ -8,15 +8,46 @@ all.prg(182) Warning W0032  Variable 'CBINHBMK' is assigned but not used in func
 
 How to reutilize samples:
 
-1) Change sample to receive 2 parameters lWithDialog and oDLG
-2) If send lWithDialog=.F. sample do not create dialog, use dialog from parameter
-3) Add on sample ButtonForSample( "name", oDlg ) to show buttons
-4) Add on sample at the end #include "demo.ch"
-5) Check close dialog (oDlg:Close()) once sample will run on tabpage, oDlg will be a Tab
+1) Add on sample ButtonForSample( "name" ) to show buttons
+   and at the end of source code #include "demo.ch"
+   Test if screen need position adjust
 
-Depending on sample, it can be used on a dialog or tab page (send oTab and not oDlg)
-if not, add a button call to it.
-It is all
+After test the sample, need ajusts for demoall
+
+1) Change sample to receive 2 parameters lWithDialog and oDLG
+   If lWithDialog=.T., sample do not create DIALOG and do not use ACTIVATE DIALOG
+
+2) Because sample can run on tab, oDLG can be a tab not a dialog
+   Adjust oDlg:Close()
+   ON CLICK { || iif( lWithDialog, oDlg:Close(), hwg_MsgInfo( "No action here" ) ) }
+
+3) Because sample can run on tab, can't delete temporary files
+   Add codeblock to aEndList to do the work on demoall
+
+4) Some samples need INIT routine on dialog
+   Add codeblock to aInitList, to be executed on demoall init
+
+5) sample can create files and close at the end
+   It can run on demoall several times at once
+   for create/close use #ifdef DEMOALL
+
+6) If sample can't run on a tabpage, add a button to call it
+   MenuOption( "any", "text to button", { || thesample() } )
+   Check if sample will require aEndList for end routines.
+
+7) Unfortunatelly WINDOW can't be called from DIALOG.
+   Samples using WINDOW must be compiled alone
+
+What happen if forgot any:
+- may occur error on create file (file already exists)
+- may occur error of area not in use (a sample CLOSE DATABASES in use)
+- may occur error of invalid member (oDlg:Close() used to close tab)
+- may delete file needed to sample
+- temporary files remains on disk
+- A button on sample can close demoall, if close dialog using hwg_EndDialog()
+
+All samples will run at same time, sometimes 2 times or more
+No problem, when an error occurs, check this list first, if error is on list
 
 */
 
@@ -456,6 +487,7 @@ CASE cFileName == "demohtrack.prg";      #pragma __binarystreaminclude "demohtra
 CASE cFileName == "demoini.prg";         #pragma __binarystreaminclude "demoini.prg" | RETURN %s
 CASE cFileName == "demoimage1.prg";      #pragma __binarystreaminclude "demoimage1.prg" | RETURN %s
 CASE cFileName == "demoimage2.prg";      #pragma __binarystreaminclude "demoimage2.prg" | RETURN %s
+CASE cFileName == "demoimageview.prg";   #pragma __binarystreaminclude "demoimageview.prg" | RETURN %s
 CASE cFileName == "demolenta.prg";       #pragma __binarystreaminclude "demolenta.prg" | RETURN %s
 CASE cFileName == "demolistbox.prg";     #pragma __binarystreaminclude "demolistbox.prg" | RETURN %s
 CASE cFileName == "demolistboxsub.prg";  #pragma __binarystreaminclude "demolistboxsub.prg" | RETURN %s
@@ -463,6 +495,7 @@ CASE cFileName == "demomenubitmap.prg";  #pragma __binarystreaminclude "demomenu
 CASE cFileName == "demomonthcal.prg";    #pragma __binarystreaminclude "demomonthcal.prg" | RETURN %s
 CASE cFileName == "demomenu.prg";        #pragma __binarystreaminclude "demomenu.prg" | RETURN %s
 CASE cFileName == "demomenuxml.prg";     #pragma __binarystreaminclude "demomenuxml.prg" | RETURN %s
+CASE cFileName == "demonice.prg";        #pragma __binarystreaminclude "demonice.prg" | RETURN %s
 CASE cFileName == "demoowner.prg";       #pragma __binarystreaminclude "demoowner.prg" | RETURN %s
 CASE cFileName == "demoprogbar.prg";     #pragma __binarystreaminclude "demoprogbar.prg" | RETURN %s
 CASE cFileName == "demosedit.prg";       #pragma __binarystreaminclude "demosedit.prg" | RETURN %s

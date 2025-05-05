@@ -42,13 +42,15 @@ FUNCTION DemoBitmap( lWithDialog, oDlg )
    ENDIF
 
    IF lWithDialog
-      INIT Dialog oDlg ;
+      INIT DIALOG oDlg ;
          AT 0,0 ;
          SIZE 500,400 ;
          CLIPPER ;
          NOEXIT ;
          NOEXITESC
    ENDIF
+
+   ButtonForSample( "demobitmap.prg" )
 
 * This command requires FreeImage
 *@ 30, 10 IMAGE oSayMain SHOW nameimg OF oDlg SIZE 100, 90
@@ -65,5 +67,7 @@ FUNCTION DemoBitmap( lWithDialog, oDlg )
    ENDIF
 
 RETURN Nil
+
+#include "demo.ch"
 
 * ================ EOF of demobitmap.prg ===========================

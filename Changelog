@@ -15,6 +15,29 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-05 01:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/testsamples.prg
+     ! test samples, to help do not forgot some things
+   * samples/demobitmap.prg
+   * samples/demobrowseado.prg
+   * samples/demobrowsebmp.prg
+   * samples/demobrowsedbf.prg
+   * samples/democheckbox.prg
+   * samples/demogrid5.prg
+   * samples/demoimage1.prg
+   * samples/demoimageview.prg
+   * samples/demolistbox.prg
+   * samples/demolistboxsub.prg
+   * samples/demomenu.prg
+   * samples/demomenuxml.prg
+   * samples/demomonthcal.prg
+   * samples/demosplitter.prg
+   * samples/demoxmltree.prg
+     ! some button for code added
+     ! some ButtonForSample oDlg parameter removed
+     ! some dialog title wrong
+     ! some filename not found on #pragma
+
 2025-05-04 15:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
    - samples/testbrw.hbp
    * samples/demobrowsebmp.prg renamed from testbrw.prg

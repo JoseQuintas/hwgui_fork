@@ -24,15 +24,15 @@ FUNCTION DemoShadeBtn( lWithDialog, oDlg )
    PREPARE FONT oFont NAME "Times New Roman" WIDTH 0 HEIGHT 20 WEIGHT 400
 
    IF lWithDialog
-      INIT WINDOW oDlg ;
-         TITLE "DEMOSHADEBTN - Shade Buttons" ;
+      INIT DIALOG oDlg ;
+         TITLE "demoshadebtn.prg - Shade Buttons" ;
          AT 200,0 ;
-         SIZE 600, 400 ;
-         SYSCOLOR COLOR_3DLIGHT+1
+         SIZE 600, 400
+         // SYSCOLOR COLOR_3DLIGHT+1
    ENDIF
 
 // on demo.ch
-   ButtonForSample( "demoshadebtn.prg", oDlg )
+   ButtonForSample( "demoshadebtn.prg" )
 
    @ 10, 60 SHADEBUTTON ;
       SIZE 100,36 ;
@@ -124,7 +124,7 @@ FUNCTION DemoShadeBtn( lWithDialog, oDlg )
       EFFECT SHS_SOFTBUMP  PALETTE PAL_METAL GRANULARITY 33 HIGHLIGHT 20
 
    IF lWithDialog
-      ACTIVATE WINDOW oDlg CENTER
+      ACTIVATE DIALOG oDlg CENTER
    ENDIF
 
 RETURN Nil

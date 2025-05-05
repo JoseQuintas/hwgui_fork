@@ -92,6 +92,8 @@ FUNCTION DemoImage1()
 #endif
    ENDMENU
 
+   ButtonForSample( "demoimage1.prg" )
+
    ACTIVATE DIALOG oDlg CENTER
 
 RETURN Nil
@@ -128,5 +130,7 @@ FUNCTION Teste( cimgpfad )
    ACTIVATE DIALOG oDlg CENTER
 
 RETURN Nil
+
+#include "demo.ch"
 
 * ================================== EOF of demoimage1.prg ==============================

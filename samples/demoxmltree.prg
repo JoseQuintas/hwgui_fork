@@ -28,7 +28,7 @@ FUNCTION DemoXmlTree( lWithDialog, oDlg )
    ENDIF
 
 // on demo.ch
-   ButtonForSample( "demoxmltree.prg", oDlg )
+   ButtonForSample( "demoxmltree.prg" )
 
    @ 10, 70 TREE oTree ;
       OF oDlg ;

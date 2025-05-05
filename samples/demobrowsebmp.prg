@@ -43,7 +43,7 @@ FUNCTION DemoBrowseBmp( lWithDialog, oDlg )
          SIZE 800, 640
    ENDIF
 
-   ButtonForSample( "demobrowse.bmp" )
+   ButtonForSample( "demobrowsebmp.prg" )
 
    @ 20, 80 BROWSE oBrw1 ;
       ARRAY ;

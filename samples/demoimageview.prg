@@ -58,6 +58,8 @@ FUNCTION DemoImageView()
       ENDMENU
    ENDMENU
 
+   ButtonForSample( "demoimageview.prg" )
+
    ACTIVATE DIALOG oDlg CENTER
 
 RETURN Nil
@@ -218,5 +220,7 @@ STATIC FUNCTION IMGEXIST( nameimg )
    ENDIF
 
 RETURN .T.
+
+#include "demo.ch"
 
 * ================ EOF of demoimageview.prg ===========================
