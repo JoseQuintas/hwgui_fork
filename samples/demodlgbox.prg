@@ -30,17 +30,17 @@
 
 #include "hwgui.ch"
 
+STATIC nColPos, nRowPos // do not initialize values here
 
 FUNCTION DemoDlgBox( lWithDialog, oDlg )
 
-   LOCAL oFont, oFontC, oSay3, oSay5, oSay6, oSay7
-   LOCAL nChoic, cRes, arr := {"White","Blue","Green","Red"}
-
-#ifndef __GTK__
-   LOCAL oSay4
-#endif
+   LOCAL oFont, oFontC, arr := { "White","Blue","Green","Red" }
 
    hb_Default( @lWithDialog, .T. )
+
+   // do not initialize on STATIC declaration
+   nRowPos := -1
+   nColPos := -1
 
    PREPARE FONT oFont NAME "MS Sans Serif" WIDTH 0 HEIGHT -13
    PREPARE FONT oFontC NAME "Georgia" WIDTH 0 HEIGHT -15
@@ -49,73 +49,69 @@ FUNCTION DemoDlgBox( lWithDialog, oDlg )
       INIT DIALOG oDlg ;
          TITLE "demodlgbox.prg - Standard dialogs" ;
          AT 100, 100 ;
-         SIZE 640, 480 ;
+         SIZE 800, 600 ;
          FONT oFont
    ENDIF
 
    ButtonForSample( "demodlgbox.prg" )
 
-   @ 20, 100 BUTTON "hwg_MsgInfo()" ;
+   @ ColPos(), nRowPos BUTTON "hwg_MsgInfo()" ;
       SIZE 180,28 ;
-      ON CLICK {||hwg_MsgInfo("Info dialog","Tutorial")}
+      ON CLICK { || hwg_MsgInfo("Info dialog","Tutorial" ) }
 
-   @ 20, 160 BUTTON "hwg_MsgYesNo()" ;
+   @ ColPos(), nRowPos BUTTON "hwg_MsgYesNo()" ;
       SIZE 180,28 ;
-      ON CLICK {||oSay3:SetText( Iif( hwg_MsgYesNo("Do you like it?","Tutorial"), "Yes","No" ) )}
-
-   @ 230, 160 SAY oSay3 ;
-      CAPTION "" ;
-      SIZE 80,24 ;
-      COLOR 8404992
+      ON CLICK { |xValue| ;
+         xValue := hwg_MsgYesNo( "Do you like it?","Tutorial" ), ;
+         hwg_MsgInfo( "Value: " + hb_ValToExp( xValue ) ) }
 
 #ifndef __GTK__
-   @ 20, 220 BUTTON "hwg_MsgNoYes()" ;
+   @ ColPos(), nRowPos BUTTON "hwg_MsgNoYes()" ;
       SIZE 180,28 ;
-      ON CLICK {||oSay4:SetText( Iif( hwg_MsgNoYes("Do you like it?","Tutorial"), "Yes","No" ) )}
-
-   @ 230, 220 SAY oSay4 ;
-      CAPTION "" ;
-      SIZE 80,24 COLOR 8404992
+      ON CLICK { |xValue| ;
+         xValue := hwg_MsgNoYes( "Do you like it?", "Tutorial" ), ;
+         hwg_MsgInfo( "Value: " + hb_ValToExp( xValue ) ) }
 #endif
 
-   @ 20, 280 BUTTON "hwg_MsgYesNoCancel()" ;
+   @ ColPos(), nRowPos BUTTON "hwg_MsgYesNoCancel()" ;
       SIZE 180, 28 ;
-      ON CLICK {||oSay5:SetText( Ltrim(Str(hwg_MsgYesNoCancel("Do you like it?","Tutorial"))) )}
+      ON CLICK { |xValue| ;
+         xValue := hwg_MsgYesNoCancel( "Do you like it?", "Tutorial" ), ;
+         hwg_MsgInfo( "Value: " + hb_ValToExp( xValue ) ) }
 
-   @ 230, 280 SAY oSay5 CAPTION "" ;
-      SIZE 80, 24 ;
-      COLOR 8404992
 
-   @ 20, 340 BUTTON "hwg_MsgGet()" ;
+   @ ColPos(), nRowPos BUTTON "hwg_MsgGet()" ;
       SIZE 180, 28 ;
-      ON CLICK {||oSay6:SetText( Iif( (cRes := hwg_MsgGet("Input something","Tutorial")) == Nil, "", cRes ) )}
+      ON CLICK { |xValue| ;
+         xValue := hwg_MsgGet( "Input something","Tutorial" ), ;
+         hwg_MsgInfo( "Value: " + hb_ValToExp( xValue ) ) }
 
-   @ 230, 340 SAY oSay6 ;
-      CAPTION "" ;
-      SIZE 80, 24 ;
-      COLOR 8404992
-
-   @ 300, 100 BUTTON "hwg_MsgStop()" ;
+   @ ColPos(), nRowPos BUTTON "hwg_MsgStop()" ;
       SIZE 180,28 ;
-      ON CLICK {||hwg_MsgStop("Error message","Tutorial")}
+      ON CLICK { || hwg_MsgStop( "Error message", "Tutorial" ) }
 
-   @ 300, 160 BUTTON "hwg_MsgOkCancel()" ;
-      SIZE 180,28 ;
-      ON CLICK {||hwg_MsgOkCancel("Confirm action","Tutorial")}
-
-   @ 300, 220 BUTTON "hwg_MsgExclamation()" ;
+   @ ColPos(), nRowPos BUTTON "hwg_MsgOkCancel()" ;
       SIZE 180, 28 ;
-      ON CLICK {||hwg_MsgExclamation("Happy birthday!","Tutorial")}
+      ON CLICK { || hwg_MsgOkCancel("Confirm action","Tutorial" ) }
+
+   @ ColPos(), nRowPos BUTTON "hwg_MsgExclamation()" ;
+      SIZE 180, 28 ;
+      ON CLICK { || hwg_MsgExclamation( "Happy birthday!", "Tutorial" ) }
 
 #ifndef __GTK__
-   @ 300, 280 BUTTON "hwg_MsgRetryCancel()" ;
+   @ ColPos(), nRowPos BUTTON "hwg_MsgRetryCancel()" ;
       SIZE 180,28 ;
-      ON CLICK {||hwg_MsgRetryCancel("Retry action","Tutorial")}
+      ON CLICK { |xValue| ;
+         xValue := hwg_MsgRetryCancel( "Retry action", "Tutorial" ), ;
+         hwg_MsgInfo( "Value: " + hb_ValToExp( xValue ) ) }
 #endif
 
-   @ 300, 340 BUTTON "hwg_WChoice()" ;
+   @ ColPos(), nRowPos BUTTON "hwg_WChoice()" ;
       SIZE 180, 28 ;
-      ON CLICK {||oSay7:SetText( Iif( (nChoic := hwg_WChoice(arr,"Tutorial",,,oFontC,,,,,"Ok","Cancel")) == 0, "", arr[nChoic] ) )}
+      ON CLICK { |xValue| ;
+         xValue := hwg_WChoice( arr, "Tutorial",,,oFontC,,,,,"Ok","Cancel" ), ;
+         hwg_MsgInfo( "xValue: " +  hb_ValToExp( xValue ) + hb_Eol() + ;
+         " arr[ xValue ]: " + hb_ValToExp( arr[ xValue ] ) ) }
 
 #ifdef __PLATFORM__WINDOWS
       #define DEMO_SHOW_MODAL .T.
@@ -124,21 +120,62 @@ FUNCTION DemoDlgBox( lWithDialog, oDlg )
 #endif
    #define DEMO_SHOW_TEXT "this will a ready to use dialog"
 
-   @ 20, 400 BUTTON "hwg_ShowHelp()" ;
+   @ ColPos(), nRowPos BUTTON "hwg_ShowHelp()" ;
       SIZE 180, 28 ;
       ON CLICK { || hwg_ShowHelp( DEMO_SHOW_TEXT, "demo", "Close", , DEMO_SHOW_MODAL ) }
 
-   @ 500, 340 SAY oSay7 CAPTION "" ;
-      SIZE 80, 24 ;
-      COLOR 8404992
+   @ ColPos(), nRowPos BUTTON "hwg_MsgGet()" ;
+      SIZE 180, 28 ;
+      ON CLICK { |xValue| ;
+         xValue := hwg_MsgGet( "Input something","Tutorial" ), ;
+         hwg_MsgInfo( "Value: " + hb_ValToExp( xValue ) ) }
 
-   @ 20, 430 LINE LENGTH 300
+   @ ColPos(), nRowPos BUTTON "hwg_SelectFile()" ;
+      SIZE 180, 28 ;
+      ON CLICK { |xValue| ;
+         xValue := hwg_SelectFile( "Select File", "*.prg", hb_cwd() ), ;
+         hwg_MsgInfo( "Value: " + hb_ValToExp( xValue ) ) }
+
+#ifdef __GTK__
+   @ ColPos(), nRowPos BUTTON "hwg_SelectFileEx()" ;
+      SIZE 180, 28 ;
+      ON CLICK { |xValue| ;
+         xValue := hwg_SelectFileEx( ,,{{ "Select File", "*.prg", { hb_cwd(), "*" }} ), ;
+         hwg_MsgInfo( "Value: " + hb_ValToExp( xValue ) ) }
+#else
+   @ ColPos(), nRowPos BUTTON "hwg_SaveFile()" ;
+      SIZE 180, 28 ;
+      ON CLICK { |xValue| ;
+         xValue := hwg_SaveFile( "Enter filename", "Test text", "*.txt", hb_cwd(), "Save File" ), ;
+         hwg_MsgInfo( "Value: " + hb_ValToExp( xValue ) ) }
+#endif
+
+   @ ColPos(), nRowPos BUTTON "hwg_SelectFolder()" ;
+      SIZE 180, 28 ;
+      ON CLICK { |xValue| ;
+         xValue := hwg_SelectFolder( "Select folder" ), ;
+         hwg_MsgInfo( "Value: " + hb_ValToExp( xValue ) ) }
 
 IF lWithDialog
    ACTIVATE DIALOG oDlg CENTER
 ENDIF
 
 RETURN Nil
+
+STATIC FUNCTION ColPos()
+
+   IF nColPos == -1
+      nColPos := 20
+      nRowPos := 100
+   ELSE
+      nColPos += 250
+      IF nColPos > 700
+         nColPos := 20
+         nRowPos += 50
+      ENDIF
+   ENDIF
+
+   RETURN nColPos
 
 #include "demo.ch"
 

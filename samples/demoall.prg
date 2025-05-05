@@ -410,7 +410,6 @@ STATIC FUNCTION AddToCompile( oTabLevel1 )
        { "testbrowsearr.prg",      .T., .T., .T., "browse array editable" }, ;
        { "colrbloc.prg",           .T., .T., .T., "Color Block" }, ;
        { "dbview.prg",             .T., .T., .T., "DBView" }, ;
-       { "fileselect.prg",         .T., .T., .T., "File Select" }, ;
        { "helpstatic.prg",         .T., .T., .T., "Help Static" }, ;
        { "tstsplash.prg",          .T., .F., .F., "Test Splash" }, ;
        { "twolistbox.prg",         .T., .F., .F., "Two List Box" }, ;

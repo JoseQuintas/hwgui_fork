@@ -15,13 +15,23 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-05 14:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   - samples/fileselect.hbp
+   - samples/fileselect.prg
+   * samples/demodlgbox.prg
+     ! moved functions from fileselect.prg to demodlgbox.prg
+     ! hwg_SelectFile(), hwg_SelectFileEx(), hwg_SaveFile(),
+     ! hwg_SelectFolder()
+   * doc/hwgdoc_functions.html
+   * samples/Readme.txt
+      ! update references
 
 2025-05-05 17:50 UTC+0200 Wilfried Brunken DF7BE
 * samples/escrita.prg
   ! Bugfix compile error LINUX.
   ! For details see comment lines in
   ! sample program.
-  
+
 
 2025-05-05 12:42 UTC-0300 Jose Quintas jmcquintas-gmail.com
    - samples/GetWinVers.hbp
