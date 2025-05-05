@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+
+2025-05-05 17:50 UTC+0200 Wilfried Brunken DF7BE
+* samples/escrita.prg
+  ! Bugfix compile error LINUX.
+  ! For details see comment lines in
+  ! sample program.
+  
+
 2025-05-05 12:42 UTC-0300 Jose Quintas jmcquintas-gmail.com
    - samples/GetWinVers.hbp
    * clean.sh

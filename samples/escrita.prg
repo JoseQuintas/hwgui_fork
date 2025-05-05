@@ -5,7 +5,7 @@
 *
 * HWGUI sample program:
 * Tool buttons with bitmaps
-* "Teste da Acentuação"
+* "Teste da AcentuaÃ§Ã£o"
 *
 * DF7BE:
 * This sample program is derived from the sample in
@@ -24,6 +24,12 @@
     *  GTK/Linux:  Yes
     *  GTK/Win  :  Yes
 
+* Bugfix compile error LINUX 05.05.2025:
+* Warning W0001  Ambiguous reference 'NBUT'
+* Warning W0032  Variable 'NXOWB' is assigned but not used in function ' ...
+* 'NYOWB', 'NLOWB', 'HTAB' 
+* Warning W0004  Codeblock parameter 'X' (or 'Y' ) declared but not used in function 'MAIN' ...
+
 
 REQUEST HB_CODEPAGE_PTISO, HB_CODEPAGE_PT850
 
@@ -35,7 +41,7 @@ FUNCTION Main()
    LOCAL meditbox := "", mnome := Space( 50 )
    LOCAL cbmppref
    LOCAL otool
-   LOCAL nxowb, nyowb, nlowb, htab
+
    LOCAL noffset
    LOCAL cTitle
 
@@ -43,24 +49,30 @@ FUNCTION Main()
    * Used by OWNERBUTTON's
    LOCAL oFileOpen , oBook, nBut
    LOCAL oBmpNew , oBmpbook , oIcoOK , oBmpdoor , oIcoCancel
+   
+   LOCAL nxowb, nyowb, nlowb, htab   
 #endif
 
 #ifdef __GTK__
    * Use this for OWNERBUTTONS (for multi platform usage with GTK)
-   nxowb := 24  && size x
-   nyowb := 24  && size y
-   nlowb := 32  && at x
-   nbut := 0
+   * ==> Not needed on GTK
+//   nxowb := 24  && size x
+//   nyowb := 24  && size y
+//   nlowb := 32  && at x
+//   nbut := 0
 #else
    * But recent usage on Windows
    nxowb := 50  && size x
    nyowb := 60  && size y
    nlowb := 55  && at x
+   
+   htab := 0   && Not used n GTK
+   nbut := 0
 #endif
 
-   htab := 0
+ 
 
-   cTitle := "Teste da Acentuação"  && ==> "Accent Test"
+   cTitle := "Teste da AcentuaÃ§Ã£o"  && ==> "Accent Test"
 
    cbmppref := ".." + hwg_GetDirSep() + "image" + hwg_GetDirSep()
    // cbmppref := ".." + hwg_GetDirSep() + ".." + hwg_GetDirSep() + "image" + hwg_GetDirSep()
@@ -125,7 +137,9 @@ FUNCTION Main()
       STATE 4;
       TEXT "teste1"  ;
       TOOLTIP "ola" ;
-      ON CLICK { |x, y|hwg_Msginfo( "ola" ), hwg_Enablewindow( oTool:aItem[2,11], .T. ) , hwg_Enablewindow( oTool:aItem[1,11], .F. ) }
+      ON CLICK { || hwg_Msginfo( "ola" ), hwg_Enablewindow( oTool:aItem[2,11], .T. ) , hwg_Enablewindow( oTool:aItem[1,11], .F. ) }
+    
+//      ON CLICK { |x, y| hwg_Msginfo( "ola" ), hwg_Enablewindow( oTool:aItem[2,11], .T. ) , hwg_Enablewindow( oTool:aItem[1,11], .F. ) }    
 
    TOOLBUTTON  otool ;
       ID 702 ;
@@ -134,7 +148,9 @@ FUNCTION Main()
       STATE 4;
       TEXT "teste2"  ;
       TOOLTIP "ola2" ;
-      ON CLICK { |x, y|hwg_Msginfo( "ola1" ), hwg_Enablewindow( oTool:aItem[1,11], .T. ), hwg_Enablewindow( oTool:aItem[2,11], .F. ) }
+      ON CLICK { ||hwg_Msginfo( "ola1" ), hwg_Enablewindow( oTool:aItem[1,11], .T. ), hwg_Enablewindow( oTool:aItem[2,11], .F. ) }      
+      
+//      ON CLICK { |x, y|hwg_Msginfo( "ola1" ), hwg_Enablewindow( oTool:aItem[1,11], .T. ), hwg_Enablewindow( oTool:aItem[2,11], .F. ) }
 
    TOOLBUTTON  otool ;
       ID 703 ;
@@ -143,14 +159,20 @@ FUNCTION Main()
       STATE 4;
       TEXT "asdsa"  ;
       TOOLTIP "ola3" ;
-      ON CLICK { |x, y|hwg_Msginfo( "ola2" ) }
+      ON CLICK { ||hwg_Msginfo( "ola2" ) }
+      
+//     ON CLICK { |x, y|hwg_Msginfo( "ola2" ) }      
+      
    TOOLBUTTON  otool ;
       ID 702 ;
       STYLE 1 ;
       STATE 4;
       TEXT "teste2"  ;
       TOOLTIP "ola2" ;
-      ON CLICK { |x, y|hwg_Msginfo( "ola3" ) }
+      ON CLICK { || hwg_Msginfo( "ola3" ) }
+      
+//      ON CLICK { |x, y|hwg_Msginfo( "ola3" ) }
+      
    TOOLBUTTON  otool ;
       ID 702 ;
       BITMAP cbmppref + "door.bmp";  // DF7BE: tools.bmp does not exist, choose existing one
@@ -158,7 +180,9 @@ FUNCTION Main()
       STATE 4;
       TEXT "teste2"  ;
       TOOLTIP "ola2" ;
-      ON CLICK { |x, y|hwg_Msginfo( "ola4" ) }
+      ON CLICK { || hwg_Msginfo( "ola4" ) }
+      
+//      ON CLICK { |x, y|hwg_Msginfo( "ola4" ) }
 
    TOOLBUTTON  otool ;
       ID 702 ;
@@ -167,7 +191,9 @@ FUNCTION Main()
       STATE 4;
       TEXT "teste2"  ;
       TOOLTIP "ola2" ;
-      ON CLICK { |x, y|hwg_Msginfo( "ola5" ) }
+      ON CLICK { || hwg_Msginfo( "ola5" ) }      
+      
+//     ON CLICK { |x, y|hwg_Msginfo( "ola5" ) }
 
 #else
 
