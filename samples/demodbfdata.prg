@@ -147,7 +147,8 @@ FUNCTION DemoDbfData( lWithDialog, oDlg, aEndList )
 
    IF lWithDialog
       ACTIVATE DIALOG oDlg CENTER
-#ifndef DEMOALL
+
+#ifndef __CALLED_FROM_DEMOALL
       CLOSE DATABASES
       fErase( "tmpdbfdata.dbf" )
       fErase( "tmpdbfdata.ntx" )

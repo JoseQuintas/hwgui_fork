@@ -29,7 +29,7 @@ After test the sample, need ajusts for demoall
 
 5) sample can create files and close at the end
    It can run on demoall several times at once
-   for create/close use #ifdef DEMOALL
+   for create/close use #ifdef __CALLED_FROM_DEMOALL
 
 6) If sample can't run on a tabpage, add a button to call it
    MenuOption( "any", "text to button", { || thesample() } )

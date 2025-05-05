@@ -71,10 +71,12 @@ FUNCTION DemoGrid4( lWithDialog, oDlg, aEndList )
    IF lWithDialog
       ACTIVATE DIALOG oDlg CENTER
       CLOSE DATABASES
-#ifndef DEMOALL
+
+#ifndef __CALLED_FROM_DEMOALL
       // can be caleed as dialog from demoall
       FErase( "tmpgrid4.dbf" )
 #endif
+
    ENDIF
    // called by demoall
    AAdd( aEndList, { || fErase( "tmpgrid4.dbf" ) } )

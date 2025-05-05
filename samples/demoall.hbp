@@ -5,7 +5,7 @@
 #
 
 #used by samples
--DDEMOALL
+-D__CALLED_FROM_DEMOALL
 
 -odemoall
 {win}hbwin.hbc

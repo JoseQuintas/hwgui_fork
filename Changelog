@@ -15,6 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-05 20:25 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demoall.hbp
+   * samples/demoall.prg
+   * samples/demobitmap.prg
+   * samples/demobrowsedbf.prg
+   * samples/demodbfdata.prg
+   * samples/demogrid4.prg
+   * samples/demogrid5.prg
+   * samples/demoini.prg
+     ! renamed #define DEMOALL to __CALLED_FROM_DEMOALL
+     ! To be clear what it means without to need extra remarks
+
 2025-05-05 17:30 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/demoall.hbp
      ! forgot to remove demosedit from hbp

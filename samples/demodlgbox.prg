@@ -140,7 +140,7 @@ FUNCTION DemoDlgBox( lWithDialog, oDlg )
    @ ColPos(), nRowPos BUTTON "hwg_SelectFileEx()" ;
       SIZE 180, 28 ;
       ON CLICK { |xValue| ;
-         xValue := hwg_SelectFileEx( ,,{{ "Select File", "*.prg", { hb_cwd(), "*" }} ), ;
+         xValue := hwg_SelectFileEx( ,,{{ "Select File", "*.prg", { hb_cwd(), "*" }}} ), ;
          hwg_MsgInfo( "Value: " + hb_ValToExp( xValue ) ) }
 #else
    @ ColPos(), nRowPos BUTTON "hwg_SaveFile()" ;

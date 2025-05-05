@@ -113,7 +113,8 @@ FUNCTION DemoGrid5( lWithDialog, oDlg, aInitList, aEndList )
       @ 330, 390 BUTTON 'Close' SIZE 75,25 ON CLICK {|| oDlg:close() }
 
       ACTIVATE DIALOG oDlg CENTER
-#ifndef DEMOALL
+
+#ifndef __CALLED_FROM_DEMOALL
       // can be caleed as dialog from demoall
       CLOSE DATABASES
       fErase( cFileName + ".dbf" )
