@@ -237,6 +237,7 @@ For beginners:
    democheckbox.prg     Y                        Checkboxes and tabs
    democombobox.prg     Y                        Combobox
    demodbfdata.prg                               Database to insert/delete/edit/navigate
+   demodialog.prg       Y                        modifying a dialog title, backcolor
    demodlgbox.prg       Y                        Demonstrates few ready to use dialog boxes (extract from tutor)
    demofunc.prg         Y       Y         Y      Test and demo of standalone HWGUI (hwg_*) functions, enable/disable button.
    demoget1.prg         Y                        Get system: Edit field, Checkboxes, Radio buttons, Combo box, Datepicker
@@ -287,7 +288,6 @@ For beginners:
  hexbincnt.prg 11)      Y                        Handling of binary resources with hex values.
  memocmp.prg.           Y                        Edit and compare memo's an get size
  menumod.prg            Y                        Handling menu items while run-time in dialogs.
- modtitle.prg           Y                        Sample for modifying a main window title in HWGUI
  propsh.prg             N  #    N                Property sheet
  pseudocm.prg           Y                        Pseudo context menu
  qrencode.prg 1) 2)     Y                        Encode QR code from string an convert to monochrome bitmap.

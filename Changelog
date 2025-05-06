@@ -15,6 +15,22 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-06 10:00 UTC-0300 Jose Quintas jmquintas-gmail.com
+   - samples/modtitle.hbp
+   * clean.sh
+   * samples/demodialog.prg renamed from modtitle.prg
+     ! dialog1() with buttons for title change
+     ! dialog2() using backcolor and exit confirmation
+   * samples/Readme.txt
+   * samples/clean.sh
+   * samples/makeallsam.sh
+     ! update references
+   * samples/menumod.prg
+     ! no change, only small format
+   * samples/demoall.hbp
+   * samples/demoall.prg
+     ! Added demodialog on tabpage "dialog"
+
 2025-05-05 20:25 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/demoall.hbp
    * samples/demoall.prg

@@ -31,7 +31,6 @@ rm hexbincnt 2> /dev/null
 rm iesample 2> /dev/null
 rm memocmp 2> /dev/null
 rm menumod 2> /dev/null
-rm modtitle 2> /dev/null
 rm nice 2> /dev/null
 rm nice2 2> /dev/null
 rm propsh 2> /dev/null

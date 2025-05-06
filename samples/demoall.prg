@@ -267,6 +267,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuUnDrop()
    MenuOption( "Checkbox",                { |o| DemoCheckbox( .F., o ) } )
    MenuOption( "Combobox",                { |o| DemoCombobox( .F., o ) } )
+   MenuOption( "Dialog",                  { |o| DemoDialog( .F., o ) } )
    MenuOption( "Radiobutton",             { |o| DemoGet1( .F., o ) } )
    MenuOption( "Get" )
       MenuDrop()
@@ -473,6 +474,7 @@ CASE cFileName == "demobrowsebmp.prg";   #pragma __binarystreaminclude "demobrow
 CASE cFileName == "demobrowsedbf.prg";   #pragma __binarystreaminclude "demobrowsedbf.prg" | RETURN %s
 CASE cFileName == "demobrowseado.prg";   #pragma __binarystreaminclude "demobrowseado.prg" | RETURN %s
 CASE cFileName == "demodbfdata.prg";     #pragma __binarystreaminclude "demodbfdata.prg" | RETURN %s
+CASE cFileName == "demodialog.prg";      #pragma __binarystreaminclude "demodialog.prg" | RETURN %s
 CASE cFileName == "demodlgbox.prg";      #pragma __binarystreaminclude "demodlgbox.prg" | RETURN %s
 CASE cFileName == "demofunc.prg";        #pragma __binarystreaminclude "demofunc.prg" | RETURN %s
 CASE cFileName == "demoupdown.prg";      #pragma __binarystreaminclude "demoupdown.prg" | RETURN %s

@@ -131,10 +131,10 @@ FUNCTION NewItem( nItem )
 
     IF oDlg:lResult .AND. ! Empty(cName)
       IF nItem == 0
-         aMenu := oDialg:menu[1,1]
-         nId := aMenu[1][Len(aMenu[1])-2,3]+1
+         aMenu := oDialg:menu[ 1, 1 ]
+         nId := aMenu[ 1 ][ Len( aMenu[ 1 ] ) - 2, 3 ] + 1
          Hwg_AddMenuItem( aMenu, cName, nId, .F., ;
-              &( "{ | | NewItem("+LTrim(Str(nId-1020,2))+")}" ), Len(aMenu[1])-1 )
+              &( "{ | | NewItem(" + LTrim( Str( nId - 1020, 2 ) ) + ")}" ), Len( aMenu[ 1 ] ) - 1 )
       ELSE
          * Modified
          hwg_Setmenucaption( oDialg:handle, 1020+nItem, cName )

@@ -95,7 +95,6 @@ delfi samples/dlgbrwdbf
 delfi samples/getupdown
 delfi samples/memocmp
 delfi samples/menumod
-delfi samples/modtitle
 delfi samples/testhmonth
 delfi samples/testrtf
 delfi samples/testsdi

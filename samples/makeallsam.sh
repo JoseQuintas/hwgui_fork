@@ -38,7 +38,6 @@ hbmk2 hexbincnt.hbp
 hbmk2 iesample.hbp
 hbmk2 memocmp.hbp
 hbmk2 menumod.hbp
-hbmk2 modtitle.hbp
 hbmk2 propsh.hbp
 hbmk2 pseudocm.hbp
 hbmk2 qrencode.hbp
