@@ -49,11 +49,11 @@ FUNCTION DemoImage2( lWithDialog, oDlg )
    cVal_Dbmp := hwg_cHex2Bin( cHexDbmp )
 
    * ICO
-   oObj_Window := HIcon():AddString( "Window" , cVal_WIco )
-   oObj_Dialog := HIcon():AddString( "Dialog" , cVal_DIco )
+   oObj_Window := HIcon():AddString( "whex.ico" , cVal_WIco )
+   oObj_Dialog := HIcon():AddString( "dhex.ico" , cVal_DIco )
    * BMP
-   oImg_Window := HBitmap():AddString( "Window" , cVal_Wbmp )
-   oImg_Dialog := HBitmap():AddString( "Dialog" , cVal_Dbmp )
+   oImg_Window := HBitmap():AddString( "whex.bmp" , cVal_Wbmp )
+   oImg_Dialog := HBitmap():AddString( "dhex.bmp" , cVal_Dbmp )
 
    IF lWithDialog
       INIT DIALOG oDlg ;
@@ -89,14 +89,14 @@ FUNCTION DemoImage2( lWithDialog, oDlg )
    @ 440, 190 SAY "Dialog Bitmap" ;
       SIZE 80, 32
 
-   @ 50, 300 BITMAP HBitmap():AddString( "Dialog", DemoImgResource( "d.bmp" ) )
+   @ 50, 300 BITMAP HBitmap():AddString( "dpragma.bmp", DemoImgResource( "d.bmp" ) )
    @ 30, 390 SAY "bmp #pragma" SIZE 80, 32
 
 #ifdef __PLATFORM__WINDOWS
-   @ 160, 300 ICON   HIcon():AddString( "Dialog", DemoImgResource( "d.ico" ) )
+   @ 160, 300 ICON   HIcon():AddString( "dpragma.ico", DemoImgResource( "d.ico" ) )
    @ 140, 390 SAY "ico  #pragma" SIZE 80, 32
 #else
-   @ 160, 300 BITMAP HBitmap():AddString( "Dialog", DemoImgResource( "d.ico" ) )
+   @ 160, 300 BITMAP HBitmap():AddString( "dpragma.ico", DemoImgResource( "d.ico" ) )
    @ 140, 390 SAY "ico  #pragma" SIZE 80, 32
 #endif
 
