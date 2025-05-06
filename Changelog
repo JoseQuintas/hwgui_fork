@@ -15,6 +15,10 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-06 10:30 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demoall.prg
+     ! moved demonight.prg from "others" to "dialog"
+
 2025-05-06 10:00 UTC-0300 Jose Quintas jmquintas-gmail.com
    - samples/modtitle.hbp
    * clean.sh
