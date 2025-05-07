@@ -231,7 +231,6 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "6.Grid5",   "demogrid5.prg",     { || DemoGrid5(,,,aEndList) } )
 #endif
       MenuOption( "7.BrowseBMP",                    { |o| DemoBrowseBmp( .F., o ) } )
-      MenuOption( "8.Fernando Queiroz",             { |o| DemoBrowseArr( .F., o ) } )
       MenuUndrop()
    MenuOption( "Button" )
       MenuDrop()

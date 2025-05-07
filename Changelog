@@ -15,6 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-07 18:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demoall.prg
+     ! escuse me, forgot to remove a test
+   * samples/teststrrev.prg
+     ! some source code format
+
 2025-05-07 11:10 UTC-0300 Jose Quintas jmcquintas-gmail.com
   * samples/demobrowsearr.prg
     ! Solved on sample navigation changing editable=.t.

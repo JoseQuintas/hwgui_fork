@@ -147,12 +147,12 @@ REQUEST HB_CODEPAGE_UTF8EX
 
 RETURN Nil
 
-FUNCTION Teste()
-LOCAL Strrev
+STATIC FUNCTION Teste()
 
-LOCAL oLabel1, oLabel2, oLabel3, oLabel4, oLabel5, oLabel6
-LOCAL oEditbox1, oButton1, oButton2
-LOCAL cstring, cneustr
+   LOCAL Strrev
+   LOCAL oLabel1, oLabel2, oLabel3, oLabel4, oLabel5, oLabel6
+   LOCAL oEditbox1, oButton1, oButton2
+   LOCAL cstring, cneustr
 
 * Init
 
@@ -219,22 +219,21 @@ LOCAL cstring, cneustr
 
 RETURN NIL
 
-FUNCTION SetChars()
+STATIC FUNCTION SetChars()
 
-Local setmaxchars
+   LOCAL setmaxchars
+   LOCAL oLabel1, oEditbox1, oButton1, oButton2
+   LOCAL lAbbruch, nneu
 
-LOCAL oLabel1, oEditbox1, oButton1, oButton2
-LOCAL lAbbruch, nneu
+   lAbbruch := .T.
+   nneu    := nmaxchars
 
-lAbbruch := .T.
-nneu    := nmaxchars
-
-  INIT DIALOG setmaxchars ;
-     TITLE "Set max numbers of characters" ;
-     AT 387,215 ;
-     SIZE 554,231 ;
-     NOEXIT ;
-     STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
+   INIT DIALOG setmaxchars ;
+      TITLE "Set max numbers of characters" ;
+      AT 387,215 ;
+      SIZE 554,231 ;
+      NOEXIT ;
+      STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
 
 
    @ 35,11 SAY oLabel1 ;
@@ -263,7 +262,7 @@ nneu    := nmaxchars
    ACTIVATE DIALOG setmaxchars CENTER
 
    IF .NOT. lAbbruch  && not cancelled or ESC key
-    nmaxchars := nneu
+      nmaxchars := nneu
    ENDIF
 
 
