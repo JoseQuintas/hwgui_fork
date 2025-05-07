@@ -49,7 +49,7 @@
 FUNCTION DemoBrowseArr( lWithDialog, oDlg )
 
    LOCAL oBrowse , oFont , oBtn1 , oBtn2 , oBtn3 , oBtn4
-   LOCAL aBrowseList, aRow, aCol, oCol
+   LOCAL aBrowseList, aRow, aCol, oCol, nTmp
 
    hb_Default( @lWithDialog, .T. )
 
@@ -67,7 +67,7 @@ FUNCTION DemoBrowseArr( lWithDialog, oDlg )
    aBrowseList := Array(10,10)
    FOR EACH aRow IN aBrowseList
       FOR EACH aCol IN aRow
-         aCol := Ltrim( Str( aRow:__EnumIndex() ) ) + "." + Ltrim( Str( aCol:__EnumIndex() ) )
+         aCol := Ltrim( Str( aCol:__EnumIndex() ) ) + "." + Ltrim( Str( aCol:__EnumIndex() ) )
       NEXT
    NEXT
 
@@ -92,11 +92,17 @@ FUNCTION DemoBrowseArr( lWithDialog, oDlg )
       SIZE 500, 300
       * Pressing ENTER starts editing of element, too
 
-   hwg_CREATEARLIST( oBrowse, aBrowseList )
-   FOR EACH oCol IN oBrowse:aColumns
-      oCol:Heading := Ltrim( Str( oCol:__EnumIndex() ) )
-      oCol:Length  := 20
+   //hwg_CREATEARLIST( oBrowse, aBrowseList )
+
+   oBrowse:aArray := aBrowseList
+   FOR EACH oCol IN aBrowseList[1]
+      FOR EACH nTmp IN { oCol:__EnumIndex() }
+         oBrowse:AddColumn( HColumn():New( Ltrim(Str(nTmp, 5)),{|v,o|(v),o:aArray[o:nCurrent,nTmp]},"C",10,0,.F.,DT_CENTER ) )
+      NEXT
+      //oCol:Heading := Ltrim( Str( oCol:__EnumIndex() ) )
+      //oCol:Length  := 20
    NEXT
+
    oBrowse:bcolorSel := hwg_ColorC2N( "800080" )
    * FONT setting is mandatory, otherwise crashes with "Not exported method PROPS2ARR"
    oBrowse:ofont               := oFont && HFont():Add( 'Arial',0,-12 )

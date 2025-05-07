@@ -15,6 +15,13 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-07 07:50 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demobrowsearr.prg
+     ! changed on tests
+   + test/browsecol.prg
+     ! Dialog with 4 browses, they do not works at same way
+     ! keyboard right/left and mouse click difference
+
 2025-05-06 20:20 UTC-0300 Jose Quintas jmcquintas-gmail.com
    - samples/testbrowsearr.hbp
      ! removed
