@@ -12,6 +12,8 @@
 
 demoall.prg
 demobitmap.prg
+demobrowsearr.prg
+demobrowsearray.prg
 demobrowsebmp.prg
 demobrowsedbf.prg
 democheckbox.prg

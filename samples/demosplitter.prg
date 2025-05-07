@@ -11,10 +11,22 @@ FUNCTION DemoSplitter( lWithDialog, oDlg, aInitList )
 
    LOCAL oFont := HFont():Add( "MS Sans Serif",0,-13 )
    LOCAL oTree, oSplit, oTab
-   LOCAL oGet
+   LOCAL oGet, cImage1, cImage2
+
+#ifdef __PLATFORM_WINDOWS
+   cImage1 := "..\image\cl_fl.bmp"
+   cImage2 := "..\image\op_fl.bmp"
+#else
+   cImage1 := "..\image\cl_fl.bmp"
+   cImage2 := "..\image\op_fl.bmp"
+#endif
 
    hb_Default( @lWithDialog, .T. )
 
+   IF ! File( cImage1 ) .OR. ! File( cImage2 )
+      hwg_MsgInfo( "no images found " + cImage1 + " " + cImage2 )
+      RETURN Nil
+   ENDIF
    IF lWithDialog
       INIT DIALOG oDlg ;
          TITLE "demosplitter.prg - splitter and treeview" ;
@@ -33,7 +45,7 @@ FUNCTION DemoSplitter( lWithDialog, oDlg, aInitList )
       OF oDlg ;
       SIZE 200,280 ;
       EDITABLE ;
-      BITMAP { "..\image\cl_fl.bmp","..\image\op_fl.bmp" } ;
+      BITMAP { cImage1, cImage2 }  ;
       ON SIZE { | o, x, y | (x), o:Move( ,,, y - 20 ) }
 
    @ 214, 60 EDITBOX oGet ;

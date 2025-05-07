@@ -231,6 +231,8 @@ For beginners:
 
  demoall.prg            ?                        group samples
    demobitmap.prg       Y       Y                Displaying images and usage of FreeImage library (IMAGE, BITMAP).
+   demobrowsearr.prg    Y                        Array BROWSE avoiding crashes because of bugs (see inline comments)
+   demobrowsearray.prg  Y                        Simple browse array
    demobrowsebmp.prg    Y  #                     Another BROWSE test using bmp (bug on GTK see docu)
    demobrowsedbf.prg    Y       ?    ?           browse dbf
    demobrowseado.prg    N       N                ADO Browse (TNX Itamar M. Lins Jr.). For multi platform use BROWSE.
@@ -269,7 +271,6 @@ For beginners:
    demotree.prg         Y                        Tree view control
    demoxmltree.prg      Y                 YW     Show XML-Tree: Open "testxml.xml" for test.
 
- testbrowsearray.prg    Y                        Array BROWSE avoiding crashes because of bugs (see inline comments)
  bindbf.prg 10)         Y                        Usage of images from Binary DBF container
  bincnts.prg 10) +)     Y                        Usage of images from Binary container
  bitmapbug.prg          Y                        Handle of bug in command @<x>,<y> BITMAP ... SHOW (Class HBITMAP)

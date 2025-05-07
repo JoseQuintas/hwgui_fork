@@ -28,7 +28,7 @@ STATIC FUNCTION ButtonForSample( cFileName, oDlg )
       HStyle():New( {0xffffff,0xdddddd}, 1,, 1 ), ;
       HStyle():New( {0xffffff,0xdddddd}, 2,, 1 ), ;
       HStyle():New( {0xffffff,0xdddddd}, 1,, 2, 8421440 ) ;
-      ON CLICK { || ShowCode( cFileName ) }
+      ON CLICK { || demo_ShowCode( cFileName ) }
 
    @ 130, 30 SAY cFileName ;
       OF oDlg ;
@@ -37,14 +37,39 @@ STATIC FUNCTION ButtonForSample( cFileName, oDlg )
 
    RETURN Nil
 
-STATIC FUNCTION ShowCode( cFileName )
+STATIC FUNCTION demo_ShowCode( cFileName )
 
-   LOCAL cText  && Not used any more: oDlg, oEdit, oFont
+   LOCAL cText
 
-   LOCAL lnmodal
+   cText := demo_ReadFile( cFileName )
 
+#ifdef __PLATFORM__WINDOW
+   // if source code on linux format
+   IF ! hb_Eol() $ cText
+      cText := StrTran( cText, Chr(10), hb_Eol() )
+   ENDIF
+   #define _SHOW_HELP_MODAL .T.
+#else
+   #define _SHOW_HELP_MODAL .F.
+#endif
+
+   hwg_ShowHelp( cText, cFileName, "Close",, _SHOW_HELP_MODAL )
+
+   RETURN Nil
+
+STATIC FUNCTION demo_ReadFile( cFileName )
+
+   LOCAL cText
+
+#ifdef __PLATFORM__WINDOWS
+   cFileName := StrTran( cFileName, "/", "\" )
+#else
+   cFileName := StrTran( cFileName, "\", "/" )
+#endif
+
+// this function is on demoall.prg
    BEGIN SEQUENCE WITH __BreakBlock()
-      cText := &( [LoadResourceDemo( "] + cFileName + [" )] )
+      cText := &( [demo_LoadResource( "] + cFileName + [" )] )
    ENDSEQUENCE
 
    IF Empty( cText )
@@ -58,19 +83,4 @@ STATIC FUNCTION ShowCode( cFileName )
       cText := MemoRead( cFileName )
    ENDIF
 
-#ifdef __PLATFORM__WINDOW
-   // if source code on linux format
-   IF ! hb_Eol() $ cText
-      cText := StrTran( cText, Chr(10), hb_Eol() )
-   ENDIF
-#endif
-
-#ifdef __PLATFORM__WINDOWS
-lnmodal := .T.
-#else
-lnmodal := .F.
-#endif
-
-hwg_ShowHelp(cText,cFileName,"Close",,lnmodal)
-
-   RETURN Nil
+   RETURN cText

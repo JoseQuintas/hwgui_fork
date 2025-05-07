@@ -15,6 +15,43 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-06 20:20 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   - samples/testbrowsearr.hbp
+     ! removed
+   * samples/demonight.prg
+     ! button to source code
+   * clean.sh
+   * install-macos.txt
+   * doc/hwgdoc_functions.html
+   * samples/Readme.txt
+   * samples/allhbp.hbp
+   * samples/makeallsam.sh
+   * samples/tstconsapp.prg
+     ! Updated references, found wrong reference to demobrowsearray.prg
+     ! changed to demobrowsearr.prg. I think it was my previous mistake
+   * samples/demo.ch
+     ! demo_ReadFile() to any, not only prg
+     ! returns resource value if available or MemoRead() from file
+   * samples/demobitmap.prg
+     ! use demo_ReadFile()
+   * samples/demoall.hbp
+   * samples/demoall.prg
+     ! added demobrowsearr.prg, some images to resource #pragma
+     ! added demoimage1.prg to "dialog" too, as dialog background sample
+   * samples/demobrowsearr.prg renamed from testbrowsearr.prg
+     ! changed to create array of any row/col size
+   + samples/demobrowsearray.prg
+     ! created from source moved from demoall.prg (from tutorial)
+   * samples/demobrowsebmp.prg
+     ! use of demo_ReadFile()
+   * samples/demosplitter.prg
+     ! filenames to variable, to define windows/linux paths
+     !
+     ! TODO: demobrowsearr.prg
+     ! - mouse do not change column position
+     ! - right/left do not move to next/previous column
+     ! test on win11 mingw 15.1
+
 2025-05-06 11:30 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/demodialog.prg
      ! numbers on buttons to identify dialog

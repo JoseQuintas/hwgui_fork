@@ -86,7 +86,7 @@ FUNCTION Main()
    ADD STATUS PANEL ;
       TO     oDlg ;
       HEIGHT 30 ;
-      PARTS  80, 200, 0
+      PARTS  100, 250, 0
 
    hwg_WriteStatus( oDlg, 1, "demoall.prg", .F. )
    hwg_WriteStatus( oDlg, 2, hwg_Version(), .F. )
@@ -186,30 +186,6 @@ STATIC FUNCTION DemoDateSelect()
 
    RETURN Nil
 
-// to be external
-
-// to be external
-STATIC FUNCTION DemoBrowseArray()
-
-   LOCAL oBrowse
-   LOCAL aBrowseList := { ;
-      { "Alex",   17, 12600 }, ;
-      { "Victor", 42, 1600 }, ;
-      { "John",   31, 15000 } }
-
-   @ 10, 30 BROWSE oBrowse ;
-      ARRAY ;
-      SIZE  450, 250 ;
-      STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
-
-   // array stored on browse aArray, and codeblocks using it
-   oBrowse:aArray := aBrowseList
-   oBrowse:AddColumn( HColumn():New( "Name",  { | v, o | (v), o:aArray[ o:nCurrent, 1 ] }, "C", 16, 0 ) )
-   oBrowse:AddColumn( HColumn():New( "Age",   { | v, o | (v), o:aArray[ o:nCurrent, 2 ] }, "N", 6, 0 ) )
-   oBrowse:AddColumn( HColumn():New( "Number",{ | v, o | (v), o:aArray[ o:nCurrent, 3 ] }, "N", 8, 0 ) )
-
-   RETURN Nil
-
 STATIC FUNCTION MenuOption( cCaption, bCodeOrString, bCode )
 
    LOCAL nCont, aLastMenu
@@ -245,40 +221,42 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
    MenuOption( "Browse" )
       MenuDrop()
 #ifdef __PLATFORM__WINDOWS
-      MenuOption( "1.Browse ADO",         { |o| DemoBrowseADO( .F., o ) } )
+      MenuOption( "1.Browse ADO",                   { |o| DemoBrowseADO( .F., o ) } )
 #endif
-      MenuOption( "2.Browse Array",       { |o| DemoBrowseArray( .F., o ) } )
-      MenuOption( "3.Browse DBF",         { |o| DemoBrowseDbf( .F., o, aEndList ) } )
+      MenuOption( "2.Browse Array",                 { |o| DemoBrowseArray( .F., o ) } )
+      MenuOption( "3.Browse DBF",                   { |o| DemoBrowseDbf( .F., o, aEndList ) } )
 #ifdef __PLATFORM__WINDOWS
       MenuOption( "4.Grid1",   "demogrid.prg",      { || DemoGrid1() } )
       MenuOption( "5.Grid4",   "demogrid4.prg",     { || DemoGrid4(,,aEndList) } )
       MenuOption( "6.Grid5",   "demogrid5.prg",     { || DemoGrid5(,,,aEndList) } )
 #endif
-      MenuOption( "7.BrowseBMP",          { |o| DemoBrowseBmp( .F., o ) } )
+      MenuOption( "7.BrowseBMP",                    { |o| DemoBrowseBmp( .F., o ) } )
+      MenuOption( "8.Fernando Queiroz",             { |o| DemoBrowseArr( .F., o ) } )
       MenuUndrop()
    MenuOption( "Button" )
       MenuDrop()
-      MenuOption( "1.OwnerButton",        { |o| DemoOwner( .F., o ) } )
+      MenuOption( "1.OwnerButton",                  { |o| DemoOwner( .F., o ) } )
 #ifdef __PLATFORM__WINDOWS
-      MenuOption( "2.ShadeButton",        { |o| DemoShadeBtn( .F., o ) } )
+      MenuOption( "2.ShadeButton",                  { |o| DemoShadeBtn( .F., o ) } )
       MenuOption( "3.NiceButton", "nicebutton.prg", { || DemoNice() } )
 #endif
-      MenuOption( "4.demofunc",          { |o| DemoFunc( .F., o ) } )
+      MenuOption( "4.demofunc",                      { |o| DemoFunc( .F., o ) } )
       MenuUnDrop()
-   MenuOption( "Checkbox",                { |o| DemoCheckbox( .F., o ) } )
-   MenuOption( "Combobox",                { |o| DemoCombobox( .F., o ) } )
+   MenuOption( "Checkbox",                           { |o| DemoCheckbox( .F., o ) } )
+   MenuOption( "Combobox",                           { |o| DemoCombobox( .F., o ) } )
    MenuOption( "Dialog" )
       MenuDrop()
-      MenuOption( "1.General",             { |o| DemoDialog( .F., o ) } )
-      MenuOption( "2.Night",    "demonight.prg", { || DemoNight() } )
+      MenuOption( "1.General",                       { |o| DemoDialog( .F., o ) } )
+      MenuOption( "2.Night",      "demonight.prg",   { || DemoNight() } )
+      MenuOption( "3.Back image", "demoimage1.prg",  { || DemoImage1() } )
       MenuUnDrop()
-   MenuOption( "Radiobutton",             { |o| DemoGet1( .F., o ) } )
+   MenuOption( "Radiobutton",                        { |o| DemoGet1( .F., o ) } )
    MenuOption( "Get" )
       MenuDrop()
-      MenuOption( "1.DemoGet2",             { |o| DemoGet2( .F., o ) } )
-      MenuOption( "2.Editbox",              { |o| DemoIni( .F., o, aEndList ) } )
-      MenuOption( "3.DateSelect",           { |o| DemoDateSelect( .F., o ) } )
-      MenuOption( "4.Datepicker",           { |o| DemoGet1( .F., o ) } )
+      MenuOption( "1.DemoGet2",                      { |o| DemoGet2( .F., o ) } )
+      MenuOption( "2.Editbox",                       { |o| DemoIni( .F., o, aEndList ) } )
+      MenuOption( "3.DateSelect",                    { |o| DemoDateSelect( .F., o ) } )
+      MenuOption( "4.Datepicker",                    { |o| DemoGet1( .F., o ) } )
       MenuUnDrop()
    MenuOption( "Image" )
       MenuDrop()
@@ -289,59 +267,59 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuUnDrop()
    MenuOption( "Listbox" )
       MenuDrop()
-      MenuOption( "1.Listbox Alt",        { |o| DemoListBoxSub( .F., o ) } )
+      MenuOption( "1.Listbox Alt",                   { |o| DemoListBoxSub( .F., o ) } )
       MenuUndrop()
    MenuOption( "Menu" )
       MenuDrop()
-      MenuOption( "1.menu",    "demomenu.prg",    { || DemoMenu() } )
-      MenuOption( "2.menuxml", "demomenuxml.prg", { || DemoMenuXml() } )
+      MenuOption( "1.menu",    "demomenu.prg",       { || DemoMenu() } )
+      MenuOption( "2.menuxml", "demomenuxml.prg",    { || DemoMenuXml() } )
 #ifdef __PLATFORM__WINDOWS
       MenuOption( "3.menubitmap","demomenubitmap.prg", { || DemoMenuBitmap() } )
 #endif
       MenuUnDrop()
-   MenuOption( "Progbar",                 { |o| DemoProgbar( .F., o, aEndList ) } )
+   MenuOption( "Progbar",                            { |o| DemoProgbar( .F., o, aEndList ) } )
    MenuOption( "Say" )
       MenuDrop()
-      MenuOption( "1.DemoGet2",           { |o| DemoGet2( .F., o ) } )
+      MenuOption( "1.DemoGet2",                      { |o| DemoGet2( .F., o ) } )
       MenuUnDrop()
    MenuOption( "Splitter" )
       MenuDrop()
-      MenuOption( "1.Split",              { |o| DemoSplit( .F., o, aInitList ) } )
-      MenuOption( "2.Splitter",           { |o| DemoSplitter( .F., o, aInitList ) } )
-      MenuOption( "3.Tree",               { |o| DemoTree( .F., o, aInitList ) } )
-      MenuOption( "4.XML Tree",           { |o| DemoXmlTree( .F., o ) } )
+      MenuOption( "1.Split",                         { |o| DemoSplit( .F., o, aInitList ) } )
+      MenuOption( "2.Splitter",                      { |o| DemoSplitter( .F., o, aInitList ) } )
+      MenuOption( "3.Tree",                          { |o| DemoTree( .F., o, aInitList ) } )
+      MenuOption( "4.XML Tree",                      { |o| DemoXmlTree( .F., o ) } )
       MenuUnDrop()
    MenuOption( "Tab" )
       MenuDrop()
-      MenuOption( "1.Lenta",              { |o| DemoLenta( .F., o ) } )
-      MenuOption( "2.Tab",                { |o| DemoTab( .F., o ) } )
-      MenuOption( "3.Tab/Tooltip",        { |o| DemoTabTool( .F., o ) } )
+      MenuOption( "1.Lenta",                         { |o| DemoLenta( .F., o ) } )
+      MenuOption( "2.Tab",                           { |o| DemoTab( .F., o ) } )
+      MenuOption( "3.Tab/Tooltip",                   { |o| DemoTabTool( .F., o ) } )
       MenuUnDrop()
    MenuOption( "Trackbar" )
       MenuDrop()
-      MenuOption( "1.HTrack",             { |o| DemoHTrack( .F., o ) } )
+      MenuOption( "1.HTrack",                        { |o| DemoHTrack( .F., o ) } )
 #ifdef __PLATFORM__WINDOWS
-      MenuOption( "2.Trackbar",           { |o| DemoTrackbar( .F., o ) } )
+      MenuOption( "2.Trackbar",                      { |o| DemoTrackbar( .F., o ) } )
 #endif
       MenuUnDrop()
    MenuOption( "Tree" )
       MenuDrop()
-      MenuOption( "1.Tree",               { |o| DemoTree( .F., o, aInitList ) } )
-      MenuOption( "2.Split",              { |o| DemoSplit( .F., o, aInitList ) } )
-      MenuOption( "3.Splitter",           { |o| DemoSplitter( .F., o, aInitList ) } )
-      MenuOption( "5.XML Tree",           { |o| DemoXmlTree( .F., o ) } )
+      MenuOption( "1.Tree",                          { |o| DemoTree( .F., o, aInitList ) } )
+      MenuOption( "2.Split",                         { |o| DemoSplit( .F., o, aInitList ) } )
+      MenuOption( "3.Splitter",                      { |o| DemoSplitter( .F., o, aInitList ) } )
+      MenuOption( "5.XML Tree",                      { |o| DemoXmlTree( .F., o ) } )
       MenuUnDrop()
-   MenuOption( "UpDown",                  { |o| DemoUpDown( .F., o ) } )
+   MenuOption( "UpDown",                             { |o| DemoUpDown( .F., o ) } )
    MenuOption( "Others" )
       MenuDrop()
-      MenuOption( "1.AppData",            { |o| DemoDbfData( .F., o, aEndList ) } )
-      MenuOption( "2.Ini Files",          { |o| DemoIni( .F., o, aEndList ) } )
-      MenuOption( "3.Dlgbox",             { |o| DemoDlgBox( .F., o ) } )
+      MenuOption( "1.AppData",                       { |o| DemoDbfData( .F., o, aEndList ) } )
+      MenuOption( "2.Ini Files",                     { |o| DemoIni( .F., o, aEndList ) } )
+      MenuOption( "3.Dlgbox",                        { |o| DemoDlgBox( .F., o ) } )
 #ifdef __PLATFORM__WINDOWS
-      MenuOption( "4.MonthCal",           { |o| DemoMonthCal( .F., o ) } )
+      MenuOption( "4.MonthCal",                      { |o| DemoMonthCal( .F., o ) } )
 #endif
-      MenuOption( "5.Timer",              { |o| DemoGet2( .F., o ) } )
-      MenuOption( "6.Functions",          { |o| DemoFunc( .F., o ) } )
+      MenuOption( "5.Timer",                         { |o| DemoGet2( .F., o ) } )
+      MenuOption( "6.Functions",                     { |o| DemoFunc( .F., o ) } )
       MenuUnDrop()
 
    @ 30, 60 TAB oTabLevel1 ITEMS {} SIZE 950, 650 OF oDlg
@@ -353,7 +331,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       // without sub-level
       IF Len( aOption[ 2 ] ) == 0
          IF ValType( aOption[ 3 ] ) == "C"   // can't run on tabpage use button
-            @ 30, 50 BUTTON "run " + aOption[ 3 ] ;
+            @ 30, 50 BUTTON "Dlg " + aOption[ 3 ] ;
                SIZE 200, 24 ;
                ON CLICK aOption[ 4 ]
          ELSE
@@ -370,7 +348,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
                BEGIN PAGE aOption2[ 1 ] OF oTabLevel2
 
                IF ValType( aOption2[ 3 ] ) == "C" // can't run on tabpage use button
-                  @ 30, 50 BUTTON "run " + aOption2[ 3 ] ;
+                  @ 30, 50 BUTTON "Dlg " + aOption2[ 3 ] ;
                      SIZE 200, 24 ;
                      ON CLICK aOption2[ 4 ]
                ELSE
@@ -410,7 +388,6 @@ STATIC FUNCTION AddToCompile( oTabLevel1 )
        ; // verify
        ;
        { "graph.prg",              .T., .T., .T., "Graph" }, ;
-       { "testbrowsearr.prg",      .T., .T., .T., "browse array editable" }, ;
        { "colrbloc.prg",           .T., .T., .T., "Color Block" }, ;
        { "dbview.prg",             .T., .T., .T., "DBView" }, ;
        { "helpstatic.prg",         .T., .T., .T., "Help Static" }, ;
@@ -464,52 +441,71 @@ STATIC FUNCTION AddToCompile( oTabLevel1 )
 
    RETURN Nil
 
-// only test
-FUNCTION LoadResourceDemo( cFileName )
+//
+// CAUTION when using on application
+// hbmk2 detects changed source code, but not changed external file
+//
+FUNCTION demo_LoadResource( cFileName )
 
-DO CASE
-CASE cFileName == "demo.ch";             #pragma __binarystreaminclude "demo.ch" | RETURN %s
-CASE cFileName == "demoall.prg";         #pragma __binarystreaminclude "demoall.prg" | RETURN %s
-CASE cFileName == "demobitmap.prg";      #pragma __binarystreaminclude "demobitmap.prg" | RETURN %s
-CASE cFileName == "democheckbox.prg";    #pragma __binarystreaminclude "democheckbox.prg" | RETURN %s
-CASE cFileName == "democombobox.prg";    #pragma __binarystreaminclude "democombobox.prg" | RETURN %s
-CASE cFileName == "demobrowsebmp.prg";   #pragma __binarystreaminclude "demobrowsebmp.prg" | RETURN %s
-CASE cFileName == "demobrowsedbf.prg";   #pragma __binarystreaminclude "demobrowsedbf.prg" | RETURN %s
-CASE cFileName == "demobrowseado.prg";   #pragma __binarystreaminclude "demobrowseado.prg" | RETURN %s
-CASE cFileName == "demodbfdata.prg";     #pragma __binarystreaminclude "demodbfdata.prg" | RETURN %s
-CASE cFileName == "demodialog.prg";      #pragma __binarystreaminclude "demodialog.prg" | RETURN %s
-CASE cFileName == "demodlgbox.prg";      #pragma __binarystreaminclude "demodlgbox.prg" | RETURN %s
-CASE cFileName == "demofunc.prg";        #pragma __binarystreaminclude "demofunc.prg" | RETURN %s
-CASE cFileName == "demoupdown.prg";      #pragma __binarystreaminclude "demoupdown.prg" | RETURN %s
-CASE cFileName == "demoget1.prg";        #pragma __binarystreaminclude "demoget1.prg" | RETURN %s
-CASE cFileName == "demoget2.prg";        #pragma __binarystreaminclude "demoget2.prg" | RETURN %s
-CASE cFileName == "demogrid1.prg";       #pragma __binarystreaminclude "demogrid1.prg" | RETURN %s
-CASE cFileName == "demogrid4.prg";       #pragma __binarystreaminclude "demogrid4.prg" | RETURN %s
-CASE cFileName == "demogrid5.prg";       #pragma __binarystreaminclude "demogrid5.prg" | RETURN %s
-CASE cFileName == "demohtrack.prg";      #pragma __binarystreaminclude "demohtrack.prg" | RETURN %s
-CASE cFileName == "demoini.prg";         #pragma __binarystreaminclude "demoini.prg" | RETURN %s
-CASE cFileName == "demoimage1.prg";      #pragma __binarystreaminclude "demoimage1.prg" | RETURN %s
-CASE cFileName == "demoimage2.prg";      #pragma __binarystreaminclude "demoimage2.prg" | RETURN %s
-CASE cFileName == "demoimageview.prg";   #pragma __binarystreaminclude "demoimageview.prg" | RETURN %s
-CASE cFileName == "demolenta.prg";       #pragma __binarystreaminclude "demolenta.prg" | RETURN %s
-CASE cFileName == "demolistbox.prg";     #pragma __binarystreaminclude "demolistbox.prg" | RETURN %s
-CASE cFileName == "demolistboxsub.prg";  #pragma __binarystreaminclude "demolistboxsub.prg" | RETURN %s
-CASE cFileName == "demomenubitmap.prg";  #pragma __binarystreaminclude "demomenubitmap.prg" | RETURN %s
-CASE cFileName == "demomonthcal.prg";    #pragma __binarystreaminclude "demomonthcal.prg" | RETURN %s
-CASE cFileName == "demomenu.prg";        #pragma __binarystreaminclude "demomenu.prg" | RETURN %s
-CASE cFileName == "demomenuxml.prg";     #pragma __binarystreaminclude "demomenuxml.prg" | RETURN %s
-CASE cFileName == "demonice.prg";        #pragma __binarystreaminclude "demonice.prg" | RETURN %s
-CASE cFileName == "demoowner.prg";       #pragma __binarystreaminclude "demoowner.prg" | RETURN %s
-CASE cFileName == "demoprogbar.prg";     #pragma __binarystreaminclude "demoprogbar.prg" | RETURN %s
-CASE cFileName == "demoshadebtn.prg";    #pragma __binarystreaminclude "demoshadebtn.prg" | RETURN %s
-CASE cFileName == "demotab.prg";         #pragma __binarystreaminclude "demotab.prg" | RETURN %s
-CASE cFileName == "demotabtool.prg";     #pragma __binarystreaminclude "demotabtool.prg" | RETURN %s
-CASE cFileName == "demotrackbar.prg";    #pragma __binarystreaminclude "demotrackbar.prg" | RETURN %s
-CASE cFileName == "demotree.prg";        #pragma __binarystreaminclude "demotree.prg" | RETURN %s
-CASE cFileName == "demosplit.prg";       #pragma __binarystreaminclude "demosplit.prg" | RETURN %s
-CASE cFileName == "demosplitter.prg";    #pragma __binarystreaminclude "demosplitter.prg" | RETURN %s
-CASE cFileName == "demoxmltree.prg";     #pragma __binarystreaminclude "demoxmltree.prg" | RETURN %s
-ENDCASE
+   cFileName := Lower( cFileName )
+   DO CASE
+#ifdef __PLATFORM__WINDOWS
+   CASE cFilename == "..\image\astro.bmp";  #pragma __binarystreaminclude "..\image\astro.bmp" | RETURN %s
+   CASE cFileName == "..\image\d.bmp";      #pragma __binarystreaminclude "..\image\d.bmp" | RETURN %s
+   CASE cFileName == "..\image\d.ico";      #pragma __binarystreaminclude "..\image\d.ico" | RETURN %s
+   CASE cFileName == "..\image\true.bmp";   #pragma __binarystreaminclude "..\image\true.bmp" | RETURN %s
+#else
+   CASE cFileName == "../image/astro.bmp";  #pragma __binarystreaminclude "../image/astro.bmp" | RETURN %s
+   CASE cFileName == "../image/d.bmp";      #pragma __binarystreaminclude "../image/D.bmp" | RETURN %s
+   CASE cFileName == "../image/d.ico";      #pragma __binarystreaminclude "../image/D.ico" | RETURN %s
+   CASE cFileName == "../image/true.bmp";   #pragma __binarystreaminclude "../image/true.bmp" | RETURN %s
+#endif
+
+   CASE cFileName == "demo.ch";             #pragma __binarystreaminclude "demo.ch" | RETURN %s
+   CASE cFileName == "demoall.prg";         #pragma __binarystreaminclude "demoall.prg" | RETURN %s
+   CASE cFileName == "demobitmap.prg";      #pragma __binarystreaminclude "demobitmap.prg" | RETURN %s
+   CASE cFileName == "democheckbox.prg";    #pragma __binarystreaminclude "democheckbox.prg" | RETURN %s
+   CASE cFileName == "democombobox.prg";    #pragma __binarystreaminclude "democombobox.prg" | RETURN %s
+   CASE cFileName == "demobrowsearr.prg";   #pragma __binarystreaminclude "demobrowsearr.prg" | RETURN %s
+   CASE cFileName == "demobrowsarray.prg";  #pragma __binarystreaminclude "demobrowsearray.prg" | RETURN %s
+   CASE cFileName == "demobrowsebmp.prg";   #pragma __binarystreaminclude "demobrowsebmp.prg" | RETURN %s
+   CASE cFileName == "demobrowsedbf.prg";   #pragma __binarystreaminclude "demobrowsedbf.prg" | RETURN %s
+   CASE cFileName == "demobrowseado.prg";   #pragma __binarystreaminclude "demobrowseado.prg" | RETURN %s
+   CASE cFileName == "demodbfdata.prg";     #pragma __binarystreaminclude "demodbfdata.prg" | RETURN %s
+   CASE cFileName == "demodialog.prg";      #pragma __binarystreaminclude "demodialog.prg" | RETURN %s
+   CASE cFileName == "demodlgbox.prg";      #pragma __binarystreaminclude "demodlgbox.prg" | RETURN %s
+   CASE cFileName == "demofunc.prg";        #pragma __binarystreaminclude "demofunc.prg" | RETURN %s
+   CASE cFileName == "demoupdown.prg";      #pragma __binarystreaminclude "demoupdown.prg" | RETURN %s
+   CASE cFileName == "demoget1.prg";        #pragma __binarystreaminclude "demoget1.prg" | RETURN %s
+   CASE cFileName == "demoget2.prg";        #pragma __binarystreaminclude "demoget2.prg" | RETURN %s
+   CASE cFileName == "demogrid1.prg";       #pragma __binarystreaminclude "demogrid1.prg" | RETURN %s
+   CASE cFileName == "demogrid4.prg";       #pragma __binarystreaminclude "demogrid4.prg" | RETURN %s
+   CASE cFileName == "demogrid5.prg";       #pragma __binarystreaminclude "demogrid5.prg" | RETURN %s
+   CASE cFileName == "demohtrack.prg";      #pragma __binarystreaminclude "demohtrack.prg" | RETURN %s
+   CASE cFileName == "demoini.prg";         #pragma __binarystreaminclude "demoini.prg" | RETURN %s
+   CASE cFileName == "demoimage1.prg";      #pragma __binarystreaminclude "demoimage1.prg" | RETURN %s
+   CASE cFileName == "demoimage2.prg";      #pragma __binarystreaminclude "demoimage2.prg" | RETURN %s
+   CASE cFileName == "demoimageview.prg";   #pragma __binarystreaminclude "demoimageview.prg" | RETURN %s
+   CASE cFileName == "demolenta.prg";       #pragma __binarystreaminclude "demolenta.prg" | RETURN %s
+   CASE cFileName == "demolistbox.prg";     #pragma __binarystreaminclude "demolistbox.prg" | RETURN %s
+   CASE cFileName == "demolistboxsub.prg";  #pragma __binarystreaminclude "demolistboxsub.prg" | RETURN %s
+   CASE cFileName == "demomenubitmap.prg";  #pragma __binarystreaminclude "demomenubitmap.prg" | RETURN %s
+   CASE cFileName == "demomonthcal.prg";    #pragma __binarystreaminclude "demomonthcal.prg" | RETURN %s
+   CASE cFileName == "demomenu.prg";        #pragma __binarystreaminclude "demomenu.prg" | RETURN %s
+   CASE cFileName == "demomenuxml.prg";     #pragma __binarystreaminclude "demomenuxml.prg" | RETURN %s
+   CASE cFileName == "demonice.prg";        #pragma __binarystreaminclude "demonice.prg" | RETURN %s
+   CASE cFileName == "demonight.prg";        #pragma __binarystreaminclude "demonight.prg" | RETURN %s
+   CASE cFileName == "demoowner.prg";       #pragma __binarystreaminclude "demoowner.prg" | RETURN %s
+   CASE cFileName == "demoprogbar.prg";     #pragma __binarystreaminclude "demoprogbar.prg" | RETURN %s
+   CASE cFileName == "demoshadebtn.prg";    #pragma __binarystreaminclude "demoshadebtn.prg" | RETURN %s
+   CASE cFileName == "demotab.prg";         #pragma __binarystreaminclude "demotab.prg" | RETURN %s
+   CASE cFileName == "demotabtool.prg";     #pragma __binarystreaminclude "demotabtool.prg" | RETURN %s
+   CASE cFileName == "demotrackbar.prg";    #pragma __binarystreaminclude "demotrackbar.prg" | RETURN %s
+   CASE cFileName == "demotree.prg";        #pragma __binarystreaminclude "demotree.prg" | RETURN %s
+   CASE cFileName == "demosplit.prg";       #pragma __binarystreaminclude "demosplit.prg" | RETURN %s
+   CASE cFileName == "demosplitter.prg";    #pragma __binarystreaminclude "demosplitter.prg" | RETURN %s
+   CASE cFileName == "demoxmltree.prg";     #pragma __binarystreaminclude "demoxmltree.prg" | RETURN %s
+   ENDCASE
 
 RETURN Nil
 

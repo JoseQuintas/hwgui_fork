@@ -48,11 +48,13 @@ FUNCTION DemoBitmap( lWithDialog, oDlg )
 
    ButtonForSample( "demobitmap.prg" )
 
+#ifndef _CALLED_FROM_DEMOALL
    IF .NOT. FILE( FILE_BITMAP )
       hwg_msginfo( "File >" + FILE_BITMAP + "< not found", "Error" )
    ENDIF
+#endif
 
-   @ 30, 100 BITMAP hBitmap():AddString( FILE_BITMAP, ImageOnPRG() ) ;
+   @ 30, 100 BITMAP hBitmap():AddString( "astro.bmp", demo_ReadFile( "../image/astro.bmp" ) ) ;
       OF oDlg ;
       SIZE 100, 90
 
@@ -68,14 +70,6 @@ FUNCTION DemoBitmap( lWithDialog, oDlg )
    ENDIF
 
 RETURN Nil
-
-STATIC FUNCTION ImageOnPRG()
-
-#ifdef __PLATFORM__WINDOWS
-   #pragma __binarystreaminclude "..\image\astro.bmp" | RETURN %s
-#else
-   #pragma __binarystreaminclude "../image/astro.bmp" | RETURN %s
-#endif
 
 #include "demo.ch"
 

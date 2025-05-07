@@ -37,7 +37,6 @@ FUNCTION DemoNight()
    LOCAL oDlg, oPanel, oButton // oPaneTop
    LOCAL cTitle := "demonight.prg"
 
-
    * Style objects for night design
    oStyleNormal := HStyle():New( {0x7b7680,0x5b5760}, 1 )
    oStylePressed := HStyle():New( {0x7b7680}, 1,, 2, 0xffffff )
@@ -92,6 +91,7 @@ FUNCTION DemoNight()
       ENDMENU
    ENDMENU
 
+   ButtonForSample( "demonight.prg" )
 
 	// Problem: Menu must be moved under the header
 	// Hwg_BeginMenu( <oWnd>, <nId>, <cTitle> )
@@ -186,7 +186,7 @@ STATIC FUNCTION TestDialog()
       STYLE WS_VSCROLL + WS_HSCROLL   ;
       SIZE 100,170
 
-	/* See testbrowsearr.prg */
+	/* See demobrowsearr.prg */
    hwg_CREATEARLIST(oBrwArr,al_DOKs)
    oBrwArr:acolumns[1]:heading := "DOKs"  // Header string
    oBrwArr:acolumns[1]:length := 50
@@ -235,5 +235,7 @@ STATIC FUNCTION ChangeHeader(ohda,lmo)
    ENDIF
 
 RETURN Nil
+
+#include "demo.ch"
 
 * ================================ EOF of demonight.prg ============================================

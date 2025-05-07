@@ -64,7 +64,7 @@ FUNCTION DemoBrowseBmp( lWithDialog, oDlg )
 
    hwg_CREATEARLIST( oBrw2,aSample2 )
 
-   oBmp := HBitmap():AddString( "true" , res_true_bmp() )
+   oBmp := HBitmap():AddString( "true" , demo_ReadFile( "../image/true.bmp" ) )
 
    oBrw2:aColumns[1]:aBitmaps := { { {|l|l}, oBmp } }
    oBrw2:aColumns[2]:length := 6
@@ -93,14 +93,6 @@ STATIC FUNCTION BrwKey( oBrw, key )
    ENDIF
 
 RETURN .T.
-
-FUNCTION res_true_bmp()
-
-#ifdef __PLATFORM__WINDOWS
-   #pragma __binarystreaminclude "..\image\true.bmp" | RETURN %s
-#else
-   #pragma __binarystreaminclude "../image/true.bmp" | RETURN %s
-#endif
 
 #include "demo.ch"
 
