@@ -87,7 +87,7 @@ FUNCTION DemoBrowseArr( lWithDialog, oDlg )
 
    @ 21, 80 BROWSE oBrowse ;
       ARRAY ;
-      ON CLICK { | | BrwArrayEditElem( oBrowse ) };
+      ON CLICK { |oBrowse,nColPos| BrwArrayEditElem( oBrowse, nColPos ) };
       STYLE WS_VSCROLL + WS_HSCROLL + WS_BORDER ;
       SIZE 500, 300
       * Pressing ENTER starts editing of element, too
@@ -97,7 +97,7 @@ FUNCTION DemoBrowseArr( lWithDialog, oDlg )
    oBrowse:aArray := aBrowseList
    FOR EACH oCol IN aBrowseList[1]
       FOR EACH nTmp IN { oCol:__EnumIndex() }
-         oBrowse:AddColumn( HColumn():New( Ltrim(Str(nTmp, 5)),{|v,o|(v),o:aArray[o:nCurrent,nTmp]},"C",10,0,.F.,DT_CENTER ) )
+         oBrowse:AddColumn( HColumn():New( Ltrim(Str(nTmp, 5)),{|v,o|(v),o:aArray[o:nCurrent,nTmp]},"C",10,0,.T.,DT_CENTER ) )
       NEXT
       //oCol:Heading := Ltrim( Str( oCol:__EnumIndex() ) )
       //oCol:Length  := 20
@@ -108,9 +108,9 @@ FUNCTION DemoBrowseArr( lWithDialog, oDlg )
    oBrowse:ofont               := oFont && HFont():Add( 'Arial',0,-12 )
 
    @ 10,  410 BUTTON oBtn1 ;
-      CAPTION "Edit"    ;
+      CAPTION "Edit1"    ;
       SIZE 60,25  ;
-      ON CLICK { || BrwArrayEditElem( oBrowse ) } ;
+      ON CLICK { || BrwArrayEditElem( oBrowse, 1 ) } ;
       TOOLTIP "Click or ENTER: Edit element under cursor"
 
    @ 70,  410 BUTTON oBtn2 ;
@@ -136,19 +136,15 @@ FUNCTION DemoBrowseArr( lWithDialog, oDlg )
 
 RETURN .T.
 
-STATIC FUNCTION BrwArrayEditElem( oBrowse )
+STATIC FUNCTION BrwArrayEditElem( oBrowse, nColPos )
 
    * Edit the Element in the array
    LOCAL nlaeng, cGetfield, cOldget, aRow
 
-   hwg_Msginfo( ;
-      "RowPos: " + hb_ValToExp( oBrowse:RowPos ) + hb_Eol() + ;
-      "ColPos: " + hb_ValToExp( oBrowse:ColPos ) )
-
-   nlaeng := oBrowse:acolumns[ oBrowse:ColPos ]:length
+   nlaeng := oBrowse:acolumns[ nColPos ]:length
    * Should be an element with one dimension and one element
    aRow := oBrowse:aArray[ oBrowse:nCurrent ]
-   cGetField := Padr( aRow[ oBrowse:ColPos ], nlaeng )
+   cGetField := Padr( aRow[ nColPos ], nlaeng )
 
    cOldget := cGetfield
 
@@ -156,7 +152,7 @@ STATIC FUNCTION BrwArrayEditElem( oBrowse )
    cGetfield := BrwArrayGetElem( oBrowse, cGetfield )
    * Write back, if modified or not cancelled
    IF ( .NOT. EMPTY( cGetfield ) ) .AND. ( cOldget != cGetfield )
-      oBrowse:aArray[ oBrowse:nCurrent, oBrowse:ColPos ] := { cGetfield }
+      oBrowse:aArray[ oBrowse:nCurrent, nColPos ] := cGetfield
       oBrowse:lChanged := .T.
       oBrowse:Refresh()
    ENDIF

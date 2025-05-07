@@ -15,6 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-07 11:10 UTC-0300 Jose Quintas jmcquintas-gmail.com
+  * samples/demobrowsearr.prg
+    ! Solved on sample navigation changing editable=.t.
+    ! Solved on sample edit any element array(10,10)
+
 2025-05-07 07:50 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/demobrowsearr.prg
      ! changed on tests
