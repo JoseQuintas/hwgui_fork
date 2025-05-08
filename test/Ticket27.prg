@@ -17,8 +17,8 @@
 
 #include "hwgui.ch"
 
-Static mutex1
-Static cgetrx1 , cgetrx2
+STATIC mutex1
+THREAD STATIC cGetRx
 
 FUNCTION Main()
 
@@ -57,6 +57,7 @@ FUNCTION Main()
 * you must clone the same function with a new name.
 * Test2() has the same implementation as Test1(),
 * but the title and the static target variable differs.
+* or declare as THREAD STATIC
 
 FUNCTION Test1()
 
@@ -64,7 +65,7 @@ FUNCTION Test1()
    LOCAL cTexto := Space(20), cTexto2 := Space(20), GetList := {}
 
    hb_mutexLock( mutex1 )
-   
+
    INIT DIALOG oDlg ;
     TITLE "Multithread dialog #1" ;
     AT 0 , 0  SIZE 600, 500
@@ -81,7 +82,7 @@ FUNCTION Test1()
 
     * copy input from get 1 to global var:
     hb_mutexLock( mutex1 )
-    cgetrx1 := cTexto
+    cGetRx := cTexto
     hb_mutexUnLock( mutex1 )
 
    RETURN Nil
@@ -105,14 +106,13 @@ FUNCTION Test2()
 
     hb_mutexUnLock( mutex1 )
 
-    ACTIVATE DIALOG oDlg 
+    ACTIVATE DIALOG oDlg
 
     hb_mutexLock( mutex1 )
-    cgetrx2 := cTexto
+    cGetRx := cTexto
     hb_mutexUnLock( mutex1 )
 
 
    RETURN Nil
 
 * ====================== EOF of Ticket27.prg ==========================
- 
