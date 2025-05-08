@@ -91,7 +91,7 @@ FUNCTION DemoNight()
       ENDMENU
    ENDMENU
 
-   ButtonForSample( "demonight.prg" )
+   ButtonForSample( "demonight.prg", oDlg )
 
 	// Problem: Menu must be moved under the header
 	// Hwg_BeginMenu( <oWnd>, <nId>, <cTitle> )

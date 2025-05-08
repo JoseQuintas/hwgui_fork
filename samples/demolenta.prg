@@ -44,7 +44,7 @@ FUNCTION DemoLenta( lWithDialog, oDlg )
          BACKCOLOR CLR_DLGBACK
    ENDIF
 
-   ButtonForSample( "demolenta.prg" )
+   ButtonForSample( "demolenta.prg", oDlg )
 
    @ 20, 116 LENTA oLenta SIZE 160, 28 FONT oFont ;
       ITEMS { "First", "Second" } ITEMSIZE 80 HSTYLES aStyleLenta ON CLICK bTab

@@ -32,7 +32,7 @@ FUNCTION DemoIni( lWithDialog, oDlg, aEndList )
          SIZE 800, 600
    ENDIF
 
-   ButtonForSample( "demoini.prg" )
+   ButtonForSample( "demoini.prg", oDlg )
 
    @ 10, 100 EDITBOX oGet ;
       CAPTION "" ;

@@ -58,7 +58,7 @@ FUNCTION DemoImageView()
       ENDMENU
    ENDMENU
 
-   ButtonForSample( "demoimageview.prg" )
+   ButtonForSample( "demoimageview.prg", oDlg )
 
    ACTIVATE DIALOG oDlg CENTER
 

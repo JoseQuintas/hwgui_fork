@@ -46,7 +46,7 @@ FUNCTION DemoBitmap( lWithDialog, oDlg )
          NOEXITESC
    ENDIF
 
-   ButtonForSample( "demobitmap.prg" )
+   ButtonForSample( "demobitmap.prg", oDlg )
 
 #ifndef _CALLED_FROM_DEMOALL
    IF .NOT. FILE( FILE_BITMAP )

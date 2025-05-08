@@ -92,7 +92,7 @@ FUNCTION DemoImage1()
 #endif
    ENDMENU
 
-   ButtonForSample( "demoimage1.prg" )
+   ButtonForSample( "demoimage1.prg", oDlg )
 
    ACTIVATE DIALOG oDlg CENTER
 

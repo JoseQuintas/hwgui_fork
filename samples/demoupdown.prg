@@ -38,7 +38,7 @@ FUNCTION DemoUpDown( lWithDialog, oDlg )
          // ON EXIT { || hwg_MsgYesNo( "OK to quit ?" ) }
    ENDIF
 
-   ButtonForSample( "demoupdown.prg" )
+   ButtonForSample( "demoupdown.prg", oDlg )
 
    @ 200, 100 GET UPDOWN o_get ;
       VAR o_Number ;

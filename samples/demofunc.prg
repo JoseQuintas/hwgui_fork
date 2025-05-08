@@ -163,7 +163,7 @@ FUNCTION DemoFunc( lWithDialog, oDlg )
          STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
    ENDIF
 
-   ButtonForSample( "demofunc.prg" )
+   ButtonForSample( "demofunc.prg", oDlg )
 
    IF lWithDialog
       @ ColPos(), nRowPos BUTTON oButton1 ;

@@ -23,7 +23,7 @@ FUNCTION DemoBrowseArray( lWithDialog, oDlg )
          STYLE WS_POPUP + WS_CAPTION + WS_MAXIMIZEBOX + WS_MINIMIZEBOX + WS_SYSMENU
    ENDIF
 
-   ButtonForSample( "demobrowsearray.prg" )
+   ButtonForSample( "demobrowsearray.prg", oDlg )
 
    @ 30, 100 BROWSE oBrowse ;
       ARRAY ;

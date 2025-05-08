@@ -32,7 +32,7 @@ FUNCTION DemoShadeBtn( lWithDialog, oDlg )
    ENDIF
 
 // on demo.ch
-   ButtonForSample( "demoshadebtn.prg" )
+   ButtonForSample( "demoshadebtn.prg", oDlg )
 
    @ 10, 60 SHADEBUTTON ;
       SIZE 100,36 ;

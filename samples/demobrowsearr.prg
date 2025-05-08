@@ -83,7 +83,7 @@ FUNCTION DemoBrowseArr( lWithDialog, oDlg )
   Do not use parameters AUTOEDIT and APPEND, they are buggy.
 */
 
-   ButtonForSample( "demobrowsearr.prg" )
+   ButtonForSample( "demobrowsearr.prg", oDlg )
 
    @ 21, 80 BROWSE oBrowse ;
       ARRAY ;

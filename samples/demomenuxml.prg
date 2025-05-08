@@ -116,7 +116,7 @@ FUNCTION DemoMenuXml( lWithDialog )
    ENDMENU
 
 // on demo.ch
-   ButtonForSample( "demomenuxml.prg" )
+   ButtonForSample( "demomenuxml.prg", oDlg )
 
    IF lWithDialog
       ACTIVATE DIALOG oDlg CENTER

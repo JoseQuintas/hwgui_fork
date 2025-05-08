@@ -32,7 +32,7 @@ FUNCTION DemoDialog( lWithDialog, oDlg )
          // ON EXIT { || hwg_MsgYesNo("OK to quit ?" ) }
    ENDIF
 
-   ButtonForSample( "demodialog.prg" )
+   ButtonForSample( "demodialog.prg", oDlg )
 
    @ 30, 100 BUTTON "1.Change title" ;
       SIZE 100, 24 ;

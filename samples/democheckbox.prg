@@ -43,10 +43,11 @@ FUNCTION DemoCheckBox( lWithDialog, oDlg )
    ENDIF
 
 // on demo.ch
-   ButtonForSample( "democheckbox.prg" )
+   ButtonForSample( "democheckbox.prg", oDlg )
 
    @ 300, 70 BUTTON oButton7 ;
       CAPTION  "Invert all"   ;
+      OF oDlg ;
       SIZE     120,32 ;
       STYLE    WS_TABSTOP+BS_FLAT ;
       ON CLICK { || ;
@@ -56,6 +57,7 @@ FUNCTION DemoCheckBox( lWithDialog, oDlg )
 
    @ 300, 110 BUTTON oButton1 ;
       CAPTION "Select all"   ;
+      OF oDlg ;
       SIZE 120, 32 ;
       STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { || ;
@@ -65,6 +67,7 @@ FUNCTION DemoCheckBox( lWithDialog, oDlg )
 
    @ 300, 150 BUTTON oButton2 ;
       CAPTION "Unselect all"   ;
+      OF oDlg ;
       SIZE 120,32 ;
       STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { || ;
@@ -74,6 +77,7 @@ FUNCTION DemoCheckBox( lWithDialog, oDlg )
 
    @ 300, 190 BUTTON oButton3 ;
       CAPTION  "OK"   ;
+      OF oDlg ;
       SIZE     120,32 ;
       STYLE    WS_TABSTOP+BS_FLAT ;
       ON CLICK {|| ;
@@ -83,16 +87,19 @@ FUNCTION DemoCheckBox( lWithDialog, oDlg )
    @ 45, 70  GET CHECKBOX oCheckbox1 ;
       VAR      lCheckbox1 ;
       CAPTION  "Check 1" ;
+      OF oDlg ;
       SIZE     80,22
 
    @ 45, 110 GET CHECKBOX oCheckbox2 ;
       VAR      lCheckbox2 ;
       CAPTION  "Check 2" ;
+      OF oDlg ;
       SIZE     80,22
 
    @ 45, 150 GET CHECKBOX oCheckbox3 ;
       VAR      lCheckbox3 ;
       CAPTION  "Check 2" ;
+      OF oDlg ;
       SIZE     80,22
 
    IF lWithDialog

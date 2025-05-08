@@ -28,7 +28,7 @@ FUNCTION DemoHTrack( lWithDialog, oDlg )
          FONT oFont BACKCOLOR CLR_BROWN_1
    ENDIF
 
-   ButtonForSample( "demohtrack.prg" )
+   ButtonForSample( "demohtrack.prg", oDlg )
 
    @ 40, 170 SAY "Just drag the slider:" ;
       SIZE 220, 22 ;

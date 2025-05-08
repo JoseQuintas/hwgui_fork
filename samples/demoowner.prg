@@ -26,7 +26,7 @@ FUNCTION DemoOwner( lWithDialog, oDlg )
          STYLE WS_SYSMENU + WS_SIZEBOX + WS_VISIBLE
    ENDIF
 
-   ButtonForSample( "demoowner.prg" )
+   ButtonForSample( "demoowner.prg", oDlg )
 
    FOR nIndex = 1 TO 30
 

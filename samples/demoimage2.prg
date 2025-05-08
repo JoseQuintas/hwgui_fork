@@ -63,7 +63,7 @@ FUNCTION DemoImage2( lWithDialog, oDlg )
          ICON oObj_Window
    ENDIF
 
-   ButtonForSample( "demoimage2.prg" )
+   ButtonForSample( "demoimage2.prg", oDlg )
 
    nMainX := oDlg:nLeft + 60
    nMainY := oDlg:nTop + 175
@@ -71,33 +71,63 @@ FUNCTION DemoImage2( lWithDialog, oDlg )
 // Note: On linux can be used BITMAP for all
 
 #ifdef __PLATFORM__WINDOWS
-   @  50, 100 ICON oObj_Window
-   @ 160, 100 ICON oObj_Dialog
+   @  50, 100 ICON oObj_Window ;
+      OF oDlg
+
+   @ 160, 100 ICON oObj_Dialog ;
+      OF oDlg
 #else
-   @  50, 100 BITMAP oObj_Window
-   @ 160, 100 BITMAP oObj_Dialog
+   @  50, 100 BITMAP oObj_Window ;
+      OF oDlg
+
+   @ 160, 100 BITMAP oObj_Dialog ;
+      OF oDlg
 #endif
 
-   @  30, 190 SAY "Window icon" SIZE 80,32
-   @ 140, 190 SAY "Dialog icon" SIZE 80,32
+   @  30, 190 SAY "Window icon" ;
+      OF oDlg ;
+      SIZE 80,32
 
-   @ 350, 100 BITMAP oImg_Window
-   @ 460, 100 BITMAP oImg_Dialog
+   @ 140, 190 SAY "Dialog icon" ;
+      OF oDlg ;
+      SIZE 80,32
+
+   @ 350, 100 BITMAP oImg_Window ;
+      OF oDlg
+
+   @ 460, 100 BITMAP oImg_Dialog ;
+      OF oDlg
 
    @ 330, 190 SAY "Window Bitmap" ;
-      SIZE 80, 32
-   @ 440, 190 SAY "Dialog Bitmap" ;
+      OF oDlg ;
       SIZE 80, 32
 
-   @ 50, 300 BITMAP HBitmap():AddString( "dpragma.bmp", DemoImgResource( "d.bmp" ) )
-   @ 30, 390 SAY "bmp #pragma" SIZE 80, 32
+   @ 440, 190 SAY "Dialog Bitmap" ;
+      OF oDlg ;
+      SIZE 80, 32
+
+   @ 50, 300 BITMAP HBitmap():AddString( "dpragma.bmp", DemoImgResource( "d.bmp" ) ) ;
+      OF oDlg
+
+   @ 30, 390 SAY "bmp #pragma" ;
+      OF oDlg ;
+      SIZE 80, 32
 
 #ifdef __PLATFORM__WINDOWS
-   @ 160, 300 ICON   HIcon():AddString( "dpragma.ico", DemoImgResource( "d.ico" ) )
-   @ 140, 390 SAY "ico  #pragma" SIZE 80, 32
+   @ 160, 300 ICON   HIcon():AddString( "dpragma.ico", DemoImgResource( "d.ico" ) ) ;
+      OF oDlg
+
+   @ 140, 390 SAY "ico  #pragma" ;
+      OF oDlg ;
+      SIZE 80, 32
 #else
-   @ 160, 300 BITMAP HBitmap():AddString( "dpragma.ico", DemoImgResource( "d.ico" ) )
-   @ 140, 390 SAY "ico  #pragma" SIZE 80, 32
+   @ 160, 300 BITMAP HBitmap():AddString( "dpragma.ico", DemoImgResource( "d.ico" ) ) ;
+      OF oDlg
+
+   @ 140, 390 SAY "ico  #pragma" ;
+      OF oDlg ;
+      SIZE 80, 32
+
 #endif
 
 /*
@@ -105,7 +135,8 @@ FUNCTION DemoImage2( lWithDialog, oDlg )
   if dialog is called twice.
 */
 #ifdef __GTK__
-   @ 270, 160 BITMAP   oObj_Dialog
+   @ 270, 160 BITMAP   oObj_Dialog ;
+      OF oDlg
 #endif
 
    IF lWithDialog

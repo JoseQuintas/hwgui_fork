@@ -4,14 +4,14 @@
   include buttons on sample to run and show source code
 */
 
-STATIC FUNCTION ButtonForSample( cFileName, oDlg )
+STATIC FUNCTION ButtonForSample( cFileName, oParent )
 
    LOCAL cRunName
 
    cRunName := StrTran( cFileName, ".prg", "" )
 
    @ 10, 30 OWNERBUTTON ;
-      OF       oDlg ;
+      OF       oParent ;
       SIZE     50, 24 ;
       TEXT     "Dlg" ;
       HSTYLES ;
@@ -21,7 +21,7 @@ STATIC FUNCTION ButtonForSample( cFileName, oDlg )
       ON CLICK { || iif( cRunName == "demoall", "", Do( cRunName ) ) }
 
    @ 70, 30 OWNERBUTTON ;
-      OF oDlg ;
+      OF oParent ;
       SIZE 50, 24 ;
       TEXT "Code" ;
       HSTYLES ;
@@ -31,7 +31,7 @@ STATIC FUNCTION ButtonForSample( cFileName, oDlg )
       ON CLICK { || demo_ShowCode( cFileName ) }
 
    @ 130, 30 SAY cFileName ;
-      OF oDlg ;
+      OF oParent ;
       SIZE 200, 24 ;
       BACKCOLOR 0xffffff
 

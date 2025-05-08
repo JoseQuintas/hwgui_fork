@@ -41,7 +41,7 @@ PROCEDURE Main
       cTxt       := MemoRead( aFile[ 1 ] )
       lNoHbp     := ! Lower( aFile[ 1 ] ) $ Lower( cTxtHbp )
       lWindow    := "init window" $ Lower( cTxt )
-      lNoButton  := ! ( "demo.ch" $ Lower( cTxt ) .AND. [buttonforsample( "] + aFile[1] + [" )] $ Lower( cTxt ) )
+      lNoButton  := ! ( "demo.ch" $ Lower( cTxt ) .AND. [buttonforsample( "] + aFile[1] + [", oDlg )] $ Lower( cTxt ) )
       lmdi       := " mdi" $ Lower( cTxt )
       lNoDefault := "lWithDialog" $ cTxt .AND. ! "hb_Default( @lWithDialog" $ cTxt
       lNoPragma  := ! lNoButton .AND. ! Lower( aFile[ 1 ] ) $ Lower( cTxtPragma )

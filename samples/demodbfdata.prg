@@ -70,7 +70,7 @@ FUNCTION DemoDbfData( lWithDialog, oDlg, aEndList )
    ENDIF
 
 // on demo.ch
-   ButtonForSample( "demodbfdata.prg" )
+   ButtonForSample( "demodbfdata.prg", oDlg )
 
    OpenDbf()
 

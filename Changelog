@@ -15,6 +15,24 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-08 09:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/*.prg
+     ! all samples changed
+     ! Added oDlg as parameter on ButtonForSample("xx",oDlg)
+   * samples/demo.ch
+     ! changed parameter name oDlg to oParent
+   * samples/demoall.prg
+     ! Added demobrowsearr.prg on "browse", "Browse Arr Edit"
+   * samples/democheckbox.prg
+   * samples/demoimage2.prg
+   * samples/demotab.prg
+     ! added "OF oDlg" to controls creation
+   + samples/demolenta2.hbp
+     ! to include others PRGs on compile/link
+   * samples/demolenta2.prg
+     ! Try simplify to expand possibilities
+     ! panels using democheckbox.prg, demoimage2.prg, demotab.prg
+
 2025-05-07 18:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/demoall.prg
      ! escuse me, forgot to remove a test

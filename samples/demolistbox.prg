@@ -15,7 +15,7 @@ FUNCTION DemoListbox( lWithDialog, oDlg )
          FONT oFont
    ENDIF
 
-   ButtonForSample( "demolistbox.prg" )
+   ButtonForSample( "demolistbox.prg", oDlg )
 
    @ 10, 100 LISTBOX oListbox ;
       ITEMS aList ;

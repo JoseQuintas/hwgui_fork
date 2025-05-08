@@ -40,7 +40,7 @@ FUNCTION DemoProgbar( lWithDialog, oDlg, aEndList )
       AAdd( aEndList, { || Iif( oBar == Nil, Nil, oBar:Close() ) } )
    ENDIF
 
-   ButtonForSample( "demoprogbar.prg" )
+   ButtonForSample( "demoprogbar.prg", oDlg )
 
     @ 300, 395 BUTTON 'Reset Bar'  ;
       SIZE 75, 25 ;

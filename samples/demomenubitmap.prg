@@ -96,7 +96,7 @@ FUNCTION DemoMenuBitmap()
    MENUITEMBITMAP oDlg ID 1005 BITMAP cbmplogo
    //Hwg_InsertBitmapMenu(oMain:Menu, 1005, "\hwgui\sourceoBmp:handle)   //do not use bitmap empty
 
-   ButtonForSample( "demomenubitmap.prg" )
+   ButtonForSample( "demomenubitmap.prg", oDlg )
 
    ACTIVATE DIALOG oDlg CENTER
 

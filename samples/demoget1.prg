@@ -56,7 +56,7 @@ FUNCTION DemoGet1( lWithDialog, oDlg )
          NOEXIT
    ENDIF
 
-   ButtonForSample( "demoget1.prg" )
+   ButtonForSample( "demoget1.prg", oDlg )
 
    SET KEY 0, VK_F3 TO hwg_Msginfo( "F3" )
 

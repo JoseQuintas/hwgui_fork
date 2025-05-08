@@ -60,7 +60,7 @@ FUNCTION DemoGet2( lWithDialog, oDlg )
 
    hwg_SetColorinFocus( .T.)
 
-   ButtonForSample( "demoget2.prg" )
+   ButtonForSample( "demoget2.prg", oDlg )
 
    @ 20, 110  SAY "Input something:" ;
       SIZE 260, 22

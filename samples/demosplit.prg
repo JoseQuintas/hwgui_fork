@@ -64,7 +64,7 @@ FUNCTION DemoSplit( lWithDialog, oDlg, aInitList )
       AAdd( aInitList, { || BuildTree( oTree ) } )
    ENDIF
 
-   ButtonForSample( "demosplit.prg" )
+   ButtonForSample( "demosplit.prg", oDlg )
 
    @ 20, 110 TREE oTree ;
       SIZE 140,100

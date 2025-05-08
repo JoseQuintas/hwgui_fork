@@ -8,7 +8,7 @@ all.prg(182) Warning W0032  Variable 'CBINHBMK' is assigned but not used in func
 
 How to reutilize samples:
 
-1) Add on sample ButtonForSample( "name" ) to show buttons
+1) Add on sample ButtonForSample( "name", oDlg ) to show buttons
    and at the end of source code #include "demo.ch"
    Test if screen need position adjust
 
@@ -78,7 +78,7 @@ FUNCTION Main()
       STYLE WS_POPUP + WS_CAPTION + WS_MAXIMIZEBOX + WS_MINIMIZEBOX + WS_SYSMENU ;
       ON INIT { || DemoAllEvalList( aInitList ) }
 
-   ButtonForSample( "demoall.prg" )
+   ButtonForSample( "demoall.prg", oDlg )
 
    CreateAllTabPages( oDlg, aInitList, aEndList )
 
@@ -225,10 +225,11 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
 #endif
       MenuOption( "2.Browse Array",                 { |o| DemoBrowseArray( .F., o ) } )
       MenuOption( "3.Browse DBF",                   { |o| DemoBrowseDbf( .F., o, aEndList ) } )
+      MenuOption( "4.Browse Arr Edit",              { |o| DemoBrowseArr( .F., o ) } )
 #ifdef __PLATFORM__WINDOWS
-      MenuOption( "4.Grid1",   "demogrid.prg",      { || DemoGrid1() } )
-      MenuOption( "5.Grid4",   "demogrid4.prg",     { || DemoGrid4(,,aEndList) } )
-      MenuOption( "6.Grid5",   "demogrid5.prg",     { || DemoGrid5(,,,aEndList) } )
+      MenuOption( "5Grid1",   "demogrid.prg",       { || DemoGrid1() } )
+      MenuOption( "6.Grid4",   "demogrid4.prg",     { || DemoGrid4(,,aEndList) } )
+      MenuOption( "7.Grid5",   "demogrid5.prg",     { || DemoGrid5(,,,aEndList) } )
 #endif
       MenuOption( "7.BrowseBMP",                    { |o| DemoBrowseBmp( .F., o ) } )
       MenuUndrop()

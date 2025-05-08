@@ -89,7 +89,7 @@ FUNCTION DemoGrid5( lWithDialog, oDlg, aInitList, aEndList )
          STYLE DS_CENTER + WS_VISIBLE + WS_POPUP + WS_VISIBLE + WS_CAPTION + WS_SYSMENU
    ENDIF
 
-   ButtonForSample( "demogrid5.prg" )
+   ButtonForSample( "demogrid5.prg", oDlg )
 
    @ 10, 100 GRID oGrid ;
       OF oDlg ;

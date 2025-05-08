@@ -19,7 +19,7 @@ FUNCTION DemoCombobox( lWithDialog, oDlg )
          STYLE WS_SYSMENU + WS_SIZEBOX + WS_VISIBLE
    ENDIF
 
-   ButtonForSample( "democombobox.prg" )
+   ButtonForSample( "democombobox.prg", oDlg )
 
 #ifndef __PLATFORM__WINDOWS
    @ 10, 100 COMBOBOX oCombo1 ;

@@ -33,7 +33,7 @@ FUNCTION DemoTabTool( lWithDialog, oDlg )
          BACKCOLOR hwg_ColorC2N("#DCDAFF")
    ENDIF
 
-   ButtonForSample( "demotabtool.prg" )
+   ButtonForSample( "demotabtool.prg", oDlg )
 
   // Toolbar
   @ 0,0 PANEL oToolbar ;

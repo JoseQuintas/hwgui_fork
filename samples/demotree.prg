@@ -26,7 +26,7 @@ FUNCTION DemoTree( lWithDialog, oDlg, aInitList )
       AAdd( aInitList, { || BuildTree( oDlg, oTree, oSay ) } )
    ENDIF
 
-   ButtonForSample( "demotree.prg" )
+   ButtonForSample( "demotree.prg", oDlg )
 
    CONTEXT MENU oPopup
       MENUITEM "Add child"  ACTION { || AddNode( oTree,0 ) }

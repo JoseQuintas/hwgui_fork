@@ -78,10 +78,11 @@ oTab:StartPage( "pagina2",aDlg2 ),    oTab:EndPage(),otab:changepage(1)
 }
 */
 
-   ButtonForSample( "demotab.prg" )
+   ButtonForSample( "demotab.prg", oDlg )
 
    @ 20, 80 TAB oTab ;
       ITEMS {} ID IDC_1 ;
+      OF oDlg ;
       SIZE 504, 341 ;
       STYLE WS_CHILD+WS_VISIBLE
 

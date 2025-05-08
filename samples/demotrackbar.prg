@@ -15,7 +15,7 @@ FUNCTION DemoTrackbar( lWithDialog, oDlg )
          SIZE  800, 600
    ENDIF
 
-   ButtonForSample( "demotrackbar.prg" )
+   ButtonForSample( "demotrackbar.prg", oDlg )
 
    @ 30, 100 TRACKBAR oTb1 ;
       OF      oDlg ;

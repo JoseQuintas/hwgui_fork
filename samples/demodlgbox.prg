@@ -53,7 +53,7 @@ FUNCTION DemoDlgBox( lWithDialog, oDlg )
          FONT oFont
    ENDIF
 
-   ButtonForSample( "demodlgbox.prg" )
+   ButtonForSample( "demodlgbox.prg", oDlg )
 
    @ ColPos(), nRowPos BUTTON "hwg_MsgInfo()" ;
       SIZE 180,28 ;

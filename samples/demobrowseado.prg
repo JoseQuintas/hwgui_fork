@@ -46,7 +46,7 @@ FUNCTION DemoBrowseADO( lWithDialog, oDlg )
    ENDIF
 
 // on demo.ch
-   ButtonForSample( "demobrowseado.prg" )
+   ButtonForSample( "demobrowseado.prg", oDlg )
 
    @ 20, 80 BROWSE ;
       ARRAY oBrowse ;

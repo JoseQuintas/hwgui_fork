@@ -31,7 +31,7 @@ FUNCTION DemoGrid1( lWithDialog, oDlg )
          STYLE DS_CENTER + WS_VISIBLE + WS_POPUP + WS_VISIBLE + WS_CAPTION + WS_SYSMENU
    ENDIF
 
-   ButtonForSample( "demogrid1.prg" )
+   ButtonForSample( "demogrid1.prg", oDlg )
 
    @ 50, 100 GRID oGrid OF oDlg SIZE 600, 300 ;
       ITEMCOUNT 1000 ;

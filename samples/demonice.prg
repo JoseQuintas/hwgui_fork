@@ -39,7 +39,7 @@ FUNCTION DemoNice( lWithDialog, oDlg, aInitList )
          ON INIT { || Eval( bCode ) }
    ENDIF
 
-   ButtonForSample( "demonice.prg" )
+   ButtonForSample( "demonice.prg", oDlg )
 
    bCode := { ||
    @ 100, 100 nicebutton [ola] ;
