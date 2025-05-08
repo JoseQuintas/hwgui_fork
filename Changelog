@@ -15,6 +15,10 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-08 16:08 UTC-0300 Itamar M. Lins Jr. itamarlins-gmail.com
+   * source/gtk/control.c
+     ! fix not show screen error: IA__gtk_widget_set_tooltip_text: assertion 'GTK_IS_WIDGET (widget)' failed 
+
 2025-05-08 09:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/*.prg
      ! all samples changed
