@@ -786,27 +786,29 @@ HB_FUNC( HWG_CREATETABCONTROL )
 /*
   hwg_AddTab(handle, cLabel, ctooltip)
 */
+
 HB_FUNC( HWG_ADDTAB )
 {
-   GtkNotebook *nb = ( GtkNotebook * ) HB_PARHANDLE( 1 );
-   GtkWidget *box = gtk_fixed_new(  );
+   GtkNotebook *nb = (GtkNotebook *) HB_PARHANDLE(1);
+   GtkWidget *box = gtk_fixed_new();
    GtkWidget *hLabel;
-   char * cLabel = hwg_convert_to_utf8( hb_parc( 2 ) );
+   char *cLabel = hwg_convert_to_utf8(hb_parc(2));
+   char *cTooltip = (HB_ISNIL(3) ? NULL : hwg_convert_to_utf8(hb_parc(3)));
 
-   char * cTooltip = ( ( HB_ISNIL(2) ) ? NULL :  hwg_convert_to_utf8(hb_parc(3) ) );
+   hLabel = gtk_label_new(cLabel);
+   g_free(cLabel);
 
-   hLabel = gtk_label_new( cLabel );
-   g_free( cLabel );
+   gtk_notebook_append_page(nb, box, hLabel);
 
-   gtk_notebook_append_page( nb, box, hLabel );
-
-   g_object_set_data( ( GObject * ) nb, "fbox", ( gpointer ) box );
+   g_object_set_data((GObject *) nb, "fbox", (gpointer) box);
 
    /* Tooltip */
-   if (cTooltip)
-       gtk_widget_set_tooltip_text( (GtkWidget * ) nb, cTooltip );
+   if (cTooltip && GTK_IS_WIDGET(nb)) {
+       gtk_widget_set_tooltip_text((GtkWidget *) nb, cTooltip);
+       g_free(cTooltip);
+   }
 
-   HB_RETHANDLE( nb );
+   HB_RETHANDLE(nb);
 }
 
 HB_FUNC( HWG_DELETETAB )
@@ -1014,13 +1016,18 @@ HB_FUNC( HWG_CREATEOWNBTN )
 
 HB_FUNC( HWG_ADDTOOLTIP )
 {
-   gchar *gcTitle = hwg_convert_to_utf8( hb_parcx( 2 ) );
+   GtkWidget *widget = (GtkWidget *) HB_PARHANDLE(1);
+   gchar *gcTitle = hwg_convert_to_utf8(hb_parcx(2));
 
+   if (gcTitle && GTK_IS_WIDGET(widget)) {
+       gtk_widget_set_tooltip_text(widget, gcTitle);
+   }
 
-   gtk_widget_set_tooltip_text( ( GtkWidget * ) HB_PARHANDLE( 1 ), gcTitle );
-
-   g_free( gcTitle );
+   if (gcTitle) {
+       g_free(gcTitle);
+   }
 }
+
 
 HB_FUNC( HWG_DELTOOLTIP )
 {
@@ -1031,11 +1038,16 @@ HB_FUNC( HWG_DELTOOLTIP )
 
 HB_FUNC( HWG_SETTOOLTIPTITLE )
 {
-   gchar *gcTitle = hwg_convert_to_utf8( hb_parcx( 2 ) );
+   GtkWidget *widget = (GtkWidget *) HB_PARHANDLE(1);
+   gchar *gcTitle = hwg_convert_to_utf8(hb_parcx(2));
 
-    gtk_widget_set_tooltip_text( ( GtkWidget * ) HB_PARHANDLE( 1 ), gcTitle );
+   if (gcTitle && GTK_IS_WIDGET(widget)) {
+       gtk_widget_set_tooltip_text(widget, gcTitle);
+   }
 
-   g_free( gcTitle );
+   if (gcTitle) {
+       g_free(gcTitle);
+   }
 }
 
 HB_FUNC( HWG_SETTOOLTIPBALLOON )
