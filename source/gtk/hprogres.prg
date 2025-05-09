@@ -140,9 +140,10 @@ METHOD RESET() CLASS HProgressBar
 
 METHOD CLOSE() CLASS HProgressBar
 
-   HWG_DestroyWindow( ::handle )
    IF ::lNewBox
       hwg_EndDialog( ::oParent:handle )
+   ELSE
+      HWG_DestroyWindow( ::handle )
    ENDIF
 
    RETURN Nil
