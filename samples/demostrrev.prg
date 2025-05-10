@@ -120,13 +120,9 @@
 FUNCTION DemoStrRev( lWithDialog, oDlg )
 
    LOCAL aLabel := Array(6), aButton := Array(2)
-   LOCAL oEditbox1, cNormal, cReverse
+   LOCAL oEditbox1, cNormal := "", cReverse := ""
 
    hb_Default( @lWithDialog, .T. )
-
-   cNormal  := SPACE(511)
-   cNormal  := hwg_GET_Helper( cNormal, 511 )
-   cReverse := ""
 
    IF lWithDialog
       INIT DIALOG oDlg ;

@@ -15,6 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-10 20:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demostrrev.prg
+     ! Do not understand why to call hwg_get_Helper()
+     !   routine do the same on windows/gtk and it is not needed
+
 2025-05-10 20:15 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/demostrrev.prg
      ! Position for tabpage
