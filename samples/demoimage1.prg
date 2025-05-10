@@ -28,12 +28,12 @@
     *  GTK/Win  :  Yes
 
 #include "hwgui.ch"
+#include "sampleinc.ch"
 
 FUNCTION DemoImage1()
 
    LOCAL oDlg, oFontMain
-   LOCAL cDirSep := hwg_GetDirSep()
-   LOCAL cImageMain, cImagepath
+   LOCAL cImageMain
    LOCAL oBmp
    LOCAL nPosX
    LOCAL nPosY
@@ -46,22 +46,13 @@ FUNCTION DemoImage1()
    nPosX := 500
    nPosY := 400
 
-* decides for samples/gtk_samples or samples/
-// #ifdef __GTK__
-//   cImagepath := ".."+ cDirSep + ".." + cDirSep + "image" + cDirSep
-// #else
-   cImagepath := ".."+ cDirSep + "image" + cDirSep
-// #endif
-
-//   cImageMain := cImagepath + "hwgui.png"
-//   cImageMain := cImagepath + "hwgui_48x48.png"
-     cImageMain := cImagepath + "hwgui.bmp"
+   cImageMain := SAMPLE_IMAGEPATH + "hwgui.bmp"
    IF .NOT. FILE( cImageMain )
       hwg_msgstop( "File not existing: " + cImageMain )
       QUIT
    ENDIF
    oBmp := HBitmap():AddFile( cImageMain )
-   oIconEXE := HIcon():AddFile( cImagepath + "ok.ico" )
+   oIconEXE := HIcon():AddFile( SAMPLE_IMAGEPATH + "ok.ico" )
 
 #ifdef __PLATFORM__WINDOWS
    PREPARE FONT oFontMain NAME "MS Sans Serif" WIDTH 0 HEIGHT -14
@@ -79,7 +70,7 @@ FUNCTION DemoImage1()
       SIZE nPosX,nPosY - 30 ;
       ICON oIconEXE STYLE WS_POPUP +  WS_CAPTION + WS_SYSMENU
 
-   //hwg_msginfo( cImageMain + CHR(10)+  cImagepath + "ok.ico" )
+   //hwg_msginfo( cImageMain + CHR(10)+  SAMPLE_IMAGEPATH + "ok.ico" )
 
   MENU OF oDlg
       MENU TITLE "&Exit"
@@ -87,7 +78,7 @@ FUNCTION DemoImage1()
       ENDMENU
 #ifdef __PLATFORM__WINDOWS
       MENU TITLE "&Dialog"
-         MENUITEM "&With Background" ACTION Teste( cImagepath )  && Bug GTK
+         MENUITEM "&With Background" ACTION Teste()  && Bug GTK
       ENDMENU
 #endif
    ENDMENU
@@ -99,25 +90,30 @@ FUNCTION DemoImage1()
 RETURN Nil
 
 * Dialog with background
-FUNCTION Teste( cimgpfad )
+FUNCTION Teste()
 
    LOCAL oDlg, obg , obitmap , oIcon , cbitmap
 
    cbitmap := "astro.bmp"
 
-   obitmap := HBitmap():AddFile(cimgpfad + cbitmap )
-   oIcon := HIcon():AddFile( cimgpfad + "hwgui_24x24.ico" )
+   obitmap := HBitmap():AddFile( SAMPLE_IMAGEPATH + cbitmap )
+   oIcon := HIcon():AddFile( SAMPLE_IMAGEPATH + "hwgui_24x24.ico" )
 
-   hwg_msginfo( cimgpfad + cbitmap + CHR(10) +  cimgpfad + "hwgui_24x24.ico" )
+   hwg_msginfo( SAMPLE_IMAGEPATH + cbitmap + CHR(10) +  ;
+      SAMPLE_IMAGEPATH + "hwgui_24x24.ico" )
 
    obg := NIL
 
-   IF .NOT. FILE( cimgpfad + "astro.bmp" )
-      hwg_msgStop( "File " + cimgpfad + "astro.bmp" + " not found" )
+   IF .NOT. FILE( SAMPLE_IMAGEPATH + "astro.bmp" )
+      hwg_msgStop( "demoimage1.prg" + hb_Eol() + ;
+         "File " + SAMPLE_IMAGEPATH + "astro.bmp" + ;
+         "not found" )
    ENDIF
 
-   IF .NOT. FILE( cimgpfad + "hwgui_24x24.ico" )
-      hwg_msgStop( "File " + cimgpfad + "hwgui_24x24.ico" + " not found" )
+   IF .NOT. FILE( SAMPLE_IMAGEPATH + "hwgui_24x24.ico" )
+      hwg_msgStop( "demoimage1.prg" + hb_Eol() + ;
+         "File " + SAMPLE_IMAGEPATH + "hwgui_24x24.ico" + hb_Eol() + ;
+         " not found" )
    ENDIF
 
    INIT DIALOG oDlg ;

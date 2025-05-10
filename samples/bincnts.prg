@@ -48,13 +48,13 @@
 *
 
 #include "hwgui.ch"
+#include "sampleinc.ch"
 
 FUNCTION Main()
 
-   LOCAL cImageDir, cppath , oIcon, oBitmap , oToolbar , oFileOpen , oQuit , oMainW , oFontMain
+   LOCAL oIcon, oBitmap , oToolbar , oFileOpen , oQuit , oMainW , oFontMain
    LOCAL htab, nbut , oBMPExit , ojpeg , oBtnjpeg
    LOCAL oastrobmp
-   LOCAL cDirSep := hwg_GetDirSep()
    * For design differences Windows and GTK/LINUX
    LOCAL nxowb, nyowb, nlowb
    LOCAL nx1, ny1 , nx2, ny2
@@ -77,19 +77,15 @@ FUNCTION Main()
    htab := 0
    nbut := 0
 
-   * Path to container
-   cppath := "."
-   cImageDir := cppath + cDirSep + "image" + cDirSep
-
    * Check for existung container, if not existing
    * no error message and image does not appear.
    * Then it is useful, to display an error message
    * to user and terminate the program.
 
-   CHECK_FILE(cImageDir + "sample.bin")
+   CHECK_FILE( SAMPLE_IMAGEPATH + "sample.bin")
 
    * Open container
-   hwg_SetResContainer( cImageDir + "sample.bin" )
+   hwg_SetResContainer( SAMPLE_IMAGEPATH + "sample.bin" )
 
    * Is container open ?
    IF .NOT. hwg_GetResContainerOpen()
@@ -101,7 +97,7 @@ FUNCTION Main()
    * oIcon := HIcon():AddResource( "ok" )        && ico (old)
 
    oIcon := HIcon():AddResource( "hwgui_48x48" ) && ico
-   * oIcon := HIcon():AddFile( "image" + cDirSep + "hwgui_32x32.ico" ) && icon from file (Test)
+   * oIcon := HIcon():AddFile( SAMPLE_IMAGEPATH + "hwgui_32x32.ico" ) && icon from file (Test)
 
    oBitmap := HBitmap():AddResource("open")      && bmp
    oBMPExit := HBitmap():AddResource("exit")     && bmp

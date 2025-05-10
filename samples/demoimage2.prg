@@ -21,6 +21,7 @@
 
 
 #include "hwgui.ch"
+#include "sampleinc.ch"
 
 MEMVAR oObj_Window, oObj_Dialog
 MEMVAR cVal_Window, cVal_Dialog, oImg_Window, oImg_Dialog
@@ -106,7 +107,7 @@ FUNCTION DemoImage2( lWithDialog, oDlg )
       OF oDlg ;
       SIZE 80, 32
 
-   @ 50, 300 BITMAP HBitmap():AddString( "dpragma.bmp", DemoImgResource( "d.bmp" ) ) ;
+   @ 50, 300 BITMAP HBitmap():AddString( "dpragma.bmp", demo_ReadFile( SAMPLE_IMAGEPATH + "D.bmp" ) ) ;
       OF oDlg
 
    @ 30, 390 SAY "bmp #pragma" ;
@@ -114,21 +115,15 @@ FUNCTION DemoImage2( lWithDialog, oDlg )
       SIZE 80, 32
 
 #ifdef __PLATFORM__WINDOWS
-   @ 160, 300 ICON   HIcon():AddString( "dpragma.ico", DemoImgResource( "d.ico" ) ) ;
+   @ 160, 300 ICON   HIcon():AddString( "dpragma.ico", demo_ReadFile( SAMPLE_IMAGEPATH + "D.ico" ) ) ;
       OF oDlg
-
-   @ 140, 390 SAY "ico  #pragma" ;
-      OF oDlg ;
-      SIZE 80, 32
 #else
-   @ 160, 300 BITMAP HBitmap():AddString( "dpragma.ico", DemoImgResource( "d.ico" ) ) ;
+   @ 160, 300 BITMAP HBitmap():AddString( "dpragma.ico", demo_ReadFile( SAMPLE_IMAGEPATH + "D.ico" ) ) ;
       OF oDlg
-
+#endif
    @ 140, 390 SAY "ico  #pragma" ;
       OF oDlg ;
       SIZE 80, 32
-
-#endif
 
 /*
   GTK: crashes here with core dump memory access violation,
@@ -144,20 +139,6 @@ FUNCTION DemoImage2( lWithDialog, oDlg )
    ENDIF
 
 RETURN NIL
-
-STATIC FUNCTION DemoImgResource( cFileName )
-
-   DO CASE
-#ifdef __PLATFORM__WINDOWS
-   CASE cFileName == "d.bmp"; #pragma __binarystreaminclude "..\image\d.bmp" | RETURN %s
-   CASE cFileName == "d.ico"; #pragma __binarystreaminclude "..\image\d.ico" | RETURN %s
-#else
-   CASE cFileName == "d.bmp"; #pragma __binarystreaminclude "../image/D.bmp" | RETURN %s
-   CASE cFileName == "d.ico"; #pragma __binarystreaminclude "../image/D.ico" | RETURN %s
-#endif
-   ENDCASE
-   RETURN Nil
-
 
 STATIC FUNCTION Init_Hexvars()
 

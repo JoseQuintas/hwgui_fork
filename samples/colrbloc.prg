@@ -48,23 +48,16 @@
 #define x_YELLOW        65535
 
 #include "hwgui.ch"
+#include "sampleinc.ch"
 
 MEMVAR cImgTop , cImgBottom , cImgPrev, cImgNext
 
 FUNCTION Main()
 
-   LOCAL oWinMain , cImageDir
+   LOCAL oWinMain
    //LOCAL cDirSep := hwg_GetDirSep()
 
    PUBLIC cImgTop , cImgBottom , cImgPrev, cImgNext
-
-   * Image dir
-#ifdef __GTK__
-   cImageDir := ".." + hwg_GetDirSep() + "image" + hwg_GetDirSep()
-// cImageDir := ".." + hwg_GetDirSep() + ".." + hwg_GetDirSep() + "image" + hwg_GetDirSep()
-#else
-   cImageDir := ".." + hwg_GetDirSep() + "image" + hwg_GetDirSep()
-#endif
 
    SET(_SET_DATEFORMAT, "dd/mm/yyyy")
    SET(_SET_EPOCH, 1950)
@@ -75,10 +68,10 @@ FUNCTION Main()
    *FERASE("tstbrw.dbf")
 
    * Image files
-   cImgTop    := cImageDir + "top.bmp"
-   cImgBottom := cImageDir + "bottom.bmp"
-   cImgPrev   := cImageDir + "previous.bmp"
-   cImgNext   := cImageDir + "next.bmp"
+   cImgTop    := SAMPLE_IMAGEPATH + "top.bmp"
+   cImgBottom := SAMPLE_IMAGEPATH + "bottom.bmp"
+   cImgPrev   := SAMPLE_IMAGEPATH + "previous.bmp"
+   cImgNext   := SAMPLE_IMAGEPATH + "next.bmp"
    * Check for extisting image files
    CHECK_FILE(cImgTop)
    CHECK_FILE(cImgBottom)
@@ -514,22 +507,22 @@ FUNCTION MsgD( cV1, cV2, cV3, cV4, cV5, cV6, cV7, cV8, cV9, cV10 )
    LOCAL nI, nLen := PCOUNT(), cVar := ""
 
    FOR nI := 1 TO nLen
-       IF HB_PVALUE(nI) == NIL
+       IF HB_PVALUE( nI ) == NIL
          cVar += "NIL"
-       ELSEIF VALTYPE(HB_PVALUE(nI)) == "B"
+       ELSEIF VALTYPE( HB_PVALUE( nI ) ) == "B"
          cVar += "CODEBLOCK"
-       ELSEIF VALTYPE(HB_PVALUE(nI)) == "N"
-         cVar += STR(HB_PVALUE(nI))
-       ELSEIF VALTYPE(HB_PVALUE(nI)) == "D"
-         cVar += DTOS(HB_PVALUE(nI))
-       ELSEIF VALTYPE(HB_PVALUE(nI)) == "L"
-         cVar += IF(HB_PVALUE(nI), ".T.", ".F.")
-       ELSEIF VALTYPE(HB_PVALUE(nI)) == "C"
-         cVar += HB_PVALUE(nI)
+       ELSEIF VALTYPE( HB_PVALUE( nI ) ) == "N"
+         cVar += STR( HB_PVALUE( nI ) )
+       ELSEIF VALTYPE( HB_PVALUE( nI ) ) == "D"
+         cVar += DTOS( HB_PVALUE( nI ) )
+       ELSEIF VALTYPE( HB_PVALUE( nI ) ) == "L"
+         cVar += IF( HB_PVALUE( nI ), ".T.", ".F.")
+       ELSEIF VALTYPE( HB_PVALUE( nI ) ) == "C"
+         cVar += HB_PVALUE( nI )
        ENDIF
        cVar += "/"
    NEXT
-   hwg_Msginfo(LEFT(cVar, LEN(cVar) - 1))
+   hwg_Msginfo( LEFT( cVar, LEN( cVar ) - 1 ) )
 
    // remarks: values used by hb_PValue(), do not remove names
    // can be changed to ... and hb_AParams() but do not know if exists on xharbour
@@ -537,14 +530,16 @@ FUNCTION MsgD( cV1, cV2, cV3, cV4, cV5, cV6, cV7, cV8, cV9, cV10 )
 
 RETURN Nil
 
-FUNCTION CHECK_FILE ( cfi )
+FUNCTION CHECK_FILE( cfi )
 
    * Check, if file exist,
    * otherwise terminate program
    ******************************
 
    IF .NOT. FILE( cfi )
-      Hwg_MsgStop("File >" + cfi + "< not found, program terminated","File ERROR !")
+      Hwg_MsgStop( "colrbloc.prg" + hb_Eol() + ;
+         "File >" + cfi + ;
+         " not found, program terminated", "File ERROR !" )
       QUIT
    ENDIF
 

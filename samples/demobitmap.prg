@@ -21,13 +21,11 @@
     *  GTK/Linux:  Yes
     *  GTK/Win  :  Yes
 
-#ifdef __PLATFORM__WINDOWS
-   #define FILE_BITMAP "..\image\astro.bmp"
-#else
-   #define FILE_BITMAP "../image/astro.bmp"
-#endif
-
 #include "hwgui.ch"
+#include "sampleinc.ch"
+
+#define FILE_BITMAP SAMPLE_IMAGEPATH + "astro.bmp"
+
 
 FUNCTION DemoBitmap( lWithDialog, oDlg )
 
@@ -50,7 +48,9 @@ FUNCTION DemoBitmap( lWithDialog, oDlg )
 
 #ifndef _CALLED_FROM_DEMOALL
    IF .NOT. FILE( FILE_BITMAP )
-      hwg_msginfo( "File >" + FILE_BITMAP + "< not found", "Error" )
+      hwg_msginfo( "demobitmap.prg" + hb_Eol() + ;
+         "File " + FILE_BITMAP + hb_Eol() + ;
+         "not found", "Error" )
    ENDIF
 #endif
 

@@ -20,20 +20,20 @@
     *  GTK/Win  :  NO
 
 #include "hwgui.ch"
+#include "sampleinc.ch"
 
 // REQUEST HB_CODEPAGE_RU866
 // REQUEST HB_CODEPAGE_RU1251
 
 MEMVAR oMainWindow, oPanel
-MEMVAR oFont , cImageDir , cdirSep
+MEMVAR oFont
 MEMVAR nColor, oBmp2
 MEMVAR oProg
 
 FUNCTION dlgMDI()
 
-   PRIVATE cdirSep := hwg_GetDirSep()
    PRIVATE oMainWindow, oPanel
-   PRIVATE oFont := Nil, cImageDir := ".." + cdirSep + "image" + cdirSep
+   PRIVATE oFont := Nil
    PRIVATE nColor, oBmp2
 
    // hb_SetCodepage( "RU1251" )
@@ -53,7 +53,7 @@ FUNCTION dlgMDI()
       OF oPanel ;
       ON CLICK {||CreateChildWindow()} ;
       SIZE 32,26 FLAT ;
-      BITMAP cImageDir+"new.bmp" COORDINATES 0,4,0,0 ;
+      BITMAP SAMPLE_IMAGEPATH + "new.bmp" COORDINATES 0,4,0,0 ;
       TOOLTIP "New MDI child window" ;
        ON SIZE ANCHOR_LEFTABS + ANCHOR_RIGHTABS
 
@@ -146,7 +146,7 @@ STATIC FUNCTION CreateChildWindow()
        SIZE 44, 38 FLAT ;
        TEXT "New" ;
        FONT oFontBtn COORDINATES 0, 20, 0, 0  ;
-       BITMAP cImageDir+"new.bmp" COORDINATES 0, 4, 0, 0 ;
+       BITMAP SAMPLE_IMAGEPATH + "new.bmp" COORDINATES 0, 4, 0, 0 ;
        TOOLTIP "New"
 
    @ 46, 3 OWNERBUTTON oBoton2 ;
@@ -157,7 +157,7 @@ STATIC FUNCTION CreateChildWindow()
       FLAT ;
       TEXT "Open" ;
       FONT oFontBtn COORDINATES 0, 20, 0, 0 ;
-      BITMAP cImageDir + "open.bmp" COORDINATES 0, 4, 0, 0 ;
+      BITMAP SAMPLE_IMAGEPATH + "open.bmp" COORDINATES 0, 4, 0, 0 ;
       TOOLTIP "Open" ;
       DISABLED
 
@@ -222,7 +222,7 @@ STATIC FUNCTION OpenAbout()
 
    LOCAL oModDlg, oFontBtn, oFontDlg, oBrw
    LOCAL aSample := { {.t.,"Line 1",10}, {.t.,"Line 2",22}, {.f.,"Line 3",40} }
-   LOCAL oBmp, oIcon := HIcon():AddFile( ".." + cdirSep +  "image" + cdirSep + "exclmk_trsp.ico")   && PIM.ICO was deleted
+   LOCAL oBmp, oIcon := HIcon():AddFile( SAMPLE_IMAGEPATH + "exclmk_trsp.ico")   && PIM.ICO was deleted
 
    PREPARE FONT oFontDlg ;
       NAME "MS Sans Serif" ;
@@ -244,7 +244,7 @@ STATIC FUNCTION OpenAbout()
       ON EXIT { || oBmp2 := HBitmap():AddWindow( oBrw ), .T. } ;
       FONT oFontDlg
 
-   @ 30,10 BITMAP ".." + cdirSep + "image"+ cdirSep + "astro.jpg" ;
+   @ 30,10 BITMAP SAMPLE_IMAGEPATH + "astro.jpg" ;
       SIZE 100, 90 ;
       TRANSPARENT ;
       ON CLICK { || hwg_MsgInfo( "onclick" ) }
@@ -290,7 +290,7 @@ STATIC FUNCTION OpenAbout()
       TEXT "Close" ;
       COLOR hwg_ColorC2N( "0000FF" ) ;
       FONT oFontBtn ;
-      BITMAP cImageDir+"door.bmp" COORDINATES 40, 10, 0, 0
+      BITMAP SAMPLE_IMAGEPATH + "door.bmp" COORDINATES 40, 10, 0, 0
 
    hwg_CREATEARLIST( oBrw,aSample )
    oBrw:bColorSel    := 12507070  // 15149157449
@@ -340,7 +340,7 @@ STATIC FUNCTION FileOpen()
 
    LOCAL oModDlg, oBrw, fname, nId, MyPath
 
-   mypath := cdirSep + CurDir() + IIF( Empty( CurDir() ), "", cdirSep )
+   mypath := hb_cwd()
    fname := hwg_Selectfile( "xBase files( *.dbf )", "*.dbf", mypath )
 
    IF ! Empty( fname )

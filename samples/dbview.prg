@@ -75,7 +75,6 @@ REQUEST HB_CODEPAGE_UTF8EX
 REQUEST DBFNTX
 REQUEST DBFCDX
 REQUEST DBFFPT
-
 REQUEST ORDKEYNO
 REQUEST ORDKEYCOUNT
 
@@ -224,8 +223,6 @@ STATIC FUNCTION FileOpen( fname )
    cdirsep := hwg_GetDirSep()
 
    mypath := cdirsep + CURDIR() + IIF( EMPTY( CURDIR() ), "", cdirsep )
-
-
 
    IF Empty( fname )
       fname := hwg_Selectfile( "xBase files( *.dbf )", "*.dbf", mypath )
@@ -493,13 +490,11 @@ STATIC FUNCTION ModiStru( lNew )
 
    MEMVAR oBrw, currentCP, currFname
 
-
 #ifdef ___GTK3___
  nxdia := 600
 #else
  nxdia := 1000
 #endif
-
 
    IF lNew
       af := { {"","",0,0} }
@@ -526,7 +521,6 @@ STATIC FUNCTION ModiStru( lNew )
    oBrowse:AddColumn( HColumn():New( "Type",{|v,o| (v), o:aArray[o:nCurrent,2]},"C",1,0 ) )
    oBrowse:AddColumn( HColumn():New( "Length",{|v,o| (v), o:aArray[o:nCurrent,3]},"N",5,0 ) )
    oBrowse:AddColumn( HColumn():New( "Dec",{|v,o| (v), o:aArray[o:nCurrent,4]},"N",2,0 ) )
-
 
 #ifdef ___GTK3___
    @ 10,230 GET oGet1 VAR cName SIZE 100,24
@@ -908,7 +902,6 @@ FUNCTION FSET_CENT_OFF()
    SET CENTURY OFF
 
 RETURN Nil
-
 
 FUNCTION SET_DATE_F(cc)
 
