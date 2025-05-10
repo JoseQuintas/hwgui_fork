@@ -32,15 +32,18 @@ FUNCTION DemoLenta2( lWithDialog, oDlg )
 
    FOR nCont = 1 TO Len( aPanelList )
 
-      @ 20, 150 PANEL aPanelList[nCont] ;
-         SIZE 800, 600 ;
+      @ 20, 150 PANEL aPanelList[ nCont ] ;
+         OF oDlg ;
+         SIZE 800, 500 ;
          STYLE SS_OWNERDRAW ;
          BACKCOLOR NextBackColor() ;
          ON SIZE { || .T. }
 
       aPanelList[ nCont ]:oFont := oFont
       aCaptionList[ nCont ] := Chr( 64 + nCont )
-      aPanelList[ nCont ]:Hide()
+      IF nCont != 1          // trying to solve behaviour on tabpage
+         aPanelList[ nCont ]:Hide()
+      ENDIF
    NEXT
 
    aCaptionList[ ++nIndex ] := "check"
@@ -51,6 +54,9 @@ FUNCTION DemoLenta2( lWithDialog, oDlg )
 
    aCaptionList[ ++nIndex ] := "tab"
    DemoTab( .F., aPanelList[ nIndex ] )
+
+   aCaptionList[ ++nIndex ] := "lenta"
+   DemoLenta( .F., aPanelList[ nIndex ] )
 
    aCaptionList[ ++nIndex ] := "One"
    @ 20,  16 EDITBOX "Edit One" OF aPanelList[ nIndex ] SIZE 200, 26
@@ -88,7 +94,6 @@ FUNCTION DemoLenta2( lWithDialog, oDlg )
 
    IF lWithDialog
       ACTIVATE DIALOG oDlg CENTER
-
       oFont:Release()
    ENDIF
 

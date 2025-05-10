@@ -63,6 +63,7 @@ No problem, when an error occurs, check this list first, if error is on list
 
 #include "hwgui.ch"
 #include "directry.ch"
+#include "sampleinc.ch"
 
 STATIC aMenuOptions := {}, nMenuLevel := 0
 
@@ -102,115 +103,6 @@ FUNCTION Main()
 
    RETURN Nil
 
-STATIC FUNCTION CreatePanel( oDlg, nLeft, nTop, nWidth, nHeight )
-
-   LOCAL oPanel, aColorList := { ;
-      16772062, ; // light blue
-      0xaaaaaa, ; // light gray
-      0x154780, ; // brown 1
-      0x396eaa, ; // brown 2
-      0x6a9cd4, ; // brown 3
-      0x9dc7f6 }   // browm4
-
-   STATIC nValue := 0
-
-   nValue := iif( nValue >= Len( aColorList ), 1, nValue + 1 )
-
-   @ nLeft, nTop PANEL oPanel ;
-      ; // OF oDlg, ;
-      SIZE nWidth, nHeight ;
-      BACKCOLOR nValue
-
-// DANGER: remove before use
-   IF .F.
-      CreatePanel()
-   ENDIF
-   (oDlg);(oPanel);(nLeft);(nTop);(nWidth);(nHeight) // -w3 -es2
-
-   RETURN Nil
-
-STATIC FUNCTION ExecuteExe( cFileName )
-
-   LOCAL cFileNoExt, cBinName, cBinHbmk
-
-   cFileNoExt := Left( cFileName, At( ".", cFileName ) - 1 )
-
-#ifndef __PLATFORM__WINDOWS
-   cBinName := "./" + cFileNoExt
-   cBinHbmk := "hbmk2"
-#else
-   cBinName := cFileNoExt + ".exe"
-   cBinHbmk := "hbmk2.exe"
-#endif
-
-   IF ! File( cBinName )
-      IF ! hwg_MsgYesNo( cBinName + " not found, try create it?" )  && DF7BE: cFileName ==> cBinName
-         RETURN Nil
-      ENDIF
-
-      // hwg_RunApp( cBinHbmk + " " + cFileNoExt, .T. ) // hbmk2 will use hbp or prg
-      // do not wait
-      * See bug in Harbour, not recognized,that CBINHBMK is used here!
-      // RUN( CBINHBMK + " " + cFileNoExt, .T. ) // hbmk2 will use hbp or prg
-      hwg_RunConsoleApp( CBINHBMK + " " + cFileNoExt, , .T. )
-
-      IF ! File( cBinName )
-         hwg_MsgInfo( "Can't create " + cBinName )
-         RETURN Nil
-      ENDIF
-   ENDIF
-   HWG_RunApp( cBinName )
-
-   RETURN Nil
-
-STATIC FUNCTION DemoAllEvalList( aCodeList )
-
-   LOCAL bCode
-
-   FOR EACH bCode IN aCodeList
-      Eval( bCode )
-   NEXT
-
-   RETURN Nil
-
-// to be external
-STATIC FUNCTION DemoDateSelect()
-
-   LOCAL oDate
-
-   @ 10, 50 SAY "Date" ;
-      SIZE 80, 30
-
-   @ 100, 50 DATESELECT oDate ;
-      SIZE 120,28
-
-   RETURN Nil
-
-STATIC FUNCTION MenuOption( cCaption, bCodeOrString, bCode )
-
-   LOCAL nCont, aLastMenu
-
-   aLastMenu := aMenuOptions
-   FOR nCont = 1 TO nMenuLevel
-      aLastMenu := aLastMenu[ Len( aLastMenu ) ]
-      aLastMenu := aLastMenu[ 2 ]
-   NEXT
-   AAdd( aLastMenu, { ccaption, {}, bCodeOrString, bCode } )
-
-   RETURN Nil
-
-STATIC FUNCTION MenuDrop()
-
-   nMenuLevel++
-
-   RETURN Nil
-
-STATIC FUNCTION MenuUndrop()
-
-   nMenuLevel --
-
-   RETURN Nil
-
 STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
 
    LOCAL aOption, aOption2, oTabLevel1, oTabLevel2
@@ -227,9 +119,9 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "3.Browse DBF",                   { |o| DemoBrowseDbf( .F., o, aEndList ) } )
       MenuOption( "4.Browse Arr Edit",              { |o| DemoBrowseArr( .F., o ) } )
 #ifdef __PLATFORM__WINDOWS
-      MenuOption( "5Grid1",   "demogrid.prg",       { || DemoGrid1() } )
-      MenuOption( "6.Grid4",   "demogrid4.prg",     { || DemoGrid4(,,aEndList) } )
-      MenuOption( "7.Grid5",   "demogrid5.prg",     { || DemoGrid5(,,,aEndList) } )
+      MenuOption( "5Grid1",      "demogrid",        { || DemoGrid1() } )
+      MenuOption( "6.Grid4",     "demogrid4",       { || DemoGrid4(,,aEndList) } )
+      MenuOption( "7.Grid5",     "demogrid5",       { || DemoGrid5(,,,aEndList) } )
 #endif
       MenuOption( "7.BrowseBMP",                    { |o| DemoBrowseBmp( .F., o ) } )
       MenuUndrop()
@@ -238,88 +130,89 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "1.OwnerButton",                  { |o| DemoOwner( .F., o ) } )
 #ifdef __PLATFORM__WINDOWS
       MenuOption( "2.ShadeButton",                  { |o| DemoShadeBtn( .F., o ) } )
-      MenuOption( "3.NiceButton", "nicebutton.prg", { || DemoNice() } )
+      MenuOption( "3.NiceButton", "nicebutton",     { || DemoNice() } )
 #endif
-      MenuOption( "4.demofunc",                      { |o| DemoFunc( .F., o ) } )
+      MenuOption( "4.demofunc",                     { |o| DemoFunc( .F., o ) } )
       MenuUnDrop()
-   MenuOption( "Checkbox",                           { |o| DemoCheckbox( .F., o ) } )
-   MenuOption( "Combobox",                           { |o| DemoCombobox( .F., o ) } )
+   MenuOption( "Checkbox",                          { |o| DemoCheckbox( .F., o ) } )
+   MenuOption( "Combobox",                          { |o| DemoCombobox( .F., o ) } )
    MenuOption( "Dialog" )
       MenuDrop()
-      MenuOption( "1.General",                       { |o| DemoDialog( .F., o ) } )
-      MenuOption( "2.Night",      "demonight.prg",   { || DemoNight() } )
-      MenuOption( "3.Back image", "demoimage1.prg",  { || DemoImage1() } )
+      MenuOption( "1.General",                      { |o| DemoDialog( .F., o ) } )
+      MenuOption( "2.Night",      "demonight",      { || DemoNight() } )
+      MenuOption( "3.Back image", "demoimage1",     { || DemoImage1() } )
       MenuUnDrop()
-   MenuOption( "Radiobutton",                        { |o| DemoGet1( .F., o ) } )
+   MenuOption( "Radiobutton",                       { |o| DemoGet1( .F., o ) } )
    MenuOption( "Get" )
       MenuDrop()
-      MenuOption( "1.DemoGet2",                      { |o| DemoGet2( .F., o ) } )
-      MenuOption( "2.Editbox",                       { |o| DemoIni( .F., o, aEndList ) } )
-      MenuOption( "3.DateSelect",                    { |o| DemoDateSelect( .F., o ) } )
-      MenuOption( "4.Datepicker",                    { |o| DemoGet1( .F., o ) } )
+      MenuOption( "1.DemoGet2",                     { |o| DemoGet2( .F., o ) } )
+      MenuOption( "2.Editbox",                      { |o| DemoIni( .F., o, aEndList ) } )
+      MenuOption( "3.DateSelect",                   { |o| DemoDateSelect( .F., o ) } )
+      MenuOption( "4.Datepicker",                   { |o| DemoGet1( .F., o ) } )
       MenuUnDrop()
    MenuOption( "Image" )
       MenuDrop()
-      MenuOption( "1.DemoImage2",                      { |o| DemoImage2( .F., o ) } )
-      MenuOption( "2.demobitmap",                      { |o| DemoBitmap( .F., o ) } )
-      MenuOption( "3.DemoImage1", "demoimage1.prg",    { || DemoImage1() } )
-      MenuOption( "4.Image view", "demoimageview.prg", { || demoimageview() } )
+      MenuOption( "1.DemoImage2",                   { |o| DemoImage2( .F., o ) } )
+      MenuOption( "2.demobitmap",                   { |o| DemoBitmap( .F., o ) } )
+      MenuOption( "3.DemoImage1", "demoimage1",     { || DemoImage1() } )
+      MenuOption( "4.Image view", "demoimageview",  { || demoimageview() } )
       MenuUnDrop()
    MenuOption( "Listbox" )
       MenuDrop()
-      MenuOption( "1.Listbox Alt",                   { |o| DemoListBoxSub( .F., o ) } )
+      MenuOption( "1.Listbox Alt",                  { |o| DemoListBoxSub( .F., o ) } )
       MenuUndrop()
    MenuOption( "Menu" )
       MenuDrop()
-      MenuOption( "1.menu",    "demomenu.prg",       { || DemoMenu() } )
-      MenuOption( "2.menuxml", "demomenuxml.prg",    { || DemoMenuXml() } )
+      MenuOption( "1.menu",    "demomenu",          { || DemoMenu() } )
+      MenuOption( "2.menuxml", "demomenuxml",       { || DemoMenuXml() } )
 #ifdef __PLATFORM__WINDOWS
-      MenuOption( "3.menubitmap","demomenubitmap.prg", { || DemoMenuBitmap() } )
+      MenuOption( "3.menubitmap","demomenubitmap",  { || DemoMenuBitmap() } )
 #endif
       MenuUnDrop()
-   MenuOption( "Progbar",                            { |o| DemoProgbar( .F., o, aEndList ) } )
+   MenuOption( "Progbar",                           { |o| DemoProgbar( .F., o, aEndList ) } )
    MenuOption( "Say" )
       MenuDrop()
-      MenuOption( "1.DemoGet2",                      { |o| DemoGet2( .F., o ) } )
+      MenuOption( "1.DemoGet2",                     { |o| DemoGet2( .F., o ) } )
       MenuUnDrop()
    MenuOption( "Splitter" )
       MenuDrop()
-      MenuOption( "1.Split",                         { |o| DemoSplit( .F., o, aInitList ) } )
-      MenuOption( "2.Splitter",                      { |o| DemoSplitter( .F., o, aInitList ) } )
-      MenuOption( "3.Tree",                          { |o| DemoTree( .F., o, aInitList ) } )
-      MenuOption( "4.XML Tree",                      { |o| DemoXmlTree( .F., o ) } )
+      MenuOption( "1.Split",                        { |o| DemoSplit( .F., o, aInitList ) } )
+      MenuOption( "2.Splitter",                     { |o| DemoSplitter( .F., o, aInitList ) } )
+      MenuOption( "3.Tree",                         { |o| DemoTree( .F., o, aInitList ) } )
+      MenuOption( "4.XML Tree",                     { |o| DemoXmlTree( .F., o ) } )
       MenuUnDrop()
    MenuOption( "Tab" )
       MenuDrop()
-      MenuOption( "1.Lenta",                         { |o| DemoLenta( .F., o ) } )
-      MenuOption( "2.Tab",                           { |o| DemoTab( .F., o ) } )
-      MenuOption( "3.Tab/Tooltip",                   { |o| DemoTabTool( .F., o ) } )
+      MenuOption( "1.Lenta",                        { |o| DemoLenta( .F., o ) } )
+      MenuOption( "2.Tab",                          { |o| DemoTab( .F., o ) } )
+      MenuOption( "3.Tab/Tooltip",                  { |o| DemoTabTool( .F., o ) } )
+      MenuOption( "4.Lenta2",                       { |o| DemoLenta2( .F., o ) } )
       MenuUnDrop()
    MenuOption( "Trackbar" )
       MenuDrop()
-      MenuOption( "1.HTrack",                        { |o| DemoHTrack( .F., o ) } )
+      MenuOption( "1.HTrack",                       { |o| DemoHTrack( .F., o ) } )
 #ifdef __PLATFORM__WINDOWS
-      MenuOption( "2.Trackbar",                      { |o| DemoTrackbar( .F., o ) } )
+      MenuOption( "2.Trackbar",                     { |o| DemoTrackbar( .F., o ) } )
 #endif
       MenuUnDrop()
    MenuOption( "Tree" )
       MenuDrop()
-      MenuOption( "1.Tree",                          { |o| DemoTree( .F., o, aInitList ) } )
-      MenuOption( "2.Split",                         { |o| DemoSplit( .F., o, aInitList ) } )
-      MenuOption( "3.Splitter",                      { |o| DemoSplitter( .F., o, aInitList ) } )
-      MenuOption( "5.XML Tree",                      { |o| DemoXmlTree( .F., o ) } )
+      MenuOption( "1.Tree",                         { |o| DemoTree( .F., o, aInitList ) } )
+      MenuOption( "2.Split",                        { |o| DemoSplit( .F., o, aInitList ) } )
+      MenuOption( "3.Splitter",                     { |o| DemoSplitter( .F., o, aInitList ) } )
+      MenuOption( "5.XML Tree",                     { |o| DemoXmlTree( .F., o ) } )
       MenuUnDrop()
-   MenuOption( "UpDown",                             { |o| DemoUpDown( .F., o ) } )
+   MenuOption( "UpDown",                            { |o| DemoUpDown( .F., o ) } )
    MenuOption( "Others" )
       MenuDrop()
-      MenuOption( "1.AppData",                       { |o| DemoDbfData( .F., o, aEndList ) } )
-      MenuOption( "2.Ini Files",                     { |o| DemoIni( .F., o, aEndList ) } )
-      MenuOption( "3.Dlgbox",                        { |o| DemoDlgBox( .F., o ) } )
+      MenuOption( "1.AppData",                      { |o| DemoDbfData( .F., o, aEndList ) } )
+      MenuOption( "2.Ini Files",                    { |o| DemoIni( .F., o, aEndList ) } )
+      MenuOption( "3.Dlgbox",                       { |o| DemoDlgBox( .F., o ) } )
 #ifdef __PLATFORM__WINDOWS
-      MenuOption( "4.MonthCal",                      { |o| DemoMonthCal( .F., o ) } )
+      MenuOption( "4.MonthCal",                     { |o| DemoMonthCal( .F., o ) } )
 #endif
-      MenuOption( "5.Timer",                         { |o| DemoGet2( .F., o ) } )
-      MenuOption( "6.Functions",                     { |o| DemoFunc( .F., o ) } )
+      MenuOption( "5.Timer",                        { |o| DemoGet2( .F., o ) } )
+      MenuOption( "6.Functions",                    { |o| DemoFunc( .F., o ) } )
       MenuUnDrop()
 
    @ 30, 60 TAB oTabLevel1 ITEMS {} SIZE 950, 650 OF oDlg
@@ -341,7 +234,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
          // with sub-level, all again
          FOR EACH oTabLevel2 IN { Nil }
 
-            @ 30, 30 TAB oTabLevel2 ITEMS {} SIZE 850, 550 OF oTabLevel1
+            @ 30, 30 TAB oTabLevel2 ITEMS {} SIZE 800, 600 OF oTabLevel1
 
             FOR EACH aOption2 IN aOption[ 2 ]
 
@@ -441,6 +334,116 @@ STATIC FUNCTION AddToCompile( oTabLevel1 )
 
    RETURN Nil
 
+STATIC FUNCTION ExecuteExe( cFileName )
+
+   LOCAL cFileNoExt, cBinName, cBinHbmk
+
+   cFileNoExt := Left( cFileName, At( ".", cFileName ) - 1 )
+
+#ifndef __PLATFORM__WINDOWS
+   cBinName := "./" + cFileNoExt
+   cBinHbmk := "hbmk2"
+#else
+   cBinName := cFileNoExt + ".exe"
+   cBinHbmk := "hbmk2.exe"
+#endif
+
+   IF ! File( cBinName )
+      IF ! hwg_MsgYesNo( cBinName + " not found, try create it?" )  && DF7BE: cFileName ==> cBinName
+         RETURN Nil
+      ENDIF
+
+      // hwg_RunApp( cBinHbmk + " " + cFileNoExt, .T. ) // hbmk2 will use hbp or prg
+      // do not wait
+      * See bug in Harbour, not recognized,that CBINHBMK is used here!
+      // RUN( CBINHBMK + " " + cFileNoExt, .T. ) // hbmk2 will use hbp or prg
+      hwg_RunConsoleApp( CBINHBMK + " " + cFileNoExt, , .T. )
+
+      IF ! File( cBinName )
+         hwg_MsgInfo( "Can't create " + cBinName )
+         RETURN Nil
+      ENDIF
+   ENDIF
+   HWG_RunApp( cBinName )
+
+   RETURN Nil
+
+STATIC FUNCTION DemoAllEvalList( aCodeList )
+
+   LOCAL bCode
+
+   FOR EACH bCode IN aCodeList
+      Eval( bCode )
+   NEXT
+
+   RETURN Nil
+
+// to be external
+STATIC FUNCTION DemoDateSelect()
+
+   LOCAL oDate
+
+   @ 10, 50 SAY "Date" ;
+      SIZE 80, 30
+
+   @ 100, 50 DATESELECT oDate ;
+      SIZE 120,28
+
+   RETURN Nil
+
+STATIC FUNCTION MenuOption( cCaption, bCodeOrString, bCode )
+
+   LOCAL nCont, aLastMenu
+
+   aLastMenu := aMenuOptions
+   FOR nCont = 1 TO nMenuLevel
+      aLastMenu := aLastMenu[ Len( aLastMenu ) ]
+      aLastMenu := aLastMenu[ 2 ]
+   NEXT
+   AAdd( aLastMenu, { ccaption, {}, bCodeOrString, bCode } )
+
+   RETURN Nil
+
+STATIC FUNCTION MenuDrop()
+
+   nMenuLevel++
+
+   RETURN Nil
+
+STATIC FUNCTION MenuUndrop()
+
+   nMenuLevel --
+
+   RETURN Nil
+
+// Created but not used. recursive is only because -w3 -es2 warning
+STATIC FUNCTION CreatePanel( oDlg, nLeft, nTop, nWidth, nHeight )
+
+   LOCAL oPanel, aColorList := { ;
+      16772062, ; // light blue
+      0xaaaaaa, ; // light gray
+      0x154780, ; // brown 1
+      0x396eaa, ; // brown 2
+      0x6a9cd4, ; // brown 3
+      0x9dc7f6 }   // browm4
+
+   STATIC nValue := 0
+
+   nValue := iif( nValue >= Len( aColorList ), 1, nValue + 1 )
+
+   @ nLeft, nTop PANEL oPanel ;
+      ; // OF oDlg, ;
+      SIZE nWidth, nHeight ;
+      BACKCOLOR nValue
+
+// DANGER: remove before use
+   IF .F.
+      CreatePanel()
+   ENDIF
+   (oDlg);(oPanel);(nLeft);(nTop);(nWidth);(nHeight) // -w3 -es2
+
+   RETURN Nil
+
 //
 // CAUTION when using on application
 // hbmk2 detects changed source code, but not changed external file
@@ -450,15 +453,15 @@ FUNCTION demo_LoadResource( cFileName )
    cFileName := Lower( cFileName )
    DO CASE
 #ifdef __PLATFORM__WINDOWS
-   CASE cFilename == "..\image\astro.bmp";  #pragma __binarystreaminclude "..\image\astro.bmp" | RETURN %s
-   CASE cFileName == "..\image\d.bmp";      #pragma __binarystreaminclude "..\image\d.bmp" | RETURN %s
-   CASE cFileName == "..\image\d.ico";      #pragma __binarystreaminclude "..\image\d.ico" | RETURN %s
-   CASE cFileName == "..\image\true.bmp";   #pragma __binarystreaminclude "..\image\true.bmp" | RETURN %s
+   CASE cFilename == "..\image\astro.bmp";   #pragma __binarystreaminclude "..\image\astro.bmp" | RETURN %s
+   CASE cFileName == "..\image\d.bmp";       #pragma __binarystreaminclude "..\image\d.bmp" | RETURN %s
+   CASE cFileName == "..\image\d.ico";       #pragma __binarystreaminclude "..\image\d.ico" | RETURN %s
+   CASE cFileName == "..\image\true.bmp";    #pragma __binarystreaminclude "..\image\true.bmp" | RETURN %s
 #else
-   CASE cFileName == "../image/astro.bmp";  #pragma __binarystreaminclude "../image/astro.bmp" | RETURN %s
-   CASE cFileName == "../image/d.bmp";      #pragma __binarystreaminclude "../image/D.bmp" | RETURN %s
-   CASE cFileName == "../image/d.ico";      #pragma __binarystreaminclude "../image/D.ico" | RETURN %s
-   CASE cFileName == "../image/true.bmp";   #pragma __binarystreaminclude "../image/true.bmp" | RETURN %s
+   CASE cFileName == "../image/astro.bmp";   #pragma __binarystreaminclude "../image/astro.bmp" | RETURN %s
+   CASE cFileName == "../image/ad.bmp";      #pragma __binarystreaminclude "../image/D.bmp" | RETURN %s
+   CASE cFileName == "../image/ad.ico";      #pragma __binarystreaminclude "../image/D.ico" | RETURN %s
+   CASE cFileName == "../image/true.bmp";    #pragma __binarystreaminclude "../image/true.bmp" | RETURN %s
 #endif
 
    CASE cFileName == "demo.ch";             #pragma __binarystreaminclude "demo.ch" | RETURN %s
@@ -505,6 +508,8 @@ FUNCTION demo_LoadResource( cFileName )
    CASE cFileName == "demosplit.prg";       #pragma __binarystreaminclude "demosplit.prg" | RETURN %s
    CASE cFileName == "demosplitter.prg";    #pragma __binarystreaminclude "demosplitter.prg" | RETURN %s
    CASE cFileName == "demoxmltree.prg";     #pragma __binarystreaminclude "demoxmltree.prg" | RETURN %s
+   OTHERWISE
+      hwg_MsgInfo( "Not in demoall.prg #pragma " + cFileName )
    ENDCASE
 
 RETURN Nil

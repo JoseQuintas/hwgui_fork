@@ -15,6 +15,19 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-10 14:25 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demo.ch
+   * samples/demoall.hbp
+   * samples/demoall.prg
+     ! reorder source code
+   * samples/demoini.prg
+   * samples/demolenta.prg
+   * samples/demolenta2.hbp
+   * samples/demolenta2.prg
+   * samples/testsamples.prg
+     ! adjusts
+   ! PENDING: first display of demolenta2 on tabpage
+
 2025-05-10 14:24 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/TwoListbox.prg
    * samples/TwoLstSub.prg

@@ -9,7 +9,7 @@ PROCEDURE Main
 
    LOCAL aList, aFile, cTxtHbp := "", cTxt, nCounter := 0
    local lmdi, lnOPragma, lNoHbp, lWindow, lNoButton, lNoDefault
-   LOCAL cTxtPragma
+   LOCAL cTxtPragma, cTxtButton
 
    cTxtPragma := MemoRead( "demoall.prg" )
    cTxtPragma := Substr( cTxtPragma, At( "#pragma", cTxtPragma) )
@@ -38,10 +38,11 @@ PROCEDURE Main
          ? Pad( aFile[1], 20 ) + "MT no demoall"
          LOOP
       ENDCASE
+      cTxtButton := [ButtonForSample( "] + Lower( aFile[1] ) + [", oDlg )]
       cTxt       := MemoRead( aFile[ 1 ] )
       lNoHbp     := ! Lower( aFile[ 1 ] ) $ Lower( cTxtHbp )
       lWindow    := "init window" $ Lower( cTxt )
-      lNoButton  := ! ( "demo.ch" $ Lower( cTxt ) .AND. [buttonforsample( "] + aFile[1] + [", oDlg )] $ Lower( cTxt ) )
+      lNoButton  := ! ( "demo.ch" $ Lower( cTxt ) .AND. cTxtButton $ cTxt )
       lmdi       := " mdi" $ Lower( cTxt )
       lNoDefault := "lWithDialog" $ cTxt .AND. ! "hb_Default( @lWithDialog" $ cTxt
       lNoPragma  := ! lNoButton .AND. ! Lower( aFile[ 1 ] ) $ Lower( cTxtPragma )
