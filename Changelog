@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-10 15:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * test/Ticker27.prg
+     ! changed remarks and source
+     ! declare THREAD STATIC var, if want one STATIC var for each thread
+   ! NOTE: Cumulative changes divided into parts
+   !
+   ! DOUBT:
+   ! if samples/*.prg are samples for windows and gtk
+   ! What are samples/gtk_samples/*.prg ?
+
 2025-05-10 14:25 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/demo.ch
    * samples/demoall.hbp
@@ -26,7 +36,7 @@
    * samples/demolenta2.prg
    * samples/testsamples.prg
      ! adjusts
-   ! PENDING: first display of demolenta2 on tabpage
+   ! PENDING: first display of demolenta2 on tabpage of demoall
 
 2025-05-10 14:24 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/TwoListbox.prg
