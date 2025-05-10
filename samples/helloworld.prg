@@ -48,5 +48,4 @@ LOCAL old_screen
 
 RETURN NIL
 
-
 * =================== EOF of helloworld.prg ================

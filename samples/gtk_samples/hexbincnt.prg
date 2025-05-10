@@ -14,10 +14,10 @@
  * a good substitute for Windows
  * resource compiler, it is "Windows only".
  *
- * Copyright 2020 Wilfried Brunken, DF7BE 
+ * Copyright 2020 Wilfried Brunken, DF7BE
  * https://sourceforge.net/projects/cllog/
  */
- 
+
     * Status:
     *  WinAPI   :  Yes
     *  GTK/Linux:  Yes
@@ -32,7 +32,7 @@
 *     - Select desired image in the file selection dialog
 *     - Wait for message of creating hex file
 *
-* 3.) Open generated file "hexdump.txt" with 
+* 3.) Open generated file "hexdump.txt" with
 *     your preferred text editor, copy and
 *     paste the variable definition into
 *     your program code file.
@@ -41,7 +41,7 @@
 *
 * Repeat this for every image file.
 * Every run of "file2hex" overwrites hexdump.txt.
-* 
+*
 * You need a 2 variables for every image
 *  1.) cHex.. : contains the Hex string (or set as a "long" parameter to hwg_cHex2Bin() )
 *  2.) cVal.. : contains the binary value of the image.
@@ -58,11 +58,11 @@
 
 FUNCTION Main
 
-LOCAL cImageDir, cppath , oIcon, oBitmap , oToolbar , oFileOpen , oQuit , oMainW , oFontMain
+LOCAL oIcon, oBitmap , oToolbar , oFileOpen , oQuit , oMainW , oFontMain
 LOCAL htab, nbut , oBMPExit , oPNGDoor , oBtnDoor , ojpeg , oBtnjpeg , oastropng
 LOCAL cDirSep := hwg_GetDirSep()
 
-PUBLIC cHexAstro , cHexok , cHexopen , cHexexit , cHexdoor , cHexnext    && Hex dumps 
+PUBLIC cHexAstro , cHexok , cHexopen , cHexexit , cHexdoor , cHexnext    && Hex dumps
 PUBLIC cValAstro , cValok , cValopen , cValexit , cValdoor , cValnext    && Resource contents
 
 htab := 0
@@ -90,60 +90,60 @@ oastropng := HBitmap():AddString( "astro", cValAstro )
 #ifdef __PLATFORM__WINDOWS
    PREPARE FONT oFontMain NAME "MS Sans Serif" WIDTH 0 HEIGHT -14
 #else
-   PREPARE FONT oFontMain NAME "Sans" WIDTH 0 HEIGHT 12 
+   PREPARE FONT oFontMain NAME "Sans" WIDTH 0 HEIGHT 12
 #endif
 
 INIT WINDOW oMainW  ;
    FONT oFontMain  ;
    TITLE "Bitmap Hex container sample" AT 0,0 SIZE 300 , 200 ;
    ICON oIcon STYLE WS_POPUP +  WS_CAPTION + WS_SYSMENU ;
- 
-   
-* @ 0, 0 TOOLBAR oToolbar OF oMainW SIZE  299 , 50 
- @ 0,0 PANEL oToolbar OF oMainW SIZE 300 , 50 ON SIZE ANCHOR_TOPABS + ANCHOR_LEFTABS + ANCHOR_RIGHTABS 
+
+
+* @ 0, 0 TOOLBAR oToolbar OF oMainW SIZE  299 , 50
+ @ 0,0 PANEL oToolbar OF oMainW SIZE 300 , 50 ON SIZE ANCHOR_TOPABS + ANCHOR_LEFTABS + ANCHOR_RIGHTABS
 
 
 @ htab+(nbut*32), 3 OWNERBUTTON oFileOpen OF oToolbar ;
    ON CLICK { | | FileOpen()} ;
    SIZE 28,24 FLAT ;
    BITMAP oBitmap ;
-   TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ; 
+   TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ;
    TOOLTIP "Open File"
-   
+
    nbut += 1
 
 @ htab+(nbut*32),3 OWNERBUTTON oQuit OF oToolbar ;
    ON CLICK { | | oMainW:Close()} ;
    SIZE 28,24 FLAT ;
-   BITMAP oBMPExit ; 
-   TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ; 
+   BITMAP oBMPExit ;
+   TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ;
    TOOLTIP "Terminate Program"
 
-   
-   
+
+
    nbut += 1
 
-* !!!!! PNG not supported   
+* !!!!! PNG not supported
 @ htab+(nbut*32),3 OWNERBUTTON oBtnDoor OF oToolbar ;
    ON CLICK { | | OpenDoor()} ;
    SIZE 28,24 FLAT ;
-   BITMAP oPNGDoor ; 
-   TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ; 
+   BITMAP oPNGDoor ;
+   TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ;
    TOOLTIP "Open the door"
-   
-  nbut += 1 
+
+  nbut += 1
 
 @ htab+(nbut*32),3 OWNERBUTTON oBtnjpeg OF oToolbar ;
    ON CLICK { | | ClickJpeg()} ;
    SIZE 28,24 FLAT ;
-   BITMAP ojpeg ; 
-   TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ; 
-   TOOLTIP "JPEG image" 
-  
+   BITMAP ojpeg ;
+   TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ;
+   TOOLTIP "JPEG image"
+
 
  @ 60 , 100 SAY "astro.png" SIZE 100, 20
- @ 60 , 100 BITMAP oastropng 
- 
+ @ 60 , 100 BITMAP oastropng
+
    oMainW:Activate()
 RETURN NIL
 

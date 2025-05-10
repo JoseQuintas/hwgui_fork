@@ -14,13 +14,13 @@
  * Copyright 2022 Wilfried Brunken, DF7BE
  * https://sourceforge.net/projects/cllog/
 
-
     * Status:
     *  WinAPI   :  Yes
     *  GTK/Linux:  Yes
     *  GTK/Win  :  No
 
 #include "hwgui.ch"
+#include "sampleinc.ch"
 
 FUNCTION Main()
 
@@ -48,10 +48,10 @@ RETURN Nil
 
 FUNCTION Testen()
 
-   LOCAL CBMP , nfilesiz ,rc , lrc , cmsg , nx, ny && noffset
-   LOCAL CBMP2 , cdirsep
+   LOCAL CBMP, nfilesiz, rc, lrc, cmsg, nx, ny && noffset
+   LOCAL CBMP2, cdirsep
    LOCAL ctest, ctemp
-   LOCAL i, j , acircle
+   LOCAL i, j, acircle
 
    // nx := 48
    // ny := 48
@@ -59,9 +59,9 @@ FUNCTION Testen()
    nx := 122
    ny := 77
 
-   cdirsep := hwg_GetDirSep()
-   nfilesiz := HWG_BMPFILESIZE(48, 48, 1, 2)
-   hwg_msgInfo("Filesize is " + ALLTRIM(STR(nfilesiz)) )
+   cdirsep  := hwg_GetDirSep()
+   nfilesiz := HWG_BMPFILESIZE( 48, 48, 1, 2 )
+   hwg_msgInfo( "Filesize is " + AllTrim( Str( nfilesiz ) ) )
 
 * Create the bitmap template string.
 * This is the default for QR encoding (monochrome):
@@ -77,7 +77,7 @@ FUNCTION Testen()
 *                        !  !   !  !  !     !
 *                        v  v   v  v  v     v
 
-   CBMP := HWG_BMPNEWIMAGE(nx, ny, 1, 2, 2835, 2835 )
+   CBMP := HWG_BMPNEWIMAGE( nx, ny, 1, 2, 2835, 2835 )
 
 * The x and y size can be modified by size of QR code.
 *
@@ -94,7 +94,7 @@ FUNCTION Testen()
 
 * Set monochrome palette for QR encoding
 
-   CBMP := hwg_BMPSetMonochromePalette(CBMP)
+   CBMP := hwg_BMPSetMonochromePalette( CBMP )
 
 * Setting example pixels:
 
@@ -106,7 +106,7 @@ FUNCTION Testen()
 * Some tests
 * 0x101 = 257 + 1,  0x80 = 128
 
-   CBMP := hwg_ChangeCharInString(CBMP,258,CHR(128) )  // center point for 48 x 48 at 24, 24
+   CBMP := hwg_ChangeCharInString( CBMP, 258, CHR(128) )  // center point for 48 x 48 at 24, 24
 
 * Sample drawing a vertical stripe pattern
 /*
@@ -118,15 +118,15 @@ NEXT
 */
 
 * Draw pixels at edge positions
-   CBMP := hwg_QR_SetPixel(CBMP,1,1,nx,ny)   && top left
-   CBMP := hwg_QR_SetPixel(CBMP,nx,1,nx,ny)  && top right
-   CBMP := hwg_QR_SetPixel(CBMP,nx,ny,nx,ny) && bottom right
-   CBMP := hwg_QR_SetPixel(CBMP,1,ny,nx,ny)  && bottom left
+   CBMP := hwg_QR_SetPixel( CBMP, 1, 1, nx, ny )   && top left
+   CBMP := hwg_QR_SetPixel( CBMP, nx, 1, nx, ny )  && top right
+   CBMP := hwg_QR_SetPixel( CBMP, nx, ny, nx, ny ) && bottom right
+   CBMP := hwg_QR_SetPixel( CBMP, 1, ny, nx,ny )  && bottom left
 
 * Draw a circle
    FOR i := 0 TO 360
       acircle := hwg_BMPDrawCircle(24,i)
-      CBMP := hwg_QR_SetPixel(CBMP,acircle[1],acircle[2],nx,ny)
+      CBMP    := hwg_QR_SetPixel( CBMP, acircle[1], acircle[2], nx, ny )
    NEXT
 
 * Draw a line at bottom
@@ -136,17 +136,17 @@ NEXT
 
 * Store to bitmap file
 
-   MEMOWRIT("test.bmp",CBMP)
+   MEMOWRIT( "test.bmp", CBMP )
 
 * EOF mark 0x1A = CHR(26) is added by MEMOWRIT,
 * it seems, that this has no negative effect.
 
 * And show the new bitmap image
 
-   hwg_ShowBitmap(CBMP,"test",0,hwg_ColorC2N("080808") ) // Color = 526344
+   hwg_ShowBitmap( CBMP, "test", 0, hwg_ColorC2N( "080808" ) ) // Color = 526344
 
-   CBMP2 := MEMOREAD(".." + cdirsep + "image" + cdirsep + "astro.bmp")
-   hwg_ShowBitmap(CBMP2,"astro")
+   CBMP2 := MEMOREAD( SAMPLE_IMAGEPATH + "astro.bmp" )
+   hwg_ShowBitmap( CBMP2, "astro" )
 
 * Test for setting bits in a byte
 // hwg_msgInfo(hwg_hex2binchar(hwg_HEX_DUMP(CHR(HWG_SETBITBYTE(0,8,1)), 4 ) ) )  && OK 0 to 1
@@ -201,8 +201,5 @@ RETURN Nil
 * .
 * .
 * 1      ........     48
-
-
-
 
 * ===================== EOF of testbmpcr.prg ====================

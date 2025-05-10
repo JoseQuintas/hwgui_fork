@@ -24,6 +24,7 @@
 */
 
 #include "hwgui.ch"
+#include "sampleinc.ch"
 
 MEMVAR nZoom
 
@@ -69,7 +70,6 @@ STATIC FUNCTION ViewImg( ctype, nresize )
    * Open image file and show image
 
    LOCAL odlg, oSayImg , oImg
-   LOCAL cs := hwg_GetDirSep()
    LOCAL fname , mypath , nWidth , nHeight , cCaption, noHeight , noWidth // oSay
 
    IF nresize == NIL
@@ -77,7 +77,7 @@ STATIC FUNCTION ViewImg( ctype, nresize )
    ENDIF
 
    * Assemble full path
-   mypath :=  cs + CURDIR() + IIF( EMPTY( CURDIR() ), "", cs ) + ".." + cs + "image" + cs
+   mypath :=  SAMPLE_IMAGEPATH
 
    * Open image file
    fname := hwg_Selectfile( "Image files( *." +  ctype + " )", "*." + ctype , mypath )
@@ -215,7 +215,9 @@ RETURN Nil
 STATIC FUNCTION IMGEXIST( nameimg )
 
    IF .NOT. FILE( nameimg )
-      hwg_msgStop("File >" + nameimg + "< not found","Error" )
+      hwg_msgStop( "demoimageview.prg" + hb_Eol() + ;
+         "File " + nameimg + hb_Eol() + ;
+         " not found", "Error" )
       RETURN .F.
    ENDIF
 

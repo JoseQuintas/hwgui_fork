@@ -32,12 +32,12 @@ FUNCTION Main()
          MENUITEM "&Exit" ACTION { ||hwg_EndWindow() }
       ENDMENU
       MENU TITLE "&Status"
-         MENUITEM "&Show" ACTION st_f4( oBrw:rowPos, aSample[oBrw:rowPos][2] )
+         MENUITEM "&Show" ACTION st_f4( oBrw:rowPos, aSample[ oBrw:rowPos ][ 2 ] )
       ENDMENU
    ENDMENU
 
    CONTEXT MENU oMenuBrw
-      MENUITEM "Status" ACTION { ||st_f4( nrp, aSample[nrp][2] ) }
+      MENUITEM "Status" ACTION { || st_f4( nrp, aSample[ nrp ][ 2 ] ) }
    ENDMENU
 
    @ 160, 10 BROWSE oBrw ;

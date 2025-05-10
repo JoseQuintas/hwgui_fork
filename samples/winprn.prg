@@ -148,6 +148,8 @@
 
 
 #include "hwgui.ch"
+#include "sampleinc.ch"
+
 #ifdef __XHARBOUR__
   #include "ttable.ch"
   #include "hbzebra.ch"
@@ -190,7 +192,7 @@ REQUEST HB_CODEPAGE_UTF8
 #endif
 
 MEMVAR aMainMenu , aLanguages , aPriCharSets , att_priprev, clangset, cIniFile, cTitle
-MEMVAR nPrCharset, nchrs , cImageDir, cQR
+MEMVAR nPrCharset, nchrs , cQR
 MEMVAR cHexAstro , cValAstro , oBitmap1 , oBitmap2
 MEMVAR nmode , lPreview , lprbutton, aMessages
 
@@ -202,7 +204,7 @@ Function Main
 
  PUBLIC nmode , lPreview , lprbutton
  PUBLIC aMainMenu , aLanguages , aPriCharSets , att_priprev, clangset, cIniFile, cTitle
- PUBLIC nPrCharset, nchrs , cImageDir
+ PUBLIC nPrCharset, nchrs
  PUBLIC cHexAstro , cValAstro , oBitmap1 , oBitmap2
 
  PRIVATE cQR
@@ -242,14 +244,7 @@ END
 * Fill variables with hex values
  Init_Hexvars()
 
-#ifdef __GTK__
-* cImageDir := ".." + cDirSep + ".." + cDirSep + "image" + cDirSep
-  cImageDir := ".." + cDirSep  + "image" + cDirSep
-#else
- cImageDir := ".." + cDirSep + "image" + cDirSep
-#endif
-
- CHECK_FILE(cImageDir + "hwgui.bmp")  && 301 x 160 pixel
+ CHECK_FILE( SAMPLE_IMAGEPATH + "hwgui.bmp")  && 301 x 160 pixel
 
  * Convert them all to binary.
  cValAstro := hwg_cHex2Bin ( cHexAstro )
@@ -611,7 +606,7 @@ LOCAL cFile
    * Print a bitmap in several ways
    oWinPrn:NextPage()
    oWinPrn:PrintLine("From file >hwgui.bmp<")
-   oWinPrn:PrintBitmap( cImageDir + "hwgui.bmp" )
+   oWinPrn:PrintBitmap( SAMPLE_IMAGEPATH + "hwgui.bmp" )
    * astro.bmp
    oWinPrn:PrintLine("From Hex value")
    oWinPrn:PrintBitmap( oBitmap1 , , "astro")
@@ -692,7 +687,7 @@ LOCAL cFile
    ENDIF
 #else
 *    #ifdef __PLATFORM__WINDOWS
-        cFile := CreateQRtoBMP( cQR, cImageDir + "QR.bmp" )
+        cFile := CreateQRtoBMP( cQR, SAMPLE_IMAGEPATH + "QR.bmp" )
         IF .NOT. EMPTY(cFile)
          oWinPrn:PrintBitmap( cFile )
         ENDIF

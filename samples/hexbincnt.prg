@@ -61,46 +61,46 @@ MEMVAR cValAstro , cValok , cValopen , cValexit , cValdoor , cValnext, cValExit2
 
 FUNCTION Main
 
-LOCAL oIcon, oBitmap , oToolbar , oFileOpen , oQuit , oMainW , oFontMain // cImageDir, cPPath
-LOCAL htab, nbut , oBMPExit , oPNGDoor , oBtnDoor , ojpeg , oBtnjpeg , oastropng // , oBMPExit2
-//LOCAL cDirSep := hwg_GetDirSep()
-LOCAL obttontest , obttontest2
+   LOCAL oIcon, oBitmap , oToolbar , oFileOpen , oQuit , oMainW , oFontMain
+   LOCAL htab, nbut , oBMPExit , oPNGDoor , oBtnDoor , ojpeg , oBtnjpeg , oastropng // , oBMPExit2
+   //LOCAL cDirSep := hwg_GetDirSep()
+   LOCAL obttontest , obttontest2
 
-PUBLIC cHexAstro , cHexok , cHexopen , cHexexit , cHexdoor , cHexnext , cHexExit2   && Hex dumps
-PUBLIC cValAstro , cValok , cValopen , cValexit , cValdoor , cValnext , cValExit2   && Resource contents
+   PUBLIC cHexAstro , cHexok , cHexopen , cHexexit , cHexdoor , cHexnext , cHexExit2   && Hex dumps
+   PUBLIC cValAstro , cValok , cValopen , cValexit , cValdoor , cValnext , cValExit2   && Resource contents
 
-htab := 0
-nbut := 0
+   htab := 0
+   nbut := 0
 
-* Exit2 : bmp
-* astro : bmp
-* next.bmp : door.bmp
-* exit.bmp
-* open.bmp
-* ok.ico
+   * Exit2 : bmp
+   * astro : bmp
+   * next.bmp : door.bmp
+   * exit.bmp
+   * open.bmp
+   * ok.ico
 
-* Fill variables with hex values
-Init_Hexvars()
+   * Fill variables with hex values
+   Init_Hexvars()
 
-* Convert them all to binary.
-cValAstro := hwg_cHex2Bin ( cHexAstro )
-cValok    := hwg_cHex2Bin ( cHexok )
-cValopen  := hwg_cHex2Bin ( cHexopen )
-cValexit  := hwg_cHex2Bin ( cHexexit )
-cValdoor  := hwg_cHex2Bin ( cHexdoor )
-cValnext  := hwg_cHex2Bin ( cHexnext )
+   * Convert them all to binary.
+   cValAstro := hwg_cHex2Bin ( cHexAstro )
+   cValok    := hwg_cHex2Bin ( cHexok )
+   cValopen  := hwg_cHex2Bin ( cHexopen )
+   cValexit  := hwg_cHex2Bin ( cHexexit )
+   cValdoor  := hwg_cHex2Bin ( cHexdoor )
+   cValnext  := hwg_cHex2Bin ( cHexnext )
 
-cValExit2 := hwg_cHex2Bin ( cHexExit2 )
+   cValExit2 := hwg_cHex2Bin ( cHexExit2 )
 
-* Load contents from hex resources into image objects.
-oIcon     := HIcon():AddString( "ok" , cValok )
-oBitmap   := HBitmap():AddString( "open" , cValopen )
-oBMPExit  := HBitmap():AddString( "exit" , cValexit )
-oPNGDoor  := HBitmap():AddString( "door" , cValdoor )
-ojpeg     := HBitmap():AddString( "next" , cValnext )
-oastropng := HBitmap():AddString( "astro", cValAstro )
+   * Load contents from hex resources into image objects.
+   oIcon     := HIcon():AddString( "ok" , cValok )
+   oBitmap   := HBitmap():AddString( "open" , cValopen )
+   oBMPExit  := HBitmap():AddString( "exit" , cValexit )
+   oPNGDoor  := HBitmap():AddString( "door" , cValdoor )
+   ojpeg     := HBitmap():AddString( "next" , cValnext )
+   oastropng := HBitmap():AddString( "astro", cValAstro )
 
-// oBMPExit2 := HBitmap():AddString( "exit2" , cValexit2 )
+   // oBMPExit2 := HBitmap():AddString( "exit2" , cValexit2 )
 
 #ifdef __PLATFORM__WINDOWS
    PREPARE FONT oFontMain NAME "MS Sans Serif" WIDTH 0 HEIGHT -14
@@ -108,62 +108,62 @@ oastropng := HBitmap():AddString( "astro", cValAstro )
    PREPARE FONT oFontMain NAME "Sans" WIDTH 0 HEIGHT 12
 #endif
 
-INIT WINDOW oMainW  ;
-   FONT oFontMain  ;
-   TITLE "Bitmap Hex container sample" AT 0,0 SIZE 400 , 400 ;
-   ICON oIcon ;
-   STYLE WS_POPUP +  WS_CAPTION + WS_SYSMENU ;
+   INIT WINDOW oMainW  ;
+      FONT oFontMain  ;
+      TITLE "Bitmap Hex container sample" AT 0,0 SIZE 400 , 400 ;
+      ICON oIcon ;
+      STYLE WS_POPUP +  WS_CAPTION + WS_SYSMENU ;
 
-* @ 0, 0 TOOLBAR oToolbar OF oMainW SIZE  299 , 50
- @ 0,0 PANEL oToolbar ;
-    OF oMainW ;
-    SIZE 300 , 50 ;
-    ON SIZE ANCHOR_TOPABS + ANCHOR_LEFTABS + ANCHOR_RIGHTABS
+   * @ 0, 0 TOOLBAR oToolbar OF oMainW SIZE  299 , 50
+   @ 0,0 PANEL oToolbar ;
+      OF oMainW ;
+      SIZE 300 , 50 ;
+      ON SIZE ANCHOR_TOPABS + ANCHOR_LEFTABS + ANCHOR_RIGHTABS
 
-@ htab+(nbut*32), 3 OWNERBUTTON oFileOpen ;
-   OF oToolbar ;
-   ON CLICK { | | FileOpen()} ;
-   SIZE 28,24 ;
-   FLAT ;
-   BITMAP oBitmap ;
-   TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ;
-   TOOLTIP "Open File"
-
-   nbut += 1
-
-@ htab+(nbut*32),3 OWNERBUTTON oQuit ;
-   OF oToolbar ;
-   ON CLICK { | | oMainW:Close()} ;
-   SIZE 28,24 FLAT ;
-   BITMAP oBMPExit ;
-   TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ;
-   TOOLTIP "Terminate Program"
-
-
+   @ htab+(nbut*32), 3 OWNERBUTTON oFileOpen ;
+      OF oToolbar ;
+      ON CLICK { | | FileOpen()} ;
+      SIZE 28,24 ;
+      FLAT ;
+      BITMAP oBitmap ;
+      TRANSPARENT COLOR hwg_ColorC2N( "#DCDAD5" ) COORDINATES 0,4,0,0 ;
+      TOOLTIP "Open File"
 
    nbut += 1
 
-* !!!!! PNG not supported
-@ htab+(nbut*32),3 OWNERBUTTON oBtnDoor ;
-   OF oToolbar ;
-   ON CLICK { | | OpenDoor()} ;
-   SIZE 28,24 FLAT ;
-   BITMAP oPNGDoor ;
-   TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ;
-   TOOLTIP "Open the door"
+   @ htab+(nbut*32),3 OWNERBUTTON oQuit ;
+      OF oToolbar ;
+      ON CLICK { | | oMainW:Close()} ;
+      SIZE 28,24 FLAT ;
+      BITMAP oBMPExit ;
+      TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ;
+      TOOLTIP "Terminate Program"
+
+
+
+   nbut += 1
+
+   * !!!!! PNG not supported
+   @ htab+(nbut*32),3 OWNERBUTTON oBtnDoor ;
+      OF oToolbar ;
+      ON CLICK { | | OpenDoor()} ;
+      SIZE 28,24 FLAT ;
+      BITMAP oPNGDoor ;
+      TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ;
+      TOOLTIP "Open the door"
 
   nbut += 1
 
-@ htab+(nbut*32),3 OWNERBUTTON oBtnjpeg ;
-   OF oToolbar ;
-   ON CLICK { | | ClickJpeg()} ;
-   SIZE 28,24 ;
-   FLAT ;
-   BITMAP ojpeg ;
-   TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ;
-   TOOLTIP "JPEG image"
+   @ htab+(nbut*32),3 OWNERBUTTON oBtnjpeg ;
+      OF oToolbar ;
+      ON CLICK { | | ClickJpeg()} ;
+      SIZE 28,24 ;
+      FLAT ;
+      BITMAP ojpeg ;
+      TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ;
+      TOOLTIP "JPEG image"
 
-nbut+=1
+   nbut+=1
 
    @ htab+(nbut*32), 3 BUTTON obttontest ;
       CAPTION "Show Bmp"  ;
@@ -172,7 +172,7 @@ nbut+=1
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { || showbitmap(cValopen,"open") }
 
-nbut+=1
+   nbut+=1
 
    @ htab+( (nbut*32)  + 48 ), 3 BUTTON obttontest2  ;
       CAPTION "Show bmp2" ;
@@ -181,57 +181,62 @@ nbut+=1
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { || showbitmap(cValAstro,"astro") }
 
-* Attention:
-* This crashes with core dump
-//   @ htab+(nbut*32), 3 BUTTON obttontest CAPTION "Show Bitmap" SIZE 80,32 ;
-//        STYLE WS_TABSTOP+BS_FLAT ;
-//        ON CLICK { || showbitmap(oBMPExit) }
+   * Attention:
+   * This crashes with core dump
+   //   @ htab+(nbut*32), 3 BUTTON obttontest CAPTION "Show Bitmap" SIZE 80,32 ;
+   //        STYLE WS_TABSTOP+BS_FLAT ;
+   //        ON CLICK { || showbitmap(oBMPExit) }
 
- @ 60 , 100 SAY "astro.png" SIZE 100, 20
- @ 60 , 100 BITMAP oastropng
+   @ 60 , 100 SAY "astro.png" SIZE 100, 20
+   @ 60 , 100 BITMAP oastropng
 
    oMainW:Activate()
+
 RETURN NIL
 
 FUNCTION FileOpen
- hwg_msginfo("You have clicked >FileOpen<")
+
+   hwg_msginfo("You have clicked >FileOpen<")
+
 RETURN NIL
 
 FUNCTION OpenDoor
- hwg_msginfo("You have clicked >Open the door<")
+
+   hwg_msginfo("You have clicked >Open the door<")
+
 RETURN NIL
 
 FUNCTION ClickJpeg
- hwg_msginfo("You have clicked >JPEG image<")
+
+   hwg_msginfo("You have clicked >JPEG image<")
+
 RETURN NIL
 
-* ==============================================
 FUNCTION showbitmap(cbmp,cbmpname)
-* Shows a bitmap
-* ==============================================
-LOCAL frm_bitmap , oButton1 , nx , ny , oBitmap
-LOCAL oLabel1, oLabel2, oLabel3, oLabel4
-LOCAL obmp
 
+   * Shows a bitmap
+   * ==============================================
 
-* Display the bitmap in an extra window
-* Max size : 1277,640
+   LOCAL frm_bitmap , oButton1 , nx , ny , oBitmap
+   LOCAL oLabel1, oLabel2, oLabel3, oLabel4
+   LOCAL obmp
 
-obmp := HBitmap():AddString( cbmpname , cbmp )
+   * Display the bitmap in an extra window
+   * Max size : 1277,640
 
+   obmp := HBitmap():AddString( cbmpname , cbmp )
 
-* Get current size
-nx := hwg_GetBitmapWidth ( obmp:handle )
-ny := hwg_GetBitmapHeight( obmp:handle )
+   * Get current size
+   nx := hwg_GetBitmapWidth ( obmp:handle )
+   ny := hwg_GetBitmapHeight( obmp:handle )
 
+   IF nx > 1277
+      nx := 1277
+   ENDIF
 
-IF nx > 1277
-  nx := 1277
-ENDIF
-
-IF ny > 640
-  ny := 640
-ENDIF
+   IF ny > 640
+      ny := 640
+   ENDIF
 
   INIT DIALOG frm_bitmap ;
      TITLE "Bitmap Image" ;

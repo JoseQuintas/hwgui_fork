@@ -35,40 +35,43 @@
 *   (source\winapi\menu.prg)
 
 #include "hwgui.ch"
+#include "sampleinc.ch"
 
 FUNCTION DemoMenuBitmap()
 
    LOCAL oDlg
-   LOCAL cbmpexit, cbmpnew, cbmpopen, cbmplogo, bbmperror , cimagepath
+   LOCAL cbmpexit, cbmpnew, cbmpopen, cbmplogo, bbmperror
    PRIVATE oMenu
 
    bbmperror := .F.
 
- * Use relative paths
-#ifdef __GTK__
-   cimagepath := ".." + hwg_GetDirSep() + ".." + hwg_GetDirSep() + "image" + hwg_GetDirSep()
-#else
-   cimagepath := "..\image\"
-#endif
-   cbmpexit := cimagepath + "exit_m.bmp"
-   cbmpnew  := cimagepath + "new_m.bmp"
-   cbmpopen := cimagepath + "open_m.bmp"
-   cbmplogo := cimagepath + "logo.bmp"
+   cbmpexit := SAMPLE_IMAGEPATH + "exit_m.bmp"
+   cbmpnew  := SAMPLE_IMAGEPATH + "new_m.bmp"
+   cbmpopen := SAMPLE_IMAGEPATH + "open_m.bmp"
+   cbmplogo := SAMPLE_IMAGEPATH + "logo.bmp"
    * Check for existing bitmaps
    IF .NOT. FILE( cbmpexit )
-      hwg_MsgStop("Error: File not exists: " + cbmpexit, "Bitmap error")
+      hwg_MsgStop( "demomenubitmap.prg" + hb_Eol() + ;
+         "Error: File not exists: " + hb_Eol() + ;
+         cbmpexit, "Bitmap error" )
       bbmperror := .T.
    ENDIF
    IF .NOT. FILE( cbmpnew )
-      hwg_MsgStop("Error: File not exists: " + cbmpnew, "Bitmap error")
+      hwg_MsgStop( "demomenubitmap.prg" + hb_Eol() + ;
+         "Error: File not exists: " + hb_Eol() + ;
+         cbmpnew, "Bitmap error" )
       bbmperror := .T.
    ENDIF
    IF .NOT. FILE( cbmpopen )
-     hwg_MsgStop("Error: File not exists: " + cbmpopen, "Bitmap error")
+     hwg_MsgStop( "demomenubitmap.prg" + hb_Eol() + ;
+        "Error: File not exists: " + hb_Eol() + ;
+        cbmpopen, "Bitmap error")
      bbmperror := .T.
    ENDIF
    IF .NOT. FILE( cbmplogo )
-     hwg_MsgStop( "Error: File not exists: " + cbmplogo, "Bitmap error" )
+     hwg_MsgStop( "demomenubitmap.prg" + hb_Eol() + ;
+        "Error: File not exists: " + hb_Eol() + ;
+        cbmplogo, "Bitmap error" )
      bbmperror := .T.
    ENDIF
    * Exit, if bitmap error

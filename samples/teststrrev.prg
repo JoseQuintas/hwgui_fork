@@ -109,6 +109,11 @@
 
 */
 
+#ifdef __LINUX__
+* LINUX Codepage
+  REQUEST HB_CODEPAGE_UTF8
+  REQUEST HB_CODEPAGE_UTF8EX
+#endif
 
 #include "hwgui.ch"
 
@@ -117,12 +122,6 @@ STATIC nmaxchars
 FUNCTION MAIN()
 
   LOCAL oWinMain
-
-#ifdef __LINUX__
-* LINUX Codepage
-REQUEST HB_CODEPAGE_UTF8
-REQUEST HB_CODEPAGE_UTF8EX
-#endif
 
   nmaxchars := 20  && Max 511 for hwg_Strrev()
 
@@ -156,62 +155,62 @@ STATIC FUNCTION Teste()
 
 * Init
 
-  cstring := SPACE(nmaxchars)
-  cstring := hwg_GET_Helper(cstring,nmaxchars)
+  cstring := SPACE( nmaxchars )
+  cstring := hwg_GET_Helper( cstring,nmaxchars )
   cneustr := ""
 
   INIT DIALOG Strrev ;
      TITLE "Test of function hwg_Strrev()" ;
-     AT 279,216 ;
-     SIZE 966,475 ;
+     AT    279, 216 ;
+     SIZE  966, 475 ;
      STYLE WS_SYSMENU + WS_SIZEBOX + WS_VISIBLE ;
      NOEXIT
 
 
-   @ 40,20 SAY oLabel2 ;
+   @ 40, 20 SAY oLabel2 ;
       CAPTION "Test of hwg_Strrev()"  ;
-      SIZE 246,22
+      SIZE 246, 22
 
-   @ 40,55 SAY oLabel1 ;
-      CAPTION "Enter a string (max " + ALLTRIM(STR(nmaxchars)) + " characters) :"  ;
-     SIZE 386,22
+   @ 40, 55 SAY oLabel1 ;
+      CAPTION "Enter a string (max " + ALLTRIM( STR( nmaxchars ) ) + " characters) :"  ;
+      SIZE 386, 22
 
-   @ 40,102 GET oEditbox1 ;
-      VAR cstring  ;
-      SIZE 865,24 ;
+   @ 40, 102 GET oEditbox1 ;
+      VAR   cstring  ;
+      SIZE  865, 24 ;
       STYLE WS_BORDER
 
-   @ 40,150 SAY oLabel3 ;
+   @ 40, 150 SAY oLabel3 ;
       CAPTION "UTF-8 support  (hwg__isUnicode()  :  "  ;
-      SIZE 391,22
+      SIZE 391, 22
 
-   @ 509,150 SAY oLabel4 ;
-      CAPTION IIF(hwg__isUnicode(),"Yes","No") ;
-      SIZE 249,22
+   @ 509, 150 SAY oLabel4 ;
+      CAPTION IIF( hwg__isUnicode(), "Yes", "No" ) ;
+      SIZE 249, 22
 
-   @ 40,190 SAY oLabel5 ;
+   @ 40, 190 SAY oLabel5 ;
       CAPTION "Result :"  ;
-      SIZE 80,22
+      SIZE 80, 22
 
-   @ 40,245 SAY oLabel6 ;
+   @ 40, 245 SAY oLabel6 ;
       CAPTION cneustr  ;
       SIZE 865,22
 
-   @ 53,305 BUTTON oButton1 ;
+   @ 53, 305 BUTTON oButton1 ;
       CAPTION "Reverse string"   ;
-      SIZE 259,32 ;
+      SIZE 259, 32 ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | | cneustr := hwg_Strrev(cstring) , oLabel6:SetText(ALLTRIM(cneustr)) }
+      ON CLICK { || cneustr := hwg_Strrev( cstring ), oLabel6:SetText( ALLTRIM( cneustr ) ) }
         * Attention !
         * On Windows the result string contains blanks
         * from the GET field, so the result must be
         * ALLTRIM'ed for correct display.
 
-   @ 626,305 BUTTON oButton2 ;
+   @ 626, 305 BUTTON oButton2 ;
       CAPTION "Exit"   ;
-      SIZE 80,32 ;
-      STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | | Strrev:Close() }
+      SIZE    80, 32 ;
+      STYLE   WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || Strrev:Close() }
 
    ACTIVATE DIALOG Strrev CENTER
 // RETURN Strrev:lresult
@@ -229,39 +228,39 @@ STATIC FUNCTION SetChars()
    nneu    := nmaxchars
 
    INIT DIALOG setmaxchars ;
-      TITLE "Set max numbers of characters" ;
-      AT 387,215 ;
-      SIZE 554,231 ;
+      TITLE  "Set max numbers of characters" ;
+      AT     387, 215 ;
+      SIZE   554, 231 ;
       NOEXIT ;
-      STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
+      STYLE  WS_SYSMENU + WS_SIZEBOX + WS_VISIBLE
 
 
-   @ 35,11 SAY oLabel1 ;
+   @ 35, 11 SAY oLabel1 ;
       CAPTION "Enter maximal numbers of characters (1...511) :"  ;
       SIZE 415,22
 
-   @ 35,50 GET oEditbox1 ;
+   @ 35, 50 GET oEditbox1 ;
       VAR nneu  ;
-      SIZE 80,24 ;
+      SIZE 80, 24 ;
       PICTURE "999" ;
       STYLE WS_BORDER ;
-      VALID { | | IIF( (nneu > 0) .AND. (nneu < 512) , .T. , .F. ) }
+      VALID { || IIF( ( nneu > 0 ) .AND. ( nneu < 512 ) , .T. , .F. ) }
 
-   @ 41,100 BUTTON oButton1 ;
+   @ 41, 100 BUTTON oButton1 ;
       CAPTION "OK"  ;
-      SIZE 80,32 ;
-      STYLE WS_TABSTOP+BS_FLAT ;
-      ON CLICK {|| lAbbruch := .F. , setmaxchars:Close() }
+      SIZE 80, 32 ;
+      STYLE WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || lAbbruch := .F., setmaxchars:Close() }
 
-   @ 401,100 BUTTON oButton2 ;
+   @ 401, 100 BUTTON oButton2 ;
       CAPTION "Cancel"   ;
-      SIZE 80,32 ;
-      STYLE WS_TABSTOP+BS_FLAT ;
-      ON CLICK {||  setmaxchars:Close() }
+      SIZE     80, 32 ;
+      STYLE    WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || setmaxchars:Close() }
 
    ACTIVATE DIALOG setmaxchars CENTER
 
-   IF .NOT. lAbbruch  && not cancelled or ESC key
+   IF .NOT. lAbbruch  // not cancelled or ESC key
       nmaxchars := nneu
    ENDIF
 

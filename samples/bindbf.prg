@@ -61,7 +61,7 @@
 
 FUNCTION Main()
 
-   LOCAL oIcon, oBitmap , oToolbar , oFileOpen , oQuit , oMainW , oFontMain // cImageDir, cPPath
+   LOCAL oIcon, oBitmap , oToolbar , oFileOpen , oQuit , oMainW , oFontMain
    LOCAL htab, nbut , oBMPExit , ojpeg , oBtnjpeg
    LOCAL oastrobmp
    //LOCAL cDirSep := hwg_GetDirSep()
@@ -86,10 +86,6 @@ FUNCTION Main()
    htab := 0
    nbut := 0
 
-   * Path to container
-   //cppath := "."
-   //cImageDir := cppath + cDirSep + "image" + cDirSep
-
    * Check for existung container, if not existing
    * no error message and image does not appear.
    * Then it is useful, to display an error message
@@ -99,7 +95,7 @@ FUNCTION Main()
 
    * Open container
    USE bindbf
-   
+
    * Debug (is container openend ?)
    // hwg_MsgInfo("Alias=" + ALIAS() )
    // hwg_MsgInfo("USED=" + IIF(USED() , ".T.",".F.") )
@@ -107,7 +103,7 @@ FUNCTION Main()
    * Load contents from container into image objects.
    * oIcon := HIcon():AddResource( "ok" )        && ico (old)
    // oIcon := HIcon():AddResource( "hwgui_48x48" ) && ico
-   * oIcon := HIcon():AddFile( "image" + cDirSep + "hwgui_32x32.ico" ) && icon from file (Test)
+   * oIcon := HIcon():AddFile( SAMPLE_IMAGEPATH + "hwgui_32x32.ico" ) && icon from file (Test)
    *
    // oBitmap := HBitmap():AddResource("open")      && bmp
    // oBMPExit := HBitmap():AddResource("exit")     && bmp
@@ -118,10 +114,10 @@ FUNCTION Main()
 
    oIcon := bindbf_getimage( "hwgui_48x48", "ico" )
 
-   oBitmap := bindbf_getimage("open","bmp")
-   oBMPExit := bindbf_getimage("exit","bmp")
-   ojpeg  := bindbf_getimage("next","jpg")
-   oastrobmp := bindbf_getimage("astro2"," bmp")
+   oBitmap   := bindbf_getimage( "open", "bmp" )
+   oBMPExit  := bindbf_getimage( "exit", "bmp" )
+   ojpeg     := bindbf_getimage( "next", "jpg" )
+   oastrobmp := bindbf_getimage( "astro2", "bmp" )
 
 #ifdef __PLATFORM__WINDOWS
    PREPARE FONT oFontMain NAME "MS Sans Serif" WIDTH 0 HEIGHT -14
@@ -196,7 +192,7 @@ FUNCTION Main()
 
    @ htab+(nbut * nlowb),3 OWNERBUTTON oQuit ;
       OF oToolbar  ;
-      ON CLICK { | | oMainW:Close()} ;
+      ON CLICK { | | oMainW:Close() } ;
       SIZE nxowb,nyowb /* FLAT */ ;
       BITMAP oBMPExit ;
       TRANSPARENT COLOR hwg_ColorC2N("#DCDAD5") COORDINATES 0,4,0,0 ;

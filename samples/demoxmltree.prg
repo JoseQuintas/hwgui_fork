@@ -1,17 +1,15 @@
 #include "hwgui.ch"
+#include "sampleinc.ch"
 
-MEMVAR oFont , cImageDir , cDirSep , cBitmap1, cbitmap2 , cppath
+MEMVAR oFont , cBitmap1, cbitmap2
 
 FUNCTION DemoXmlTree( lWithDialog, oDlg )
 
    LOCAL oTree, oSplit, oSay
 
    PRIVATE oFont     := HFont():Add( "MS Sans Serif",0,-13 )
-   PRIVATE cppath    := ".."
-   PRIVATE cDirSep   := hwg_GetDirSep()
-   PRIVATE cImageDir := cppath + cDirSep + "image" + cDirSep
-   PRIVATE cBitmap1  := cImageDir + "cl_fl.bmp"
-   PRIVATE cbitmap2  := cImageDir + "op_fl.bmp"
+   PRIVATE cBitmap1  := SAMPLE_IMAGEPATH + "cl_fl.bmp"
+   PRIVATE cbitmap2  := SAMPLE_IMAGEPATH + "op_fl.bmp"
 
    hb_Default( @lWithDialog, .T. )
 
@@ -129,7 +127,9 @@ STATIC FUNCTION CHECK_FILE( cfi )
 
    * Check, if file exist, otherwise terminate program
    IF .NOT. FILE( cfi )
-      Hwg_MsgStop("File >" + cfi + "< not found, program terminated","File ERROR !")
+      Hwg_MsgStop( "demoxmltree.prg" + hb_Eol() + ;
+         "File " + cfi + hb_Eol() + ;
+         "not found, program terminated","File ERROR !")
       QUIT
    ENDIF
 

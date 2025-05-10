@@ -54,6 +54,7 @@
 #define BYHEXDUMP
 
 #include "hwgui.ch"
+#include "sampleinc.ch"
 
 FUNCTION Main( lStretch )
 
@@ -65,10 +66,8 @@ FUNCTION Main( lStretch )
    LOCAL oBmp, cBmp
    LOCAL oBitmtrsp
 
-   LOCAL cDirSep := hb_PS() //PATH SEPARATOR
-   LOCAL cImagePath := ".." + cDirSep + "image" + cDirSep
 #ifndef BYHEXDUMP
-   LOCAL cImageMain := cImagePath + "hwgui.bmp"
+   LOCAL cImageMain := SAMPLE_IMAGEPATH + "hwgui.bmp"
 #endif
 
    //LOCAL c
@@ -94,7 +93,8 @@ FUNCTION Main( lStretch )
 
    * Strech it
    IF lStretch
-     oBmp := HBitmap():AddFile(cImageMain,,.F.,hwg_Getdesktopwidth() - 100 ,hwg_Getdesktopheight()-21)
+     oBmp := HBitmap():AddFile( cImageMain,, .F., hwg_Getdesktopwidth() - 100, ;
+        hwg_Getdesktopheight() - 21 )
    ELSE
    * Original size / tiled
      oBmp := HBitmap():AddFile( cImageMain,, .F., 301, 160 )
@@ -109,7 +109,7 @@ FUNCTION Main( lStretch )
   IF lStretch
    * By original size / tiled
    * and resized by BITMAP ... SHOW command
-     oBmp := HBitmap():AddString("hwgui",hwg_cHex2Bin(ini_hwgui_bmp()) )
+     oBmp := HBitmap():AddString( "hwgui", hwg_cHex2Bin( ini_hwgui_bmp() ) )
    ELSE
     *
     * Background image
@@ -132,8 +132,8 @@ FUNCTION Main( lStretch )
     * Check for transparent
     * Color white (FFFFFF = 16777215) handled as transparent color,
     * Default is 00FFF.
-     CHECK_FILE( cImagePath + "cancel.bmp" )
-     oBitmtrsp := HBitmap():AddFile( cImagePath + "cancel.bmp",, .F. )
+     CHECK_FILE( SAMPLE_IMAGEPATH + "cancel.bmp" )
+     oBitmtrsp := HBitmap():AddFile( SAMPLE_IMAGEPATH + "cancel.bmp",, .F. )
 
     * ===========
     * Debug tests
@@ -147,8 +147,8 @@ FUNCTION Main( lStretch )
     //  BMPTOC2Logfile(oBmp)
 
      * Display size of recent desktop, it is equal to the size of screen.
-   hwg_msginfo("X=" + STR(nPosX) + CHR(10) + "Y=" + STR(nPosY) + CHR(10) + ;
-      "lStretch=" + IIF(lStretch,"True","False") )
+   hwg_msginfo( "X=" + STR(nPosX) + CHR(10) + "Y=" + STR( nPosY ) + CHR(10) + ;
+      "lStretch=" + IIF( lStretch, "True", "False" ) )
 
    IF lStretch
       INIT WINDOW oFormMain ;
@@ -163,7 +163,7 @@ FUNCTION Main( lStretch )
          // 301, 160
 
       * Transparent test
-      @ 110,100 BITMAP oBitmtrsp  ;
+      @ 110, 100 BITMAP oBitmtrsp  ;
          OF oFormMain ;
          TRANSPARENT COLOR 16777215
 
@@ -172,7 +172,7 @@ FUNCTION Main( lStretch )
       // the ON CLICK block does not work.
       // Say "0,0 BITMAP oBitmap" and you can realize the symptom.
 
-      @ 25,25 BUTTON oQuitButton ;
+      @ 25, 25 BUTTON oQuitButton ;
          CAPTION "Exit" SIZE 75,32 ;
          ON CLICK { | | oFormMain:Close() }
 
@@ -182,7 +182,7 @@ FUNCTION Main( lStretch )
       INIT WINDOW oFormMain ;
          APPNAME "Agenda Hwgui" ;
          MAIN ;
-         AT 0,0 ;
+         AT 0, 0 ;
          SIZE nPosX,nPosY ;
          BACKGROUND BITMAP oBmp
 
@@ -191,16 +191,16 @@ FUNCTION Main( lStretch )
       // ON CLICK block works fine.
 
       * Transparent test
-      @ 110,100 BITMAP oBitmtrsp  ;
+      @ 110, 100 BITMAP oBitmtrsp  ;
          OF oFormMain ;
          TRANSPARENT ;
          COLOR 16777215
 
 
-      @ 25,25 BUTTON oQuitButton ;
+      @ 25, 25 BUTTON oQuitButton ;
          CAPTION "Exit" ;
-         SIZE 75,32 ;
-         ON CLICK { | | oFormMain:Close() }
+         SIZE 75, 32 ;
+         ON CLICK { || oFormMain:Close() }
 
       oFormMain:Activate()
    ENDIF
@@ -211,18 +211,18 @@ FUNCTION CHECK_FILE ( cfi )
 
    * Check, if file exist, otherwise terminate program
    IF .NOT. FILE( cfi )
-      Hwg_MsgStop("File >" + cfi + "< not found, program terminated","File ERROR !")
+      Hwg_MsgStop( "File >" + cfi + "< not found, program terminated","File ERROR !" )
       QUIT
    ENDIF
 
 RETURN Nil
 
-FUNCTION BMPTOC2Logfile(oBitmap)
+FUNCTION BMPTOC2Logfile( oBitmap )
 
      LOCAL atoc
 
-     atoc :=  hwg_bitmapTOC(oBitmap)
-     hwg_Debug_logarrayC(atoc)
+     atoc :=  hwg_bitmapTOC( oBitmap )
+     hwg_Debug_logarrayC( atoc )
 
 RETURN NIL
 

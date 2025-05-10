@@ -6,6 +6,7 @@
  */
 
 #include "hwgui.ch"
+#include "sampleinc.ch"
 
 FUNCTION DemoTree( lWithDialog, oDlg, aInitList )
 
@@ -38,7 +39,7 @@ FUNCTION DemoTree( lWithDialog, oDlg, aInitList )
       OF oDlg ;
       SIZE 200,280 ;
       EDITABLE ;
-      BITMAP { "..\image\cl_fl.bmp","..\image\op_fl.bmp" } ;
+      BITMAP { SAMPLE_IMAGEPATH + "cl_fl.bmp", SAMPLE_IMAGEPATH + "op_fl.bmp" } ;
       ON SIZE { | o,x,y | (x), o:Move(,,,y - 20 ) }
 
    oTree:bRClick := {|ot,on|TreeMenuShow( ot, oPopup, on )}
@@ -70,8 +71,8 @@ STATIC FUNCTION BuildTree( oDlg, oTree, oSay )
    INSERT NODE "First" TO oTree ON CLICK {||NodeOut(1,oSay)}
    INSERT NODE "Second" TO oTree ON CLICK {||NodeOut(2,oSay)}
    INSERT NODE oNode CAPTION "Third" TO oTree ON CLICK {||NodeOut(0,oSay)}
-      INSERT NODE "Third-1" TO oNode BITMAP {"..\image\book.bmp"} ON CLICK {||NodeOut(3,oSay)}
-      INSERT NODE "Third-2" TO oNode BITMAP {"..\image\book.bmp"} ON CLICK {||NodeOut(4,oSay)}
+      INSERT NODE "Third-1" TO oNode BITMAP { SAMPLE_IMAGEPATH + "book.bmp"} ON CLICK {||NodeOut(3,oSay)}
+      INSERT NODE "Third-2" TO oNode BITMAP { SAMPLE_IMAGEPATH + "book.bmp"} ON CLICK {||NodeOut(4,oSay)}
    INSERT NODE "Forth" TO oTree ON CLICK {||NodeOut(5,oSay)}
 
    oTree:bExpand := {||.T.}

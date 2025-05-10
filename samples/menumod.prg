@@ -55,8 +55,8 @@ FUNCTION _menudialog()
 
    INIT DIALOG oDialg ;
       TITLE "Menu Sample"  ;
-      AT 200,0 ;
-      SIZE 600,300                       ;
+      AT 200, 0 ;
+      SIZE 600, 300                       ;
       FONT oFont
 
    MENU OF oDialg
@@ -91,33 +91,32 @@ FUNCTION NewItem( nItem )
 
    IF nItem > 0
       * Trim variables for GET
-      cName := PADR(cName, 30)
+      cName := PADR( cName, 30 )
    ELSE
       cName := Space(30)
    ENDIF
 
-    cName := hwg_GET_Helper(cName,30)
-
+    cName := hwg_GET_Helper( cName, 30 )
 
    INIT DIALOG oDlg TITLE ;
       Iif( nItem==0,"New item","Change item" )  ;
-      AT 210,10  ;
-      SIZE 700,150 ;
+      AT 210, 10  ;
+      SIZE 700, 150 ;
       FONT oFont
 
-   @ 20,20 SAY "Name:" ;
+   @ 20, 20 SAY "Name:" ;
       SIZE 60, 22
 
-   @ 80,20 GET oGet1 ;
+   @ 80, 20 GET oGet1 ;
       VAR cName ;
       SIZE 500, 26 ;
       STYLE WS_BORDER
 
-   @ 20,110  BUTTON "Ok" ;
+   @ 20, 110  BUTTON "Ok" ;
       SIZE 100, 32 ;
-      ON CLICK {||oDlg:lResult:=.T.,hwg_EndDialog()}
+      ON CLICK {|| oDlg:lResult := .T., hwg_EndDialog() }
 
-   @ 180,110 BUTTON "Cancel" ;
+   @ 180, 110 BUTTON "Cancel" ;
       ID IDCANCEL ;
       SIZE 100, 32
 
@@ -137,7 +136,7 @@ FUNCTION NewItem( nItem )
               &( "{ | | NewItem(" + LTrim( Str( nId - 1020, 2 ) ) + ")}" ), Len( aMenu[ 1 ] ) - 1 )
       ELSE
          * Modified
-         hwg_Setmenucaption( oDialg:handle, 1020+nItem, cName )
+         hwg_Setmenucaption( oDialg:handle, 1020 + nItem, cName )
       ENDIF
 *
     ENDIF

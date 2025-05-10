@@ -79,7 +79,8 @@ RETURN Nil
 STATIC FUNCTION ReadIni( cIniFile, oGet )
 
    IF ! File( cIniFile )
-      hwg_MsgInfo( cIniFile + " not found" )
+      hwg_MsgInfo( "demoini.prg" + hb_Eol() + ;
+         cIniFile + " not found" )
       RETURN Nil
    ENDIF
    oGet:Value := MemoRead( cIniFile )

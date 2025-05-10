@@ -27,13 +27,14 @@
 * Bugfix compile error LINUX 05.05.2025:
 * Warning W0001  Ambiguous reference 'NBUT'
 * Warning W0032  Variable 'NXOWB' is assigned but not used in function ' ...
-* 'NYOWB', 'NLOWB', 'HTAB' 
+* 'NYOWB', 'NLOWB', 'HTAB'
 * Warning W0004  Codeblock parameter 'X' (or 'Y' ) declared but not used in function 'MAIN' ...
 
 
 REQUEST HB_CODEPAGE_PTISO, HB_CODEPAGE_PT850
 
 #include "hwgui.ch"
+#include "sampleinc.ch"
 
 FUNCTION Main()
 
@@ -49,8 +50,8 @@ FUNCTION Main()
    * Used by OWNERBUTTON's
    LOCAL oFileOpen , oBook, nBut
    LOCAL oBmpNew , oBmpbook , oIcoOK , oBmpdoor , oIcoCancel
-   
-   LOCAL nxowb, nyowb, nlowb, htab   
+
+   LOCAL nxowb, nyowb, nlowb, htab
 #endif
 
 #ifdef __GTK__
@@ -65,17 +66,17 @@ FUNCTION Main()
    nxowb := 50  && size x
    nyowb := 60  && size y
    nlowb := 55  && at x
-   
+
    htab := 0   && Not used n GTK
    nbut := 0
 #endif
 
- 
+
 
    cTitle := "Teste da Acentuação"  && ==> "Accent Test"
 
-   cbmppref := ".." + hwg_GetDirSep() + "image" + hwg_GetDirSep()
-   // cbmppref := ".." + hwg_GetDirSep() + ".." + hwg_GetDirSep() + "image" + hwg_GetDirSep()
+   cbmppref := SAMPLE_IMAGEPATH
+   // cbmppref := SAMPLE_IMAGEPATH
    * Check, if all bitmaps are existing, otherwise the program crashes or freezes
    CHECK_FILE(cbmppref + "new.bmp")
    CHECK_FILE(cbmppref + "book.bmp")
@@ -138,8 +139,8 @@ FUNCTION Main()
       TEXT "teste1"  ;
       TOOLTIP "ola" ;
       ON CLICK { || hwg_Msginfo( "ola" ), hwg_Enablewindow( oTool:aItem[2,11], .T. ) , hwg_Enablewindow( oTool:aItem[1,11], .F. ) }
-    
-//      ON CLICK { |x, y| hwg_Msginfo( "ola" ), hwg_Enablewindow( oTool:aItem[2,11], .T. ) , hwg_Enablewindow( oTool:aItem[1,11], .F. ) }    
+
+//      ON CLICK { |x, y| hwg_Msginfo( "ola" ), hwg_Enablewindow( oTool:aItem[2,11], .T. ) , hwg_Enablewindow( oTool:aItem[1,11], .F. ) }
 
    TOOLBUTTON  otool ;
       ID 702 ;
@@ -148,8 +149,8 @@ FUNCTION Main()
       STATE 4;
       TEXT "teste2"  ;
       TOOLTIP "ola2" ;
-      ON CLICK { ||hwg_Msginfo( "ola1" ), hwg_Enablewindow( oTool:aItem[1,11], .T. ), hwg_Enablewindow( oTool:aItem[2,11], .F. ) }      
-      
+      ON CLICK { ||hwg_Msginfo( "ola1" ), hwg_Enablewindow( oTool:aItem[1,11], .T. ), hwg_Enablewindow( oTool:aItem[2,11], .F. ) }
+
 //      ON CLICK { |x, y|hwg_Msginfo( "ola1" ), hwg_Enablewindow( oTool:aItem[1,11], .T. ), hwg_Enablewindow( oTool:aItem[2,11], .F. ) }
 
    TOOLBUTTON  otool ;
@@ -160,9 +161,9 @@ FUNCTION Main()
       TEXT "asdsa"  ;
       TOOLTIP "ola3" ;
       ON CLICK { ||hwg_Msginfo( "ola2" ) }
-      
-//     ON CLICK { |x, y|hwg_Msginfo( "ola2" ) }      
-      
+
+//     ON CLICK { |x, y|hwg_Msginfo( "ola2" ) }
+
    TOOLBUTTON  otool ;
       ID 702 ;
       STYLE 1 ;
@@ -170,9 +171,9 @@ FUNCTION Main()
       TEXT "teste2"  ;
       TOOLTIP "ola2" ;
       ON CLICK { || hwg_Msginfo( "ola3" ) }
-      
+
 //      ON CLICK { |x, y|hwg_Msginfo( "ola3" ) }
-      
+
    TOOLBUTTON  otool ;
       ID 702 ;
       BITMAP cbmppref + "door.bmp";  // DF7BE: tools.bmp does not exist, choose existing one
@@ -181,7 +182,7 @@ FUNCTION Main()
       TEXT "teste2"  ;
       TOOLTIP "ola2" ;
       ON CLICK { || hwg_Msginfo( "ola4" ) }
-      
+
 //      ON CLICK { |x, y|hwg_Msginfo( "ola4" ) }
 
    TOOLBUTTON  otool ;
@@ -191,8 +192,8 @@ FUNCTION Main()
       STATE 4;
       TEXT "teste2"  ;
       TOOLTIP "ola2" ;
-      ON CLICK { || hwg_Msginfo( "ola5" ) }      
-      
+      ON CLICK { || hwg_Msginfo( "ola5" ) }
+
 //     ON CLICK { |x, y|hwg_Msginfo( "ola5" ) }
 
 #else

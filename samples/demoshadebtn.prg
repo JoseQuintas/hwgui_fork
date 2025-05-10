@@ -5,6 +5,7 @@
 */
 
 #include "hwgui.ch"
+#include "sampleinc.ch"
 
 #ifndef __PLATFORM__WINDOWS
    FUNCTION DemoShadeBtn()
@@ -16,8 +17,8 @@
 FUNCTION DemoShadeBtn( lWithDialog, oDlg )
 
    LOCAL oFont
-   LOCAL oIco1 := HIcon():AddFile("..\image\ok.ico")
-   LOCAL oIco2 := HIcon():AddFile("..\image\cancel.ico")
+   LOCAL oIco1 := HIcon():AddFile( SAMPLE_IMAGEPATH + "ok.ico")
+   LOCAL oIco2 := HIcon():AddFile( SAMPLE_IMAGEPATH + "cancel.ico")
 
    hb_Default( @lWithDialog, .T. )
 
