@@ -137,36 +137,38 @@ FUNCTION DemoStrRev( lWithDialog, oDlg )
          NOEXIT
    ENDIF
 
-   @ 40, 20 SAY aLabel[1] ;
+   ButtonForSample( "demostrrev.prg", oDlg )
+
+   @ 40, 80 SAY aLabel[1] ;
       CAPTION "Test of hwg_Strrev()"  ;
       SIZE 246, 22
 
-   @ 40, 55 SAY aLabel[2] ;
+   @ 40, 115 SAY aLabel[2] ;
       CAPTION "Enter a string (max 511 characters) :"  ;
       SIZE 386, 22
 
-   @ 40, 102 GET oEditbox1 ;
+   @ 40, 162 GET oEditbox1 ;
       VAR   cNormal ;
-      SIZE  865, 24 ;
+      SIZE  700, 24 ;
       STYLE WS_BORDER
 
-   @ 40, 150 SAY aLabel[3] ;
+   @ 40, 210 SAY aLabel[3] ;
       CAPTION "UTF-8 support  (hwg__isUnicode()  :  "  ;
       SIZE 391, 22
 
-   @ 509, 150 SAY aLabel[4] ;
+   @ 509, 210 SAY aLabel[4] ;
       CAPTION IIF( hwg__isUnicode(), "Yes", "No" ) ;
       SIZE 249, 22
 
-   @ 40, 190 SAY aLabel[5] ;
+   @ 40, 250 SAY aLabel[5] ;
       CAPTION "Result :"  ;
       SIZE 80, 22
 
-   @ 40, 245 SAY aLabel[6] ;
+   @ 40, 280 SAY aLabel[6] ;
       CAPTION cReverse ;
       SIZE 865, 22
 
-   @ 53, 305 BUTTON aButton[1] ;
+   @ 53, 385 BUTTON aButton[1] ;
       CAPTION "Reverse string"   ;
       SIZE 259, 32 ;
       STYLE WS_TABSTOP + BS_FLAT ;
@@ -181,16 +183,18 @@ FUNCTION DemoStrRev( lWithDialog, oDlg )
          RETURN Nil
          }
 
-   @ 626, 305 BUTTON aButton[2] ;
-      CAPTION "Exit"   ;
-      SIZE    80, 32 ;
-      STYLE   WS_TABSTOP + BS_FLAT ;
-      ON CLICK { || oDlg:Close() }
-
    IF lWithDialog
+      @ 626, 385 BUTTON aButton[2] ;
+         CAPTION "Exit"   ;
+         SIZE    80, 32 ;
+         STYLE   WS_TABSTOP + BS_FLAT ;
+         ON CLICK { || oDlg:Close() }
+
       ACTIVATE DIALOG oDlg CENTER
    ENDIF
 
 RETURN NIL
+
+#include "demo.ch"
 
 * ==================== EOF of demostrrev.prg ============================

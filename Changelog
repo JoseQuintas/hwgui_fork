@@ -15,6 +15,10 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-10 20:15 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demostrrev.prg
+     ! Position for tabpage
+
 2025-05-10 20:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
    - samples/teststrrev.prg
    * samples/demostrrev.prg renamed from teststrrev.prg
