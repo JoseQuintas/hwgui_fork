@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-10 14:23 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/gtk_samples/winprn.prg
+   * samples/stetch.prg
+   * samples/testray.prg
+   * samples/tstsplash.prg
+   * samples/winprn.prg
+     ! use sampleinc.ch
+
 2025-05-10 14:22 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/demoshadebtn.prg
    * samples/demosplitter.prg

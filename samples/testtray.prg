@@ -38,44 +38,40 @@
 
 
 #include "hwgui.ch"
-
+#include "sampleinc.ch"
 
 FUNCTION Main()
 
-   LOCAL oMainWindow, cdirsep, cimagedir
+   LOCAL oMainWindow
    LOCAL oIcon1
-   
-#ifndef __GTK__   
+
+#ifndef __GTK__
     LOCAL oTrayMenu, oIcon2
-#endif    
+#endif
 
    * Borland resources removed
    // LOCAL oIcon1 := HIcon():AddResource( "ICON_1" )
    // LOCAL oIcon2 := HIcon():AddResource( "ICON_2" )
 
-   cdirsep := hwg_GetDirSep()
    * decides for samples/gtk_samples or samples/
-
-   cimagedir := ".." + cdirsep + "image" + cdirsep
-
 
    * Better way to uses hex values for resources instead of
    * icon files
 
-   // oIcon1 := HIcon():AddFile(cimagedir + "ok.ico")
-   oIcon1 := HIcon():AddFile(cimagedir + "hwgui_32x32.ico")
-   
-#ifndef __GTK__   
-   oIcon2 := HIcon():AddFile(cimagedir + "cancel.ico")
-#endif   
+   // oIcon1 := HIcon():AddFile( SAMPLE_IMAGEPATH + "ok.ico")
+   oIcon1 := HIcon():AddFile( SAMPLE_IMAGEPATH + "hwgui_32x32.ico")
 
-   IF .NOT. FILE(cimagedir + "hwgui_16x16.ico")
-      hwg_msgstop("Icon not found: " + cimagedir + "hwgui_32x32.ico")
+#ifndef __GTK__
+   oIcon2 := HIcon():AddFile( SAMPLE_IMAGEPATH + "cancel.ico" )
+#endif
+
+   IF .NOT. FILE( SAMPLE_IMAGEPATH + "hwgui_16x16.ico"
+      hwg_msgstop( "Icon not found: " + SAMPLE_IMAGEPATH + "hwgui_32x32.ico" )
       RETURN NIL
    ENDIF
 
-   IF .NOT. FILE(cimagedir + "cancel.ico")
-      hwg_msgstop("Icon not found: " + cimagedir + "cancel.ico")
+   IF .NOT. FILE( SAMPLE_IMAGEPATH + "cancel.ico" )
+      hwg_msgstop( "Icon not found: " + SAMPLE_IMAGEPATH + "cancel.ico" )
       RETURN NIL
    ENDIF
 
@@ -84,7 +80,7 @@ FUNCTION Main()
       MAIN ;
       TITLE "Example" ;
       AT 200,0 ;
-      SIZE 200,100 ;  && Needed for Ubuntu 16, otherwise not visible
+      SIZE 200,100 ;  // Needed for Ubuntu 16, otherwise not visible
       ICON oIcon1
 #else
    INIT WINDOW oMainWindow ;

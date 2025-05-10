@@ -15,17 +15,17 @@
     *  GTK/Win  :  No
 
 #include "hwgui.ch"
+#include "sampleinc.ch"
 
 FUNCTION Main()
 
    LOCAL oMainWindow
-   LOCAL oSplash, csplashimg , cDirSep
+   LOCAL oSplash, csplashimg
 
-   cDirSep := hwg_GetDirSep()
    * Name and path of splash image
    * Formats can be: jpg, bmp
-   csplashimg := ".." + cDirSep + "image" + cDirSep + "astro.jpg"
-   * csplashimg := ".." + cDirSep + "image" + cDirSep + "logo.bmp"
+   csplashimg := SAMPLE_IMAGEPATH + "astro.jpg"
+   * csplashimg := SAMPLE_IMAGEPATH + "logo.bmp"
    *csplashimg := "hwgui.bmp"
 
    * Check, if splash image exists,
