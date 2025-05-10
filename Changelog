@@ -15,6 +15,23 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-10 20:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   - samples/teststrrev.prg
+   * samples/demostrrev.prg renamed from teststrrev.prg
+     ! renamed and simplified
+   * doc/hwgdoc_commands.html
+   * doc/hwgdoc_functions.html
+   * samples/Readme.txt
+     ! updated references
+   * samples/demodateselect.prg
+     ! extract from demoall.prg source code
+   * samples/demoall.hbp
+   * samples/demoall.prg
+     ! created "choice" tabpage with checkbox, combobox, listbox,
+     !    radiobutton, updown
+     ! moved "say" to "get/say"
+     ! added demostrrev to "others"
+
 2025-05-10 15:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * test/Ticker27.prg
      ! changed remarks and source

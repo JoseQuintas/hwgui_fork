@@ -18,6 +18,7 @@ demobrowsebmp.prg
 demobrowsedbf.prg
 democheckbox.prg
 democombobox.prg
+demodateselect.prg
 demodbfdata.prg
 demodialog.prg
 demodlgbox.prg
@@ -38,6 +39,7 @@ demomenuxml.prg
 demonight.prg
 demoowner.prg
 demoprogbar.prg
+demostrrev.prg
 demotab.prg
 demotabtool.prg
 demotree.prg

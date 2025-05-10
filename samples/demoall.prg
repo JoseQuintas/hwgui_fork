@@ -119,7 +119,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "3.Browse DBF",                   { |o| DemoBrowseDbf( .F., o, aEndList ) } )
       MenuOption( "4.Browse Arr Edit",              { |o| DemoBrowseArr( .F., o ) } )
 #ifdef __PLATFORM__WINDOWS
-      MenuOption( "5Grid1",      "demogrid",        { || DemoGrid1() } )
+      MenuOption( "5.Grid1",     "demogrid",        { || DemoGrid1() } )
       MenuOption( "6.Grid4",     "demogrid4",       { || DemoGrid4(,,aEndList) } )
       MenuOption( "7.Grid5",     "demogrid5",       { || DemoGrid5(,,,aEndList) } )
 #endif
@@ -134,16 +134,21 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
 #endif
       MenuOption( "4.demofunc",                     { |o| DemoFunc( .F., o ) } )
       MenuUnDrop()
-   MenuOption( "Checkbox",                          { |o| DemoCheckbox( .F., o ) } )
-   MenuOption( "Combobox",                          { |o| DemoCombobox( .F., o ) } )
+   MenuOption( "Choice" )
+      MenuDrop()
+      MenuOption( "1.Checkbox",                     { |o| DemoCheckbox( .F., o ) } )
+      MenuOption( "2.Combobox",                     { |o| DemoCombobox( .F., o ) } )
+      MenuOption( "3.Listbox Alt",                  { |o| DemoListBoxSub( .F., o ) } )
+      MenuOption( "4.Radiobutton",                  { |o| DemoGet1( .F., o ) } )
+      MenuOption( "5.UpDown",                       { |o| DemoUpDown( .F., o ) } )
+      MenuUnDrop()
    MenuOption( "Dialog" )
       MenuDrop()
       MenuOption( "1.General",                      { |o| DemoDialog( .F., o ) } )
       MenuOption( "2.Night",      "demonight",      { || DemoNight() } )
       MenuOption( "3.Back image", "demoimage1",     { || DemoImage1() } )
       MenuUnDrop()
-   MenuOption( "Radiobutton",                       { |o| DemoGet1( .F., o ) } )
-   MenuOption( "Get" )
+   MenuOption( "Get/Say" )
       MenuDrop()
       MenuOption( "1.DemoGet2",                     { |o| DemoGet2( .F., o ) } )
       MenuOption( "2.Editbox",                      { |o| DemoIni( .F., o, aEndList ) } )
@@ -157,10 +162,6 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "3.DemoImage1", "demoimage1",     { || DemoImage1() } )
       MenuOption( "4.Image view", "demoimageview",  { || demoimageview() } )
       MenuUnDrop()
-   MenuOption( "Listbox" )
-      MenuDrop()
-      MenuOption( "1.Listbox Alt",                  { |o| DemoListBoxSub( .F., o ) } )
-      MenuUndrop()
    MenuOption( "Menu" )
       MenuDrop()
       MenuOption( "1.menu",    "demomenu",          { || DemoMenu() } )
@@ -170,10 +171,6 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
 #endif
       MenuUnDrop()
    MenuOption( "Progbar",                           { |o| DemoProgbar( .F., o, aEndList ) } )
-   MenuOption( "Say" )
-      MenuDrop()
-      MenuOption( "1.DemoGet2",                     { |o| DemoGet2( .F., o ) } )
-      MenuUnDrop()
    MenuOption( "Splitter" )
       MenuDrop()
       MenuOption( "1.Split",                        { |o| DemoSplit( .F., o, aInitList ) } )
@@ -198,11 +195,10 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
    MenuOption( "Tree" )
       MenuDrop()
       MenuOption( "1.Tree",                         { |o| DemoTree( .F., o, aInitList ) } )
-      MenuOption( "2.Split",                        { |o| DemoSplit( .F., o, aInitList ) } )
-      MenuOption( "3.Splitter",                     { |o| DemoSplitter( .F., o, aInitList ) } )
-      MenuOption( "5.XML Tree",                     { |o| DemoXmlTree( .F., o ) } )
+      MenuOption( "2.Splitter1",                    { |o| DemoSplit( .F., o, aInitList ) } )
+      MenuOption( "3.Splitter2",                    { |o| DemoSplitter( .F., o, aInitList ) } )
+      MenuOption( "4.XML Tree",                     { |o| DemoXmlTree( .F., o ) } )
       MenuUnDrop()
-   MenuOption( "UpDown",                            { |o| DemoUpDown( .F., o ) } )
    MenuOption( "Others" )
       MenuDrop()
       MenuOption( "1.AppData",                      { |o| DemoDbfData( .F., o, aEndList ) } )
@@ -212,7 +208,8 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "4.MonthCal",                     { |o| DemoMonthCal( .F., o ) } )
 #endif
       MenuOption( "5.Timer",                        { |o| DemoGet2( .F., o ) } )
-      MenuOption( "6.Functions",                    { |o| DemoFunc( .F., o ) } )
+      MenuOption( "6.String Rev",                   { |o| DemoStrRev( .F., o ) } )
+      MenuOption( "7.Functions",                    { |o| DemoFunc( .F., o ) } )
       MenuUnDrop()
 
    @ 30, 60 TAB oTabLevel1 ITEMS {} SIZE 950, 650 OF oDlg
@@ -375,19 +372,6 @@ STATIC FUNCTION DemoAllEvalList( aCodeList )
    FOR EACH bCode IN aCodeList
       Eval( bCode )
    NEXT
-
-   RETURN Nil
-
-// to be external
-STATIC FUNCTION DemoDateSelect()
-
-   LOCAL oDate
-
-   @ 10, 50 SAY "Date" ;
-      SIZE 80, 30
-
-   @ 100, 50 DATESELECT oDate ;
-      SIZE 120,28
 
    RETURN Nil
 

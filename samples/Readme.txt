@@ -265,6 +265,7 @@ For beginners:
    demoshadebtn.prg     N       N                Shade buttons (for multi platform usage take OWNERBUTTON)
    demosplit.prg        Y                        Split windows
    demosplitter.prg     Y                        Tree control, Splitter, Tab
+   demostrrev.prg       Y                        Function hwg_strrev() reverses a string for UTF-8 and handle Euro currency sign with GET
    demotab.prg          Y       ?    ?           Tab, owner button, combobox, dateselect, status panel
    demotabtool          Y                        Sample for tabs with tooltips (TNX Alain Aupeix)
    demotrackbar.prg     P                        Trackbar demo, horizontal und vertical.
@@ -297,7 +298,6 @@ For beginners:
  testalert.prg          N       N                Clipper style Alert() replacement, delivered by Alex Strickland (TNX !)
  demoonother.prg        P                        bOther Test: Press key, after key up the scan code is displayed.
  testrtf.prg  1)        Y  #    N          -      Create Rich text files. Need some work, the created RTFs are not compatible with newest specifications. (TO-DO for Alexander Kresin)
- teststrrev.prg         Y                        Function hwg_strrev() reverses a string for UTF-8 and handle Euro currency sign with GET
  testtray.prg           Y                 Y      Tray Message : Be care of different behavior between WinAPI and GTK
  tstprdos.prg 3)        N       N                Print on LPT, outdated, see 3)
  tstscrlbar.prg         P                        Scrollbar (GTK: Compilable, but no scroll function, more info in comment lines)
