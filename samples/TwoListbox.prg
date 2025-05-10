@@ -75,12 +75,12 @@ FUNCTION ShowR( ar, bdebug )
       t := "Result Array"
    ENDIF
    co := ""
-   IF LEN(ar) < 1
-      hwg_msgInfo("Result is empty",t)
+   IF LEN( ar ) < 1
+      hwg_msgInfo( "Result is empty", t )
       RETURN NIL
    ENDIF
-   FOR j := 1 TO LEN(ar)
-      co := co + ar[j] + CHR(10)
+   FOR j := 1 TO LEN( ar )
+      co := co + ar[ j ] + CHR(10)
    NEXT
    hwg_msgInfo(co,t)
 
@@ -109,8 +109,8 @@ FUNCTION Teste()
 
   INIT DIALOG _frm_2listboxsel ;
      TITLE "Select Listbox Items" ;
-     AT 536,148 ;
-     SIZE 516,465 ;
+     AT 536, 148 ;
+     SIZE 516, 465 ;
      FONT oFont;
      STYLE WS_SYSMENU + WS_SIZEBOX + WS_VISIBLE
 
@@ -134,30 +134,30 @@ FUNCTION Teste()
       CAPTION  ">"   ;
       SIZE     80,32 ;
       STYLE    WS_TABSTOP + BS_FLAT ;
-      ON CLICK { || LSTBOX_ITEMTORI(oListbox1,oListbox2) }
+      ON CLICK { || LSTBOX_ITEMTORI( oListbox1, oListbox2 ) }
 
    @ 207,137 BUTTON oButton2 ;
       CAPTION  ">>"   ;
       SIZE     80,32 ;
       STYLE    WS_TABSTOP + BS_FLAT ;
-      ON CLICK { || LSTBOX_ITEMTORA(oListbox1,oListbox2,GetItems() ) }
+      ON CLICK { || LSTBOX_ITEMTORA( oListbox1, oListbox2, GetItems() ) }
 
    @ 207,223 BUTTON oButton3 ;
       CAPTION  "<"   ;
       SIZE     80,32 ;
       STYLE    WS_TABSTOP+BS_FLAT ;
-      ON CLICK { || LSTBOX_ITEMTOLI(oListbox1,oListbox2) }
+      ON CLICK { || LSTBOX_ITEMTOLI( oListbox1, oListbox2 ) }
 
    @ 207,281 BUTTON oButton4 ;
       CAPTION "<<"   ;
       SIZE 80,32 ;
       STYLE WS_TABSTOP+BS_FLAT ;
-      ON CLICK { || LSTBOX_ITEMTOLA(oListbox1,oListbox2,GetItems() ) }
+      ON CLICK { || LSTBOX_ITEMTOLA( oListbox1, oListbox2, GetItems() ) }
 
    @ 36,345 BUTTON oButton5 ;
       CAPTION "OK"   ;
       SIZE    80,32 ;
-      STYLE    WS_TABSTOP+BS_FLAT ;
+      STYLE    WS_TABSTOP + BS_FLAT ;
       ON CLICK ;
          { || oItemsR := oListbox2:aItems , _frm_2listboxsel:Close() }  /* return content of target listbox */
 
@@ -190,7 +190,7 @@ STATIC FUNCTION GetItems()
    * LSTBOX_ITEMTORA(oListbox1,oListbox2,GetItems() )
    * --------------------------------------------
 
-RETURN {"Eins","Zwei","Drei","Vier"}
+RETURN { "Eins", "Zwei", "Drei", "Vier" }
 
 FUNCTION LSTBOX_ITEMTORI( olst1, olst2 )
 
@@ -199,26 +199,26 @@ FUNCTION LSTBOX_ITEMTORI( olst1, olst2 )
    LOCAL nPosi, cIt , nNeu
 
    * Source listbox empty: nothing to do
-   IF EMPTY(olst1:aItems)
-      RETURN NIL
+   IF Empty( olst1:aItems )
+      RETURN Nil
    ENDIF
    * Get selected item
    nPosi := olst1:value
-   cIt   := olst1:aItems[nPosi]
+   cIt   := olst1:aItems[ nPosi ]
    * Search item in target listbox, if found, nothing to do (programing error)
-   IF LSTBOX_ITEMFIND(olst2,cIt) <> 0
+   IF LSTBOX_ITEMFIND( olst2, cIt ) <> 0
       RETURN NIL
    ENDIF
    * delete in source listbox
    olst1:DeleteItem( nPosi )
    * add in target listbox
-   olst2:AddItems(cIt)
+   olst2:AddItems( cIt )
    * refresh both
    olst1:Requery()
    olst2:Requery()
-   nNeu := LEN(olst2:aItems)
-   olst2:SetItem(nNeu)
-   olst1:SetItem(1)
+   nNeu := LEN( olst2:aItems )
+   olst2:SetItem( nNeu )
+   olst1:SetItem( 1 )
 
 RETURN Nil
 
@@ -228,22 +228,22 @@ FUNCTION LSTBOX_ITEMTOLI( olst1, olst2 )
 
    LOCAL nPosi, cIt , nNeu
 
-   IF EMPTY(olst2:aItems)
+   IF EMPTY( olst2:aItems )
       RETURN NIL
    ENDIF
    nPosi := olst2:value
-   cIt   := olst2:aItems[nPosi]
-   IF LSTBOX_ITEMFIND(olst1,cIt) <> 0
+   cIt   := olst2:aItems[ nPosi ]
+   IF LSTBOX_ITEMFIND( olst1, cIt ) <> 0
       RETURN NIL
    ENDIF
    olst2:DeleteItem( nPosi )
-   olst1:AddItems(cIt)
+   olst1:AddItems( cIt )
    * refresh both
    olst2:Requery()
    olst1:Requery()
-   nNeu := LEN(olst1:aItems)
-   olst1:SetItem(nNeu)
-   olst2:SetItem(1)
+   nNeu := LEN( olst1:aItems )
+   olst1:SetItem( nNeu )
+   olst2:SetItem( 1 )
 
 RETURN NIL
 
@@ -257,7 +257,7 @@ FUNCTION LSTBOX_ITEMTORA( olst1, olst2, oIto )
    olst2:value := 1
    olst1:Requery()
    olst2:Requery()
-   olst2:SetItem(1)
+   olst2:SetItem( 1 )
 
 RETURN Nil
 
@@ -271,7 +271,7 @@ FUNCTION LSTBOX_ITEMTOLA( olst1, olst2, oIto )
    olst1:value := 1
    olst1:Requery()
    olst2:Requery()
-   olst1:SetItem(1)
+   olst1:SetItem( 1 )
 
 RETURN Nil
 
@@ -284,8 +284,8 @@ FUNCTION LSTBOX_ITEMFIND( olst, cItem )
 
    LOCAL i
 
-   FOR i := 1 TO LEN(olst:aItems)
-      IF ALLTRIM(olst:aItems[i]) == ALLTRIM(cItem)
+   FOR i := 1 TO LEN( olst:aItems )
+      IF ALLTRIM( olst:aItems[ i ] ) == ALLTRIM( cItem )
          RETURN i
       ENDIF
    NEXT
@@ -296,7 +296,7 @@ FUNCTION Hilfe()
 
    * Display help window
 
-   hwg_MsgInfo("Need Help","HELP !")
+   hwg_MsgInfo( "Need Help","HELP !" )
 
 RETURN Nil
 

@@ -57,10 +57,10 @@ FUNCTION Main()
         MENUITEM "&Quit" ACTION oMainWindow:Close()
       ENDMENU
       MENU TITLE "&Teste"
-        MENUITEM "&Do it"ACTION { || aResult := Teste() }
+        MENUITEM "&Do it" ACTION { || aResult := Teste() }
       ENDMENU
       MENU TITLE "&Show Result"
-        MENUITEM "&Show" ACTION ShowR(aResult)
+        MENUITEM "&Show" ACTION ShowR( aResult )
       ENDMENU
    ENDMENU
 
@@ -150,8 +150,8 @@ FUNCTION Teste()
    // Init Browse windows
    obrowsbox1:aArray := GetItems() // Fill source browse box with all items
    obrowsbox2:aArray := {}
-   obrowsbox1:AddColumn( HColumn():New( "Source",{|v,o| (v), o:aArray[o:nCurrent,1]},"C",10,0 ) )
-   obrowsbox2:AddColumn( HColumn():New( "Target",{|v,o| (v), o:aArray[o:nCurrent,1]},"C",10,0 ) )
+   obrowsbox1:AddColumn( HColumn():New( "Source",{|v,o| (v), o:aArray[ o:nCurrent, 1 ] }, "C", 10, 0 ) )
+   obrowsbox2:AddColumn( HColumn():New( "Target",{|v,o| (v), o:aArray[ o:nCurrent, 1 ] }, "C", 10, 0 ) )
    obrowsbox1:lEditable := .F.
    obrowsbox2:lEditable := .F.
    obrowsbox1:lDispHead := .F. // No Header
@@ -162,25 +162,25 @@ FUNCTION Teste()
    @ 207,92 BUTTON oButton1 CAPTION ">" ;
       SIZE     80,32 ;
       STYLE    WS_TABSTOP+BS_FLAT ;
-      ON CLICK { || browsBOX_ITEMTORI(obrowsbox1,obrowsbox2) }
+      ON CLICK { || browsBOX_ITEMTORI( obrowsbox1, obrowsbox2 ) }
 
    @ 207,137 BUTTON oButton2 ;
       CAPTION  ">>" ;
       SIZE     80, 32 ;
       STYLE    WS_TABSTOP + BS_FLAT ;
-      ON CLICK { || browsBOX_ITEMTORA(obrowsbox1,obrowsbox2,GetItems() ) }
+      ON CLICK { || browsBOX_ITEMTORA( obrowsbox1, obrowsbox2, GetItems() ) }
 
    @ 207,223 BUTTON oButton3 ;
       CAPTION  "<"   ;
       SIZE     80,32 ;
       STYLE    WS_TABSTOP + BS_FLAT ;
-      ON CLICK { || browsBOX_ITEMTOLI(obrowsbox1,obrowsbox2) }
+      ON CLICK { || browsBOX_ITEMTOLI( obrowsbox1, obrowsbox2 ) }
 
    @ 207,281 BUTTON oButton4 ;
       CAPTION  "<<"   ;
       SIZE     80, 32 ;
       STYLE    WS_TABSTOP + BS_FLAT ;
-      ON CLICK { || browsBOX_ITEMTOLA(obrowsbox1,obrowsbox2,GetItems() ) }
+      ON CLICK { || browsBOX_ITEMTOLA( obrowsbox1, obrowsbox2, GetItems() ) }
 
    @ 36,345 BUTTON oButton5 ;
       CAPTION "OK"   ;
@@ -218,7 +218,7 @@ STATIC FUNCTION GetItems()
    * browsBOX_ITEMTORA(obrowsbox1,obrowsbox2,GetItems() )
    * --------------------------------------------
 
-RETURN { {"Eins"},{"Zwei"},{"Drei"},{"Vier"} }
+RETURN { { "Eins" },{ "Zwei" },{ "Drei" },{ "Vier" } }
 
 FUNCTION browsBOX_procarray( aEin )
 
@@ -231,9 +231,9 @@ FUNCTION browsBOX_procarray( aEin )
    LOCAL iii, aret, cret
 
    aret := {}
-   FOR iii := 1 TO LEN(aEin)
-      cret := aEin[iii , 1]
-      AADD(aret,cret)
+   FOR iii := 1 TO LEN( aEin )
+      cret := aEin[ iii , 1 ]
+      AADD( aret, cret )
    NEXT
 
 RETURN aret
@@ -246,22 +246,22 @@ FUNCTION browsBOX_ITEMTORI( obrows1, obrows2 )
    LOCAL nPosi, cIt , aIt
 
    * Source browse box empty: nothing to do
-   IF EMPTY(obrows1:aArray)
+   IF Empty( obrows1:aArray )
       RETURN NIL
    ENDIF
    * Get selected item
    nPosi := obrows1:nCurrent
-   cIt   := obrows1:aArray[nPosi,1]
-   aIt := { cIt }
+   cIt   := obrows1:aArray[ nPosi, 1 ]
+   aIt   := { cIt }
    * Search item in target browse box, if found, nothing to do (programing error)
-   IF browsBOX_ITEMFIND(obrows2,cIt) <> 0
+   IF browsBOX_ITEMFIND( obrows2, cIt ) <> 0
       RETURN NIL
    ENDIF
    // dbg(obrows2)
    * delete item in source browse box
-   browsBOX_DelItem(obrows1, nPosi)
+   browsBOX_DelItem( obrows1, nPosi )
    * add item in target browse box
-   AADD(obrows2:aArray, aIt )
+   AADD( obrows2:aArray, aIt )
    * refresh both
    obrows1:Refresh()
    obrows2:Refresh()
@@ -273,7 +273,7 @@ FUNCTION browsBOX_DelItem( obrw, nPosi )
    * Deletes an item in browse array
    * --------------------------------------------
 
-   ADEL(obrw:aArray, nPosi )
+   ADEL( obrw:aArray, nPosi )
    ASize( obrw:aArray, Len( obrw:aArray ) - 1 )
    obrw:lChanged := .T.
 
@@ -284,18 +284,18 @@ FUNCTION browsBOX_ITEMTOLI( obrows1, obrows2 )
    * moves selected item to source browsbox
    * --------------------------------------------
 
-   LOCAL nPosi, cIt , aIt
+   LOCAL nPosi, cIt, aIt
 
-   IF EMPTY( obrows2:aArray )
+   IF Empty( obrows2:aArray )
       RETURN Nil
    ENDIF
    nPosi := obrows2:nCurrent
-   cIt   := obrows2:aArray[nPosi,1]
+   cIt   := obrows2:aArray[ nPosi, 1 ]
    aIt := { cIt }
-   IF browsBOX_ITEMFIND(obrows1,cIt) <> 0
+   IF browsBOX_ITEMFIND( obrows1, cIt ) <> 0
       RETURN NIL
    ENDIF
-   browsBOX_DelItem(obrows2, nPosi)
+   browsBOX_DelItem( obrows2, nPosi )
    AADD(obrows1:aArray, aIt )
    * refresh both
    obrows2:Refresh()
@@ -339,7 +339,7 @@ FUNCTION browsBOX_ITEMFIND( obrows, cItem )
 
    //    hwg_msgInfo(STR( LEN(obrows:aArray)  ) )
    FOR i := 1 TO LEN( obrows:aArray )
-      IF ALLTRIM( obrows:aArray[ i, 1 ] ) == ALLTRIM( cItem )
+      IF AllTrim( obrows:aArray[ i, 1 ] ) == ALLTRIM( cItem )
          RETURN i
       ENDIF
    NEXT
@@ -350,7 +350,7 @@ FUNCTION Hilfe()
 
    * Display help window
 
-   hwg_MsgInfo("Need Help","HELP !")
+   hwg_MsgInfo( "Need Help", "HELP !" )
 
 RETURN Nil
 
@@ -361,15 +361,15 @@ FUNCTION dbg( obr )
 
    LOCAL i,m,s
 
-   m := LEN( obr:aArray )
-   s := ALLTRIM( STR( m ) ) + CHR(10)
+   m := Len( obr:aArray )
+   s := AllTrim( Str( m ) ) + CHR(10)
    FOR i := 1 TO m
       s:=  s + obr:aArray[ i, 1 ] + CHR(10)
    NEXT
    IF m == 0
       s := s + "Empty Array"
    ENDIF
-   hwg_MsgInfo(s,"Debug")
+   hwg_MsgInfo( s, "Debug" )
 
 RETURN Nil
 

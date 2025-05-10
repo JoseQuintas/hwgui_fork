@@ -135,14 +135,11 @@ FUNCTION Main()
 
    LOCAL oWinMain
 
-
-
 #ifdef __PLATFORM__WINDOWS
    oDir := "\"+Curdir()+"\"   && The complete path to program
 #else
    oDir := "/"+Curdir()+"/"
 #endif
-
 
    INIT WINDOW oWinMain ;
       MAIN  ;
@@ -167,7 +164,7 @@ FUNCTION Main()
 #else
 #ifndef ___MACOSX___
 * Devide code for MacOS, here hide start of gedit, it is only LINUX
-     MENUITEM "Start &gedit"     ACTION START_PGM("/usr/bin/gedit",,.F.)
+     MENUITEM "Start &gedit"     ACTION START_PGM( "/usr/bin/gedit",, .F. )
 #endif
 
 * Attention: calling program freezes after is "exit"-ed (zombie process left ?)
@@ -176,9 +173,9 @@ FUNCTION Main()
 * ==> will be contstructed later, full description in  hwdoc_functions.hmtl missing, need to add later !
 *     hwg_ShellExecute( cFile, cOperation, cParams, cDir, nFlag )
 
-     MENUITEM "show &environment"     ACTION START_PGM("env",,.F.,.T.,.F.)
+     MENUITEM "show &environment"     ACTION START_PGM( "env",, .F., .T., .F. )
 #endif
-      MENUITEM "Start not existing program"  ACTION START_PGM("hello_nothing",,.F.)
+      MENUITEM "Start not existing program"  ACTION START_PGM( "hello_nothing",, .F. )
       ENDMENU
    ENDMENU
 
@@ -187,17 +184,22 @@ FUNCTION Main()
 RETURN Nil
 
 FUNCTION Test1()
-* Start another HWGUI application
-START_PGM("demobrowsearr")
+
+   * Start another HWGUI application
+   START_PGM( "demobrowsearr" )
+
 RETURN Nil
 
 FUNCTION Test2()
-* Start external Harbour application
- START_PGM("helloworld")
+
+   * Start external Harbour application
+   START_PGM( "helloworld" )
+
 RETURN Nil
 
 * ====================================
 FUNCTION START_PGM(cprgm,ccomm,laddpath,lcmd,lnotexe)
+
 * Starts an external program or shell
 * cprgm    : Program name without .exe
 * ccomm    : Command prefix with options
@@ -223,41 +225,42 @@ FUNCTION START_PGM(cprgm,ccomm,laddpath,lcmd,lnotexe)
 *             on LINUX and MacOS, it is
 *             the normal behavior
 * ===================================
- LOCAL ckommando, cexeext
-*
-IF cprgm == NIL
-  RETURN NIL
-ENDIF
-IF EMPTY(cprgm)
-  RETURN NIL
-ENDIF
 
-IF laddpath == NIL
-  laddpath := .T.
-ENDIF
+    LOCAL ckommando, cexeext
 
-IF ccomm == NIL
-  ccomm := ""
-ENDIF
+   IF cprgm == NIL
+     RETURN NIL
+   ENDIF
+   IF EMPTY(cprgm)
+      RETURN NIL
+   ENDIF
 
-IF lnotexe == NIL
-  lnotexe := .T.
-ENDIF
+   IF laddpath == NIL
+      laddpath := .T.
+   ENDIF
 
-IF lcmd == NIL
-  lcmd := .F.
-ENDIF
+   IF ccomm == NIL
+      ccomm := ""
+   ENDIF
 
-IF .NOT. EMPTY(ccomm)
-* Add a blank
-   ccomm := ccomm + " "
-ENDIF
+   IF lnotexe == NIL
+      lnotexe := .T.
+   ENDIF
+
+   IF lcmd == NIL
+      lcmd := .F.
+   ENDIF
+
+   IF .NOT. EMPTY(ccomm)
+      * Add a blank
+      ccomm := ccomm + " "
+   ENDIF
 
 #ifdef __PLATFORM__WINDOWS
    IF lnotexe
-    cexeext := ".exe"          && File extension of program
+      cexeext := ".exe"          && File extension of program
    ELSE
-    cexeext := ""
+      cexeext := ""
    ENDIF
 #else
 * LINUX and MacOS, file exension is none
@@ -265,30 +268,32 @@ ENDIF
 #endif
 
 * Compose command line for programm start
-IF laddpath
- ckommando := ccomm + oDir + cprgm + cexeext
-ELSE
- ckommando := ccomm + cprgm + cexeext
-ENDIF
+   IF laddpath
+      ckommando := ccomm + oDir + cprgm + cexeext
+   ELSE
+      ckommando := ccomm + cprgm + cexeext
+   ENDIF
 
- IF  lcmd .OR. FILE(ckommando)
- #ifdef __PLATFORM__WINDOWS
-   hwg_RunApp(ckommando)
- #else
+   IF lcmd .OR. FILE(ckommando)
+#ifdef __PLATFORM__WINDOWS
+      hwg_RunApp(ckommando)
+#else
  //    hwg_RunConsoleApp(ckommando)  && sync mode
       hwg_RunConsApp(ckommando)
  #endif
- ELSE
-   SYS_FEHLST(ckommando)  && Display message for missing program file (Fehlstart)
- ENDIF
+   ELSE
+      SYS_FEHLST(ckommando)  && Display message for missing program file (Fehlstart)
+   ENDIF
+
 RETURN NIL
 
-* ================================= *
 FUNCTION SYS_FEHLST(ckommando)
+
 * Message for start of program with error
 * (program file not found)
 * ================================= *
-  hwg_MsgStop("Program file " + ckommando + " not found !","Program Start")
+   hwg_MsgStop("Program file " + ckommando + " not found !","Program Start")
+
 RETURN 0
 
 * ==================== EOF of tststconsapp.prg ====================

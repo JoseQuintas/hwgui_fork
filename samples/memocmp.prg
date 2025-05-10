@@ -61,7 +61,7 @@ FUNCTION Main()
       MAIN  ;
       TITLE "Sample program Memo edit and compare" ;
       AT 100, 100 ;
-      SIZE 600,400;
+      SIZE 600, 400;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
    MENU OF oWinMain
@@ -69,12 +69,12 @@ FUNCTION Main()
           MENUITEM "&Exit"              ACTION hwg_EndWindow()
      ENDMENU
       MENU TITLE "&Edit"
-         MENUITEM "Memo &1"  ACTION {|| mmemo1 := hwg_MemoEdit(mmemo1 , "Edit memo 1") }
-         MENUITEM "Memo &2"  ACTION {|| mmemo2 := hwg_MemoEdit(mmemo2 , "Edit memo 2") }
-         MENUITEM "Init memos with NIL"  ACTION {|| mmemo1 := NIL , mmemo2 := NIL }
+         MENUITEM "Memo &1"  ACTION { || mmemo1 := hwg_MemoEdit( mmemo1 , "Edit memo 1" ) }
+         MENUITEM "Memo &2"  ACTION { || mmemo2 := hwg_MemoEdit( mmemo2 , "Edit memo 2" ) }
+         MENUITEM "Init memos with NIL"  ACTION { || mmemo1 := NIL , mmemo2 := NIL }
       ENDMENU
       MENU TITLE "&Compare"
-         MENUITEM " direct =="     ACTION Compare1(mmemo1, mmemo2)
+         MENUITEM " direct =="     ACTION Compare1( mmemo1, mmemo2 )
          //
       ENDMENU
    ENDMENU

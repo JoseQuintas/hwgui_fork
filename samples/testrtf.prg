@@ -26,7 +26,7 @@ MEMVAR oMainWindow, oPanel , oFont , nColor, oBmp2 , cDir
 FUNCTION Main()
 
    PRIVATE oMainWindow, oPanel
-   PRIVATE oFont := Nil, cDir := "\"+Curdir()+"\"
+   PRIVATE oFont := Nil, cDir := "\" + Curdir() + "\"
    PRIVATE nColor, oBmp2
 
 #ifdef __GTK__
@@ -50,9 +50,9 @@ FUNCTION Main()
       ENDMENU
       MENU TITLE "&Help"
 #ifdef __GTK__
-         MENUITEM "&About" ACTION hwg_MsgInfo("RTF Demo (GTK)","Info")
+         MENUITEM "&About" ACTION hwg_MsgInfo( "RTF Demo (GTK)","Info" )
 #else
-         MENUITEM "&About" ACTION hwg_Shellabout("Info","RTF Demo")
+         MENUITEM "&About" ACTION hwg_Shellabout( "Info","RTF Demo" )
 #endif
       ENDMENU
    ENDMENU
@@ -71,23 +71,23 @@ FUNCTION TestRtf()
 #ifdef __GTK__
    LOCAL cPath
    cPath := Curdir()
-   cOutFile := hwg_Selectfile( {"RTF files( *.rtf )"}, ;
-      {"*.rtf" }, cPath )
+   cOutFile := hwg_Selectfile( { "RTF files( *.rtf )" }, ;
+      { "*.rtf" }, cPath )
 #else
-   cOutFile := hwg_Savefile( "*.rtf","RTF files( *.rtf )","*.rtf" )
+   cOutFile := hwg_Savefile( "*.rtf", "RTF files( *.rtf )", "*.rtf" )
 #endif
    IF Empty( cOutFile )
       RETURN Nil
    ENDIF
-   IF File( cOutFile ) .AND. !hwg_Msgyesno( "Recreate it ?",cOutFile+" already exists!" )
+   IF File( cOutFile ) .AND. ! hwg_Msgyesno( "Recreate it ?", cOutFile + " already exists!" )
       RETURN Nil
    ENDIF
 
    //      Open the output file & set some defaults
 
-   cOutFile:=alltrim(cOutFile)
+   cOutFile := Alltrim( cOutFile )
 
-   oRtf := SetupRTF( cOutFile)
+   oRtf := SetupRTF( cOutFile )
 
    // Metodos nuevos que se han introducido / New methods that have been introduced
 
@@ -98,38 +98,38 @@ FUNCTION TestRtf()
    // Cajas de Texto / Text Boxes
 
    BEGIN TEXTBOX oRtf;
-    SIZE {9.0,0.30} ;   // Tamano Caja de texto / Size Text Box
-    TEXT "Cajas de Texto";
-    FONTNUMBER 2;
+    SIZE { 9.0, 0.30 } ;   // Tamano Caja de texto / Size Text Box
+    TEXT "Cajas de Texto" ;
+    FONTNUMBER 2 ;
     FONTSIZE 12 ;
-    APPEARANCE BOLD_ON+CAPS_ON;
+    APPEARANCE BOLD_ON + CAPS_ON ;
         INDENT 0
 
    END TEXTBOX oRtf
 
    NEW PARAGRAPH oRTF TEXT ""
-   NEW PARAGRAPH oRTF TEXT "";
+   NEW PARAGRAPH oRTF TEXT "" ;
         ALIGN RIGHT
 
    SETDATE oRtf FORMAT LONGFORMAT
 
    // Parrafos con estilo / stylish paragraphs
 
-   NEW PARAGRAPH oRTF TEXT "Estilo Prueba";
+   NEW PARAGRAPH oRTF TEXT "Estilo Prueba" ;
         STYLE 2
 
-   NEW PARAGRAPH oRTF TEXT "CON LETRAS DE COLORES";
-     APPEARANCE BOLD_OFF+ITALIC_OFF+CAPS_OFF;
-        FONTNUMBER 2;
-        FONTCOLOR 3;
-        STYLE 1;
+   NEW PARAGRAPH oRTF TEXT "CON LETRAS DE COLORES" ;
+     APPEARANCE BOLD_OFF+ITALIC_OFF+CAPS_OFF ;
+        FONTNUMBER 2 ;
+        FONTCOLOR 3 ;
+        STYLE 1 ;
         ALIGN CENTER
 
    // Lineas / Lines
 
-   LINEA oRtf;
-        INICIO {0.1,1.0};         //Inicio / Start
-        FIN {10.0,1.0};          // Final
+   LINEA oRtf ;
+        INICIO { 0.1, 1.0 } ;         //Inicio / Start
+        FIN { 10.0, 1.0 } ;          // Final
         TIPO "SOLIDA"      // Tipo de linea / Type of line
 
    NEW PARAGRAPH oRTF TEXT ""
@@ -137,18 +137,18 @@ FUNCTION TestRtf()
 
    // Notas a hwg_Pie de pagina
 
-   NEW PARAGRAPH oRTF TEXT "Notas hwg_Pie de pagina";
-        FONTCOLOR 1;
+   NEW PARAGRAPH oRTF TEXT "Notas hwg_Pie de pagina" ;
+        FONTCOLOR 1 ;
         ALIGN LEFT
 
    FOOTNOTE oRtf ;
-        TEXT "Prueba de hwg_Pie de pagina";
-        CHARACTER "*";//        AUTO;
+        TEXT "Prueba de hwg_Pie de pagina" ;
+        CHARACTER "*" ; // AUTO;
         UPPER
 
-   cTexto:=".La unica forma que he encontrado para introducir imagenes. Sin utilizar"
-   ctexto+=" C, es enlazandolas sin introducirlas en el documento realmente. Es por eso"
-   ctexto+=" que esta posibilidad no se muestra aqui."
+   cTexto := ".La unica forma que he encontrado para introducir imagenes. Sin utilizar"
+   ctexto += " C, es enlazandolas sin introducirlas en el documento realmente. Es por eso"
+   ctexto += " que esta posibilidad no se muestra aqui."
 
    WRITE TEXT  oRtf TEXT ctexto
 
@@ -160,57 +160,58 @@ FUNCTION TestRtf()
    // Nueva definicion de tablas. Habia algunas propiedades de las celdas
    // que hacia que el MSWORD se quedara colgado.
 
-   anchos:={1.0,1.0,1.0,1.2,1.0,1.0,1.0,1.5,1.7}
-   aMarca=ARRAY(9)
-   AFILL(aMarca,0)
-   aMarca[7]:=25
-   aMarca[9]:=25
-        DEFINE NEWTABLE oRTF ;              // Specify the RTF object
-            ALIGN CENTER ;                  // Center table horizontally on page
-            FONTNUMBER 2 ;                  // Use font #2 for the body rows
-            FONTSIZE 10 ;                   // Use 9 Pt. font for the body rows
-            CELLAPPEAR BOLD_OFF ;           // Normal cells unbolded
-            CELLHALIGN LEFT ;               // Text in normal cells aligned left
-            COLUMNS 9 ;                     // Table has n Columns
-            CELLWIDTHS anchos ;             // Array of column widths
-            ROWHEIGHT .2 ;                  // Minimum row height is .25"
-            CELLBORDERS SINGLE ;            // Outline cells with thin border
-            COLSHADE aMarca;                // Sombras en columnas
-            HEADERROWS 2;                   // dos lineas de titulos
-                        HEADER {"Sala","Generador","","","","","ACTIVIDAD",;
-                        "NºEXPOSICIONES AÑO POR TUBO","CARGA DE TRABAJO mA. min/semana"},;
-            {"","Marca","Modelo","Tension Pico (kVp)","Intensidad (mA)",;
-            "Nº Tubos","","",""};       // Titulos. Cada linea es una matriz
-            HEADERSHADE 0;
-            HEADERFONTSIZE 10;
-            HEADERHALIGN CENTER
-                                                      // 2,3 y 5,6 de la primera linea de titulos
-                                                      // van a estar unidas en una sola.
+   anchos := { 1.0, 1.0, 1.0, 1.2, 1.0, 1.0, 1.0, 1.5, 1.7 }
+   aMarca := ARRAY(9)
+   AFILL( aMarca, 0 )
+   aMarca[ 7 ] := 25
+   aMarca[ 9 ] := 25
 
-                        FOR i=1 TO 40
-                                       IF i==6
-   // Se puede cambiar el formato de una celda individual en tiempo de ejecucion.
-                                    aMarca[5]:=1500
-                                    aMarca[7]:=2500
-                                    aMarca[9]:=2500
-                        DEFINE CELL FORMAT oRTF ;
-                            CELLSHADE aMarca
-                                 lFormato:=.T.
-                        ELSEIF lFormato
-                        DEFINE CELL FORMAT oRTF
-                              lFormato:=.F.
-                            ENDIF
+   DEFINE NEWTABLE oRTF ;              // Specify the RTF object
+      ALIGN CENTER ;                  // Center table horizontally on page
+      FONTNUMBER 2 ;                  // Use font #2 for the body rows
+      FONTSIZE 10 ;                   // Use 9 Pt. font for the body rows
+      CELLAPPEAR BOLD_OFF ;           // Normal cells unbolded
+      CELLHALIGN LEFT ;               // Text in normal cells aligned left
+      COLUMNS 9 ;                     // Table has n Columns
+      CELLWIDTHS anchos ;             // Array of column widths
+      ROWHEIGHT .2 ;                  // Minimum row height is .25"
+      CELLBORDERS SINGLE ;            // Outline cells with thin border
+      COLSHADE aMarca;                // Sombras en columnas
+      HEADERROWS 2 ;                  // dos lineas de titulos
+         HEADER {"Sala","Generador","","","","","ACTIVIDAD",;
+            "NºEXPOSICIONES AÑO POR TUBO","CARGA DE TRABAJO mA. min/semana"},;
+            { "", "Marca", "Modelo", "Tension Pico (kVp)", "Intensidad (mA)", ;
+            "Nº Tubos", "", "", "" } ;       // Titulos. Cada linea es una matriz
+         HEADERSHADE 0 ;
+         HEADERFONTSIZE 10 ;
+         HEADERHALIGN CENTER
+         // 2,3 y 5,6 de la primera linea de titulos
+         // van a estar unidas en una sola.
 
-                                FOR j=1 TO 9
-                                        if i==6 .AND. j==5
-                        WRITE NEWCELL oRTF TEXT "sombra"
-                                        else
-                        WRITE NEWCELL oRTF TEXT ""
-                                        endif
-                                NEXT j
-                        NEXT i
+      FOR i=1 TO 40
+         IF i==6
+            // Se puede cambiar el formato de una celda individual en tiempo de ejecucion.
+            aMarca[ 5] := 1500
+            aMarca[ 7] := 2500
+            aMarca[ 9] := 2500
+            DEFINE CELL FORMAT oRTF ;
+               CELLSHADE aMarca
+               lFormato:=.T.
+         ELSEIF lFormato
+            DEFINE CELL FORMAT oRTF
+            lFormato:=.F.
+         ENDIF
 
-        END TABLE oRTF
+         FOR j=1 TO 9
+            IF i==6 .AND. j==5
+               WRITE NEWCELL oRTF TEXT "sombra"
+            ELSE
+               WRITE NEWCELL oRTF TEXT ""
+            ENDIF
+         NEXT j
+      NEXT i
+
+   END TABLE oRTF
 
    CLOSE RTF oRtf
 
@@ -304,7 +305,6 @@ STATIC FUNCTION SetupRTF(cOutFile)
         ROWHEIGHT .2  ;               // Minimum row height is .25"
         CELLBORDERS NONE              // Outline cells with thin border
 
-
          WRITE NEWCELL oRTF TEXT "";
             FONTNUMBER 2;
             FONTSIZE 8 ;
@@ -333,9 +333,9 @@ STATIC FUNCTION SetupRTF(cOutFile)
 
    BEGIN FOOTER oRTF
       NEW PARAGRAPH oRTF TEXT "Pagina " ;
-         FONTNUMBER 2;
+         FONTNUMBER 2 ;
          FONTSIZE 8 ;
-         BORDER "TOP";
+         BORDER "TOP" ;
          ALIGN LEFT
 
       // Nuevo. Escribe en ese lugar el numero de pagina actual.

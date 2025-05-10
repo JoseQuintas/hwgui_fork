@@ -62,31 +62,31 @@ FUNCTION Test()
       SIZE 700, 425 ;
       STYLE DS_CENTER + WS_VISIBLE + WS_POPUP + WS_VISIBLE + WS_CAPTION + WS_SYSMENU
 
-      @ 10,10 GRID oGrid ;
-         OF oForm ;
-         SIZE 680,375 ;
-         ITEMCOUNT 10000 ;
-         ON KEYDOWN {|oCtrl, key| OnKey(oCtrl, key) } ;
-         ON POSCHANGE {|oCtrl, nRow| OnPoschange(oCtrl, nRow) } ;
-         ON CLICK {|oCtrl| OnClick(oCtrl) } ;
-         ON DISPINFO {|oCtrl, nRow, nCol| OnDispInfo( oCtrl, nRow, nCol ) } ;
-         COLOR hwg_ColorC2N('D3D3D3');
-         BACKCOLOR hwg_ColorC2N('BEBEBE')
+   @ 10,10 GRID oGrid ;
+      OF oForm ;
+      SIZE 680,375 ;
+      ITEMCOUNT 10000 ;
+      ON KEYDOWN {|oCtrl, key| OnKey(oCtrl, key) } ;
+      ON POSCHANGE {|oCtrl, nRow| OnPoschange(oCtrl, nRow) } ;
+      ON CLICK {|oCtrl| OnClick(oCtrl) } ;
+      ON DISPINFO {|oCtrl, nRow, nCol| OnDispInfo( oCtrl, nRow, nCol ) } ;
+      COLOR hwg_ColorC2N('D3D3D3');
+      BACKCOLOR hwg_ColorC2N('BEBEBE')
 
-      /*
-      ON LOSTFOCUS {|| hwg_Msginfo('lost focus') } ;
-      ON GETFOCUS {|| hwg_Msginfo('get focus')  }
-      */
+   /*
+   ON LOSTFOCUS {|| hwg_Msginfo('lost focus') } ;
+   ON GETFOCUS {|| hwg_Msginfo('get focus')  }
+   */
 
-      ADD COLUMN TO GRID oGrid HEADER "Code" WIDTH 50
-      ADD COLUMN TO GRID oGrid HEADER "Date" WIDTH 80
-      ADD COLUMN TO GRID oGrid HEADER "Description" WIDTH 100
+   ADD COLUMN TO GRID oGrid HEADER "Code" WIDTH 50
+   ADD COLUMN TO GRID oGrid HEADER "Date" WIDTH 80
+   ADD COLUMN TO GRID oGrid HEADER "Description" WIDTH 100
 
-      @ 620, 395 BUTTON 'Close' ;
-         SIZE 75,25 ;
-         ON CLICK {|| oForm:Close() }
+   @ 620, 395 BUTTON 'Close' ;
+      SIZE 75,25 ;
+      ON CLICK {|| oForm:Close() }
 
-      ACTIVATE DIALOG oForm CENTER
+   ACTIVATE DIALOG oForm CENTER
 
 RETURN Nil
 

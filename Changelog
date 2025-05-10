@@ -15,6 +15,23 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-10 14:24 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/TwoListbox.prg
+   * samples/TwoLstSub.prg
+   * samples/escrita.prg
+   * samples/grid_3.prg
+   * samples/helloworld.prg
+   * samples/hexbincnt.prg
+   * samples/memocmp.prg
+   * samples/menumod.prg
+   * samples/propsh.prg
+   * samples/pseudocm.prg
+   * samples/testalert.prg
+   * samples/testrtf.prg
+   * samples/teststrrev.prg
+   * samples/tststconsapp.prg
+     ! single format source code
+
 2025-05-10 14:23 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/gtk_samples/winprn.prg
    * samples/stetch.prg
