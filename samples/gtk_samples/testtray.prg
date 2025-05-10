@@ -34,10 +34,10 @@
 *
 
 #include "hwgui.ch"
-
+#include "sampleinc.ch"
 
 FUNCTION Main()
-   LOCAL oMainWindow, oTrayMenu, cdirsep, cimagedir
+   LOCAL oMainWindow, oTrayMenu
    LOCAL oIcon1, oIcon2
 
    * Borland resources removed
@@ -45,27 +45,21 @@ FUNCTION Main()
    // LOCAL oIcon2 := HIcon():AddResource( "ICON_2" )
 
    cdirsep := hwg_GetDirSep()
-   * decides for samples/gtk_samples or samples/
-#ifdef __GTK__
-   cimagedir := ".." + cdirsep + ".." + cdirsep + "image" + cdirsep
-#else
-   cimagedir := ".." + cdirsep + "image" + cdirsep
-#endif
 
    * Better way to uses hex values for resources instead of
    * icon files
 
-   // oIcon1 := HIcon():AddFile(cimagedir + "ok.ico")
-   oIcon1 := HIcon():AddFile(cimagedir + "hwgui_32x32.ico")
-   oIcon2 := HIcon():AddFile(cimagedir + "cancel.ico")
+   // oIcon1 := HIcon():AddFile( SAMPLE_IMAGEPATH + "ok.ico")
+   oIcon1 := HIcon():AddFile( SAMPLE_IMAGEPATH + "hwgui_32x32.ico")
+   oIcon2 := HIcon():AddFile( SAMPLE_IMAGEPATH + "cancel.ico")
 
-   IF .NOT. FILE(cimagedir + "hwgui_16x16.ico")
-    hwg_msgstop("Icon not found: " + cimagedir + "hwgui_32x32.ico")
+   IF .NOT. FILE( SAMPLE_IMAGEPATH + "hwgui_16x16.ico")
+    hwg_msgstop("Icon not found: " + SAMPLE_IMAGEPATH + "hwgui_32x32.ico")
     RETURN NIL
    ENDIF
 
-   IF .NOT. FILE(cimagedir + "cancel.ico")
-    hwg_msgstop("Icon not found: " + cimagedir + "cancel.ico")
+   IF .NOT. FILE( SAMPLE_IMAGEPATH + "cancel.ico")
+    hwg_msgstop("Icon not found: " + SAMPLE_IMAGEPATH + "cancel.ico")
     RETURN NIL
    ENDIF
 

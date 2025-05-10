@@ -8,6 +8,7 @@
 
 */
 #include "hwgui.ch"
+#include "sampleinc.ch"
 
 STATIC oMenuBrw, nrp
 MEMVAR aSample
@@ -16,18 +17,12 @@ FUNCTION Main
    LOCAL oBmp
    LOCAL oBrw, Form_Main
    // LOCAL oFontBtn
-   LOCAL cdirsep, cimagedir
-   
-   cdirsep := hwg_GetDirSep()
-   
-   cimagedir := ".." + cdirsep + ".." + "image" + cdirsep
-
    PUBLIC aSample := { { .T. ,"Line 1",10 }, { .T. ,"Line 2",22 }, { .F. ,"Line 3",40 } }
 
    // Not used
    // PREPARE FONT oFontBtn NAME "MS Sans Serif" WIDTH 0 HEIGHT - 12
-   
-   oBmp := HBitmap():Addfile(cimagedir + "new.bmp")
+
+   oBmp := HBitmap():Addfile( SAMPLE_IMAGEPATH + "new.bmp")
 
    INIT WINDOW Form_Main MAIN TITLE "HwGUI Sample Pseudo Context Menu in BROWSE" SIZE 360, 300
 

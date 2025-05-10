@@ -15,6 +15,19 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-10 14:22 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demoshadebtn.prg
+   * samples/demosplitter.prg
+   * samples/demotree.prg
+   * samples/demoxmltree.prg
+   * samples/gtk_samples/a.prg
+   * samples/gtk_samples/bincnts.prg
+   * samples/gtk_samples/fileselect.prg
+   * samples/gtk_samples/hexbincnt.prg
+   * samples/gtk_samples/pseudocm.prg
+   * samples/gtk_samples/testray.prg
+     ! use sampleinc.ch
+
 2025-05-10 14:21 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/a.prg
    * samples/bincnts.prg

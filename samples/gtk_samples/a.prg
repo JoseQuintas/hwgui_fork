@@ -8,23 +8,23 @@
 */
 
 #include "hwgui.ch"
+#include "sampleinc.ch"
 
 #define TEST_PRINT
 
-MEMVAR oFont, cImageDir, nColor
+MEMVAR oFont, nColor
 
 FUNCTION Main
 
 LOCAL oMainWindow,oPanel
 
 * DF7BE: Causes Warning W0001  Ambiguous reference ...
-* Private oFont := Nil, cImageDir := "/"+Curdir()+"/../../image/"
+* Private oFont := Nil
 
    PRIVATE oBmp2
 
 * DF7BE: Init MEMVAR's, otherwise crash because of non existing variables
    oFont := Nil
-   cImageDir := "/"+Curdir()+"/../../image/"
    ncolor := NIL
 
    INIT WINDOW oMainWindow MAIN TITLE "Example" ;
@@ -33,7 +33,7 @@ LOCAL oMainWindow,oPanel
    @ 0,0 PANEL oPanel SIZE 0,32
    @ 2,3 OWNERBUTTON OF oPanel ON CLICK {||FileOpen()} ;
    SIZE 32,26 FLAT ;
-   BITMAP cImageDir+"new.bmp" TRANSPARENT COLOR 12632256 COORDINATES 0,4,0,0 ;
+   BITMAP SAMPLE_IMAGEPATH + "new.bmp" TRANSPARENT COLOR 12632256 COORDINATES 0,4,0,0 ;
    TOOLTIP "Open File"
 
    MENU OF oMainWindow

@@ -6,6 +6,7 @@
  */
 
 #include "hwgui.ch"
+#include "sampleinc.ch"
 
 FUNCTION DemoSplitter( lWithDialog, oDlg, aInitList )
 
@@ -13,18 +14,16 @@ FUNCTION DemoSplitter( lWithDialog, oDlg, aInitList )
    LOCAL oTree, oSplit, oTab
    LOCAL oGet, cImage1, cImage2
 
-#ifdef __PLATFORM_WINDOWS
-   cImage1 := "..\image\cl_fl.bmp"
-   cImage2 := "..\image\op_fl.bmp"
-#else
-   cImage1 := "..\image\cl_fl.bmp"
-   cImage2 := "..\image\op_fl.bmp"
-#endif
+   cImage1 := SAMPLE_IMAGEPATH + "cl_fl.bmp"
+   cImage2 := SAMPLE_IMAGEPATH + "op_fl.bmp"
 
    hb_Default( @lWithDialog, .T. )
 
    IF ! File( cImage1 ) .OR. ! File( cImage2 )
-      hwg_MsgInfo( "no images found " + cImage1 + " " + cImage2 )
+      hwg_MsgInfo( "demosplitter.prg" + hb_Eol() + ;
+         "file not found" + hb_Eol() + ;
+         cImage1 + hb_Eol() + ;
+         cImage2 )
       RETURN Nil
    ENDIF
    IF lWithDialog
@@ -93,8 +92,8 @@ STATIC FUNCTION BuildTree( oDlg, oTree, oTab )
    INSERT NODE "First" TO oTree ON CLICK { || NodeOut( 1, oTab ) }
    INSERT NODE "Second" TO oTree ON CLICK { || NodeOut( 2, oTab ) }
    INSERT NODE oNode CAPTION "Third" TO oTree ON CLICK { || NodeOut( 0, oTab ) }
-      INSERT NODE "Third-1" TO oNode BITMAP { "..\image\book.bmp" } ON CLICK { || NodeOut( 3, oTab ) }
-      INSERT NODE "Third-2" TO oNode BITMAP { "..\image\book.bmp" } ON CLICK { || NodeOut( 4, oTab ) }
+      INSERT NODE "Third-1" TO oNode BITMAP { SAMPLE_IMAGEPATH + "book.bmp" } ON CLICK { || NodeOut( 3, oTab ) }
+      INSERT NODE "Third-2" TO oNode BITMAP { SAMPLE_IMAGEPATH + "book.bmp" } ON CLICK { || NodeOut( 4, oTab ) }
    INSERT NODE "Forth" TO oTree ON CLICK { || NodeOut( 5, oTab ) }
 
    oTree:bExpand := { || .T. }
