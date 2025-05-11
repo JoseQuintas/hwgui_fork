@@ -15,6 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-11 18:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/testsamples.prg
+     ! more checks
+   * samples/demobrowseclr.prg
+     ! removed APPEND from browse array, causing crash
+   * samples/demoall.hbp
+   * samples/demoall.prg
+     ! Adjust names tabpage "browse" from "browse xxxx" to "brw.xxxx"
+
 2025-05-11 12:41 UTC-0300 Jose Quintas jmcquintas-gmail.com
    - samples/colrbloc.hbp
    + samples/demobrowseclr.prg renamed from colrbloc.prg

@@ -54,7 +54,7 @@ MEMVAR cImgTop , cImgBottom , cImgPrev, cImgNext
 
 FUNCTION DemoBrowseClr()
 
-   LOCAL oWinMain
+   LOCAL oDlg
    //LOCAL cDirSep := hwg_GetDirSep()
 
    PUBLIC cImgTop , cImgBottom , cImgPrev, cImgNext
@@ -88,14 +88,14 @@ FUNCTION DemoBrowseClr()
       DBUSEAREA( .T., "DBFCDX", "tstbrw", "TSTB" )
    ENDIF
 
-   INIT DIALOG oWinMain ;
+   INIT DIALOG oDlg ;
       TITLE "Teste" ;
       AT 0, 0 ;
       SIZE 600,400;
       FONT HFont():Add( 'Arial',0,-13,400,,,) ;
       // STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
-   MENU OF oWinMain
+   MENU OF oDlg
       MENU TITLE "&File"   && "&Arquivo"
           MENUITEM "&Exit"              ACTION hwg_EndDialog()  && "&Sair"
       ENDMENU
@@ -110,9 +110,9 @@ FUNCTION DemoBrowseClr()
       ENDMENU
    ENDMENU
 
-   ButtonForSample( "demobrowseclr.prg", oWinMain )
+   ButtonForSample( "demobrowseclr.prg", oDlg )
 
-   ACTIVATE DIALOG oWinMain CENTER
+   ACTIVATE DIALOG oDlg CENTER
 
 RETURN Nil
 
@@ -374,7 +374,7 @@ STATIC FUNCTION BrwArr(lEdit, lZebra)
       @ 10 ,10 BROWSE oBrwArr ARRAY SIZE 580, 385  ;
            STYLE  WS_VSCROLL + WS_HSCROLL ;
            AUTOEDIT ;
-           APPEND ;
+           ; // APPEND ; // crash
            ON UPDATE {|| oBrwArr:REFRESH() } ;
            ON KEYDOWN {|oBrwArr, nKey| BrowseDbKey(oBrwArr, nKey, @nLast, oLbl2, "") } ;
            ON POSCHANGE {|| BrowseMove(oBrwArr, "NIL", oEdGoto, "Array" ) }

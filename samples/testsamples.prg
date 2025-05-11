@@ -12,6 +12,14 @@ PROCEDURE Main
    LOCAL cTxtPragma, cTxtButton
    LOCAL cTxtshMakeAllSam, cTxtshClean, cTxtshSamplesClean
    LOCAL cTxtAboutsh, cNameNoExt
+   LOCAL aList1, cText
+   LOCAL aNoTestList := { ;
+      { "no check", "demoall.prg", "testsamples.prg" }, ;
+      { "MDI", "a.prg", "testmdi.prg", "testrtf.prg", "demomdi.prg" }, ;
+      { "utility?", "buildpelles.prg", "dbview.prg" }, ;
+      { "multithead", "demomenumt.prg" }, ;
+      { "window", "demoonother.prg" }, ;
+      { "postgress", "grid_2.prg", "grid_3.prg" } }
 
    cTxtPragma := MemoRead( "demoall.prg" )
    cTxtPragma := Substr( cTxtPragma, At( "#pragma", cTxtPragma) )
@@ -25,26 +33,18 @@ PROCEDURE Main
       cTxtHbp += MemoRead( aFile[ 1 ] )
    NEXT
    aList := Directory( "*.prg" )
+   FOR EACH aList1 IN aNoTestList
+      FOR EACH cText IN aList1
+         ?? ": " + cText
+      NEXT
+      ?
+   NEXT
    FOR EACH aFile IN aList
+      IF hb_AScan( aNoTestList, { |a| hb_AScan( a, { |b| ;
+         b == Lower( aFile[1] ) } ) != 0 } ) != 0
+         LOOP
+      ENDIF
       cNameNoExt := hb_FNameName( aFile[ 1 ] )
-      DO CASE
-      CASE Lower( aFile[1] ) == "demoall.prg" ;
-         .OR. Lower( aFile[1] ) == "testsamples.prg"
-         LOOP
-      CASE Lower( aFile[1] ) == "grid_2.prg" ;
-         .OR. Lower( aFile[1] ) == "grid_3.prg"
-         ? Pad( aFile[1], 20 ) + "Postgress no demoall"
-         LOOP
-      CASE Lower( aFile[1] ) == "a.prg" ;
-         .OR. Lower( aFile[1] ) == "testmdi.prg" ;
-         .OR. Lower( aFile[1] ) == "demomdi.prg" ;
-         .OR. Lower( aFile[1] ) == "testrtf.prg"
-         ? Pad( aFile[1], 20 ) + "MDI no demoall"
-         LOOP
-      CASE Lower( aFile[1] ) == "demomenumt.prg"
-         ? Pad( aFile[1], 20 ) + "MT no demoall"
-         LOOP
-      ENDCASE
       cTxtButton := [ButtonForSample( "] + Lower( aFile[1] ) + [", oDlg )]
       cTxt       := MemoRead( aFile[ 1 ] )
       lNoHbp     := ! Lower( aFile[ 1 ] ) $ Lower( cTxtHbp )

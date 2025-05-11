@@ -14,20 +14,19 @@
 
 #INCLUDE "hwgui.ch"
 
-#ifdef __USING_MENU__
-   FUNCTION DemoOnOther()
-#else
-   FUNCTION Main()
-#endif
+FUNCTION DemoOnOther()
 
    LOCAL oDlg
 
-   INIT DIALOG oDlg ;
+   INIT WINDOW oDlg ;
       TITLE "demoonother.prg - ON OTHER MESSAGES"  ;
       SIZE 500, 500 ;
       ON OTHER MESSAGES { | a, b, c, d | OnOtherMessages( a, b, c, d ) }
 
-   ACTIVATE DIALOG oDlg CENTER
+   @ 10, 100 SAY "Hit any key to test" ;
+      SIZE 300, 24
+
+   ACTIVATE WINDOW oDlg CENTER
 
 RETURN Nil
 
