@@ -91,7 +91,6 @@ delfi samples/checkbox
 delfi samples/datepicker
 delfi samples/dlgbrwdbf
 delfi samples/getupdown
-delfi samples/memocmp
 delfi samples/menumod
 delfi samples/testhmonth
 delfi samples/testrtf

@@ -29,7 +29,6 @@ rm helpdemo 2> /dev/null
 rm helpstatic 2> /dev/null
 rm hexbincnt 2> /dev/null
 rm iesample 2> /dev/null
-rm memocmp 2> /dev/null
 rm menumod 2> /dev/null
 rm nice 2> /dev/null
 rm nice2 2> /dev/null

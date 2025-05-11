@@ -15,6 +15,19 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-10 23:00 UTC-0300 Jose Quintas jmcquintas-gmail.om
+   - samples/memocmp.hbp
+   * samples/demomemocomp.prg renamed from memocmp.prg
+     ! changed to SAY and buttons
+     ! Added standard compare
+     ! Do not need SET EXACT ON
+     ! Remembering:
+     ! m1 = m2 is not same as m1 == m2
+     ! m1 != m2 is not same as ! ( m1 == m2 )
+   * samples/demoall.hbp
+   * samples/demoall.prg
+     ! Added demomemocomp on "others"
+
 2025-05-10 20:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/demostrrev.prg
      ! Do not understand why to call hwg_get_Helper()

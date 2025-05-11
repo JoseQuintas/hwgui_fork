@@ -210,6 +210,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "5.Timer",                        { |o| DemoGet2( .F., o ) } )
       MenuOption( "6.String Rev",                   { |o| DemoStrRev( .F., o ) } )
       MenuOption( "7.Functions",                    { |o| DemoFunc( .F., o ) } )
+      MenuOption( "8. Compare memo",                { |o| DemoMemoComp( .F., o ) } )
       MenuUnDrop()
 
    @ 30, 60 TAB oTabLevel1 ITEMS {} SIZE 950, 650 OF oDlg
@@ -481,10 +482,11 @@ FUNCTION demo_LoadResource( cFileName )
    CASE cFileName == "demomenu.prg";        #pragma __binarystreaminclude "demomenu.prg" | RETURN %s
    CASE cFileName == "demomenuxml.prg";     #pragma __binarystreaminclude "demomenuxml.prg" | RETURN %s
    CASE cFileName == "demonice.prg";        #pragma __binarystreaminclude "demonice.prg" | RETURN %s
-   CASE cFileName == "demonight.prg";        #pragma __binarystreaminclude "demonight.prg" | RETURN %s
+   CASE cFileName == "demonight.prg";       #pragma __binarystreaminclude "demonight.prg" | RETURN %s
    CASE cFileName == "demoowner.prg";       #pragma __binarystreaminclude "demoowner.prg" | RETURN %s
    CASE cFileName == "demoprogbar.prg";     #pragma __binarystreaminclude "demoprogbar.prg" | RETURN %s
    CASE cFileName == "demoshadebtn.prg";    #pragma __binarystreaminclude "demoshadebtn.prg" | RETURN %s
+   CASE cFileName == "demostrrev.prg";      #pragma __binarystreaminclude "demostrrev.prg" | RETURN %s
    CASE cFileName == "demotab.prg";         #pragma __binarystreaminclude "demotab.prg" | RETURN %s
    CASE cFileName == "demotabtool.prg";     #pragma __binarystreaminclude "demotabtool.prg" | RETURN %s
    CASE cFileName == "demotrackbar.prg";    #pragma __binarystreaminclude "demotrackbar.prg" | RETURN %s

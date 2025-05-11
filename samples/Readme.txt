@@ -255,6 +255,7 @@ For beginners:
    demolenta.prg        Y                        Multi platform alternative for tab
    demolistbox.prg      S       S         Y      Demo for listbox
    demolistboxsub.prg   Y                 Y      Multi platform substitute for listbox by BROWSE.
+   demomemocomp.prg.    Y                        Edit and compare memo's an get size
    demomenu.prg         Y                        Simple menu
    demomenubitmap.prg   P                        Menu with bitmaps
    demomenuxml.prg      Y                        reading/writing XML file and handling menu items while run-time (testxml.xml)
@@ -288,7 +289,6 @@ For beginners:
  helpdemo.prg 6) 7)     N       N                Context help using windows help (Shellexecute crashes)
  helpstatic.prg         Y                        Static help text
  hexbincnt.prg 11)      Y                        Handling of binary resources with hex values.
- memocmp.prg.           Y                        Edit and compare memo's an get size
  menumod.prg            Y                        Handling menu items while run-time in dialogs.
  propsh.prg             N  #    N                Property sheet
  pseudocm.prg           Y                        Pseudo context menu
