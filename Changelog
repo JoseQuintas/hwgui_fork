@@ -15,6 +15,24 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-11 11:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demostrrev.prg
+     ! added MAXLENGTH, or GET will be limited to string size
+   - menumod.hbp
+   * demomenumod.prg renamed from menumod.prg
+     ! all local variables, static functions, no macro
+   * samples/demoall.hbp
+   * samples/demoall.prg
+     ! added demomenumod.prg to "menu"
+   * clean.sh
+   * samples/Readme.txt
+   * samples/allhbp.hbp
+   * samples/clean.sh
+   * samples/makeallsam.sh
+     ! updated references
+   * samples/escrita.prg
+     ! single format source code
+
 2025-05-10 23:20 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/demoall.prg
    * samples/demomemocomp.prg

@@ -25,7 +25,6 @@ demodlgbox.prg
 demofunc.prg
 demoget1.prg
 demoget2.prg
-demoupdown.prg
 demohtrack.prg
 demoimageview.prg
 demoimage1.prg
@@ -36,6 +35,7 @@ demolenta2.prg
 demolistboxsub.prg
 demomemocomp.prg
 demomenu.prg
+demomenumod.prg
 demomenuxml.prg
 demonight.prg
 demoowner.prg
@@ -46,6 +46,7 @@ demotabtool.prg
 demotree.prg
 demosplit.prg
 demosplitter.prg
+demoupdown.prg
 demoxmltree.prg
 
 {win}demobrowseado.prg

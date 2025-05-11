@@ -71,26 +71,24 @@ FUNCTION Main()
    nbut := 0
 #endif
 
-
-
    cTitle := "Teste da Acentuação"  && ==> "Accent Test"
 
    cbmppref := SAMPLE_IMAGEPATH
    // cbmppref := SAMPLE_IMAGEPATH
    * Check, if all bitmaps are existing, otherwise the program crashes or freezes
-   CHECK_FILE(cbmppref + "new.bmp")
-   CHECK_FILE(cbmppref + "book.bmp")
-   CHECK_FILE(cbmppref + "ok.ico")
-   CHECK_FILE(cbmppref + "door.bmp")
-   CHECK_FILE(cbmppref + "cancel.ico")
+   CHECK_FILE( cbmppref + "new.bmp" )
+   CHECK_FILE( cbmppref + "book.bmp" )
+   CHECK_FILE( cbmppref + "ok.ico" )
+   CHECK_FILE( cbmppref + "door.bmp" )
+   CHECK_FILE( cbmppref + "cancel.ico" )
 
 #ifndef __GTK__
    * Add object variables of resources:
-   oBmpNew    := HBitmap():AddFile(cbmppref + "new.bmp")
-   oBmpbook   := HBitmap():AddFile(cbmppref + "book.bmp")
-   oIcoOK     :=   HIcon():AddFile(cbmppref + "ok.ico")
-   oBmpdoor   := HBitmap():AddFile(cbmppref + "door.bmp")
-   oIcoCancel :=   HIcon():AddFile(cbmppref + "cancel.ico")
+   oBmpNew    := HBitmap():AddFile( cbmppref + "new.bmp" )
+   oBmpbook   := HBitmap():AddFile( cbmppref + "book.bmp" )
+   oIcoOK     := HIcon():AddFile( cbmppref + "ok.ico" )
+   oBmpdoor   := HBitmap():AddFile( cbmppref + "door.bmp" )
+   oIcoCancel := HIcon():AddFile( cbmppref + "cancel.ico" )
 #endif
 
 #ifdef __GTK__
@@ -294,7 +292,6 @@ FUNCTION Main()
    @ 20 , 105  + noffset progressbar obar ;
       size 260, 26  ;
       barwidth 100
-
 
 #ifdef __GTK__
    ACTIVATE DIALOG oModDlg CENTER

@@ -146,6 +146,7 @@ FUNCTION DemoStrRev( lWithDialog, oDlg )
    @ 40, 162 GET oEditbox1 ;
       VAR   cNormal ;
       SIZE  700, 24 ;
+      MAXLENGTH 511 ;
       STYLE WS_BORDER
 
    @ 40, 210 SAY aLabel[3] ;

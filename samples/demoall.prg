@@ -166,8 +166,9 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuDrop()
       MenuOption( "1.menu",    "demomenu",          { || DemoMenu() } )
       MenuOption( "2.menuxml", "demomenuxml",       { || DemoMenuXml() } )
+      MenuOption( "3.modify", "demomenumod",        { || DemoMenuMod() } )
 #ifdef __PLATFORM__WINDOWS
-      MenuOption( "3.menubitmap","demomenubitmap",  { || DemoMenuBitmap() } )
+      MenuOption( "4.menubitmap","demomenubitmap",  { || DemoMenuBitmap() } )
 #endif
       MenuUnDrop()
    MenuOption( "Progbar",                           { |o| DemoProgbar( .F., o, aEndList ) } )
@@ -479,8 +480,9 @@ FUNCTION demo_LoadResource( cFileName )
    CASE cFileName == "demolenta2.prg";      #pragma __binarystreaminclude "demolenta2.prg" | RETURN %s
    CASE cFileName == "demolistbox.prg";     #pragma __binarystreaminclude "demolistbox.prg" | RETURN %s
    CASE cFileName == "demolistboxsub.prg";  #pragma __binarystreaminclude "demolistboxsub.prg" | RETURN %s
-   CASE cFileName == "demomemocomp.prg";    #pragma __binarystreaminclude "demodemocomp.prg" | RETURN %s
+   CASE cFileName == "demomemocomp.prg";    #pragma __binarystreaminclude "demomemocomp.prg" | RETURN %s
    CASE cFileName == "demomenubitmap.prg";  #pragma __binarystreaminclude "demomenubitmap.prg" | RETURN %s
+   CASE cFileName == "demomenumod.prg";     #pragma __binarystreaminclude "demomenumod.prg" | RETURN %s
    CASE cFileName == "demomonthcal.prg";    #pragma __binarystreaminclude "demomonthcal.prg" | RETURN %s
    CASE cFileName == "demomenu.prg";        #pragma __binarystreaminclude "demomenu.prg" | RETURN %s
    CASE cFileName == "demomenuxml.prg";     #pragma __binarystreaminclude "demomenuxml.prg" | RETURN %s
