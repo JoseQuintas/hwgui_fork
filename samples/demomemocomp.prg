@@ -62,7 +62,7 @@ FUNCTION DemoMemoComp( lWithDialog, oDlg )
          //STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
    ENDIF
 
-   ButtonForSample( "demomemocmp.prg", oDlg )
+   ButtonForSample( "demomemocomp.prg", oDlg )
 
    @ 20, 100 SAY oSay1 ;
       CAPTION cMemo1 ;

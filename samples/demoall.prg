@@ -459,6 +459,7 @@ FUNCTION demo_LoadResource( cFileName )
    CASE cFileName == "demobrowsebmp.prg";   #pragma __binarystreaminclude "demobrowsebmp.prg" | RETURN %s
    CASE cFileName == "demobrowsedbf.prg";   #pragma __binarystreaminclude "demobrowsedbf.prg" | RETURN %s
    CASE cFileName == "demobrowseado.prg";   #pragma __binarystreaminclude "demobrowseado.prg" | RETURN %s
+   CASE cFileName == "demodateselect.prg";  #pragma __binarystreaminclude "demodateselect.prg" | RETURN %s
    CASE cFileName == "demodbfdata.prg";     #pragma __binarystreaminclude "demodbfdata.prg" | RETURN %s
    CASE cFileName == "demodialog.prg";      #pragma __binarystreaminclude "demodialog.prg" | RETURN %s
    CASE cFileName == "demodlgbox.prg";      #pragma __binarystreaminclude "demodlgbox.prg" | RETURN %s
@@ -475,8 +476,10 @@ FUNCTION demo_LoadResource( cFileName )
    CASE cFileName == "demoimage2.prg";      #pragma __binarystreaminclude "demoimage2.prg" | RETURN %s
    CASE cFileName == "demoimageview.prg";   #pragma __binarystreaminclude "demoimageview.prg" | RETURN %s
    CASE cFileName == "demolenta.prg";       #pragma __binarystreaminclude "demolenta.prg" | RETURN %s
+   CASE cFileName == "demolenta2.prg";      #pragma __binarystreaminclude "demolenta2.prg" | RETURN %s
    CASE cFileName == "demolistbox.prg";     #pragma __binarystreaminclude "demolistbox.prg" | RETURN %s
    CASE cFileName == "demolistboxsub.prg";  #pragma __binarystreaminclude "demolistboxsub.prg" | RETURN %s
+   CASE cFileName == "demomemocomp.prg";    #pragma __binarystreaminclude "demodemocomp.prg" | RETURN %s
    CASE cFileName == "demomenubitmap.prg";  #pragma __binarystreaminclude "demomenubitmap.prg" | RETURN %s
    CASE cFileName == "demomonthcal.prg";    #pragma __binarystreaminclude "demomonthcal.prg" | RETURN %s
    CASE cFileName == "demomenu.prg";        #pragma __binarystreaminclude "demomenu.prg" | RETURN %s
