@@ -234,6 +234,7 @@ For beginners:
    demobrowsearr.prg    Y                        Array BROWSE avoiding crashes because of bugs (see inline comments)
    demobrowsearray.prg  Y                        Simple browse array
    demobrowsebmp.prg    Y  #                     Another BROWSE test using bmp (bug on GTK see docu)
+   demobrowseclr.prg    Y                 Y      BROWSE: arrays and DBF's with colored lines and columns
    demobrowsedbf.prg    Y       ?    ?           browse dbf
    demobrowseado.prg    N       N                ADO Browse (TNX Itamar M. Lins Jr.). For multi platform use BROWSE.
    democheckbox.prg     Y                        Checkboxes and tabs
@@ -278,7 +279,6 @@ For beginners:
  bincnts.prg 10) +)     Y                        Usage of images from Binary container
  bitmapbug.prg          Y                        Handle of bug in command @<x>,<y> BITMAP ... SHOW (Class HBITMAP)
  buildpelles.prg        N       N         Y      Build APP using Pelles C Compiler (*.bld file)
- colrbloc.prg           Y                 Y      BROWSE: arrays and DBF's with colored lines and columns
  dbview.prg             Y       Y         Y      DBF access (Browse, Indexing, Codepages, Structure, ... )
  demodbf.prg            Y                 Y      Demo for Edit using command NOEXIT
  demomdi.prg            ?                        Demo of MDI using democheckbox

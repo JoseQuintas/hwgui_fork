@@ -67,7 +67,6 @@ rm samples/dbview 2>/dev/null
 rm samples/dbview.c 2>/dev/null
 rm samples/winprn 2>/dev/null
 delfi samples/winprn.c
-rm samples/colrbloc 2>/dev/null
 rm samples/bindbf 2>/dev/null
 rm samples/hexbincnt  2>/dev/null
 rm samples/testbmpcr 2>/dev/null

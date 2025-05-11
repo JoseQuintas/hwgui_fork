@@ -47,7 +47,6 @@
 #
 ../samples/demoall.hbp
 ../samples/bincnts.hbp
-../samples/colrbloc.hbp
 ../samples/dbview.hbp
 ../samples/fileselect.hbp
 ../samples/graph.hbp

@@ -179,7 +179,7 @@ STATIC FUNCTION TestDialog()
 	&& Show( oWnd, xPos, yPos, lWnd )
 
    * For you to do at your own needs : change colors of browse,
-   * see sample program "colrbloc.prg"
+   * see sample program "demobrowseclr.prg"
 
    @ 21,50 BROWSE oBrwArr ;
       ARRAY ;

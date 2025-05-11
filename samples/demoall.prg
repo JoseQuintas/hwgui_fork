@@ -124,6 +124,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "7.Grid5",     "demogrid5",       { || DemoGrid5(,,,aEndList) } )
 #endif
       MenuOption( "7.BrowseBMP",                    { |o| DemoBrowseBmp( .F., o ) } )
+      MenuOption( "8.Colorized", "colorized",       { || DemoBrowseClr() } )
       MenuUndrop()
    MenuOption( "Button" )
       MenuDrop()
@@ -280,7 +281,6 @@ STATIC FUNCTION AddToCompile( oTabLevel1 )
        ; // verify
        ;
        { "graph.prg",              .T., .T., .T., "Graph" }, ;
-       { "colrbloc.prg",           .T., .T., .T., "Color Block" }, ;
        { "dbview.prg",             .T., .T., .T., "DBView" }, ;
        { "helpstatic.prg",         .T., .T., .T., "Help Static" }, ;
        { "tstsplash.prg",          .T., .F., .F., "Test Splash" }, ;
@@ -458,6 +458,7 @@ FUNCTION demo_LoadResource( cFileName )
    CASE cFileName == "demobrowsearr.prg";   #pragma __binarystreaminclude "demobrowsearr.prg" | RETURN %s
    CASE cFileName == "demobrowsarray.prg";  #pragma __binarystreaminclude "demobrowsearray.prg" | RETURN %s
    CASE cFileName == "demobrowsebmp.prg";   #pragma __binarystreaminclude "demobrowsebmp.prg" | RETURN %s
+   CASE cFileName == "demobrowseclr.prg";   #pragma __binarystreaminclude "demobrowseclr.prg" | RETURN %s
    CASE cFileName == "demobrowsedbf.prg";   #pragma __binarystreaminclude "demobrowsedbf.prg" | RETURN %s
    CASE cFileName == "demobrowseado.prg";   #pragma __binarystreaminclude "demobrowseado.prg" | RETURN %s
    CASE cFileName == "demodateselect.prg";  #pragma __binarystreaminclude "demodateselect.prg" | RETURN %s
