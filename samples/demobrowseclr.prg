@@ -374,7 +374,7 @@ STATIC FUNCTION BrwArr(lEdit, lZebra)
       @ 10 ,10 BROWSE oBrwArr ARRAY SIZE 580, 385  ;
            STYLE  WS_VSCROLL + WS_HSCROLL ;
            AUTOEDIT ;
-           ; // APPEND ; // crash
+           APPEND ; // crash
            ON UPDATE {|| oBrwArr:REFRESH() } ;
            ON KEYDOWN {|oBrwArr, nKey| BrowseDbKey(oBrwArr, nKey, @nLast, oLbl2, "") } ;
            ON POSCHANGE {|| BrowseMove(oBrwArr, "NIL", oEdGoto, "Array" ) }
@@ -454,16 +454,16 @@ STATIC FUNCTION BrwArr(lEdit, lZebra)
    // {tColor, bColor, tColorSel, bColorSel} ,;
    // {tColor, bColor, tColorSel, bColorSel}) }
    IF lEdit
-      oBrwArr:aColumns[1]:bColorBlock := {|n| (n), IF(aArrayTst[oBrwArr:nCurrent][1] < 0 , ;
+      oBrwArr:aColumns[1]:bColorBlock := {|o,r,c| (c),IF(o:aArray[r,1] < 0 , ;
          {x_RED, x_WHITE, x_CYAN, x_BLUE} , ;
          {x_BLUE, x_WHITE , x_WHITE, x_BLUE })}
    ELSE
-      oBrwArr:aColumns[1]:bColorBlock := {|n| (n), IF(aArrayTst[oBrwArr:nCurrent][1] < 0 , ;
+      oBrwArr:aColumns[1]:bColorBlock := {|o,r,c| (c),IF(o:aArray[r,1] < 0 , ;
          {x_RED, x_WHITE, x_CYAN, x_DARKBLUE} , ;
          {x_BLUE, x_WHITE , x_WHITE, x_BLUE })}
       IF lZebra
          FOR nI := 2 TO 5
-            oBrwArr:aColumns[nI]:bColorBlock := {|| IF(MOD(oBrwArr:nCurrent, 2) = 0,;
+            oBrwArr:aColumns[nI]:bColorBlock := {|o,r,c| (o),(c),IF(MOD(r, 2) = 0,;
                {x_BLACK, x_GRAY, x_CYAN, x_DARKBLUE} , ;
                {x_BLACK, x_WHITE , x_WHITE, x_DARKBLUE })}
          NEXT

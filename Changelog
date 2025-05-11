@@ -15,6 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-11 20:30 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demobrowseclr.prg
+     ! Changed colorblock to use browse, row, col from parameters
+     ! After change, insert row on array do not cause run-time error
+     ! return APPEND to browse array command
+
 2025-05-11 18:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/testsamples.prg
      ! more checks
