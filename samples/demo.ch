@@ -12,7 +12,7 @@ STATIC FUNCTION ButtonForSample( cFileName, oParent )
 
    @ 10, 30 OWNERBUTTON ;
       OF       oParent ;
-      SIZE     50, 24 ;
+      SIZE     50, 20 ;
       TEXT     "Dlg" ;
       HSTYLES ;
       HStyle():New( {0xffffff,0xdddddd}, 1,, 1 ), ;
@@ -22,7 +22,7 @@ STATIC FUNCTION ButtonForSample( cFileName, oParent )
 
    @ 70, 30 OWNERBUTTON ;
       OF oParent ;
-      SIZE 50, 24 ;
+      SIZE 50, 20 ;
       TEXT "Code" ;
       HSTYLES ;
       HStyle():New( {0xffffff,0xdddddd}, 1,, 1 ), ;
@@ -32,7 +32,7 @@ STATIC FUNCTION ButtonForSample( cFileName, oParent )
 
    @ 130, 30 SAY cFileName ;
       OF oParent ;
-      SIZE 200, 24 ;
+      SIZE 200, 20 ;
       BACKCOLOR 0xffffff
 
    RETURN Nil

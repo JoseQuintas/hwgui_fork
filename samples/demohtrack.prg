@@ -1,8 +1,5 @@
-// We create here a new control, which can be
-// used as a replacement for a track bar,
-// which has not gtk version.
 #include "hwgui.ch"
-#include "hbclass.ch"
+
 #define CLR_WHITE    0xffffff
 #define CLR_BLACK    0x000000
 #define CLR_BROWN_1  0x154780
@@ -10,39 +7,41 @@
 
 FUNCTION DemoHTrack( lWithDialog, oDlg )
 
-   LOCAL oTrack, oSay, oFont := HFont():Add( "MS Sans Serif",0,-13 )
-   LOCAL bVolChange := { | o, n |
-         HB_SYMBOL_UNUSED( o )
-         HB_SYMBOL_UNUSED( n )
-         oSay:SetText( Ltrim( Str( oTrack:value ) ) )
-         RETURN .T.
-         }
+   LOCAL oTrack1, oSay1, oTrack2, oSay2, oFont := HFont():Add( "MS Sans Serif",0,-13 )
+   LOCAL bVolChange := {|o,n|
+      HB_SYMBOL_UNUSED( n )
+      IF o:lVertical
+         oSay2:SetText( Ltrim(Str(o:value)) )
+      ELSE
+         oSay1:SetText( Ltrim(Str(o:value)) )
+      ENDIF
+      RETURN .T.
+   }
 
    hb_Default( @lWithDialog, .T. )
 
    IF lWithDialog
-      INIT DIALOG oDlg ;
-         TITLE "Track bar control"  ;
-         AT 210,10  ;
-         SIZE 400, 300 ;
-         FONT oFont BACKCOLOR CLR_BROWN_1
+      INIT DIALOG oDlg TITLE "demohtrack.prg - Track bar control"  ;
+            AT 0, 0  SIZE 400, 400 FONT oFont BACKCOLOR CLR_BROWN_1
    ENDIF
 
    ButtonForSample( "demohtrack.prg", oDlg )
 
-   @ 40, 170 SAY "Just drag the slider:" ;
-      SIZE 220, 22 ;
-      STYLE SS_CENTER BACKCOLOR CLR_BROWN_3
+   @ 40, 120 SAY "Just drag the slider:" SIZE 220, 22 STYLE SS_CENTER BACKCOLOR CLR_BROWN_3
 
-   oTrack := HTrack():New( ,, 80, 100, 140, 28,,, CLR_WHITE, CLR_BROWN_1, 16 )
-   oTrack:bChange := bVolChange
-   oTrack:Value := 0.5
+   @ 20, 150 TRACK oTrack1 SIZE 140, 28 COLOR CLR_WHITE ;
+      BACKCOLOR CLR_BROWN_1 SLIDER SIZE 16 AXIS
+   oTrack1:bChange := bVolChange
+   oTrack1:Value := 0.5
 
-   @ 80, 250 SAY oSay ;
-      CAPTION "" ;
-      SIZE 140, 22 ;
-      STYLE SS_CENTER ;
-      BACKCOLOR CLR_BROWN_3
+   @ 200, 150 SAY oSay1 CAPTION "" SIZE 80, 22 STYLE SS_CENTER BACKCOLOR CLR_BROWN_3
+
+   @ 40, 220 TRACK oTrack2 SIZE 28, 100 COLOR CLR_WHITE ;
+      BACKCOLOR CLR_BROWN_1 SLIDER SIZE 16 AXIS
+   oTrack2:bChange := bVolChange
+   oTrack2:Value := 0.5
+
+   @ 200, 220 SAY oSay2 CAPTION "" SIZE 80, 22 STYLE SS_CENTER BACKCOLOR CLR_BROWN_3
 
    IF lWithDialog
       ACTIVATE DIALOG oDlg CENTER
