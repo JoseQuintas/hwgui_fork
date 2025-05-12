@@ -15,6 +15,13 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-11 22:30 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * clean.sh
+   * samples/makeallsam.sh
+     ! updated references to fileselect.prg
+     ! remembering: functions on fileselect.prg was moved
+     ! to demodlgbox.prg, with "ready to use" dialogs
+
 2025-05-11 22:20 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/allhbp.hbp
      ! removed fileselect.hbp

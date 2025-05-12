@@ -59,7 +59,6 @@ rm samples/a 2>/dev/null
 rm samples/a.log 2>/dev/null
 rm samples/bincnts 2>/dev/null
 delfi samples/GetWinVers
-delfi samples/fileselect
 rm samples/stretch 2>/dev/null
 rm samples/escrita 2>/dev/null
 rm samples/TwoLstSub 2>/dev/null
