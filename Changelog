@@ -15,6 +15,10 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-11 22:20 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/allhbp.hbp
+     ! removed fileselect.hbp
+
 2025-05-11 20:30 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/demobrowseclr.prg
      ! Changed colorblock to use browse, row, col from parameters

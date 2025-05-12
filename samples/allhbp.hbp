@@ -48,7 +48,6 @@
 ../samples/demoall.hbp
 ../samples/bincnts.hbp
 ../samples/dbview.hbp
-../samples/fileselect.hbp
 ../samples/graph.hbp
 ../samples/helpstatic.hbp
 ../samples/hexbincnt.hbp
