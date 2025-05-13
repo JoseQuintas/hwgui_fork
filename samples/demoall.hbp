@@ -17,6 +17,7 @@ demobrowsearray.prg
 demobrowsebmp.prg
 demobrowseclr.prg
 demobrowsedbf.prg
+demobrwtwosub.prg
 democheckbox.prg
 democombobox.prg
 demodateselect.prg

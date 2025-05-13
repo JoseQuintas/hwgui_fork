@@ -61,7 +61,6 @@ rm samples/bincnts 2>/dev/null
 delfi samples/GetWinVers
 rm samples/stretch 2>/dev/null
 rm samples/escrita 2>/dev/null
-rm samples/TwoLstSub 2>/dev/null
 rm samples/dbview 2>/dev/null
 rm samples/dbview.c 2>/dev/null
 rm samples/winprn 2>/dev/null

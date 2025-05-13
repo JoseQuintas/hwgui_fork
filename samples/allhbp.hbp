@@ -53,7 +53,6 @@
 ../samples/hexbincnt.hbp
 ../samples/pseudocm.hbp
 ../samples/stretch.hbp
-../samples/TwoLstSub.hbp
 ../samples/winprn.hbp
 #
 # Samples WinAPI only

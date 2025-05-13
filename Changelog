@@ -15,6 +15,20 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-12 21:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   - samples/twolstsub.hbp
+     ! removed
+   * samples/demobrwlstsub.prg renamed from twolstsub.prg
+     ! variable names, rewrite some source code
+   * clean.sh
+   * doc/hwgdoc_classes.html
+   * samples/Readme.txt
+   * samples/allhbp.hbp
+   * samples/clean.sh
+   * samples/demoall.hbp
+   * samples/makeallsam.sh
+     ! update references
+
 2025-05-12 14:15 UTC-0300 Jose Quintas jmcquintas-gmail.com
   * samples/demo.ch
     ! height of buttons

@@ -42,7 +42,6 @@ rm tstscrlbar 2> /dev/null
 rm tstsplash 2> /dev/null
 rm tststconsapp 2> /dev/null
 rm TwoListbox 2> /dev/null
-rm TwoLstSub 2> /dev/null
 rm winprn 2> /dev/null
 
 # Reserved for temporary files and databases

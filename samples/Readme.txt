@@ -237,6 +237,7 @@ For beginners:
    demobrowseclr.prg    Y                 Y      BROWSE: arrays and DBF's with colored lines and columns
    demobrowsedbf.prg    Y       ?    ?           browse dbf
    demobrowseado.prg    N       N                ADO Browse (TNX Itamar M. Lins Jr.). For multi platform use BROWSE.
+   demobrwtwosub.prg    Y                        Multi platform substitute for two listboxes by BROWSE windows.
    democheckbox.prg     Y                        Checkboxes and tabs
    democombobox.prg     Y                        Combobox
    demodbfdata.prg                               Database to insert/delete/edit/navigate
@@ -304,7 +305,6 @@ For beginners:
  tstsplash.prg          P                        SPLASH Demo, displays image at start as logo for n millisecs: OK with WinAPI, compilable for GTK, but splash window is empty.
  tststconsapp.prg       Y                        Testing all functions to run external GUI or console applications
  TwoListbox.prg         S       S                Sample for select and move items between two listboxes.
- TwoLstSub.prg          Y                        Multi platform substitute for two listboxes by BROWSE windows.
  winprn.prg  3) 8)      Y            Y    Y      Printing via Windows GDI Interface (same sample in gtk_samples)
 
 moved to test/samples/
