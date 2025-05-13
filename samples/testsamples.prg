@@ -19,7 +19,8 @@ PROCEDURE Main
       { "utility?", "buildpelles.prg", "dbview.prg" }, ;
       { "multithead", "demomenumt.prg" }, ;
       { "window", "demoonother.prg" }, ;
-      { "postgress", "grid_2.prg", "grid_3.prg" } }
+      { "postgress", "grid_2.prg", "grid_3.prg" }, ;
+      { "console", "helloworld.prg" } }
 
    cTxtPragma := MemoRead( "demoall.prg" )
    cTxtPragma := Substr( cTxtPragma, At( "#pragma", cTxtPragma) )

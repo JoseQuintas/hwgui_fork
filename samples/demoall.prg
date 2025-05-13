@@ -218,6 +218,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "7.Functions",                    { |o| DemoFunc( .F., o ) } )
       MenuOption( "8. Compare memo",                { |o| DemoMemoComp( .F., o ) } )
       MenuUnDrop()
+   MenuOption( "NOTES",                             { |o| DemoNotes( o ) } )
 
    @ 30, 60 TAB oTabLevel1 ITEMS {} SIZE 950, 650 OF oDlg
 
@@ -433,11 +434,38 @@ STATIC FUNCTION CreatePanel( oDlg, nLeft, nTop, nWidth, nHeight )
 
    RETURN Nil
 
+STATIC FUNCTION DemoNotes( oDlg )
+
+   LOCAL oTab, cTxt, cCaption, nIndex := 1
+
+   @ 20, 80 TAB oTab ;
+      ITEMS {} ;
+      OF oDlg ;
+      SIZE 700, 500 ;
+      STYLE WS_CHILD + WS_VISIBLE
+
+   DO WHILE .T.
+      cTxt := demo_LoadResource( "note" + Ltrim( Str( nIndex++ ) ) + ".txt" )
+      IF Empty( cTxt )
+         EXIT
+      ENDIF
+      cCaption := Substr( cTxt, 1, At( hb_Eol(), cTxt ) )
+      BEGIN PAGE cCaption OF oTab
+         @ 30, 60  EDITBOX cTxt ;
+            SIZE 600, 400 ;
+            STYLE   ES_MULTILINE + ES_AUTOVSCROLL + WS_VSCROLL + WS_HSCROLL
+      END PAGE OF oTab
+   ENDDO
+
+   RETURN Nil
+
 //
 // CAUTION when using on application
 // hbmk2 detects changed source code, but not changed external file
 //
 FUNCTION demo_LoadResource( cFileName )
+
+   LOCAL cTxt
 
    cFileName := Lower( cFileName )
    DO CASE
@@ -505,11 +533,34 @@ FUNCTION demo_LoadResource( cFileName )
    CASE cFileName == "demosplit.prg";       #pragma __binarystreaminclude "demosplit.prg" | RETURN %s
    CASE cFileName == "demosplitter.prg";    #pragma __binarystreaminclude "demosplitter.prg" | RETURN %s
    CASE cFileName == "demoxmltree.prg";     #pragma __binarystreaminclude "demoxmltree.prg" | RETURN %s
+   CASE cFileName == "note1.txt"
+      cTxt := "Size" + hb_Eol()
+      cTxt += "Check size on windows, GTK 2.0, GTK 3.0" + hb_Eol()
+      cTxt += "Some controls need different size on each ambient" + hb_Eol()
+      cTxt += "as example, combobox size is list size on windows but line size on linux"
+   CASE cFileName == "note2.txt"
+      cTxt := "Optional" + hb_Eol()
+      cTxt += "On some controls you do not need to specify all parameters." + hb_Eol()
+      cTxt += "But some of them can't be empty on windows/linux" + hb_Eol()
+   CASE cFileName == "note3.txt"
+      cTxt := "MDI" + hb_Eol()
+      cTxt += "Dialogs MDI available only on windows"
+   CASE cFileName == "note4.txt"
+      cTxt := "Icon" + hb_Eol()
+      cTxt += "On windows ico is ICON and on linux ico is BITMAP" + hb_Eol()
+      cTxt += "Attention when using hicon(), hbitmap(), @ ICON, @ BITMAP"  + hb_Eol()
+   CASE cFileName == "note5.txt"
+      cTxt := "Samples" + hb_Eol()
+      cTxt += "Most samples are on demoall" + hb_Eol()
+      cTxt += "And most samples can be compiled standalone using" + hb_Eol()
+      cTxt += "hbmk2 samplename.prg"
+   CASE Right( cFilename, 4 ) == ".txt"
+      RETURN Nil
    OTHERWISE
       hwg_MsgInfo( "Not in demoall.prg #pragma " + cFileName )
    ENDCASE
 
-RETURN Nil
+RETURN cTxt
 
 #include "demo.ch"
 

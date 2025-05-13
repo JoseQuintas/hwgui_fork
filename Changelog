@@ -15,6 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-13 11:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/testsamples.prg
+     ! helloworld.prg is a console sample
+   * samples/demoall.prg
+     ! Added a "NOTES" tabpage with differences between
+     !    windows/GTK 2.0/GTK 3.0 found on samples
+     !    it is only a suggestion, may be removed or not
+     !    or may be added more things (harbour,xharbour,...)
+
 2025-05-13 01:50 UTC-0300 Jose Quintas jmcquintas-gmail.com
    - samples/TwoListbox.hbp
    * samples/demolisttwosub.prg renamed from twolistbox.prg
