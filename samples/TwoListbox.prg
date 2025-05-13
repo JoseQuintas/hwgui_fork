@@ -93,8 +93,9 @@ FUNCTION Teste()
 
    LOCAL _frm_2listboxsel
 
-   LOCAL oLabel1, oListbox1, oListbox2, oButton1, oButton2, oButton3, oButton4 , oButton5
-   LOCAL oButton6, oButton7, oFont, oItemsR
+   LOCAL oListbox1, oListbox2
+   LOCAL aControlList := Array(10)
+   LOCAL oFont, oItemsR
    LOCAL oItems1, oItems2
    PRIVATE  oItems1w, oItems2w
 
@@ -114,7 +115,7 @@ FUNCTION Teste()
      FONT oFont;
      STYLE WS_SYSMENU + WS_SIZEBOX + WS_VISIBLE
 
-   @ 33,15 SAY oLabel1 ;
+   @ 33,15 SAY aControlList[1] ;
       CAPTION "Select items"  ;
       SIZE    441,22 ;
       STYLE   SS_CENTER
@@ -130,44 +131,44 @@ FUNCTION Teste()
       ITEMS oItems2 ;
       SIZE  150,96
 
-   @ 207,92 BUTTON oButton1 ;
+   @ 207,92 BUTTON aControlList[2] ;
       CAPTION  ">"   ;
       SIZE     80,32 ;
       STYLE    WS_TABSTOP + BS_FLAT ;
       ON CLICK { || LSTBOX_ITEMTORI( oListbox1, oListbox2 ) }
 
-   @ 207,137 BUTTON oButton2 ;
+   @ 207,137 BUTTON aControlList[3] ;
       CAPTION  ">>"   ;
       SIZE     80,32 ;
       STYLE    WS_TABSTOP + BS_FLAT ;
       ON CLICK { || LSTBOX_ITEMTORA( oListbox1, oListbox2, GetItems() ) }
 
-   @ 207,223 BUTTON oButton3 ;
+   @ 207,223 BUTTON aControlList[4] ;
       CAPTION  "<"   ;
       SIZE     80,32 ;
       STYLE    WS_TABSTOP+BS_FLAT ;
       ON CLICK { || LSTBOX_ITEMTOLI( oListbox1, oListbox2 ) }
 
-   @ 207,281 BUTTON oButton4 ;
+   @ 207,281 BUTTON aControlList[5] ;
       CAPTION "<<"   ;
       SIZE 80,32 ;
       STYLE WS_TABSTOP+BS_FLAT ;
       ON CLICK { || LSTBOX_ITEMTOLA( oListbox1, oListbox2, GetItems() ) }
 
-   @ 36,345 BUTTON oButton5 ;
+   @ 36,345 BUTTON aControlList[6] ;
       CAPTION "OK"   ;
       SIZE    80,32 ;
       STYLE    WS_TABSTOP + BS_FLAT ;
       ON CLICK ;
          { || oItemsR := oListbox2:aItems , _frm_2listboxsel:Close() }  /* return content of target listbox */
 
-   @ 158,345 BUTTON oButton6 ;
+   @ 158,345 BUTTON aControlList[7] ;
       CAPTION "Cancel"   ;
       SIZE 80,32 ;
       STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { || _frm_2listboxsel:Close() }
 
-   @ 367,345 BUTTON oButton7 ;
+   @ 367,345 BUTTON aControlList[8] ;
       CAPTION "Help"   ;
       SIZE 80,32 ;
       STYLE WS_TABSTOP + BS_FLAT ;

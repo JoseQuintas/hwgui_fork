@@ -15,6 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-12 22:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/TwoListbox.prg
+   * samples/demobrwtwosub.prg
+     ! changed aControls to aControlList
+     ! began same changes of browse on listbox sample
+
 2025-05-12 21:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
    - samples/twolstsub.hbp
      ! removed

@@ -39,7 +39,7 @@
 
 FUNCTION DemoBrwtwoSub( lWithDialog, oDlg )
 
-   LOCAL aControls := Array(10)
+   LOCAL aControlList := Array(10)
    LOCAL oBrowseSource, oBrowseTarget, oFont
    LOCAL aListSource, aListTarget := {}
    LOCAL aListFull := { { "Eins" }, { "Zwei" }, { "Drei" }, { "Vier" } }
@@ -93,38 +93,38 @@ FUNCTION DemoBrwtwoSub( lWithDialog, oDlg )
    oBrowseTarget:lDispHead := .F.
    oBrowseTarget:active := .T.
 
-   @ 207, 102 BUTTON aControls[1] CAPTION ">" ;
+   @ 207, 102 BUTTON aControlList[1] CAPTION ">" ;
       SIZE     80,32 ;
       STYLE    WS_TABSTOP+BS_FLAT ;
       ON CLICK { || ItemToBrowse( oBrowseSource, oBrowseTarget ) }
 
-   @ 207, 147 BUTTON aControls[2] CAPTION  ">>" ;
+   @ 207, 147 BUTTON aControlList[2] CAPTION  ">>" ;
       SIZE     80, 32 ;
       STYLE    WS_TABSTOP + BS_FLAT ;
       ON CLICK { || AllToBrowse( oBrowseSource, oBrowseTarget ) }
 
-   @ 207, 233 BUTTON aControls[3] CAPTION  "<"   ;
+   @ 207, 233 BUTTON aControlList[3] CAPTION  "<"   ;
       SIZE     80,32 ;
       STYLE    WS_TABSTOP + BS_FLAT ;
       ON CLICK { || ItemToBrowse( oBrowseTarget, oBrowseSource ) }
 
-   @ 207, 291 BUTTON aControls[4] CAPTION  "<<"   ;
+   @ 207, 291 BUTTON aControlList[4] CAPTION  "<<"   ;
       SIZE     80, 32 ;
       STYLE    WS_TABSTOP + BS_FLAT ;
       ON CLICK { || AllToBrowse( oBrowseTarget, oBrowseSource ) }
 
-   @ 36, 355 BUTTON aControls[5] CAPTION "Show"   ;
+   @ 36, 355 BUTTON aControlList[5] CAPTION "Show"   ;
       SIZE    80,32 ;
       STYLE   WS_TABSTOP + BS_FLAT ;
       ON CLICK ;
          { || hwg_MsgInfo( hb_ValToExp( oBrowseTarget:aArray ) ) }
 
-   @ 158, 355 BUTTON aControls[6] CAPTION   "Reset"   ;
+   @ 158, 355 BUTTON aControlList[6] CAPTION   "Reset"   ;
       SIZE      80, 32 ;
       STYLE     WS_TABSTOP + BS_FLAT ;
       ON CLICK { || ResetBrowse( oBrowseSource, oBrowseTarget, aListFull ) }
 
-   @ 367, 355 BUTTON aControls[7] CAPTION  "Help"   ;
+   @ 367, 355 BUTTON aControlList[7] CAPTION  "Help"   ;
       SIZE     80, 32 ;
       STYLE    WS_TABSTOP + BS_FLAT ;
       ON CLICK { ||
@@ -132,7 +132,7 @@ FUNCTION DemoBrwtwoSub( lWithDialog, oDlg )
          RETURN Nil
          }
 
-   @ 33, 400 SAY aControls[9] CAPTION "Select items"  ;
+   @ 33, 400 SAY aControlList[9] CAPTION "Select items"  ;
       SIZE 441,22 ;
       STYLE SS_CENTER
 
