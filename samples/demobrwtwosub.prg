@@ -7,7 +7,7 @@
  *
  * Sample for select and move items between two browse windows,
  * a source and a target box.
- * This sample is a good substitute for TwoListbox.prg,
+ * This sample is a good substitute for demolisttwosub.prg,
  * because listbox is at the moment Windows only.
  *
  * Copyright 2020 Wilfried Brunken, DF7BE

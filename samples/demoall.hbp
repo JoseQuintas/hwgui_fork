@@ -35,6 +35,7 @@ demoini.prg
 demolenta.prg
 demolenta2.prg
 demolistboxsub.prg
+{win}demolisttwosub.prg
 demomemocomp.prg
 demomenu.prg
 demomenumod.prg

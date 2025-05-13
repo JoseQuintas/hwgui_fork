@@ -15,6 +15,21 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-13 01:50 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   - samples/TwoListbox.hbp
+   * samples/demolisttwosub.prg renamed from twolistbox.prg
+      ! variable names, some rewrite
+   * samples/Readme.txt
+   * samples/allhbp.hbp
+   * samples/clean.sh
+   * samples/demobrwtwosub.prg
+   * samples/makeallsam.sh
+     ! update references
+   * samples/demoall.hbp
+   * samples/demoall.prg
+     ! add demolisttwosub.prg to "choice", "Two Listbox"
+     ! windows only
+
 2025-05-12 22:40 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/TwoListbox.prg
    * samples/demobrwtwosub.prg

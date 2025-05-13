@@ -143,6 +143,9 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "3.Listbox Alt",                  { |o| DemoListBoxSub( .F., o ) } )
       MenuOption( "4.Radiobutton",                  { |o| DemoGet1( .F., o ) } )
       MenuOption( "5.UpDown",                       { |o| DemoUpDown( .F., o ) } )
+#ifdef __PLATFORM__WINDOWS
+      MenuOption( "6.Two Listbox",                  { |o| DemoListTwoSub( .F., o ) } )
+#endif
       MenuUnDrop()
    MenuOption( "Dialog" )
       MenuDrop()
@@ -285,7 +288,6 @@ STATIC FUNCTION AddToCompile( oTabLevel1 )
        { "dbview.prg",             .T., .T., .T., "DBView" }, ;
        { "helpstatic.prg",         .T., .T., .T., "Help Static" }, ;
        { "tstsplash.prg",          .T., .F., .F., "Test Splash" }, ;
-       { "twolistbox.prg",         .T., .F., .F., "Two List Box" }, ;
        { "escrita.prg",            .T., .T., .T., "Escrita" }, ;
        { "hello.prg",              .T., .F., .F., "RichEdit, Tab, Combobox" }, ;
        { "grid_2.prg",             .F., .F., .F., "Grid2 PostGres" }, ;
@@ -462,6 +464,7 @@ FUNCTION demo_LoadResource( cFileName )
    CASE cFileName == "demobrowseclr.prg";   #pragma __binarystreaminclude "demobrowseclr.prg" | RETURN %s
    CASE cFileName == "demobrowsedbf.prg";   #pragma __binarystreaminclude "demobrowsedbf.prg" | RETURN %s
    CASE cFileName == "demobrowseado.prg";   #pragma __binarystreaminclude "demobrowseado.prg" | RETURN %s
+   CASE cFileName == "demobrwtwosub.prg";   #pragma __binarystreaminclude "demobrwtwosub.prg" | RETURN %s
    CASE cFileName == "demodateselect.prg";  #pragma __binarystreaminclude "demodateselect.prg" | RETURN %s
    CASE cFileName == "demodbfdata.prg";     #pragma __binarystreaminclude "demodbfdata.prg" | RETURN %s
    CASE cFileName == "demodialog.prg";      #pragma __binarystreaminclude "demodialog.prg" | RETURN %s
@@ -482,6 +485,7 @@ FUNCTION demo_LoadResource( cFileName )
    CASE cFileName == "demolenta2.prg";      #pragma __binarystreaminclude "demolenta2.prg" | RETURN %s
    CASE cFileName == "demolistbox.prg";     #pragma __binarystreaminclude "demolistbox.prg" | RETURN %s
    CASE cFileName == "demolistboxsub.prg";  #pragma __binarystreaminclude "demolistboxsub.prg" | RETURN %s
+   CASE cFileName == "demolisttwosub.prg";  #pragma __binarystreaminclude "demolisttwosub.prg" | RETURN %s
    CASE cFileName == "demomemocomp.prg";    #pragma __binarystreaminclude "demomemocomp.prg" | RETURN %s
    CASE cFileName == "demomenubitmap.prg";  #pragma __binarystreaminclude "demomenubitmap.prg" | RETURN %s
    CASE cFileName == "demomenumod.prg";     #pragma __binarystreaminclude "demomenumod.prg" | RETURN %s

@@ -257,6 +257,7 @@ For beginners:
    demolenta.prg        Y                        Multi platform alternative for tab
    demolistbox.prg      S       S         Y      Demo for listbox
    demolistboxsub.prg   Y                 Y      Multi platform substitute for listbox by BROWSE.
+   demolisttwosub.prg   S       S                Sample for select and move items between two listboxes.
    demomemocomp.prg.    Y                        Edit and compare memo's an get size
    demomenu.prg         Y                        Simple menu
    demomenubitmap.prg   P                        Menu with bitmaps
@@ -304,7 +305,6 @@ For beginners:
  tstscrlbar.prg         P                        Scrollbar (GTK: Compilable, but no scroll function, more info in comment lines)
  tstsplash.prg          P                        SPLASH Demo, displays image at start as logo for n millisecs: OK with WinAPI, compilable for GTK, but splash window is empty.
  tststconsapp.prg       Y                        Testing all functions to run external GUI or console applications
- TwoListbox.prg         S       S                Sample for select and move items between two listboxes.
  winprn.prg  3) 8)      Y            Y    Y      Printing via Windows GDI Interface (same sample in gtk_samples)
 
 moved to test/samples/

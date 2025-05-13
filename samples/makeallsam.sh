@@ -47,7 +47,6 @@ hbmk2 demoonother.hbp
 hbmk2 tstscrlbar.hbp
 hbmk2 tstsplash.hbp
 hbmk2 tststconsapp.hbp
-hbmk2 TwoListbox.hbp
 hbmk2 winprn.hbp
 
 # ================= EOF of makeallsam.sh ==================
