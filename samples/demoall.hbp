@@ -11,6 +11,7 @@
 {win}hbwin.hbc
 
 demoall.prg
+demoaltprog.prg
 demobitmap.prg
 demobrowsearr.prg
 demobrowsearray.prg

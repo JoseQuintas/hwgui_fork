@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-20 01:10 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/testsamples.prg
+     ! tests
+   * samples/demoaltprog.prg
+   * samples/demoall.prg
+   * samples/demoall.hbp
+     ! alternative progressbar using SAY
+
 2025-05-13 11:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/testsamples.prg
      ! helloworld.prg is a console sample

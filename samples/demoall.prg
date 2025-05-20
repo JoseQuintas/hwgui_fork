@@ -176,7 +176,11 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "4.menubitmap","demomenubitmap",  { || DemoMenuBitmap() } )
 #endif
       MenuUnDrop()
-   MenuOption( "Progbar",                           { |o| DemoProgbar( .F., o, aEndList ) } )
+   MenuOption( "Progbar")
+      MenuDrop()
+      MenuOption( "progbar",                        { |o| DemoProgbar( .F., o, aEndList ) } )
+      MenuOption( "Alt.Progbar",                    { |o| DemoAltProg( .F., o ) } )
+      MenuUnDrop()
    MenuOption( "Splitter" )
       MenuDrop()
       MenuOption( "1.Split",                        { |o| DemoSplit( .F., o, aInitList ) } )
@@ -483,6 +487,7 @@ FUNCTION demo_LoadResource( cFileName )
 
    CASE cFileName == "demo.ch";             #pragma __binarystreaminclude "demo.ch" | RETURN %s
    CASE cFileName == "demoall.prg";         #pragma __binarystreaminclude "demoall.prg" | RETURN %s
+   CASE cFileName == "demoaltprog.prg";     #pragma __binarystreaminclude "demoaltprog.prg" | RETURN %s
    CASE cFileName == "demobitmap.prg";      #pragma __binarystreaminclude "demobitmap.prg" | RETURN %s
    CASE cFileName == "democheckbox.prg";    #pragma __binarystreaminclude "democheckbox.prg" | RETURN %s
    CASE cFileName == "democombobox.prg";    #pragma __binarystreaminclude "democombobox.prg" | RETURN %s

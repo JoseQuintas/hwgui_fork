@@ -20,7 +20,11 @@ PROCEDURE Main
       { "multithead", "demomenumt.prg" }, ;
       { "window", "demoonother.prg" }, ;
       { "postgress", "grid_2.prg", "grid_3.prg" }, ;
-      { "console", "helloworld.prg" } }
+      { "console", "helloworld.prg" }, ;
+      { "undefined", "propsh.prg", "tststconsapp.prg", "helpstatic.prg", ;
+         "tstprdos.prg", "winprn.prg", "testalert.prg", "pseudocm.prg", ;
+         "bincnts.prg", "bindbf.prg", "hexbincnt.prg" }, ;
+      { "bug", "tstscrlbar.prg", "helpdemo.prg" } }
 
    cTxtPragma := MemoRead( "demoall.prg" )
    cTxtPragma := Substr( cTxtPragma, At( "#pragma", cTxtPragma) )
