@@ -17,7 +17,7 @@ PROCEDURE DemoAltProg( lWIthDialog, oDlg )
          SIZE 800, 600
    ENDIF
 
-   ButtonForSample( "demoaltprogbar.prg" )
+   ButtonForSample( "demoaltprog.prg", oDlg )
 
    @ 10, 100 SAY oLabel1 CAPTION "" ;
       SIZE 700, 24 ;

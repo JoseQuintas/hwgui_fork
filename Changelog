@@ -15,6 +15,10 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-20 22:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demoaltprog.prg
+     ! filename on button and parameter oDlg
+
 2025-05-20 01:10 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/testsamples.prg
      ! tests
