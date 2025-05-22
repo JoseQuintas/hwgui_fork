@@ -50,7 +50,7 @@ LOCAL oMain , oFontMain, oIcon , cDirSep
 
    cDirSep := hwg_GetDirSep()
 
-   oIcon := HIcon():AddFile("." + cDirSep + "image" + cDirSep + "hwgui_32x32.ico")
+   oIcon := HIcon():AddFile("." + cDirSep + "image" + cDirSep + "hwgui_32x32.ico" )
 
    INIT WINDOW oMain ;
       MAIN ;
@@ -86,7 +86,7 @@ FUNCTION display_Help( lmode )
       lmode := .T.  && not modal
    ENDIF
 
-   hwg_ShowHelp(helptxt(),"Static Help text","Close",,lmode)
+   hwg_ShowHelp( helptxt(), "Static Help text","Close",, lmode )
 
 RETURN Nil
 

@@ -28,7 +28,7 @@ FUNCTION DemoIni( lWithDialog, oDlg, aEndList )
    IF lWithDialog
       INIT DIALOG oDlg ;
          TITLE "demoini.prg - read/write ini file" ;
-         AT 0,0 ;
+         AT 0, 0 ;
          SIZE 800, 600
    ENDIF
 

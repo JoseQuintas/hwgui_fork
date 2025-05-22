@@ -21,7 +21,7 @@ FUNCTION DemoOwner( lWithDialog, oDlg )
    IF lWithDialog
       INIT DIALOG oDlg ;
          TITLE "demoowner.prg - ownerbutton" ;
-         AT 390,197 ;
+         AT 0, 0 ;
          SIZE 800, 600 ;
          STYLE WS_SYSMENU + WS_SIZEBOX + WS_VISIBLE
    ENDIF

@@ -30,15 +30,15 @@ FUNCTION DemoXmlTree( lWithDialog, oDlg )
 
    @ 10, 70 TREE oTree ;
       OF oDlg ;
-      SIZE 200,280 ;
+      SIZE 200, 280 ;
       EDITABLE ;
       BITMAP { cBitmap1, cbitmap2 } ;
-      ON SIZE { |o,x,y| (x), o:Move(,,, y - 20 ) }
+      ON SIZE { | o, x, y | (x), o:Move(,,, y - 20 ) }
 
    @ 314, 60 BUTTON "Load XML File" ;
       SIZE 200, 24 ;
       ON CLICK { || LoadXmlFile( oTree, oSay ) } ;
-      ON SIZE { | o,x,y| o:Move(,, x - oSplit:nLeft - oSplit:nWidth - 10, y - 20 ) }
+      ON SIZE { | o, x, y | o:Move(,, x - oSplit:nLeft - oSplit:nWidth - 10, y - 20 ) }
 
    //@ 214, 100 SAY oSay ;
    //   CAPTION "" ;
@@ -50,13 +50,13 @@ FUNCTION DemoXmlTree( lWithDialog, oDlg )
       CAPTION "" ;
       SIZE 300, 300 ;
       STYLE WS_VSCROLL + WS_HSCROLL + ES_MULTILINE + ES_READONLY ;
-      ON SIZE { | o,x,y | o:Move(,, x - oSplit:nLeft - oSplit:nWidth - 10, y - 20 ) } ;
+      ON SIZE { | o, x, y | o:Move(,, x - oSplit:nLeft - oSplit:nWidth - 10, y - 20 ) } ;
       ON GETFOCUS { || hwg_Sendmessage( oSay:handle, EM_SETSEL, 0, 0 ) }
 
    @ 210, 70 SPLITTER oSplit ;
-      SIZE 4,260 ;
-      DIVIDE {oTree} FROM {oSay} ;
-      ON SIZE { |o,x,y| (x), o:Move(,,, y - 20 ) }
+      SIZE 4, 260 ;
+      DIVIDE { oTree } FROM { oSay } ;
+      ON SIZE { | o, x, y | (x), o:Move(,,, y - 20 ) }
 
    oSplit:bEndDrag := { || hwg_Redrawwindow( oSay:handle, ;
       RDW_ERASE + RDW_INVALIDATE + RDW_INTERNALPAINT + RDW_UPDATENOW ) }
@@ -91,34 +91,35 @@ STATIC FUNCTION BuildTree( oParent,aItems,oSay )
    FOR i := 1 TO alen
       IF ValType( aItems[i] ) == "C"
          IF ( cText := Utf82Ansi( aItems[i] ) ) != Nil
-            oParent:cargo += Chr(13)+Chr(10)+cText
+            oParent:cargo += Chr(13) + Chr(10) + cText
          ELSE
-            oParent:cargo += Chr(13)+Chr(10)+aItems[i]
+            oParent:cargo += Chr(13) + Chr(10) + aItems[i]
          ENDIF
       ELSE
          INSERT NODE oNode CAPTION aItems[i]:title TO oParent ON CLICK {|o|NodeOut(o,oSay)}
          oNode:cargo := ""
-         FOR j := 1 TO Len(aItems[i]:aAttr)
-            IF ( cText := Utf82Ansi( aItems[i]:aAttr[j,2] ) ) != Nil
-               oNode:cargo += aItems[i]:aAttr[j,1] + " = " + cText + Chr(13) + Chr(10)
+         FOR j := 1 TO Len( aItems[ i ]:aAttr )
+            IF ( cText := Utf82Ansi( aItems[ i ]:aAttr[ j, 2 ] ) ) != Nil
+               oNode:cargo += aItems[ i ]:aAttr[ j, 1 ] + " = " + cText + Chr(13) + Chr(10)
             ELSE
-               oNode:cargo += aItems[i]:aAttr[j,1] + " = " + aItems[i]:aAttr[j,2] + Chr(13) + Chr(10)
+               oNode:cargo += aItems[ i ]:aAttr[ j, 1 ] + " = " + ;
+                  aItems[ i ]:aAttr[ j, 2 ] + Chr(13) + Chr(10)
             ENDIF
          NEXT
-         IF !Empty(aItems[i]:aItems)
-            BuildTree( oNode,aItems[i]:aItems,oSay )
+         IF !Empty( aItems[ i ]:aItems )
+            BuildTree( oNode, aItems[ i ]:aItems, oSay )
          ENDIF
       ENDIF
    NEXT
 
 RETURN Nil
 
-STATIC FUNCTION NodeOut( o,oSay )
+STATIC FUNCTION NodeOut( o, oSay )
 
    IF o == Nil
-      oSay:SetText("")
+      oSay:SetText( "" )
    ELSE
-      oSay:SetText(o:cargo)
+      oSay:SetText( o:cargo )
    ENDIF
 
 RETURN Nil

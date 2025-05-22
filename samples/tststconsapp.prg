@@ -136,9 +136,9 @@ FUNCTION Main()
    LOCAL oWinMain
 
 #ifdef __PLATFORM__WINDOWS
-   oDir := "\"+Curdir()+"\"   && The complete path to program
+   oDir := "\" + Curdir() + "\"   && The complete path to program
 #else
-   oDir := "/"+Curdir()+"/"
+   oDir := "/" + Curdir() + "/"
 #endif
 
    INIT WINDOW oWinMain ;
@@ -231,7 +231,7 @@ FUNCTION START_PGM(cprgm,ccomm,laddpath,lcmd,lnotexe)
    IF cprgm == NIL
      RETURN NIL
    ENDIF
-   IF EMPTY(cprgm)
+   IF EMPTY( cprgm )
       RETURN NIL
    ENDIF
 
@@ -274,25 +274,25 @@ FUNCTION START_PGM(cprgm,ccomm,laddpath,lcmd,lnotexe)
       ckommando := ccomm + cprgm + cexeext
    ENDIF
 
-   IF lcmd .OR. FILE(ckommando)
+   IF lcmd .OR. FILE( ckommando )
 #ifdef __PLATFORM__WINDOWS
-      hwg_RunApp(ckommando)
+      hwg_RunApp( ckommando )
 #else
  //    hwg_RunConsoleApp(ckommando)  && sync mode
-      hwg_RunConsApp(ckommando)
+      hwg_RunConsApp( ckommando )
  #endif
    ELSE
-      SYS_FEHLST(ckommando)  && Display message for missing program file (Fehlstart)
+      SYS_FEHLST( ckommando )  && Display message for missing program file (Fehlstart)
    ENDIF
 
 RETURN NIL
 
-FUNCTION SYS_FEHLST(ckommando)
+FUNCTION SYS_FEHLST( ckommando )
 
 * Message for start of program with error
 * (program file not found)
 * ================================= *
-   hwg_MsgStop("Program file " + ckommando + " not found !","Program Start")
+   hwg_MsgStop( "Program file " + ckommando + " not found !", "Program Start" )
 
 RETURN 0
 

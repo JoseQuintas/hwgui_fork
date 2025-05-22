@@ -29,7 +29,7 @@ FUNCTION DemoSplitter( lWithDialog, oDlg, aInitList )
    IF lWithDialog
       INIT DIALOG oDlg ;
          TITLE "demosplitter.prg - splitter and treeview" ;
-         AT 200,0 ;
+         AT 200, 0 ;
          SIZE 600, 400 ;
          FONT oFont ;
          ON INIT { || BuildTree( oDlg, oTree, oTab ) }
@@ -42,7 +42,7 @@ FUNCTION DemoSplitter( lWithDialog, oDlg, aInitList )
 
    @ 10, 60 TREE oTree ;
       OF oDlg ;
-      SIZE 200,280 ;
+      SIZE 200, 280 ;
       EDITABLE ;
       BITMAP { cImage1, cImage2 }  ;
       ON SIZE { | o, x, y | (x), o:Move( ,,, y - 20 ) }
@@ -68,7 +68,7 @@ FUNCTION DemoSplitter( lWithDialog, oDlg, aInitList )
       ON SIZE { | o, x, y | (x), (y), o:Move( oTab:nLeft + oTab:nWidth - 26 ) } ;
 
    @ 210, 60 SPLITTER oSplit ;
-      SIZE 4,260 ;
+      SIZE 4, 260 ;
       DIVIDE { oTree } FROM { oTab, oGet } ;
       ON SIZE { | o, x, y | (x), o:Move(,,, y - 20 ) }
 
@@ -78,8 +78,7 @@ FUNCTION DemoSplitter( lWithDialog, oDlg, aInitList )
    //BuildTree( oDlg, oTree,oTab )
 
    IF lWithDialog
-      ACTIVATE DIALOG oDlg ;
-         CENTER // MAXIMIZED
+      ACTIVATE DIALOG oDlg CENTER
       oFont:Release()
    ENDIF
 
@@ -98,7 +97,7 @@ STATIC FUNCTION BuildTree( oDlg, oTree, oTab )
 
    oTree:bExpand := { || .T. }
 
-   (oDlg) // -w3 -es2
+   (oDlg) // warning -w3 -es2
 
 RETURN Nil
 
@@ -114,7 +113,7 @@ STATIC FUNCTION NodeOut( n, oTab )
 
    oTab:EndPage()
 
-   (n) // -w3 -es2
+   (n) // warning -w3 -es2
 
 RETURN Nil
 

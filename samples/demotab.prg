@@ -44,8 +44,8 @@ FUNCTION DemoTab( lWithDialog, oDlg )
    LOCAL oTab // oDlg2, oDlg3
    LOCAL aCombo := { "Aaaa","Bbbb" }
    LOCAL oBrw1, oBrw2
-   LOCAL aSample1 := { {"Alex",17}, {"Victor",42}, {"John",31} }
-   LOCAL aSample2 := { {"Line 1",10}, {"Line 2",22}, {"Line 3",40} }
+   LOCAL aSample1 := { { "Alex", 17 }, { "Victor", 42 }, { "John", 31 } }
+   LOCAL aSample2 := { { "Line 1", 10 }, { "Line 2", 22 }, { "Line 3", 40 } }
    LOCAL e1 := "Xxxx"
    LOCAL e2 := "Xxxx"
    LOCAL e3 := "Xxxx"
@@ -84,7 +84,7 @@ oTab:StartPage( "pagina2",aDlg2 ),    oTab:EndPage(),otab:changepage(1)
       ITEMS {} ID IDC_1 ;
       OF oDlg ;
       SIZE 504, 341 ;
-      STYLE WS_CHILD+WS_VISIBLE
+      STYLE WS_CHILD + WS_VISIBLE
 
 * REDEFINE TAB oTab ID IDC_1
 
@@ -101,25 +101,25 @@ oTab:StartPage( "pagina2",aDlg2 ),    oTab:EndPage(),otab:changepage(1)
 //   ON EXIT {||hwg_Msginfo("Exit"),.T.}
 
 
-      @ 65,92  CHECKBOX "Checkbox" ;
-         SIZE 149,22
+      @ 65, 92  CHECKBOX "Checkbox" ;
+         SIZE 149, 22
 
-      @ 65,123 CHECKBOX "Checkbox" ;
-         SIZE 149,22
+      @ 65, 123 CHECKBOX "Checkbox" ;
+         SIZE 149, 22
 
-      @ 65,163  EDITBOX e1 ;
+      @ 65, 163  EDITBOX e1 ;
          ID 103 ;
-         SIZE 134,24 ;
+         SIZE 134, 24 ;
          STYLE WS_CHILD + WS_TABSTOP + WS_BORDER
 
-      @ 65,201  EDITBOX e2 ;
+      @ 65, 201  EDITBOX e2 ;
          ID 104 ;
-         SIZE 134,24 ;
+         SIZE 134, 24 ;
          STYLE WS_CHILD + WS_TABSTOP + WS_BORDER
 
-      @ 65,240  EDITBOX e3 ;
+      @ 65, 240  EDITBOX e3 ;
          ID 105 ;
-         SIZE 134,24 ;
+         SIZE 134, 24 ;
          STYLE WS_CHILD + WS_TABSTOP + WS_BORDER
 
 *   REDEFINE GET e1 ID 103
@@ -136,24 +136,24 @@ oTab:StartPage( "pagina2",aDlg2 ),    oTab:EndPage(),otab:changepage(1)
 //   STYLE WS_CHILD+WS_VISIBLE ;
 //   CLIPPER NOEXIT NOEXITESC ON EXIT {||hwg_Msginfo("Exit"),.T.}
 
-      @ 36,108 COMBOBOX oCombobox1 ;
+      @ 36, 108 COMBOBOX oCombobox1 ;
          ITEMS aCombo ;
-         SIZE 87,96 ;
+         SIZE 87, 96 ;
          STYLE CBS_DROPDOWNLIST + WS_TABSTOP
 
-      @ 38,153 CHECKBOX "Checkbox" ;
-         SIZE 80,22
+      @ 38, 153 CHECKBOX "Checkbox" ;
+         SIZE 80, 22
 
-      @ 165,81 BROWSE oBrw1 ;
+      @ 165, 81 BROWSE oBrw1 ;
          ARRAY ;
-         SIZE 103,135 ;  && ID 104
+         SIZE 103, 135 ;  && ID 104
          STYLE WS_CHILD + WS_VISIBLE + WS_BORDER + WS_VSCROLL + WS_HSCROLL + WS_TABSTOP
 
       hwg_CREATEARLIST( oBrw1,aSample1 )
 
-      @ 300,81 BROWSE oBrw2 ;
+      @ 300, 81 BROWSE oBrw2 ;
          ARRAY ;
-         SIZE 103,135 ; && ID 105
+         SIZE 103, 135 ; && ID 105
          STYLE WS_CHILD + WS_VISIBLE + WS_BORDER + WS_VSCROLL + WS_HSCROLL + WS_TABSTOP
 
       hwg_CREATEARLIST( oBrw2,aSample2 )

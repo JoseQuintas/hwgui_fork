@@ -59,7 +59,7 @@ FUNCTION DemoImage2( lWithDialog, oDlg )
    IF lWithDialog
       INIT DIALOG oDlg ;
          TITLE "demoimage2.prg - Dialog icon test" ;
-         AT 100,80 ;
+         AT 100, 80 ;
          SIZE 640, 480 ;
          ICON oObj_Window
    ENDIF

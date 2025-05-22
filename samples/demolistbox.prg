@@ -11,7 +11,7 @@ FUNCTION DemoListbox( lWithDialog, oDlg )
       INIT DIALOG oDlg ;
          TITLE "demolistbox.prg - listbox sample"  ;
          AT 0,0  ;
-         SIZE 450,350   ;
+         SIZE 450, 350   ;
          FONT oFont
    ENDIF
 

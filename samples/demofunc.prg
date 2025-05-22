@@ -199,26 +199,26 @@ FUNCTION DemoFunc( lWithDialog, oDlg )
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK  { | | CENT_ON() }
+      ON CLICK  { || CENT_ON() }
 
    @ ColPos(), nRowPos BUTTON oButton3 ;
       CAPTION "CENTURY OFF"   ;
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK  { | | CENT_OFF() }
+      ON CLICK  { || CENT_OFF() }
 
    @ ColPos(), nRowPos BUTTON oButton4 ;
       CAPTION "DATE()"   ;
          SIZE BUTTON_WIDTH, BUTTON_HEIGHT FONT oFont  ;
          STYLE WS_TABSTOP + BS_FLAT ;
-         ON CLICK { | |Funkt(DATE(),"D","DATE()") }
+         ON CLICK { || Funkt( DATE(), "D", "DATE()" ) }
 
    @ ColPos(), nRowPos BUTTON oButton5 ;
       CAPTION "Summary"   ;
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | |  fSUMM() }
+      ON CLICK { ||  fSUMM() }
 
    @ ColPos(), nRowPos BUTTON oButton6 ;
       CAPTION "hwg_GetUTCTimeDate()" ;
@@ -226,14 +226,14 @@ FUNCTION DemoFunc( lWithDialog, oDlg )
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK ;
-       { | |Funkt(hwg_GetUTCTimeDate(),"C","hwg_GetUTCTimeDate()") }
+       { || Funkt( hwg_GetUTCTimeDate(), "C", "hwg_GetUTCTimeDate()" ) }
 
    @ ColPos(), nRowPos BUTTON oButton7 ;
       CAPTION "hwg_getCentury()" ;
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | | Funkt(hwg_getCentury(),"O","hwg_getCentury()") }
+      ON CLICK { || Funkt( hwg_getCentury(), "O", "hwg_getCentury()" ) }
 
    /* Sample for a Windows only function,
       use a intermediate function with compiler switch for platform windows   */
@@ -243,63 +243,63 @@ FUNCTION DemoFunc( lWithDialog, oDlg )
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | | Funkt(GET_WINDIR(),"C","hwg_GetWindowsDir()") }
+      ON CLICK { || Funkt( GET_WINDIR(), "C", "hwg_GetWindowsDir()" ) }
 
    @ ColPos(), nRowPos BUTTON oButton9 ;
       CAPTION "hwg_GetTempDir()" ;
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | |Funkt(hwg_GetTempDir(),"C","hwg_GetTempDir()") }
+      ON CLICK { || Funkt(hwg_GetTempDir(), "C", "hwg_GetTempDir()" ) }
 
    @ ColPos(), nRowPos BUTTON oButton9 ;
       CAPTION "hwg_CreateTempfileName()" ;
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | |Funkt(hwg_CreateTempfileName(),"C","hwg_CreateTempfileName()") }
+      ON CLICK { || Funkt( hwg_CreateTempfileName(), "C", "hwg_CreateTempfileName()" ) }
 
    @ ColPos(), nRowPos BUTTON oButton12 ;
       CAPTION "GetWindowsDir Full" ;
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | | Funkt(GET_WINDIR_FULL(),"C","GET_WINDIR_FULL()") }
+      ON CLICK { || Funkt( GET_WINDIR_FULL(), "C", "GET_WINDIR_FULL()" ) }
 
    @ ColPos(), nRowPos BUTTON oButton15 ;
       CAPTION "CurDir()" ;
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | | Funkt(CurDir(),"C","CurDir()") }
+      ON CLICK { || Funkt( CurDir(), "C", "CurDir()" ) }
 
    @ ColPos(), nRowPos BUTTON oButton16 ;
       CAPTION "hwg_CurDir()" ;
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | | Funkt(hwg_CurDir(),"C","hwg_CurDir()") }
+      ON CLICK { || Funkt( hwg_CurDir(), "C", "hwg_CurDir()" ) }
 
    @ ColPos(), nRowPos  BUTTON oButton17 ;
       CAPTION "hwg_GetDateANSI()" ;
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | | Funkt(hwg_GetDateANSI(),"C","hwg_GetDateANSI()") }
+      ON CLICK { || Funkt( hwg_GetDateANSI(), "C", "hwg_GetDateANSI()" ) }
 
    @ ColPos(), nRowPos BUTTON oButton18 ;
       CAPTION "hwg_GetUTCDateANSI()" ;
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | | Funkt(hwg_GetUTCDateANSI(),"C","hwg_GetUTCDateANSI()") }
+      ON CLICK { || Funkt( hwg_GetUTCDateANSI(), "C", "hwg_GetUTCDateANSI()" ) }
 
    @ ColPos(), nRowPos BUTTON oButton19 ;
       CAPTION "hwg_GetUTCTime()" ;
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | | Funkt(hwg_GetUTCTime(),"C","hwg_GetUTCTime()") }
+      ON CLICK { || Funkt( hwg_GetUTCTime(), "C", "hwg_GetUTCTime()" ) }
 
    * Hide / recovery of mouse cursor in extra dialog
    @ ColPos(), nRowPos BUTTON oButton20 ;
@@ -307,28 +307,28 @@ FUNCTION DemoFunc( lWithDialog, oDlg )
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | | HIDE_CURSOR ( oFont, oDlg ) }
+      ON CLICK { || HIDE_CURSOR( oFont, oDlg ) }
 
    @ ColPos(), nRowPos BUTTON oButton22 ;
       CAPTION "hwg_IsLeapYear()" ;
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | | TestLeapYear() }
+      ON CLICK { || TestLeapYear() }
 
    @ ColPos(), nRowPos BUTTON oButton23 ;
       CAPTION "hwg_Has_Win_Euro_Support()" ;
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-         ON CLICK { | |  Funkt(hwg_Has_Win_Euro_Support(),"L","hwg_Has_Win_Euro_Support()" ) }
+         ON CLICK { ||  Funkt( hwg_Has_Win_Euro_Support(), "L", "hwg_Has_Win_Euro_Support()" ) }
 
    @ ColPos(), nRowPos BUTTON oButton24 ;
       CAPTION "hwg_FileModTimeU()" ;
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | |  Test_FileModTimeU() }
+      ON CLICK { || Test_FileModTimeU() }
 
    @ ColPos(), nRowPos BUTTON oButton25 ;
       CAPTION "hwg_FileModTime()" ;
@@ -342,49 +342,49 @@ FUNCTION DemoFunc( lWithDialog, oDlg )
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | | Funkt(hwg_Get_Time_Shift(),"N","hwg_Get_Time_Shift()") }
+      ON CLICK { || Funkt( hwg_Get_Time_Shift(), "N", "hwg_Get_Time_Shift()" ) }
 
    @ ColPos(), nRowPos BUTTON oButton28 ;
       CAPTION "hwg_GUIType()" ;
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | | Funkt(hwg_GUIType(),"C","hwg_GUIType()") }
+      ON CLICK { || Funkt( hwg_GUIType(), "C", "hwg_GUIType()" ) }
 
    @ ColPos(), nRowPos BUTTON oButton29 ;
       CAPTION "hwg_RunApp()" ;
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | | do_the_RunApp() }
+      ON CLICK { || do_the_RunApp() }
 
     @ ColPos(), nRowPos BUTTON obutton37 ;
        CAPTION "hwg_RunConsoleApp()" ;
        SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
        FONT oFont  ;
        STYLE WS_TABSTOP + BS_FLAT ;
-       ON CLICK { | | do_the_RunConsoleApp() }
+       ON CLICK { || do_the_RunConsoleApp() }
 
    @ ColPos(), nRowPos BUTTON oButton30 ;
       CAPTION "hwg_HdSerial()" ;
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | | Test_hwg_HdSerial() }
+      ON CLICK { || Test_hwg_HdSerial() }
 
    @ ColPos(), nRowPos BUTTON oButton31 ;
       CAPTION "hwg_HdGetSerial()" ;
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | | Test_hwg_HdGetSerial() }
+      ON CLICK { || Test_hwg_HdGetSerial() }
 
    @ ColPos(), nRowPos BUTTON oButton32 ;
       CAPTION "hwg_ProcFileExt()" ;
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | | Test_hwg_ProcFileExt() }
+      ON CLICK { || Test_hwg_ProcFileExt() }
 
    /* Added August 2024 also for MacOS port */
 
@@ -393,35 +393,35 @@ FUNCTION DemoFunc( lWithDialog, oDlg )
        SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
        FONT oFont  ;
        STYLE WS_TABSTOP + BS_FLAT ;
-       ON CLICK { | | Test_hb_os() }
+       ON CLICK { || Test_hb_os() }
 
     @ ColPos(), nRowPos BUTTON oButton34 ;
        CAPTION "Build date" ;
        SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
        FONT oFont  ;
        STYLE WS_TABSTOP + BS_FLAT ;
-       ON CLICK { | | Test_BuildDatetime() }
+       ON CLICK { || Test_BuildDatetime() }
 
     @ ColPos(), nRowPos BUTTON oButton35 ;
        CAPTION "Origin path" ;
        SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
        FONT oFont  ;
        STYLE WS_TABSTOP + BS_FLAT ;
-       ON CLICK { | | Test_originpath(coriginp) }
+       ON CLICK { || Test_originpath( coriginp ) }
 
    @ ColPos(), nRowPos BUTTON obutton36 ;
       CAPTION "hwg_EOLStyle()" ;
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | | Test_hwg_EOLStyle() }
+      ON CLICK { || Test_hwg_EOLStyle() }
 
    @ ColPos(), nRowPos BUTTON obutton38 ;
       CAPTION "hwg_GetEpoch()" ;
       SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
       FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
-      ON CLICK { | | Test_hwg_GetEpoch() }
+      ON CLICK { || Test_hwg_GetEpoch() }
 
    @ ColPos(), nRowPos BUTTON oButton22 ;
       CAPTION "hwg_IsWindows()" ;
@@ -485,7 +485,7 @@ STATIC FUNCTION HIDE_CURSOR ( oFont, oDlgMain )
 
    INIT DIALOG odlg ;
       TITLE "Hide / show cursor"  ;
-      AT 0,0   ;
+      AT 0, 0   ;
       SIZE 400 , 200 ;
       FONT oFont ;
       CLIPPER
@@ -493,7 +493,7 @@ STATIC FUNCTION HIDE_CURSOR ( oFont, oDlgMain )
    * Hide cursor only in dialog window.
    hmain := odlg:handle
 
-   @ 25 , 35 BUTTON oButton1 ;
+   @ 25, 35 BUTTON oButton1 ;
       CAPTION "hwg_ShowCursor(.F.)" ;
       SIZE 140, BUTTON_HEIGHT ;
       FONT oFont  ;
@@ -502,14 +502,14 @@ STATIC FUNCTION HIDE_CURSOR ( oFont, oDlgMain )
         { || Funkt( ncursor := hwg_ShowCursor(.F.,hmain,ndefaultcsrtype),"N","hwg_ShowCursor(.F.)") , ;
             hwg_Setfocus(oButton2:handle) }
 
-   @ 180 , 35 BUTTON oButton2 ;
+   @ 180, 35 BUTTON oButton2 ;
       CAPTION "hwg_ShowCursor(.T.)" ;
       SIZE 140, BUTTON_HEIGHT FONT oFont  ;
       STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK ;
         { || Funkt( ncursor := hwg_ShowCursor(.T.,hmain,ndefaultcsrtype),"N","hwg_ShowCursor(.T.)") }
 
-   @ 25 , 70 BUTTON oButton3 ;
+   @ 25, 70 BUTTON oButton3 ;
       CAPTION "Return" ;
       SIZE 140, BUTTON_HEIGHT ;
       FONT oFont  ;
@@ -541,15 +541,15 @@ STATIC FUNCTION Funkt( rval, cType , cfunkt)
 
    DO CASE
    CASE cType == "C"
-      hwg_MsgInfo("Return Value: >" + rval + "<", "Function: " + cfunkt )
+      hwg_MsgInfo( "Return Value: >" + rval + "<", "Function: " + cfunkt )
    CASE cType == "N"
-      hwg_MsgInfo("Return Value: >" + ALLTRIM(STR(rval)) + "<", "Function: " + cfunkt )
+      hwg_MsgInfo( "Return Value: >" + ALLTRIM( STR( rval ) ) + "<", "Function: " + cfunkt )
    CASE cType == "L"
-      hwg_MsgInfo("Return Value: >" + IIF(rval,"True","False") + "<", "Function: " + cfunkt )
+      hwg_MsgInfo( "Return Value: >" + IIF( rval,"True", "False" ) + "<", "Function: " + cfunkt )
    CASE cType == "D"
-      hwg_MsgInfo("Return Value: >" + DTOC(rval) + "<", "Function: " + cfunkt )
+      hwg_MsgInfo( "Return Value: >" + DTOC( rval ) + "<", "Function: " + cfunkt )
    CASE cType == "O"
-      hwg_MsgInfo("Return Value: >" + IIF(rval,"ON","OFF") + "<", "Function: " + cfunkt )
+      hwg_MsgInfo( "Return Value: >" + IIF( rval, "ON", "OFF" ) + "<", "Function: " + cfunkt )
    ENDCASE
 
 RETURN Nil
@@ -579,15 +579,15 @@ STATIC FUNCTION fSUMM()
   hwg_Msginfo( ;
        "OS(): " + OS() + CHR(10) + ;
        "Hwgui Version  : " + hwg_Version() + CHR(10) + ;
-       "Windows : " + TotF(hwg_isWindows() )  + CHR(10) + ;
-       "Windows 7: " + TotF(hwg_isWin7() ) + CHR(10) + ;
-       "Windows 10: " + TotF(hwg_isWin10() ) + CHR(10) + ;
-       "Windows Maj.Vers.: " + N2STR(hwg_GetWinMajorVers() ) + CHR(10) + ;
-       "Windows Min.Vers.: " + N2STR(hwg_GetWinMinorVers() ) + CHR(10) + ;
-       "Unicode : " + TotF(hwg__isUnicode() ) + CHR(10) + ;
+       "Windows : " + TotF( hwg_isWindows() )  + CHR(10) + ;
+       "Windows 7: " + TotF( hwg_isWin7() ) + CHR(10) + ;
+       "Windows 10: " + TotF( hwg_isWin10() ) + CHR(10) + ;
+       "Windows Maj.Vers.: " + N2STR( hwg_GetWinMajorVers() ) + CHR(10) + ;
+       "Windows Min.Vers.: " + N2STR( hwg_GetWinMinorVers() ) + CHR(10) + ;
+       "Unicode : " + TotF( hwg__isUnicode() ) + CHR(10) + ;
        "Default user lang. :" + HWG_DEFUSERLANG() + CHR(10) +  ;
        "Locale :" + hwg_GetLocaleInfo() + CHR(10) +  ;
-       "Locale (N) :" + N2STR(hwg_GetLocaleInfoN()) + CHR(10) +  ;
+       "Locale (N) :" + N2STR( hwg_GetLocaleInfoN() ) + CHR(10) +  ;
        "UTC :" + HWG_GETUTCTIMEDATE() + CHR(10) +  ;
        "GTK : " + TotF(bgtk)  + CHR(10) + ;
        "Dir Separator: " + cDirSep ;
@@ -632,7 +632,7 @@ STATIC FUNCTION TestLeapYear()
       AT 738, 134 ;
       SIZE 516, 336 ;
       NOEXIT ;
-      STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
+      STYLE WS_SYSMENU + WS_SIZEBOX + WS_VISIBLE
 
    @ 54, 44 SAY oLabel1 ;
       CAPTION "Enter a year 1583 and higher"  ;
@@ -648,13 +648,13 @@ STATIC FUNCTION TestLeapYear()
       CAPTION "OK"   ;
       SIZE 80, 32 ;
       STYLE WS_TABSTOP + BS_FLAT   ;
-      ON CLICK { | | Res_LeapYear(nyeart) }
+      ON CLICK { || Res_LeapYear( nyeart ) }
 
    @ 200, 181 BUTTON oButton2 ;
       CAPTION "Cancel"   ;
       SIZE 80, 32 ;
       STYLE WS_TABSTOP + BS_FLAT   ;
-      ON CLICK { | | oTestLeapYear:Close() }
+      ON CLICK { || oTestLeapYear:Close() }
 
    ACTIVATE DIALOG oTestLeapYear CENTER
 
@@ -664,8 +664,8 @@ STATIC FUNCTION Res_LeapYear( nyeart )
 
    LOCAL cRet
 
-   cRet := IIF( hwg_IsLeapYear(nyeart), "TRUE", "FALSE" )
-   hwg_MsgInfo("Result of Res_LeapYear(" + ALLTRIM(STR(nyeart)) + ")=" + cRet , "hwg_IsLeapYear()" )
+   cRet := IIF( hwg_IsLeapYear( nyeart ), "TRUE", "FALSE" )
+   hwg_MsgInfo("Result of Res_LeapYear(" + ALLTRIM( STR( nyeart ) ) + ")=" + cRet , "hwg_IsLeapYear()" )
 
 RETURN Nil
 
@@ -675,7 +675,7 @@ STATIC FUNCTION FILE_SEL()
 
    * Get current directory as start directory
    cstartvz := Curdir()
-   fname := hwg_Selectfile("Select a file" , "*.*", cstartvz )
+   fname := hwg_Selectfile( "Select a file" , "*.*", cstartvz )
 
 RETURN fname
 
@@ -687,9 +687,9 @@ STATIC FUNCTION Test_FileModTimeU()
    IF EMPTY( fn )
       RETURN NIL
    ENDIF
-   ctim := hwg_FileModTimeU(fn)
-   hwg_MsgInfo("Modification date and time (UTC) of file" + ;
-      CHR(10) + fn + " is :" + CHR(10) +  ctim, "Result of hwg_FileModTimeU()")
+   ctim := hwg_FileModTimeU( fn )
+   hwg_MsgInfo( "Modification date and time (UTC) of file" + ;
+      CHR(10) + fn + " is :" + CHR(10) +  ctim, "Result of hwg_FileModTimeU()" )
 
 RETURN Nil
 
@@ -701,9 +701,9 @@ STATIC FUNCTION Test_FileModTime()
    IF EMPTY( fn )
       RETURN Nil
    ENDIF
-   ctim := hwg_FileModTime(fn)
-   hwg_MsgInfo("Modification date and time (local) of file" + ;
-      CHR(10) + fn + " is :" + CHR(10) +  ctim, "Result of hwg_FileModTime()")
+   ctim := hwg_FileModTime( fn )
+   hwg_MsgInfo( "Modification date and time (local) of file" + ;
+      CHR(10) + fn + " is :" + CHR(10) +  ctim, "Result of hwg_FileModTime()" )
 
 RETURN Nil
 
@@ -712,23 +712,23 @@ STATIC FUNCTION do_the_RunApp()
    LOCAL cCmd , rc , cgt
 
    cCmd := _hwg_RunApp()
-   IF EMPTY(cCmd)
+   IF EMPTY( cCmd )
       RETURN NIL
    ENDIF
 
-   rc := hwg_RunApp(cCmd)
+   rc := hwg_RunApp( cCmd )
 
    cgt := hwg_GUIType()
 
    DO CASE
    CASE cgt == "WinAPI"
-      hwg_MsgInfo("Return Code: " + ALLTRIM(STR(rc)),"Result of hwg_RunApp()")
+      hwg_MsgInfo( "Return Code: " + ALLTRIM( STR( rc ) ), "Result of hwg_RunApp()" )
    CASE cgt == "GTK2"
-      hwg_MsgInfo("Return Code: " + ALLTRIM(STR(rc)),"Result of hwg_RunApp()")
-//  hwg_MsgInfo("Return Code: " + hb_ValToExp(),"Result of hwg_RunApp()")
+      hwg_MsgInfo( "Return Code: " + ALLTRIM( STR( rc ) ), "Result of hwg_RunApp()" )
+//  hwg_MsgInfo( "Return Code: " + hb_ValToExp(),"Result of hwg_RunApp()")
    CASE cgt == "GTK3"
-      hwg_MsgInfo("Return Code: " + ALLTRIM(STR(rc)),"Result of hwg_RunApp()")
-//  hwg_MsgInfo("Return Code: " + hb_ValToExp(),"Result of hwg_RunApp()")
+      hwg_MsgInfo( "Return Code: " + ALLTRIM( STR( rc ) ), "Result of hwg_RunApp()" )
+//  hwg_MsgInfo( "Return Code: " + hb_ValToExp(),"Result of hwg_RunApp()")
    ENDCASE
 
 RETURN NIL
@@ -738,30 +738,30 @@ STATIC FUNCTION do_the_RunConsoleApp()
    LOCAL cCmd , rc , cgt
 
 * Get command
-   cCmd := _hwg_RunApp("hwg_RunConsoleApp()")
+   cCmd := _hwg_RunApp( "hwg_RunConsoleApp()" )
    IF EMPTY(cCmd)
       RETURN NIL
    ENDIF
 
-   rc := hwg_RunConsoleApp(cCmd,"output.txt")
+   rc := hwg_RunConsoleApp( cCmd, "output.txt" )
 
    cgt := hwg_GUIType()
 
    DO CASE
    CASE cgt == "WinAPI"
-      hwg_MsgInfo("Return Code: " + ALLTRIM(STR(rc)),"Result of hwg_RunConsoleApp()")
+      hwg_MsgInfo( "Return Code: " + ALLTRIM( STR( rc ) ), "Result of hwg_RunConsoleApp()" )
    CASE cgt == "GTK2"
-      hwg_MsgInfo("Return Code: " + ALLTRIM(STR(rc)),"Result of hwg_RunConsoleApp()")
-//  hwg_MsgInfo("Return Code: " + hb_ValToExp(),"Result of hwg_RunConsoleApp()")
+      hwg_MsgInfo( "Return Code: " + ALLTRIM( STR( rc ) ), "Result of hwg_RunConsoleApp()" )
+//  hwg_MsgInfo( "Return Code: " + hb_ValToExp(), "Result of hwg_RunConsoleApp()" )
    CASE cgt == "GTK3"
-      hwg_MsgInfo("Return Code: " + ALLTRIM(STR(rc)),"Result of hwg_RunConsoleApp()")
-//  hwg_MsgInfo("Return Code: " + hb_ValToExp(),"Result of hwg_RunConsoleApp()")
+      hwg_MsgInfo( "Return Code: " + ALLTRIM( STR( rc ) ), "Result of hwg_RunConsoleApp()" )
+//  hwg_MsgInfo( "Return Code: " + hb_ValToExp(), "Result of hwg_RunConsoleApp()" )
    ENDCASE
 
 RETURN NIL
 
 
-STATIC FUNCTION _hwg_RunApp(cpcmd)
+STATIC FUNCTION _hwg_RunApp( cpcmd )
 
    LOCAL _hwg_RunApp_test
    LOCAL oLabel1, oEditbox1, oButton1, oButton2
@@ -773,13 +773,13 @@ STATIC FUNCTION _hwg_RunApp(cpcmd)
   ENDIF
 
   cCmd := SPACE(80)
-  cCmd := hwg_GET_Helper(cCmd, 80)
+  cCmd := hwg_GET_Helper( cCmd, 80 )
 
   INIT DIALOG _hwg_RunApp_test ;
      TITLE cpcmd ;
      AT 315, 231 ;
      SIZE 940, 239 ;
-     STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
+     STYLE WS_SYSMENU + WS_SIZEBOX + WS_VISIBLE
 
 
    @ 80,32 SAY oLabel1 ;
@@ -835,30 +835,30 @@ STATIC FUNCTION GetCValue(cPreset,cTitle,cQuery,nlaenge,lcaval)
   ENDIF
 
   IF nlaenge == NIL
-     nlaenge := LEN(cPreset)
+     nlaenge := LEN( cPreset )
   ELSE
      IF EMPTY(cpreset)
-         cpreset := SPACE(nlaenge)
+         cpreset := SPACE( nlaenge )
       ELSE
-         cpreset := PADR(cpreset,nlaenge)
+         cpreset := PADR( cpreset, nlaenge )
       ENDIF
    ENDIF
 
    lcancel := .T.
 
-   cPreset := hwg_GET_Helper(cPreset, nlaenge )
+   cPreset := hwg_GET_Helper( cPreset, nlaenge )
 
    cNewValue := cPreset
 
    INIT DIALOG _enterC ;
       TITLE cTitle ;
       AT 315, 231 ;
-      SIZE 940,239 ;
-      STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
+      SIZE 940, 239 ;
+      STYLE WS_SYSMENU + WS_SIZEBOX + WS_VISIBLE
 
    @ 80, 32 SAY oLabel1 ;
       CAPTION cQuery ;
-      SIZE 587,22
+      SIZE 587, 22
 
    @ 80, 71 GET oEditbox1 ;
       VAR cNewValue  ;
@@ -893,14 +893,14 @@ STATIC FUNCTION Test_hwg_HdSerial()
 
    LOCAL cDriveletter
 
-   cDriveletter := GetCValue("C","hwg_HdSerial()", "Enter drive letter:",1,.F.)
-   IF .NOT. EMPTY(cDriveletter)
+   cDriveletter := GetCValue( "C", "hwg_HdSerial()", "Enter drive letter:", 1, .F. )
+   IF .NOT. EMPTY( cDriveletter )
       cDriveletter := cDriveletter + ":\"
    ENDIF
 
-   IF .NOT. EMPTY(cDriveletter)
-      hwg_MsgInfo("Serial number of drive " + cDriveletter + " is:" + CHR(10) + ;
-      hwg_HdSerial(ALLTRIM(cDriveletter)))
+   IF .NOT. EMPTY( cDriveletter )
+      hwg_MsgInfo( "Serial number of drive " + cDriveletter + " is:" + CHR(10) + ;
+      hwg_HdSerial( ALLTRIM( cDriveletter ) ) )
    ENDIF
 
 RETURN NIL
@@ -909,14 +909,14 @@ STATIC FUNCTION Test_hwg_HdGetSerial()
 
    LOCAL cDriveletter
 
-   cDriveletter := GetCValue("C","hwg_HdGetSerial()", "Enter drive letter:",1,.F.)
-   IF .NOT. EMPTY(cDriveletter)
+   cDriveletter := GetCValue( "C", "hwg_HdGetSerial()", "Enter drive letter:", 1, .F. )
+   IF .NOT. EMPTY( cDriveletter )
       cDriveletter := cDriveletter + ":\"
    ENDIF
 
-   IF .NOT. EMPTY(cDriveletter)
-      hwg_MsgInfo("Serial number of drive " + cDriveletter + " is:" + CHR(10) + ;
-         ALLTRIM(STR(hwg_HdGetSerial(ALLTRIM(cDriveletter)))))
+   IF .NOT. EMPTY( cDriveletter )
+      hwg_MsgInfo( "Serial number of drive " + cDriveletter + " is:" + CHR(10) + ;
+         ALLTRIM( STR( hwg_HdGetSerial( ALLTRIM( cDriveletter ) ) ) ) )
    ENDIF
 
 RETURN NIL
@@ -932,30 +932,30 @@ STATIC FUNCTION Test_hwg_ProcFileExt()
      TITLE "hwg_ProcFileExt()" ;
      AT 488, 108 ;
      SIZE 528, 605 ;   && Previous: SIZE 528,465
-     STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
+     STYLE WS_SYSMENU + WS_SIZEBOX + WS_VISIBLE
 
 
-   @ 130,13 SAY oLabel16 ;
+   @ 130, 13 SAY oLabel16 ;
       CAPTION "Set to file extension .prg"  ;
       SIZE 271, 22
 
    * After test case number in comment line: the expected result
 
    * 1 : test.prg
-   @ 40,50 SAY oLabel1 ;
+   @ 40, 50 SAY oLabel1 ;
       CAPTION "test.txt"  ;
-      SIZE 152,22
+      SIZE 152, 22
 
-   @ 237,50 SAY oLabel2 ;
+   @ 237, 50 SAY oLabel2 ;
       CAPTION ">"  ;
       SIZE 29, 22
 
-   @ 338,50 SAY oLabel3 ;
-      CAPTION hwg_ProcFileExt("test.txt","prg")  ;
+   @ 338, 50 SAY oLabel3 ;
+      CAPTION hwg_ProcFileExt( "test.txt", "prg" )   ;
       SIZE 162, 22
    * 2 C:\temp.dir\test.prg
 
-   @ 40,100 SAY oLabel4 ;
+   @ 40, 100 SAY oLabel4 ;
       CAPTION "C:\temp.dir\test.txt"  ;
       SIZE 135, 22
 
@@ -964,7 +964,7 @@ STATIC FUNCTION Test_hwg_ProcFileExt()
       SIZE 29, 20
 
    @ 338,100 SAY oLabel6 ;
-      CAPTION hwg_ProcFileExt("C:\temp.dir\test.txt","prg",,"\")  ;
+      CAPTION hwg_ProcFileExt( "C:\temp.dir\test.txt", "prg",, "\" )  ;
       SIZE 155, 22
 
    * 3 C:\temp.\test.prg
@@ -990,7 +990,7 @@ STATIC FUNCTION Test_hwg_ProcFileExt()
       SIZE 29, 22
 
    @ 338,200 SAY oLabel12 ;
-      CAPTION hwg_ProcFileExt("/home/temp.dir/test.txt","prg",,"/")  ;
+      CAPTION hwg_ProcFileExt( "/home/temp.dir/test.txt","prg",, "/" )  ;
       SIZE 161, 22
 
    * 5 : /home/temp./test.prg
@@ -1003,7 +1003,7 @@ STATIC FUNCTION Test_hwg_ProcFileExt()
       SIZE 29, 22
 
    @ 338,250 SAY oLabel15 ;
-      CAPTION hwg_ProcFileExt("/home/temp./test","prg",,"/")  ;
+      CAPTION hwg_ProcFileExt( "/home/temp./test", "prg",, "/" )  ;
       SIZE 157, 22
 
    * 6 : /home/temp./test
@@ -1017,7 +1017,7 @@ STATIC FUNCTION Test_hwg_ProcFileExt()
       SIZE 29, 22
 
    @ 338,300 SAY oLabel19 ;
-      CAPTION hwg_ProcFileExt("/home/temp./test.xyz","",,"/")  ;
+      CAPTION hwg_ProcFileExt( "/home/temp./test.xyz", "",, "/" )  ;
       SIZE 157, 22
 
    * 7 : /home/temp./test
@@ -1031,7 +1031,7 @@ STATIC FUNCTION Test_hwg_ProcFileExt()
       SIZE 29, 22
 
    @ 338,350 SAY oLabel22 ;
-      CAPTION hwg_ProcFileExt("/home/temp./test",,,"/")  ;
+      CAPTION hwg_ProcFileExt( "/home/temp./test",,, "/" )  ;
       SIZE 157, 22
 
    * 8 : /home/temp/test
@@ -1070,15 +1070,15 @@ STATIC FUNCTION Test_BuildDatetime()
 
 * Display build date by reading
 * Harbour predefined macros
-   hwg_MsgInfo("Build date = " + __DATE__ + CHR(10) + ;
+   hwg_MsgInfo( "Build date = " + __DATE__ + CHR(10) + ;
       "Build time = " + __TIME__ , "Build"  )
 
 RETURN NIL
 
 STATIC FUNCTION Test_originpath(coriginp)
 
-   hwg_MsgInfo("Origin path and name is :" + coriginp + CHR(10) + ;
-     "Changed to directory at start : " + PWD() , "Test Originpath")
+   hwg_MsgInfo( "Origin path and name is :" + coriginp + CHR(10) + ;
+     "Changed to directory at start : " + PWD() , "Test Originpath" )
 
 RETURN NIL
 
@@ -1093,9 +1093,9 @@ STATIC FUNCTION PWD()
 
 #ifdef __PLATFORM__WINDOWS
   * Usage of hwg_CleanPathname() avoids C:\\
-   oDir := hwg_CleanPathname(HB_curdrive() + ":\" + Curdir() + "\")
+   oDir := hwg_CleanPathname( HB_curdrive() + ":\" + Curdir() + "\" )
 #else
-   oDir := hwg_CleanPathname("/"+Curdir()+"/")
+   oDir := hwg_CleanPathname( "/" + Curdir() + "/" )
 #endif
 
 RETURN oDir
@@ -1115,7 +1115,7 @@ FUNCTION Test_hwg_EOLStyle()
    OTHERWISE
       cretuv := "EOLStyle unknown"
    ENDCASE
-   hwg_MsgInfo(cretuv,"hwg_EOLStyle()")
+   hwg_MsgInfo( cretuv, "hwg_EOLStyle()" )
 
 RETURN NIL
 
@@ -1124,7 +1124,7 @@ STATIC FUNCTION Test_hwg_GetEpoch()
    LOCAL nepoch
 
    nepoch := hwg_GetEpoch()
-   Funkt( nepoch , "N" , "hwg_GetEpoch()")
+   Funkt( nepoch , "N" , "hwg_GetEpoch()" )
 
 RETURN NIL
 

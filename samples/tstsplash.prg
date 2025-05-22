@@ -51,6 +51,6 @@ FUNCTION Main()
 
    ACTIVATE WINDOW oMainWindow CENTER
 
-   (oSplash) // -w3 -es2
+   (oSplash) // warning -w3 -es2
 
 RETURN Nil

@@ -29,17 +29,17 @@ FUNCTION Main()
    INIT WINDOW oMainWindow ;
       MAIN ;
       TITLE "Creating monochrome bitmap file" ;
-      AT 168,50 ;
-      SIZE 250,150
+      AT 168, 50 ;
+      SIZE 250, 150
 
-   @ 20,50 BUTTON oButton1 ;
+   @ 20, 50 BUTTON oButton1 ;
       CAPTION "Test";
-      ON CLICK {|| Testen()} ;
-      SIZE 80,32
+      ON CLICK { || Testen() } ;
+      SIZE 80, 32
 
-   @ 120,50 BUTTON oButton2 ;
+   @ 120, 50 BUTTON oButton2 ;
       CAPTION "Quit";
-      ON CLICK {|| oMainWindow:Close } ;
+      ON CLICK { || oMainWindow:Close } ;
       SIZE 80,32
 
    ACTIVATE WINDOW oMainWindow CENTER

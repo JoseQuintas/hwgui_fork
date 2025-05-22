@@ -129,7 +129,7 @@ STATIC FUNCTION DlgSample( cSampleName, bCodeSample )
       ACTIVATE DIALOG oDlg CENTER
    ENDCASE
 
-   (oTab) := Nil       // warning -w3 -es2
-   (oTab)
+   (oTab) := Nil   // warning -w3 -es2
+   (oTab)          // warning -w3 -es2
 
    RETURN Nil

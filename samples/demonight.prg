@@ -77,7 +77,7 @@ FUNCTION DemoNight()
          TITLE cTitle ;
          AT 0, 0 ;
          SIZE 380, 400 ;
-         STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE
+         STYLE WS_SYSMENU + WS_SIZEBOX + WS_VISIBLE
    ENDIF
 
    // The menu is fix connected to the main bar,
@@ -99,20 +99,20 @@ FUNCTION DemoNight()
 
    IF inilNightDesign
 
-      @ 140,260 OWNERBUTTON ;
-         SIZE 100,32 ;
+      @ 140, 260 OWNERBUTTON ;
+         SIZE 100, 32 ;
          TEXT "Close" ;
          COLOR 0xffffff ;
          HSTYLES oStyleNormal, oStylePressed, oStyleOver ;
          ON SIZE ANCHOR_LEFTABS + ANCHOR_RIGHTABS + ANCHOR_BOTTOMABS ;
-         ON CLICK {|| oDlg:Close()}
+         ON CLICK { || oDlg:Close() }
    ELSE
 
-     @ 140,260 BUTTON oButton ;
+     @ 140, 260 BUTTON oButton ;
         CAPTION "Close" ;
-        SIZE 100,32 ;
-        STYLE WS_TABSTOP+BS_FLAT ;
-        ON CLICK {|| oDlg:Close()}
+        SIZE 100, 32 ;
+        STYLE WS_TABSTOP + BS_FLAT ;
+        ON CLICK { || oDlg:Close() }
    ENDIF
 
    ACTIVATE DIALOG oDlg CENTER
@@ -125,7 +125,7 @@ STATIC FUNCTION TestDialog()
    LOCAL oButton , oBrwArr, oButton2
    LOCAL cTitle := "Header of dialog"
 
-   al_DOKs :=  { {"1"} , {"2"} , {"3"} , {"4"} }
+   al_DOKs :=  { { "1" }, { "2" }, { "3" }, { "4" } }
 
    INIT DIALOG oDlg ;
       TITLE "" ;
@@ -160,7 +160,7 @@ STATIC FUNCTION TestDialog()
          TITLE cTitle ;
          AT 0, 0 ;
          SIZE 380, 400 ;
-         STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE+DS_CENTER
+         STYLE WS_SYSMENU + WS_SIZEBOX + WS_VISIBLE + DS_CENTER
 
    ENDIF
 
@@ -181,45 +181,47 @@ STATIC FUNCTION TestDialog()
    * For you to do at your own needs : change colors of browse,
    * see sample program "demobrowseclr.prg"
 
-   @ 21,50 BROWSE oBrwArr ;
+   @ 21, 50 BROWSE oBrwArr ;
       ARRAY ;
       STYLE WS_VSCROLL + WS_HSCROLL   ;
-      SIZE 100,170
+      SIZE 100, 170
 
 	/* See demobrowsearr.prg */
-   hwg_CREATEARLIST(oBrwArr,al_DOKs)
-   oBrwArr:acolumns[1]:heading := "DOKs"  // Header string
-   oBrwArr:acolumns[1]:length := 50
+   hwg_CREATEARLIST( oBrwArr, al_DOKs )
+   oBrwArr:acolumns[ 1 ]:heading := "DOKs"  // Header string
+   oBrwArr:acolumns[ 1 ]:length := 50
    oBrwArr:bcolorSel := hwg_ColorC2N( "800080" )
    * FONT setting is mandatory, otherwise crashes with "Not exported method PROPS2ARR"
    oBrwArr:ofont := oFont
 
    IF inilNightDesign
 
-      @ 200,260 OWNERBUTTON ;
-         SIZE 100,32 ;
+      @ 200, 260 OWNERBUTTON ;
+         SIZE 100, 32 ;
          TEXT "Close" ;
          COLOR 0xffffff ;
          HSTYLES oStyleNormal, oStylePressed, oStyleOver ;
-         ON CLICK {|| oDlg:Close(oDlg) }
+         ON CLICK { || oDlg:Close( oDlg ) }
          * ON SIZE ANCHOR_LEFTABS + ANCHOR_RIGHTABS + ANCHOR_BOTTOMABS ;
 
       @ 39,260 OWNERBUTTON ;
-         SIZE 100,64 ;
+         SIZE 100, 64 ;
          TEXT "Change header text" ;
          COLOR 0xffffff ;
          HSTYLES oStyleNormal, oStylePressed, oStyleOver ;
-         ON CLICK {|| ChangeHeader(oPanel,.T.) }
+         ON CLICK { || ChangeHeader( oPanel, .T. ) }
       * ON SIZE ANCHOR_LEFTABS + ANCHOR_RIGHTABS + ANCHOR_BOTTOMABS ;
 
    ELSE
 
-      @ 240,260 BUTTON oButton CAPTION "Close" SIZE 100,32 ;
-         STYLE WS_TABSTOP+BS_FLAT ;
-         ON CLICK {|| oDlg:Close() }
-      @ 39,260 BUTTON oButton2 CAPTION "Change header text" SIZE 200,32 ;
-         STYLE WS_TABSTOP+BS_FLAT ;
-         ON CLICK {|| ChangeHeader(oDlg,.F.) }
+      @ 240, 260 BUTTON oButton CAPTION "Close" ;
+         SIZE 100, 32 ;
+         STYLE WS_TABSTOP + BS_FLAT ;
+         ON CLICK { || oDlg:Close() }
+      @ 39, 260 BUTTON oButton2 CAPTION "Change header text" ;
+         SIZE 200, 32 ;
+         STYLE WS_TABSTOP + BS_FLAT ;
+         ON CLICK { || ChangeHeader( oDlg, .F. ) }
    ENDIF
 
    ACTIVATE DIALOG oDlg CENTER
@@ -231,7 +233,7 @@ STATIC FUNCTION ChangeHeader(ohda,lmo)
    IF lmo
       ohda:SetText( "New header text" , .T. )
    ELSE
-      ohda:SetTitle("New header text")
+      ohda:SetTitle( "New header text" )
    ENDIF
 
 RETURN Nil

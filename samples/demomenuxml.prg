@@ -307,7 +307,7 @@ RETURN Nil
 STATIC FUNCTION p_about()
 
 #ifdef __GTK__
-   hwg_MsgInfo("This sample demonstrates reading/writing" + CHR(10) + ;
+   hwg_MsgInfo( "This sample demonstrates reading/writing" + CHR(10) + ;
       "XML file and handling menu items","HWGUI sample testxml.prg" + CHR(10) + ;
       "while run-time" + ;
       "OS() = " + OS() )

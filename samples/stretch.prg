@@ -78,7 +78,7 @@ FUNCTION Main( lStretch )
    nPosX := hwg_Getdesktopwidth()
    nPosY := hwg_Getdesktopheight()
 
-   lStretch := IIF( lStretch == NIL, lStretch := .T.,lStretch := .F.)
+   lStretch := IIF( lStretch == NIL, lStretch := .T., lStretch := .F.)
 
 * Several ways for access to bitmap
 * Activate one of this features by comment them out
@@ -153,10 +153,10 @@ FUNCTION Main( lStretch )
    IF lStretch
       INIT WINDOW oFormMain ;
       MAIN ;
-      AT 0,0 ;
+      AT 0, 0 ;
       SIZE nPosX , nPosY
 
-      @ 110,0 BITMAP oBitmap  ;
+      @ 110, 0 BITMAP oBitmap  ;
          SHOW oBmp ;
          OF oFormMain ;
          SIZE nPosX - 10, nPosY - 100 // Here resize of background image (stretch)
@@ -173,7 +173,7 @@ FUNCTION Main( lStretch )
       // Say "0,0 BITMAP oBitmap" and you can realize the symptom.
 
       @ 25, 25 BUTTON oQuitButton ;
-         CAPTION "Exit" SIZE 75,32 ;
+         CAPTION "Exit" SIZE 75, 32 ;
          ON CLICK { | | oFormMain:Close() }
 
       oFormMain:Activate()

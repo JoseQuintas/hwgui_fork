@@ -15,6 +15,37 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-05-22 12:15 UTC-0300 Jose Quintas jmcquintas-gmail.com
+   * samples/demofunc.prg
+   * samples/demogrid1.prg
+   * samples/demoimage1.prg
+   * samples/demoimage2.prg
+   * samples/demoimageview.prg
+   * samples/demoini.prg
+   * samples/demolistbox.prg
+   * samples/demomenu.prg
+   * samples/demomenubitmap.prg
+   * samples/demomenuxml.prg
+   * samples/demomonthcal.prg
+   * samples/demonice.prg
+   * samples/demonight.prg
+   * samples/demoowner.prg
+   * samples/demoshadebtn.prg
+   * samples/demosplitter.prg
+   * samples/demotab.prg
+   * samples/demotree.prg
+   * samples/demoxmltree.prg
+   * samples/grid_3.prg
+   * samples/helloworld.prg
+   * samples/helpstatic.prg
+   * samples/stretch.prg
+   * samples/testbmpcr.prg
+   * samples/testmdi.prg
+   * samples/testtray.prg
+   * samples/tstsplash.prg
+   * samples/tststconsapp.prg
+     ! no change, only some format source code
+
 2025-05-20 22:00 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/demoaltprog.prg
      ! filename on button and parameter oDlg

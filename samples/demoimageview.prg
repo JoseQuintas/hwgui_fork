@@ -133,7 +133,7 @@ STATIC FUNCTION ViewImg( ctype, nresize )
 
    @ 20, 370 BUTTON "OK"      ;
       SIZE 75,25 ;
-      ON CLICK {|| oDlg:Close() }
+      ON CLICK { || oDlg:Close() }
 
    ACTIVATE Dialog oDlg CENTER
 
@@ -152,7 +152,7 @@ STATIC FUNCTION ZoomImg()
    aItems := {"1","2","4","8"}
    lcancel := .T.
 
-   nCombo := ComboRet(nZoom)
+   nCombo := ComboRet( nZoom )
 
    INIT DIALOG oForm ;
       CLIPPER ;
@@ -169,11 +169,11 @@ STATIC FUNCTION ZoomImg()
 
    @ 20, 170 BUTTON "OK" ;
       SIZE 75,25 ;
-      ON CLICK {|| lcancel := .F. , nZoom := ComboTr(nCombo) , oForm:Close() }
+      ON CLICK { || lcancel := .F. , nZoom := ComboTr(nCombo) , oForm:Close() }
 
    @ 100, 170 BUTTON "Cancel"   ;
       SIZE 75,25 ;
-      ON CLICK {|| oForm:Close() }
+      ON CLICK { || oForm:Close() }
 
    ACTIVATE DIALOG oForm CENTER
 
@@ -192,23 +192,18 @@ STATIC FUNCTION ComboRet( nitem )
    LOCAL nret
 
    DO CASE
-   CASE nitem == 1
-      nret := 1
-   CASE nitem == 2
-      nret := 2
-   CASE nitem == 4
-      nret := 3
-   CASE nitem == 8
-      nret := 4
-   OTHERWISE
-     nret := 1
+   CASE nitem == 1; nret := 1
+   CASE nitem == 2; nret := 2
+   CASE nitem == 4; nret := 3
+   CASE nitem == 8; nret := 4
+   OTHERWISE ;      nret := 1
    ENDCASE
 
 RETURN nret
 
 STATIC FUNCTION About()
 
-   hwg_MsgInfo("HWGUI Image Viewer by DF7BE")
+   hwg_MsgInfo( "HWGUI Image Viewer by DF7BE" )
 
 RETURN Nil
 

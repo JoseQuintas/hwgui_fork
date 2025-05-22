@@ -19,8 +19,8 @@ FUNCTION DemoTree( lWithDialog, oDlg, aInitList )
    IF lWithDialog
       INIT DIALOG oDlg ;
          TITLE "demotree.prg - TreeView control sample"  ;
-         AT 210,10  ;
-         SIZE 430,300  ;
+         AT 210, 10  ;
+         SIZE 430, 300  ;
          FONT oFont ;
          ON INIT { || BuildTree( oDlg, oTree, oSay ) }
    ELSE
@@ -37,7 +37,7 @@ FUNCTION DemoTree( lWithDialog, oDlg, aInitList )
 
    @ 10, 110 TREE oTree ;
       OF oDlg ;
-      SIZE 200,280 ;
+      SIZE 200, 280 ;
       EDITABLE ;
       BITMAP { SAMPLE_IMAGEPATH + "cl_fl.bmp", SAMPLE_IMAGEPATH + "op_fl.bmp" } ;
       ON SIZE { | o,x,y | (x), o:Move(,,,y - 20 ) }
@@ -52,7 +52,7 @@ FUNCTION DemoTree( lWithDialog, oDlg, aInitList )
 
    @ 210, 110 SPLITTER oSplit ;
       SIZE 4,260 ;
-      DIVIDE {oTree} FROM {oSay} ;
+      DIVIDE { oTree } FROM { oSay } ;
       ON SIZE { | o,x,y | (x), o:Move(,,, y - 20 ) }
 
    oSplit:bEndDrag := {||hwg_Redrawwindow( oSay:handle,RDW_ERASE+RDW_INVALIDATE+RDW_INTERNALPAINT+RDW_UPDATENOW)}
@@ -75,9 +75,9 @@ STATIC FUNCTION BuildTree( oDlg, oTree, oSay )
       INSERT NODE "Third-2" TO oNode BITMAP { SAMPLE_IMAGEPATH + "book.bmp"} ON CLICK {||NodeOut(4,oSay)}
    INSERT NODE "Forth" TO oTree ON CLICK {||NodeOut(5,oSay)}
 
-   oTree:bExpand := {||.T.}
+   oTree:bExpand := { || .T. }
 
-   (oDlg) // -w3 -es2
+   (oDlg) // warning -w3 -es2
 
 RETURN Nil
 

@@ -41,7 +41,7 @@ FUNCTION DemoMonthCal( lWithDialog, oDlg )
 
    // On Win11 event on change occurs at any time
    @ 20, 50 MONTHCALENDAR oMonthCal1 ;
-      SIZE 250,250 ;
+      SIZE 250, 250 ;
       INIT ctod( "01/01/2004" ) ;
       ; // ON INIT { || hwg_Msginfo( "Evento On Init","MonthCalendar" ) } ;
       ; // ON CHANGE { || hwg_Msginfo( "Evento On Change","MonthCalendar" ) } ;
@@ -51,26 +51,26 @@ FUNCTION DemoMonthCal( lWithDialog, oDlg )
 
    @ 20, 350 BUTTON "Get Date" ;
       ON CLICK { || hwg_Msginfo( dtoc( oMonthCal1:Value ) ) } ;
-      SIZE 100,40
+      SIZE 100, 40
 
    @ 150, 350 BUTTON "Set Date" ;
       ON CLICK { || oMonthCal1:Value := Date() } ;
-      SIZE 100,40
+      SIZE 100, 40
 
    PREPARE FONT oFontMonthCal2 NAME "Courier New" WIDTH 0 HEIGHT -12
 
    @ 300, 50 MONTHCALENDAR oMonthCal2 ;
-      SIZE 250,250 ;
+      SIZE 250, 250 ;
       INIT Date() ;
       FONT oFontMonthCal2
 
    @ 300, 350 BUTTON "Get Date" ;
       ON CLICK { || hwg_Msginfo(dtoc( oMonthCal2:Value ) ) } ;
-      SIZE 100,40
+      SIZE 100, 40
 
    @ 430, 350 BUTTON "Set Date" ;
       ON CLICK { || oMonthCal2:Value := Date() } ;
-      SIZE 100,40
+      SIZE 100, 40
 
    IF lWithDialog
       ACTIVATE DIALOG oDlg CENTER

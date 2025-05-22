@@ -29,10 +29,10 @@ LOCAL old_screen
 
    CLEAR SCREEN
 
-   @ 0,0 TO 24,79 DOUBLE
+   @ 0, 0 TO 24, 79 DOUBLE
 
-   @ 10,10 TO 14, 40
-   @ 12,12 SAY "Hello World"
+   @ 10, 10 TO 14, 40
+   @ 12, 12 SAY "Hello World"
 
    * INKEY(0) says at keys alt+C paused ... continue
 

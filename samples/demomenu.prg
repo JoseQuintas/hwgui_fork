@@ -33,8 +33,7 @@ FUNCTION DemoMenu( lWithDialog, oDlg )
    ButtonForSample( "demomenu.prg", oDlg )
 
    IF lWithDialog
-      ACTIVATE DIALOG oDlg ;
-         CENTER
+      ACTIVATE DIALOG oDlg CENTER
    ENDIF
 
    RETURN Nil

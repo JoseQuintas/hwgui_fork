@@ -45,20 +45,20 @@ FUNCTION DemoNice( lWithDialog, oDlg, aInitList )
    @ 100, 100 nicebutton [ola] ;
       of oDlg ;
       ;//id 100 ;
-      size 40,40 ;
+      size 40, 40 ;
       red 52  green 10  blue 60 ;
       ON CLICK { || hwg_MsgInfo( "test" ) }
 
    @ 100, 150 nicebutton [Rafael] ;
       of oDlg ;
       ;//id 101 ;
-      size 60,40 ;
+      size 60, 40 ;
       red 215 green 76  blue 108
 
    @ 300, 150 nicebutton [Culik] ;
       of oDlg ;
       ;//id 102 ;
-      size 40,40 ;
+      size 40, 40 ;
       red 136 green 157 blue 234 ;
       on click { || oDlg:Close() }
 

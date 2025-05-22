@@ -81,7 +81,7 @@ FUNCTION DemoMenuBitmap()
 
    INIT DIALOG oDlg ;
       TITLE "Teste" ;
-      AT 0,0 ;//BACKGROUND BITMAP OBMP;
+      AT 0, 0 ;//BACKGROUND BITMAP OBMP;
       SIZE 800, 600
 
    MENU OF oDlg

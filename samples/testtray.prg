@@ -65,7 +65,7 @@ FUNCTION Main()
    oIcon2 := HIcon():AddFile( SAMPLE_IMAGEPATH + "cancel.ico" )
 #endif
 
-   IF .NOT. FILE( SAMPLE_IMAGEPATH + "hwgui_16x16.ico"
+   IF ! File( SAMPLE_IMAGEPATH + "hwgui_16x16.ico" )
       hwg_msgstop( "Icon not found: " + SAMPLE_IMAGEPATH + "hwgui_32x32.ico" )
       RETURN NIL
    ENDIF

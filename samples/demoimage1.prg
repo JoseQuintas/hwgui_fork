@@ -66,7 +66,7 @@ FUNCTION DemoImage1()
       ;// APPNAME "Hwgui sample" ;
       FONT oFontMain BACKGROUND BITMAP oBmp ;   && HBitmap():AddFile( cImageMain ) ;
       TITLE "demoimage1.prg - Icon sample" ;
-      AT 0,0 ;
+      AT 0, 0 ;
       SIZE nPosX,nPosY - 30 ;
       ICON oIconEXE STYLE WS_POPUP +  WS_CAPTION + WS_SYSMENU
 
@@ -118,8 +118,8 @@ FUNCTION Teste()
 
    INIT DIALOG oDlg ;
       TITLE "Dialog with background image" ;
-      AT 210,10  ;
-      SIZE 300,300 ;
+      AT 210, 10  ;
+      SIZE 300, 300 ;
       ICON oIcon ;
       BACKGROUND BITMAP obitmap  && HBitmap():AddFile(cimgpfad + "astro.bmp" )
 

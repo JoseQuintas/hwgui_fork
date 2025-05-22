@@ -56,7 +56,7 @@ STATIC FUNCTION OnKey( o, k )
 
    //    hwg_Msginfo(str(k))
 
-   (o); (k) // -w3 -es2
+   (o); (k) // warning -w3 -es2
 
 RETURN Nil
 
@@ -64,7 +64,7 @@ STATIC FUNCTION OnPosChange( o, row )
 
    //    hwg_Msginfo( str(row) )
 
-   (o); (row) // -w3 -es2
+   (o); (row) // warning -w3 -es2
 
 RETURN Nil
 
@@ -72,13 +72,13 @@ STATIC FUNCTION OnClick( o )
 
    //    hwg_Msginfo( "click" )
 
-   (o) // -w3 -es2
+   (o) // warning -w3 -es2
 
 RETURN Nil
 
 STATIC FUNCTION OnDispInfo( o, x, y )
 
-   (o) // -w3 -es2
+   (o) // warning -w3 -es2
 
 RETURN "Row: " + ltrim( str( x ) ) + " Col: " + ltrim( str( y ) )
 
