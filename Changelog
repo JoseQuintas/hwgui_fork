@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-06-01 19:00 UTC+0200 Wilfried Brunken DF7BE
+* Install_RaspberryPi.txt
+* include/sys/empty.txt (New, with dir "sys")
+* install.txt
+* missingioh.sh (New)
+  ! Raspberry Pi installation successfully
+  ! Troubleshooting missing include file sys/io.h"
+
 2025-05-22 12:15 UTC-0300 Jose Quintas jmcquintas-gmail.com
    * samples/demofunc.prg
    * samples/demogrid1.prg

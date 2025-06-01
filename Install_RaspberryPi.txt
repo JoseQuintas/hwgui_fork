@@ -1,0 +1,215 @@
+Install HWGUI on Raspberry Pi
+=============================
+
+  $Id$
+
+By DF7BE
+
+
+History:
+========
+
+2025-05-31  DF7BE   First issue
+
+
+Contents:
+=========
+1. Preface
+2. Installation of prerequisites
+3. Install Harbour
+4. Install HWGUI
+5. Literature reference and Internet links
+
+
+
+1. Preface
+----------
+
+The Raspberry OS bases on LINUX, so
+the installation is simular to
+the HWGUI installation on LINUX.
+
+
+2. Installation of prerequisites
+--------------------------------
+
+This chapter describes the installation of:
+- The OS
+- GCC
+- GTK2
+- wmctrl
+
+First after switching the Raspberry Pi on,
+follow the installation steps
+in the Raspberry Pi desktop.
+(Set language, set password of main user, 
+connect to LAN/WLAN, download and run first updates, final reboot )
+
+You need to enter a main userid (administrator role)
+and an associated password. For example (in my case)
+it is "afu".
+
+Terminal:
+Open a terminal window on your Raspberry Pi
+(you can do this by pressing Ctrl+Alt+T)
+and run the commands.
+
+
+Now start the full upgrade:
+
+sudo apt update
+sudo apt upgrade -y
+
+This takes some time.
+
+
+sudo apt install build-essential -y
+
+
+Check the GCC by typing:
+gcc --version
+gcc (Rasbian 10.2.1-6+rpi1) 10.2.1 20210110 
+
+nano hello.cpp
+
+#include <iostream>
+
+int main() {
+  std::cout << "Hello World!" << std::endl;
+  return 0;
+}
+
+Save and exit the editor (in nano, press Ctrl+X, then Y to save and Enter to confirm the filename). Now compile the program using GCC:
+
+g++ hello.cpp -o hello
+
+./hello
+
+- Install GTK2
+
+sudo apt-get install pkg-config
+sudo apt-get install libgtk2.0-dev libgtk-3-dev
+
+
+- Install "wmctrl"
+  (Needed for progress bars on LINUX)
+  sudo apt install wmctrl 
+
+
+3. Install Harbour
+------------------
+
+- Create the installation destination with the
+  file explorer manually:
+  /home/afu/Harbour
+
+  
+- Download the Harbour code snapshot from github.io.
+  (Browser is named "Chromium")
+
+- Extract it with the Archiver to
+  /home/afu/Harbour/core-master
+
+- Go to this directory and start the build process by typing
+  make
+  (this needs some time)  
+
+
+4. Install HWGUI
+----------------
+
+- Edit the .profile:
+  Open the file viewer and allow to show
+  hidden files.
+  Goto to .profile and and right click:
+  Open with "Text Editor":
+
+# --- Harbour and HWGUI --
+   HARBOUR_INSTALL=/home/afu/Harbour/core-master
+   HWGUI_INSTALL=$HOME/hwgui
+   PATH=$PATH:$HARBOUR_INSTALL/bin/linux/gcc:$HWGUI_INSTALL/bin
+   export PATH
+   LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HARBOUR_INSTALL/lib/linux/gcc
+   export LD_LIBRARY_PATH
+   HB_COMPILER=gcc
+   export HB_COMPILER
+   HB_INSTALL_PREFIX=$HARBOUR_INSTALL
+   export HB_INSTALL_PREFIX
+#
+ 
+==> Set "afu" to your userid.
+
+- Logout and login for making this entries active.
+
+- Check for Harbour make utility:
+  hbmk2 --version
+  Harbour Make (hbmk2) 3.2.0dev (r2024-12-04 14:25)
+  Copyright (c) 1999-present, Viktor Szakats
+  https://github.com/harbour/core/
+  
+- Download the recent code snapshot of HWGUI
+  in the "Code" tab.
+
+- - Create the installation destination with the
+  file explorer manually:
+  /home/afu/hwgui
+  (concerning to the settings in .profile,
+   this is the base directory of HWGUI )
+  
+ 
+- Extract the HWGUI archive
+
+- chmod 755 *.sh
+
+- Handle missing sys/io.h
+  ./missingioh.sh
+
+- Go to base directory and start the build:
+  ./make_gtk.sh   
+  and check afterwards for created HWGUI libraries
+
+- Compile and run the sample demo program.
+  cd samples
+  hbmk2 allhbp.hbp
+ 
+- At final, build your own HWGUI application
+
+
+We recommend to clone the SD card to get a
+backup copy of the system.
+Find instructions by searching in the Internet.
+
+If the window is to big, the following hotkeys can be used for:
+
+Close an application : Alt + F4
+Shutdown : Ctrl+Alt+Del 
+
+
+5. Literature reference and Internet links
+------------------------------------------
+
+[1] The official Raspberry Pi handbook for beginners,
+    German edition:
+    "Das offizielle Raspberry Pi Handbuch für Anfänger" by Gareth Halfacree,
+    4th edition "4. Ausgabe".
+
+    Raspberry Pi PRESS,
+    Cambridge CB4 0DS, 2020
+    (CC BY-NC-SA 3.0)
+    ISBN: 978-1-912047-95-6
+
+    comes with "RASP PI400DE KIT" (order number).
+    Contains a Raspberry Pi in a case with keyboard (german layout),
+    external USB-C power supply, 16 Gbyte SD card and HDMI cable.
+    available at [2].
+    (30th May 2025)
+   
+[2] https://www.reichelt.de/
+    reichelt elektronik GmbH
+    Elektronikring 1
+    26452 Sande
+    Germany
+    (30th May 2025)	
+   
+=============================== EOF of Install_RaspberryPi.txt ======================
+

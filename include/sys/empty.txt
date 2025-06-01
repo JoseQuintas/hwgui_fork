@@ -1,0 +1,7 @@
+== empty.txt ==
+This file is a holder for empty directories in ZIP files.
+Empty directories are removed during packing a ZIP archive.
+
+Diese Datei dient der Erhaltung leerer Verzeichnisse in ZIP-Archiven.
+Leere Verzeichnisse werden bei Erstellung eines ZIP-Archives
+nicht mit übernommen.

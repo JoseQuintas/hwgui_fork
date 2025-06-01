@@ -11,6 +11,8 @@ Contents:
 1.2)  Helpful tools for HWGUI developer
 1.3)  Special instructions for Microsoft Visual C, Edition 2022
 2.)   Linux
+2.1)  Troubleshooting missing include file <sys/io.h>
+2.2)  Build
 3.)   Resources
 4.)   Special build instructions
 4.1)  For Borland C (BCC) on Windows
@@ -23,7 +25,8 @@ Appendix 3: Information for port to GTK3
 
 History:
 
-
+2025-06-01   DF7BE  Raspberry Pi installation, troubleshooting missing include file sys/io.h
+2025-02-07   DF7BE  Last undocumented state
  
  
    1.) Windows
@@ -179,6 +182,57 @@ History:
 
    For installation on Linux you need some prerequisites,
    they are listed at the bottom of these instructions.
+   
+   2.1) Troubleshooting missing include file <sys/io.h>
+
+   Before you start the build process of HWGUI,
+   check the existance of include file,
+   by following the instructions above.
+   
+   If you see the following error message
+   building HWGUI or a HWGUI sample program:
+
+    /usr/local/include/stdio.h:6:10: fatal error: sys/stdio.h: No such file or directory
+          | #include <sys/stdio.h>
+          |
+            ^~~~~~~~~~~~~
+  
+   here a workaround is possible.
+   The shell script "missingioh.sh"
+   will do that for you.
+   
+   Reason:
+   This include file is part of old versions of GLIBC and is now removed.
+   Instead, the file <unistd.h> must be included.
+   The file is requested by GTK2, otherwise the
+   source code of GTK2 must be modified.
+   
+   It checks the existance of sys/io.h,
+   if not, it copies the unistd.h as io.h
+   into the HWGUI directory include/sys,
+   so no modification of HWGUI build scripts
+   are necessary.
+   
+   Before running the script, check if the
+   substitute include file is available:
+   ls /usr/include/unistd.h
+     /usr/include/unistd.h
+   If not, on some *NIX sytems the location may be
+   /usr/local/include/unistd.h
+
+   So modify the entry in the script 
+   for setting the shell variable SYS_INCLUDEDIR=
+   to your own needs.
+
+   Start the script by typing
+   ./missingioh.sh
+   in the main directory of HWGUI.
+   
+   There is no problem to start the script again and again,
+   the message is then:
+   OK: Nothing to do !
+
+   2.2)  Build
 
    Sources for the Linux GTK version are located in the source/gtk/ directory.
    In the base directory is a shell file make_gtk.sh, which is intended for building HwGUI Linux
@@ -429,6 +483,13 @@ Appendix 2:
 -----------
 
 Additional instructions and information for other LINUX distributions.
+
+Raspberry Pi 400
+----------------
+
+See extra installation instructions in text file:
+Install_RaspberryPi.txt
+
 
 Ubuntu 22.04 LTS (5.15.0-27-generic), AMD 64 by 16th May 2022.
 --------------------------------------------------------------
