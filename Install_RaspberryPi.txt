@@ -9,6 +9,7 @@ By DF7BE
 History:
 ========
 
+2025-06-03  DF7BE   Little correction
 2025-05-31  DF7BE   First issue
 
 
@@ -165,7 +166,7 @@ sudo apt-get install libgtk2.0-dev libgtk-3-dev
   ./missingioh.sh
 
 - Go to base directory and start the build:
-  ./make_gtk.sh   
+  ./make_gtk.sh -hb  
   and check afterwards for created HWGUI libraries
 
 - Compile and run the sample demo program.
