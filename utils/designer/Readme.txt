@@ -12,6 +12,8 @@ We will deliver the port to LINUX as soon as possible
 
 Open an XML form file created on Windows, so most
 elements are not visible. This severe bug must be fixed at first.
+Also some function calls exited with core dumps or
+array bound errors.
 
 A special comment by A. Kressin:
 Support of prg sources in the Designer is outdated. I recommend to use Designer's xml forms only.

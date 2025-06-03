@@ -16,6 +16,15 @@
 */
 
 
+2025-06-03 15:30 UTC+0200 Wilfried Brunken DF7BE
+* utils/designer/Readme.txt
+* utils/designer/designer.hbp
+* utils/designer/hbmk.hbm (New)
+   ! Stop instruction for non Windows OS inserted
+   ! (need to port for LINUX and MacOS later)
+   ! Prepared for hbmk.hbm
+
+
 2025-06-03 15:15 UTC+0200 Wilfried Brunken DF7BE
 * Install_RaspberryPi.txt
    ! Little correction Raspbery Pi
