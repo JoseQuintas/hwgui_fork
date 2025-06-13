@@ -492,6 +492,9 @@ FUNCTION demo_LoadResource( cFileName )
    CASE cFileName == "demoall.prg";         #pragma __binarystreaminclude "demoall.prg" | RETURN %s
    CASE cFileName == "demoaltprog.prg";     #pragma __binarystreaminclude "demoaltprog.prg" | RETURN %s
    CASE cFileName == "demobitmap.prg";      #pragma __binarystreaminclude "demobitmap.prg" | RETURN %s
+   CASE cFileName == "democalmonth.prg";    #pragma __binarystreaminclude "democalmonth.prg" | RETURN %s
+   CASE cFileName == "democalyear.prg";     #pragma __binarystreaminclude "democalyear.prg" | RETURN %s
+   CASE cFileName == "democal3years.prg";   #pragma __binarystreaminclude "democal3years.prg" | RETURN %s
    CASE cFileName == "democheckbox.prg";    #pragma __binarystreaminclude "democheckbox.prg" | RETURN %s
    CASE cFileName == "democombobox.prg";    #pragma __binarystreaminclude "democombobox.prg" | RETURN %s
    CASE cFileName == "demobrowsearr.prg";   #pragma __binarystreaminclude "demobrowsearr.prg" | RETURN %s
