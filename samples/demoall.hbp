@@ -19,6 +19,9 @@ demobrowsebmp.prg
 demobrowseclr.prg
 demobrowsedbf.prg
 demobrwtwosub.prg
+democalmonth.prg
+democalyear.prg
+democal3years.prg
 democheckbox.prg
 democombobox.prg
 demodateselect.prg

@@ -15,6 +15,17 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-06-13 14:40 YTC-0300 JoseQuintas jmcquintas-gmail.com
+   + samples/democalmonth.prg
+   + samples/democalyear.prg
+   + samples/democal3years.prg
+   * samples/demoall.prg
+   * samples/demoall.hbp
+     ! democalmonth - month calendar with checkbox
+     ! democalyear - call 12 x democalmonth, show all checked dates
+     ! democal3years - call 3 x democalyear
+     ! demoall - the 3 options on tabpages
+
 
 2025-06-03 15:30 UTC+0200 Wilfried Brunken DF7BE
 * utils/designer/Readme.txt
@@ -28,7 +39,7 @@
 2025-06-03 15:15 UTC+0200 Wilfried Brunken DF7BE
 * Install_RaspberryPi.txt
    ! Little correction Raspbery Pi
-   
+
 
 2025-06-01 19:00 UTC+0200 Wilfried Brunken DF7BE
 * Install_RaspberryPi.txt

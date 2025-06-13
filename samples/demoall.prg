@@ -146,6 +146,9 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
 #ifdef __PLATFORM__WINDOWS
       MenuOption( "6.Two Listbox",                  { |o| DemoListTwoSub( .F., o ) } )
 #endif
+      MenuOption( "7.Month",                        { |o| DemoCalMonth( .F., o ) } )
+      MenuOption( "8.Year",                         { |o| DemoCalYear( .F., o ) } )
+      MenuOption( "9.3 Years",                      { |o| DemoCal3Years( .F., o ) } )
       MenuUnDrop()
    MenuOption( "Dialog" )
       MenuDrop()
