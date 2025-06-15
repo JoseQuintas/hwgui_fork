@@ -18,7 +18,7 @@ FUNCTION DemoCal3Years( lWithDialog, oDlg )
         STYLE WS_SYSMENU + WS_SIZEBOX + WS_VISIBLE
    ENDIF
 
-   ButtonForSample( "demo3years.prg" )
+   ButtonForSample( "democal3years.prg" )
    @ 20, 60 TAB oTab ;
       ITEMS {} ;
       OF oDlg ;

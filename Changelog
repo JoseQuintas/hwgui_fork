@@ -15,7 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2025-06-13 14:40 YTC-0300 JoseQuintas jmcquintas-gmail.com
+2025-06-15 02:25 UTC-0300 JoseQuintas jmcquintas-gmail.com
+   * samples/demo3years.prg
+     ! wrong name on button
+
+2025-06-13 14:40 UTC-0300 JoseQuintas jmcquintas-gmail.com
    + samples/democalmonth.prg
    + samples/democalyear.prg
    + samples/democal3years.prg
