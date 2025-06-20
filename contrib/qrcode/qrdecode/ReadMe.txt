@@ -4,6 +4,7 @@ ReadMe file for QR code and EAN bar codes decoding
  
 History: 
 
+2025-06-20  DF7BE  Support for ZBarcam on Raspberry Pi 400
 2025-04-19  DF7BE  Project moved from contrib/qrdecode to contrib/qrcode/qrdecode by Jose M. Quintas
 2025-01-14  DF7BE  Project qrdecode completed
 2025-01-13  DF7BE  Now running on MacOS by using shell script.
@@ -14,11 +15,21 @@ History:
 2024-12-29  DF7BE  First creation
 
 
- 
+Contents:
+
+1. Prerequisites
+2. HWGUI test program
+Appendix 1: Installation instructions for MacOS
+Appendix 2: Compile ZBar 0.10 on Raspberry Pi 400
+
+
+
+
 Supported platforms:
 - Windows 10/11 (32 bit)
 - LINUX (Ubuntu/LINUXMint)
 - MacOS
+- Raspberry Pi 400
 
 
 1. Prerequisites
@@ -120,7 +131,40 @@ Supported platforms:
      The installation and usage on MacOS  is more complicated.
      The reason: zbarcam is not available on MacOS,
      but instead you can use imagesnap and then combine it with zbarimg (from zbar package).
-     See Appendix 1 for detailed installation and usage information.   
+     See Appendix 1 for detailed installation and usage information. 
+
+
+
+     Rasberry Pi 400:
+     
+     (June 2025)
+     
+     A ready to install package for using an USB camera is available.
+     Older revisions of the Pi needed an extra camera module, this
+     is not tested here.
+     
+     In the appendix 2 instructions for compiling the ZBar from source is also available.
+     This can also be helpfull instlling ZBar on ther operating systems.
+     
+     Install the package:
+     sudo apt install zbar-tools
+     
+     The command "zbarcam" must be rechable in the PATH.
+     
+     In old versions a command "rpicam-hello" is available for
+     testing the camera, but not for 400.
+     
+     So plug in the camera into the USB port and look for
+     existing device file:
+     ls -l /dev/video*
+       /dev/video0
+     
+     Now start ZBar by
+      zbarcam
+     
+     and try to scan some QR codes.
+     Look for response in the terminal window.
+      
 
 1.4 Pre-check of Zbar
     Open a console or terminal and insert the following command:
@@ -150,6 +194,8 @@ Supported platforms:
     Get help info by typing:
      zbarcam --help  
     (if zbarcam is in PATH, otherwise add full path in .profile)
+    
+    
 
 2. HWGUI test program
 
@@ -364,6 +410,78 @@ At the top of the file you can find usage info:
 #
 
 
+Appendix 2: Compile ZBar 0.10 on Raspberry Pi 400
+-------------------------------------------------
 
+The problem is, that the conigure script (too old) does not support
+the ARM processors, so use the automake feature to create a new one.
+
+Extract the source code archive with patch "v4l2.c",
+concerning the instructions for LINUX
+
+Copy header file
+contrib/qrcode/qrdecode/raspbian/config.h
+to include directory of zbar
+
+# Be shure, that the automake package in installed,
+otherwise:
+sudo apt-get automake
+
+# Create aclocal.m4
+aclocal
+
+# create confgure
+autoconf
+
+# create include/config.h.in
+# autoheader
+# Skip this step, because of errors
+# the config.h is not created.
+# See copy of this file in the instructions above.
+
+# create Makefile.in
+automake
+#
+./configure --build=arm --prefix=$HOME/local --without-imagemagick --without-python -without-qt
+
+make -k check
+make -k
+
+Both make's ended with errors, but the needed program
+"zbarcam" is created in diretory zbar
+
+Copy zbarcam to $HOME/local/bin
+
+Plug the USB camera into an open USB port and check
+for existing device file:
+
+ls -l /dev/video*
+crw-rw----+ 1 root video 81, 0 Jun 20 15:10 /dev/video0
+
+
+Start the zbarcam program
+$HOME/local/bin/zbarcam
+and try to decode some QR codes.
+The result is displayed in the terminal windows.
+
+if the message 
+  unsupported request: no compatible image format
+apprears, the patch "v4l2.c" was forgotten.
+
+So patch the source and repeat both make's.
+
+Compile the HWGUI sample program:
+
+Modify the line at about 95 of contrib/qrcode/qrdecode/qrdecode.prg:
+
+* All other LINUXe
+ lnmodal := .F.
+  ccommand := "~/local/bin/zbarcam" 
+  
+to
+
+ ccommand := "zbarcam"
+ 
+ if zbarcam can be reached by PATH.
 
 ================= EOF of ReadMe.txt =======================

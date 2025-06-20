@@ -23,6 +23,10 @@ SYS_INCLUDEDIR=/usr/include
 # are necessary.
 # For more information see the installation instructions
 # of HWGUI.
+if [ ! -d include/sys ]
+ then
+   mkdir -p include/sys
+ fi 
 if [ ! -f $SYS_INCLUDEDIR/sys/io.h ]
   then
   if [ ! -f include/sys/io.h ]

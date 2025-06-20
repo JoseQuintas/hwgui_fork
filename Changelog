@@ -15,6 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+
+2025-06-20 19:00 UTC+0200 Wilfried Brunken DF7BE
+* Install_RaspberryPi.txt
+* contrib/qrcode/qrdecode/ReadMe.txt
+* contrib/qrcode/qrdecode/raspbian/config.h (New)
+* missingioh.sh
+   ! Now ZBar for Raspberry Pi running
+
+
 2025-06-15 02:25 UTC-0300 JoseQuintas jmcquintas-gmail.com
    * samples/demo3years.prg
      ! wrong name on button
