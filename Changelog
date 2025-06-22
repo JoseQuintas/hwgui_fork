@@ -16,6 +16,15 @@
 */
 
 
+2025-06-22 13:10 UTC+0200 Wilfried Brunken DF7BE
+* source/cross/hmisccross.prg
+* doc/hwgdoc_functions.html
+* contrib/qrcode/qrdecode/qrdecode.prg
+ ! Autodetect Raspberry Pi for 
+ ! calling "zbarcam".
+ ! New Function hwg_IsRaspberry()
+ 
+
 2025-06-20 19:00 UTC+0200 Wilfried Brunken DF7BE
 * Install_RaspberryPi.txt
 * contrib/qrcode/qrdecode/ReadMe.txt

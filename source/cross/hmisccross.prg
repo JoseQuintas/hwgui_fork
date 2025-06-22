@@ -2020,4 +2020,69 @@ FUNCTION hwg_BMPTOC2Logfile(oBitmap)
      hwg_Debug_logarrayC(atoc)
 RETURN NIL
 
+
+FUNCTION hwg_IsRaspberry()
+* This functions returns .T.,
+* if program is running on Raspberry Pi.
+* For all other OS'es, .F. is returned.
+* The only way to detects is to 
+* execute the command
+* cat /proc/cpuinfo  # Runs also on other LINUX'e
+* and look for the output:
+* ...
+* Hardware	: BCM2835
+* Revision	: c03130
+* Serial		: 100000008f46e617
+* Model		: Raspberry Pi 400 Rev 1.0
+*
+* Because this file is a normal text file,
+* open it for reading
+
+#ifdef __PLATFORM__WINDOWS
+ RETURN .F.
+#else
+#ifdef ___MACOSX___
+ RETURN .F.
+#else
+LOCAL couttext, handle
+LOCAL cbuffer := " "
+LOCAL nrbytes := 1
+
+ IF .NOT. FILE("/proc/cpuinfo")
+  RETURN .F.
+ ELSE
+ * All other LINUXe
+   couttext := ""
+  * Open the input text file
+  handle := FOPEN("/proc/cpuinfo",0)
+  * read the input file
+  IF handle < 1
+//    hwg_Msgstop("Open error")
+    RETURN .F.
+  ENDIF 
+
+   DO WHILE ( nrbytes != 0 ) 
+      nrbytes := FREAD(handle,@cbuffer,1)
+       IF nrbytes == 1
+        couttext := couttext + cbuffer
+       ENDIF
+   ENDDO
+
+  FCLOSE(handle)
+ ENDIF 
+   
+ IF AT("Raspberry Pi",couttext) > 0
+ *  hwg_MsgInfo("Welcome on Raspberry Pi","Debug")
+   RETURN .T.
+ ENDIF 
+  * Extend this to your own needs for getting
+  * a model name
+  * IF AT("AMD Ryzen",couttext) > 0
+  *   hwg_MsgInfo("Welcome on AMD Ryzen","Debug")
+  * ENDIF
+  
+ RETURN .F.
+#endif
+#endif
+
 * ======================= EOF of hmisccross.prg ===========================

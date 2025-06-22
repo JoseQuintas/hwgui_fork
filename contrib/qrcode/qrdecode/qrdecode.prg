@@ -90,9 +90,14 @@ couttext := ""
   hwg_RunConsoleApp("chmod 755 qrdecode_mac.sh")
   rc := hwg_RunConsoleApp(ccommand,outfilename)
 #else
-* All other LINUXe
+* LINUX
  lnmodal := .F.
+ IF hwg_IsRaspberry()
+  ccommand := "zbarcam"
+ ELSE
+* All other LINUXe
   ccommand := "~/local/bin/zbarcam"
+ ENDIF
   rc := hwg_RunConsoleApp(ccommand,outfilename)
 #endif  
 #endif
