@@ -3431,6 +3431,54 @@ See sample program "demosplit.prg" for details.<br>
    <br><strong class="subhead"> edi_utf8_Lower( cText )</strong>
    <p></p>
 
+  <br><strong class="subhead"> hwg_delEOFMarker(CBinrec)</strong><br>
+    <br>
+    Removes the EOF marker from a type C string.<br>
+    EOF marker 0x1a = CHR(26).<br>
+    Purpose:<br>
+    After writing a binary or text image into a file with MEMOWRIT(),<br>
+    an EOF marker is added automatically.<br>
+    Reading this file with MEMOREAD() or hwg_FBINREAD(),<br>
+    the EOF marker is also read, this can cause some trouble
+    with processing  after it.<br>
+
+    <p></p>
+
+    <br><strong class="subhead"> hwg_is_object(oObj)</strong>
+    <br>
+    Returns .T., if oObj is a valid object<br>
+
+    <p></p>
+    
+    <br><strong class="subhead"> hwg_IsRaspberry()</strong><br>
+    <br>
+    This functions returns .T.,<br>
+    if program is running on Raspberry Pi.<br>
+    The Raspberry Pi bases on LINUX, but the<br>
+    Processer type is ARM.<br>
+    
+    <p></p>
+
+    <br><strong class="subhead"> hwg_MEMLLEMPTY(memo)</strong><br>
+    <br>
+    Adds an empty line at end of memo field.<br>
+    Do this for full display of the last<br>
+    line in an HCEDIT window<br>
+    (if scrolled down).<br> 
+    Call before starting the dialog<br>
+    running HCEDIT !<br>
+    (See function hwg_MemoEdit )<br>
+    Only for internal usage.<br>
+    Advice:<br>
+    The STYLE term in INIT DIALOG for HCEDIT<br>
+    has no effect for show a vertical scoll bar.<br>
+    Scroll with up/down keys through the memo text)<br>
+    
+    <p></p>
+
+
+
+
    <br><strong class="subhead"><a name="Functions81" href="hwgdoc.html#_Functions81">
    5.8.1 Unit conversions.</a></strong><br>
    <p></p>
@@ -3712,37 +3760,11 @@ See sample program "demosplit.prg" for details.<br>
    time.<br>
    <p></p>
 
-    <br><strong class="subhead"> hwg_delEOFMarker(CBinrec)</strong><br>
-    <br>
-    Removes the EOF marker from a type C string.<br>
-    EOF marker 0x1a = CHR(26).<br>
-    Purpose:<br>
-    After writing a binary or text image into a file with MEMOWRIT(),<br>
-    an EOF marker is added automatically.<br>
-    Reading this file with MEMOREAD() or hwg_FBINREAD(),<br>
-    the EOF marker is also read, this can cause some trouble
-    with processing  after it.<br>
-
-    <p></p>
-
-    <br><strong class="subhead"> hwg_is_object(oObj)</strong>
-    <br>
-    Returns .T., if oObj is a valid object<br>
-
-    <p></p>
-    
-    <br><strong class="subhead"> hwg_IsRaspberry()</strong><br>
-    <br>
-    This functions returns .T.,<br>
-    if program is running on Raspberry Pi.<br>
-    The Raspberry Pi bases on LINUX, but the<br>
-    Processer type is ARM.<br>
-    
-    <p></p>
-
-
+  
    <br><strong class="subhead"><a name="Functions83" href="hwgdoc_functions.html#_Functions83">
    5.8.3 Raw bitmap support and QR code.</a></strong><br>
+   
+      
    <p></p>
 
 

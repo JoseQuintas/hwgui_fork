@@ -709,7 +709,9 @@ FUNCTION hwg_MemoEdit(mpmemo , cTextTitME , cTextSave ,  cTextClose , ;
    mvarbuff := mpmemo
    varbuf   := mpmemo
 
-   INIT DIALOG oModDlg title cTextTitME AT 0, 0 SIZE 400, 300 ON INIT { |o|o:center() }
+   INIT DIALOG oModDlg title cTextTitME AT 0, 0 SIZE 400, 300 ;
+   STYLE WS_SYSMENU+WS_SIZEBOX+WS_VISIBLE ;
+   ON INIT { |o|o:center() }
 
    IF oHCfont == NIL
       @ 10, 10 HCEDIT oEdit SIZE oModDlg:nWidth - 20, 240
@@ -718,13 +720,16 @@ FUNCTION hwg_MemoEdit(mpmemo , cTextTitME , cTextSave ,  cTextClose , ;
          FONT  oHCfont
    ENDIF
 
-   @ 10, 252  ownerbutton owb2 TEXT cTextSave size 80, 24 ;
+   * The "Save" button to small for GTK  
+   @ 10, 252  ownerbutton owb2 TEXT cTextSave size 100, 24 ;
       ON Click { || mvarbuff := oEdit , omoddlg:Close(), oModDlg:lResult := .T. } ;
       TOOLTIP cTTSave
-   @ 100, 252 ownerbutton owb1 TEXT cTextClose size 80, 24 ON CLICK { ||oModDlg:close() } ;
+   @ 120, 252 ownerbutton owb1 TEXT cTextClose size 80, 24 ON CLICK { ||oModDlg:close() } ;
       TOOLTIP cTTClose
 
-   oEdit:SetText(mvarbuff)
+   * For full display of last line, if scrolled down
+   // oEdit:SetText(mvarbuff)   
+   oEdit:SetText(hwg_MEMLLEMPTY(mvarbuff))
 
    ACTIVATE DIALOG oModDlg
 
@@ -732,10 +737,35 @@ FUNCTION hwg_MemoEdit(mpmemo , cTextTitME , cTextSave ,  cTextClose , ;
    bMemoMod := oEdit:lUpdated
    IF bMemoMod
    * write out edited memo field
+   * The last empty line is automatically removed
      varbuf := oEdit:GetText()
    ENDIF
 
    RETURN varbuf
+ 
+ 
+FUNCTION hwg_MEMLLEMPTY(memo)
+
+  LOCAL lf
+  LOCAL weite, num_lines  && weite = width
+  
+  weite := 254
+
+   lf := CHR(13) + CHR(10)
+   // lf := CHR(10)
+
+  * Get last line
+  num_lines = MLCOUNT(memo,weite)
+  * Is last line empty ?
+  * Empty Memo, add 1 empty line
+  IF num_lines == 0
+    memo := lf
+  ELSE   
+   IF EMPTY(MEMOLINE(memo,weite,num_lines))
+     memo := memo + lf
+   ENDIF
+  ENDIF
+RETURN memo
 
 * ~~~~~~~~~~~~~~~~~~~~~~~~
 * === Unit conversions ===

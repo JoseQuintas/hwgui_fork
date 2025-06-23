@@ -43,11 +43,16 @@ STATIC FUNCTION demo_ShowCode( cFileName )
 
    cText := demo_ReadFile( cFileName )
 
-#ifdef __PLATFORM__WINDOW
+
    // if source code on linux format
-   IF ! hb_Eol() $ cText
-      cText := StrTran( cText, Chr(10), hb_Eol() )
+   // Convert it forever to Windows (also on LINUX)
+   // is mandatory for memo fields !
+   // IF ! hb_Eol() $ cText
+   IF AT(CHR(13) + CHR(10),cText) < 1
+//      cText := StrTran( cText, Chr(10), hb_Eol() )
+        cText := StrTran( cText, Chr(10), CHR(13) + CHR(10) )
    ENDIF
+#ifdef __PLATFORM__WINDOW   
    #define _SHOW_HELP_MODAL .T.
 #else
    #define _SHOW_HELP_MODAL .F.

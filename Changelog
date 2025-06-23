@@ -16,6 +16,24 @@
 */
 
 
+2025-06-23 16:35 UTC+0200 Wilfried Brunken DF7BE
+* doc/hwgdoc_functions.html
+* samples/demo.ch
+* source/cross/hmisccross.prg
+  ! Bugfix hwg_MemoEdit():
+  ! - Size of Button "Save" increased for GTK
+  ! - Last line not full visible
+  !   (so new function hwg_MEMLLEMPTY() added)
+  ! - Scrollbar on Windows added
+  !   (The STYLE term has no effect on GTK,
+  !   scroll with up/down keys through the memo text)
+  ! Demoall: (to Jose Quintas)
+  ! Correct handling of line endings
+  ! in Code view window,
+  ! must be forever CRLF !
+  ! (This is mandatory for memo fields)
+
+
 2025-06-22 13:10 UTC+0200 Wilfried Brunken DF7BE
 * source/cross/hmisccross.prg
 * doc/hwgdoc_functions.html
