@@ -54,7 +54,10 @@ demotree.prg
 demosplit.prg
 demosplitter.prg
 demoupdown.prg
-demoxmltree.prg
+# On MacOS, the libiconv not in GNU and not compatible
+# so skip this sample
+{win}demoxmltree.prg
+{linux}demoxmltree.prg
 
 {win}demobrowseado.prg
 {win}demogrid1.prg

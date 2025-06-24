@@ -16,6 +16,22 @@
 */
 
 
+
+2025-06-24 17:00 UTC+0200 Wilfried Brunken DF7BE
+* samples/allhbp.hbp
+* samples/demoall.hbp
+* samples/demoall.prg
+* samples/demoxmltree.prg
+   ! Bugfix  samples demo by Jose Quintas on MacOS:
+   ! Windows only functions (unresolved symbols):	
+   !  HB_GT_GUI_DEFAULT(), HWG_SAVEFILE(), HWG_SELECTMULTIPLEFILES()    
+   ! Not solved yet:
+   ! utfConvert() in demoxmltree.prg
+   ! ICONV_CLOSE(),
+   ! On MacOS, the libiconv not in GNU and not compatible
+   ! so skip this sample
+
+
 2025-06-23 16:35 UTC+0200 Wilfried Brunken DF7BE
 * doc/hwgdoc_functions.html
 * samples/demo.ch

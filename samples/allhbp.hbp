@@ -36,7 +36,9 @@
 # Be shure, that QHTM is installed before build -- Windows only --
 #../contrib/hwg_qhtm.hbp
 #
-../contrib/hwmake/hwmake.hbp
+{win}../contrib/hwmake/hwmake.hbp
+# HWMAKE uses Windows only functions, port to GTK needed:
+# HB_GT_GUI_DEFAULT(), HWG_SAVEFILE(), HWG_SELECTMULTIPLEFILES()
 
 # Under construction, MinGW OK, LINUX/GTK port needed !
 ../contrib/hwreport/hwreport.hbp

@@ -256,6 +256,11 @@ HB_FUNC( UTF82OEM )
 
 }
 
+/* #ifndef ___MACOSX___ */
+
+#ifndef __APPLE__
+
+
 HB_FUNC( ICONV_CLOSE )
 {
 /* #ifdef OS_UNIX_COMPATIBLE */
@@ -269,6 +274,7 @@ HB_FUNC( ICONV_CLOSE )
       iconv_close( it_utf2866 );
 /* #endif*/
 }
+#endif
 
 #pragma ENDDUMP
 
