@@ -3475,8 +3475,21 @@ See sample program "demosplit.prg" for details.<br>
     Scroll with up/down keys through the memo text)<br>
     
     <p></p>
-
-
+    
+    <br><strong class="subhead"> hwg_UNIX2DOS(cText)</strong><br>
+    <br>
+    Convert LINUX/UNIX line endings to DOS/Windows.<br>
+    This is mandatory for memo fields !<br>
+    (for example by using FUNCTION hwg_ShowHelp() )<br> 
+    If text has LINUX/UNIX line endings,<br>
+    convert it forever to Windows (also on LINUX).<br>
+    This function is the equvalent to UNIX command<br>
+    unix2dos.<br>
+    Sample call see<br> 
+    samples/demo.ch,<br>
+    FUNCTION demo_ShowCode()<br>
+    
+    <p></p>
 
 
    <br><strong class="subhead"><a name="Functions81" href="hwgdoc.html#_Functions81">

@@ -2115,4 +2115,14 @@ LOCAL nrbytes := 1
 #endif
 #endif
 
+FUNCTION hwg_UNIX2DOS(cText)
+   IF cText == NIL
+      cText := ""
+   ENDIF
+ 
+   IF AT(CHR(13) + CHR(10),cText) < 1
+        cText := StrTran( cText, Chr(10), CHR(13) + CHR(10) )
+   ENDIF
+RETURN cText
+
 * ======================= EOF of hmisccross.prg ===========================

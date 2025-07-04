@@ -16,6 +16,15 @@
 */
 
 
+2025-07-04 16:20 UTC+0200 Wilfried Brunken DF7BE
+* source/cross/hmisccross.prg
+* doc/hwgdoc_functions.html
+* samples/demo.ch
+  ! New Function hwg_UNIX2DOS()
+  ! added, for common purposes.
+  ! The code in demo.ch is moved
+  ! to this function.
+
 
 2025-06-24 17:00 UTC+0200 Wilfried Brunken DF7BE
 * samples/allhbp.hbp
