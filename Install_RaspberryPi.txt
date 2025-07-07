@@ -9,6 +9,7 @@ By DF7BE
 History:
 ========
 
+2025-07-06  DF7BE   Additional instructions for Raspberry Pi 5
 2025-06-20  DF7BE   ZBar support
 2025-06-03  DF7BE   Little correction
 2025-05-31  DF7BE   First issue
@@ -69,6 +70,9 @@ This takes some time.
 Install the developer environment:
 sudo apt install build-essential -y
 
+If not already installed (for example Pi 5 und up):
+sudo apt install libpcre3 libpcre3-dev
+
 
 Check the GCC by typing:
 gcc --version
@@ -99,6 +103,44 @@ sudo apt-get install libgtk2.0-dev libgtk-3-dev
   (Needed for progress bars on LINUX)
   sudo apt install wmctrl 
 
+  
+Raspberry Pi 5:
+---------------
+
+The following description refers to the Pi with an SSD installed.
+The operating system should be installed there
+and booted from there.
+
+Installation is also done in the same
+way as for the Raspberry Pi 4,
+except that the following additional
+instructions must be noted:
+
+
+- Insert the included SD card into the
+  included adapter, then plug it into
+  a free USB port.
+  After powering on, it will boot from there
+  and the installation routine will start.
+  However, a network cable must be connected to the
+  router first, as selecting
+  a Wi-Fi network will only allowed later.
+- Before you are prompted to reboot,
+  unplug the USB SD adapter so that the
+  operating system boots from the SSD.
+- During installation, you can alternatively select
+  Firefox as the default browser.
+- The easy-to-use "Text Edit" from the Pi 4
+  is no longer available here. Alternatively, you can install
+  "Gedit":
+  sudo apt install gedit
+  There are other text editors,
+  suggestions can be found online.
+- The "pcre" library is missing, which can be installed as follows:
+  sudo apt install libpcre3 libpcre3-dev
+  This should allow all HWGUI programs to be built. 
+
+  
 
 3. Install Harbour
 ------------------
@@ -144,6 +186,17 @@ sudo apt-get install libgtk2.0-dev libgtk-3-dev
 ==> Set "afu" to your userid.
 
 - Logout and login for making this entries active.
+
+If the menu items cannot be accessed due to
+insufficient screen size, you can use the
+following commands to perform these actions:
+ 
+  Restart:
+  sudo reboot
+  
+  Immediate shutdown:
+  sudo shutdown -h now
+
 
 - Check for Harbour make utility:
   hbmk2 --version

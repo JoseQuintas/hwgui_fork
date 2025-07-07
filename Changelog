@@ -16,6 +16,11 @@
 */
 
 
+2025-07-07 18:10 UTC+0200 Wilfried Brunken DF7BE
+* Install_RaspberryPi.txt
+  ! Instructions for Raspberry Pi 5 added
+
+
 2025-07-04 16:20 UTC+0200 Wilfried Brunken DF7BE
 * source/cross/hmisccross.prg
 * doc/hwgdoc_functions.html
