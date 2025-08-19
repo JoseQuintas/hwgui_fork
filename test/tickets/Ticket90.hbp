@@ -1,0 +1,13 @@
+#
+# Ticket90.hbp
+#
+# $Id$
+#
+
+# hbct.hbc
+
+-oTicket90
+
+Ticket90.prg
+
+# ==================== EOF of Ticket90.hbp =========================

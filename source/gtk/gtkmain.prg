@@ -46,11 +46,13 @@ FUNCTION hwg_MsgGet( cTitle, cText, nStyle, x, y, nDlgStyle, cRes )
 
    RETURN cRes
 
-FUNCTION hwg_WChoice( arr, cTitle, nLeft, nTop, oFont, clrT, clrB, clrTSel, clrBSel, cOk, cCancel )
+FUNCTION hwg_WChoice( arr, cTitle, nLeft, nTop, oFont, clrT, clrB, clrTSel, clrBSel, cOk, cCancel,nwline )
 
    LOCAL oDlg, oBrw, lNewFont := .F.
    LOCAL nChoice := 0, i, aLen := Len( arr ), nLen := 0, addX := 20, addY := 20, minWidth := 0, x1
-   LOCAL hDC, aMetr, width, height, screenh
+   LOCAL hDC, aMetr, width, height
+   // LOCAL aArea, aRect
+   LOCAL screenh
 
    IF cTitle == Nil; cTitle := ""; ENDIF
    IF nLeft == Nil; nLeft := 10; ENDIF
@@ -59,6 +61,7 @@ FUNCTION hwg_WChoice( arr, cTitle, nLeft, nTop, oFont, clrT, clrB, clrTSel, clrB
       oFont := HFont():Add( "Times", 0, 14 )
       lNewFont := .T.
    ENDIF
+   IF nwline == NIL ; nwline := 21 ; ENDIF  && Ticket 90
    IF cOk != Nil
       minWidth += 120
       IF cCancel != Nil
@@ -77,17 +80,48 @@ FUNCTION hwg_WChoice( arr, cTitle, nLeft, nTop, oFont, clrT, clrB, clrTSel, clrB
       NEXT
    ENDIF
 
-   hDC := hwg_Getdc( HWindow():GetMain():handle )
+   * hDC := hwg_Getdc( HWindow():GetMain():handle )
+   * DF7BE: Ticket #90:
+   * crashes with "No exported method: HANDLE"
+   hDC := hwg_Getdc( HWindow():GetMain() )
+
    hwg_Selectobject( hDC, ofont:handle )
    aMetr := hwg_Gettextmetric( hDC )
+ 
+   // aRect := hwg_Getwindowrect( hwg_Getactivewindow() )
+   
    hwg_Releasedc( hwg_Getactivewindow(), hDC )
-   height := ( aMetr[1] + 5 ) * aLen + 4 + addY
-   screenh := hwg_Getdesktopheight()
-   IF height > screenh * 2/3
+   
+   // aArea := hwg_Getdevicearea( hDC )  /* Copied from WinAPI */
+   
+   // hwg_WriteLog("addY=" + ALLTRIM(STR(addY)) )
+   
+   // height := ( aMetr[1] + 5 ) * aLen + 4 + addY
+   * New formula, because of bug in GTK (Ticket 90)
+   height := ( nwline + 5 ) * aLen + 4 + addY
+   
+    screenh := hwg_Getdesktopheight()
+   
+    IF height > screenh * 2/3
       height := Int( screenh * 2/3 )
-      addX := addY := 0
+ //     addX := addY := 0
    ENDIF
+
+
    width := Max( minWidth, aMetr[2] * 2 * nLen + addX )
+   
+//   hwg_WriteLog("width="+ ALLTRIM(STR(width)) + CHR(10) + ;
+//      "height=" + ALLTRIM(STR(height)) + CHR(10) + ;
+//      "aMetr[1]=" + ALLTRIM(STR(aMetr[1]))  + CHR(10) + ;
+//      "aMetr[2]=" + ALLTRIM(STR(aMetr[2]))  + CHR(10) + ;
+//      "aArea[2]=" + ALLTRIM(STR(aArea[2]))  + CHR(10) + ;
+//      "aRect[2]=" + ALLTRIM(STR(aRect[2]))  + CHR(10) + ;
+//      "aLen=" + ALLTRIM(STR(aLen))          + CHR(10) + ;
+//      "nLen=" + ALLTRIM(STR(nLen))          + CHR(10) + ;
+//      "addY=" + ALLTRIM(STR(addY)) ;
+//      )
+ 
+   // height:= 150 && Is OK vor array with 3 elements.
 
    INIT DIALOG oDlg TITLE cTitle ;
       AT nLeft, nTop           ;
@@ -136,7 +170,7 @@ FUNCTION hwg_WChoice( arr, cTitle, nLeft, nTop, oFont, clrT, clrB, clrTSel, clrB
    oDlg:Activate()
    IF lNewFont
       oFont:Release()
-   ENDIF
+   ENDIF  &&   addX := addY := 0
 
    RETURN nChoice
 

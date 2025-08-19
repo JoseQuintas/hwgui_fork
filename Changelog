@@ -15,6 +15,17 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-08-19 17:30 UTC+0200 Wilfried Brunken DF7BE
+* doc/hwgdoc_functions.html
+* source/gtk/gtkmain.prg
+* source/winapi/guimain.prg
+* test/tickets/Ticket90.hbp
+* test/tickets/Ticket90.prg
+  ! Ticket #90:
+  ! Bugfix in hwg_WChoice() on GTK.
+  ! For details see post to ticket
+  ! an comment in test program.
+
 
 2025-07-07 18:10 UTC+0200 Wilfried Brunken DF7BE
 * Install_RaspberryPi.txt

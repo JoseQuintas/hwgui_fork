@@ -98,12 +98,14 @@ FUNCTION hwg_MsgGet( cTitle, cText, nStyle, x, y, nDlgStyle, cRes )
 
    RETURN cRes
 
-FUNCTION hwg_WChoice( arr, cTitle, nLeft, nTop, oFont, clrT, clrB, clrTSel, clrBSel, cOk, cCancel )
+FUNCTION hwg_WChoice( arr, cTitle, nLeft, nTop, oFont, clrT, clrB, clrTSel, clrBSel, cOk, cCancel , nwline )
 
    LOCAL oDlg, oBrw, nChoice := 0, lArray := .T. , nField, lNewFont := .F.
    LOCAL i, aLen, nLen := 0, addX := 20, addY := 20, minWidth := 0, x1
    LOCAL hDC, aMetr, width, height, aArea, aRect
    LOCAL nStyle := WS_POPUP + WS_VISIBLE + WS_CAPTION + WS_SYSMENU + WS_SIZEBOX
+   
+   HB_SYMBOL_UNUSED( nwline )  && For GTK only, ignored
 
    IF cTitle == Nil; cTitle := ""; ENDIF
    IF nLeft == Nil .AND. nTop == Nil; nStyle += DS_CENTER; ENDIF
