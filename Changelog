@@ -15,6 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+
+2025-08-24 10:45 UTC+0200 Wilfried Brunken DF7BE
+* test/tickets/Ticket207.hbp
+* test/tickets/Ticket207.prg
+  ! The bug can be reproduced
+  ! with this test program.
+  ! Bugfixing to be continued
+
+
 2025-08-19 17:30 UTC+0200 Wilfried Brunken DF7BE
 * doc/hwgdoc_functions.html
 * source/gtk/gtkmain.prg
