@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-08-25 17:30 UTC+0200 Wilfried Brunken DF7BE
+* source/cross/hmisccross.prg
+* test/tickets/Ticket207.prg
+* doc/hwgdoc_functions.html
+  ! New function hwg_xvalLog2()
+  ! Enhancement of hwg_xvalLog()
+  ! Allows debugging on
+  ! arrays with sub arrays.
+  ! (Need to help for
+  ! debugging of ticket207). 
 
 
 2025-08-25 10:00 UTC+0200 Wilfried Brunken DF7BE
