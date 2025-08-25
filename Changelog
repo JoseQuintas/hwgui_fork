@@ -16,6 +16,14 @@
 */
 
 
+
+2025-08-25 10:00 UTC+0200 Wilfried Brunken DF7BE
+* test/tickets/Ticket90.prg
+  ! Added french test text.
+  ! For result see post to Ticket.
+  ! (it is running OK on Ubuntu)
+
+
 2025-08-24 10:45 UTC+0200 Wilfried Brunken DF7BE
 * test/tickets/Ticket207.hbp
 * test/tickets/Ticket207.prg

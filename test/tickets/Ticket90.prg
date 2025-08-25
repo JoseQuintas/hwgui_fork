@@ -73,11 +73,20 @@ datum := DTOC(DATE())
 // aMenu := {"One"}
 // aMenu := {"One","Two","Three"}
 
+* Array with 3 lines of french text
+
+aMenu := {"Soupe froide de courgettes au tableaux" , ;
+"Samousas" , ;
+"Flan légumes d'été" }
+
 * and a big array
+
+/*
 aMenu := {"One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten", ;
  "Eleven","Twelve","Thirteen","Fourteen","Fivteen","Sixteen","Seventeen","Eighteen"," Nineteen", "Twenty", ;
  "Twentyone","Twentytwo","Twentythree","Twentyfour","Twentyfive","Twentysix","Twentyseven", "Twentyeight","Twentynine","Thirty", ;
  "Thirtyone","Thirtytwo","Thirtythree","Thirtyfour","Thirtyfive","Thirtysix","Thirtyseven","Thirtyeight","Thirtynine","Forty"}
+*/ 
 
 
 INIT DIALOG oMainWindow  TITLE "Ticket 90" AT 0,0 size 800,400 && STYLE DS_CENTER 
