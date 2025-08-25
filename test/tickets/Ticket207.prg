@@ -88,6 +88,10 @@ ENDIF
 //      oPrinter:StartDoc( .T. ,"temp_a2.ps", .T.) &&  lpreview = .T. lprbutton := .T.
 //      oPrinter:lpreview := .T.
       oPrinter:LoadScript(cScript+".out")
+
+      * Write converted script into logfile (contents of created array)
+      hwg_xvalLog2(oPrinter:aPages)
+      
       oPrinter:EndDoc(cScript+".out")
       oPrinter:End()
   

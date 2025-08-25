@@ -25,6 +25,8 @@
 
 STATIC nuniquenr
 
+STATIC nsubarray  && For hwg_xvalLog2()
+
 FUNCTION hwg_RdLn(nhandle, lrembltab)
 
  LOCAL nnumbytes , nnumbytes2 , buffer , buffer2
@@ -1532,6 +1534,55 @@ FUNCTION hwg_xvalLog(xxx,cttype,cttval,cttitle,cfilename)
    hwg_WriteLog(cttype + hwg_ValType(xxx) + " " +  cttval + hwg_xVal2C(xxx), cfilename )
 
    RETURN NIL
+
+FUNCTION hwg_xvalLog2(xxx,cttype,cttval,cttitle,cfilename)
+
+LOCAL i, newxxx
+
+   IF nsubarray == NIL ; nsubarray := 0 ; ENDIF
+
+   * Writes a value of xxx into a log file
+   IF cttype == NIL
+      cttype := "Type : "
+   ENDIF
+   IF cttval == NIL
+      cttval := "Value : "
+   ENDIF
+   IF cttitle == NIL
+      cttitle := "Debug"
+   ENDIF
+   IF cfilename == NIL
+      cfilename := "a.log"
+   ENDIF
+   * Check for array:
+   IF hwg_ValType(xxx) == "A"
+   nsubarray ++
+   hwg_WriteLog("Sub array, depth :=  " + ALLTRIM(STR(nsubarray)) , cfilename )
+   
+   IF hwg_Array_Len(xxx) == 0
+    
+       hwg_WriteLog("Sub array, depth :=  " + ALLTRIM(STR(nsubarray)) + ;
+       " Array is empty !"  , cfilename )
+   
+   ELSE
+   
+    FOR i := 1 TO hwg_Array_Len(xxx)
+      newxxx := xxx[i]
+      hwg_xvalLog2(newxxx,cttype,cttval,cttitle,cfilename)
+    NEXT
+   ENDIF
+
+   nsubarray --
+   hwg_WriteLog("Sub array, depth :=  " + ALLTRIM(STR(nsubarray)) ,  cfilename )
+   
+   ELSE 
+   * Sub element of other type
+   hwg_WriteLog(cttype + hwg_ValType(xxx) + " " +  cttval + hwg_xVal2C(xxx), cfilename )
+
+   ENDIF
+   
+   RETURN NIL
+
 
 FUNCTION hwg_ChangeCharInString(cinp,nposi,cval)
 

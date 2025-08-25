@@ -3401,6 +3401,43 @@ See sample program "demosplit.prg" for details.<br>
    Parameters cttype,cttval and cttitle same as hwg_xvalMsg(),<br>
    but written into logfile.<br>
    </p>
+   
+   <br><strong class="subhead"> hwg_xvalLog2(xxx,cttype,cttval,cttitle,cfilename)</strong><br>
+   <br>
+    Same as hwg_xvalLog(), but<br>
+   advanced debug logging also for arrays.<br>
+   Recursive call, if element is a sub array<br>   
+   <br> 
+   Example:<br>
+   atesten := { 1, .T. , {"SubA", "SubB", 1 , .F., {"2"} , {} } , "Top array" }<br>
+   <br>
+   hwg_xvalLog2(atesten)<br>
+   Sample output for this function call:<br>
+   <br>
+   Sub array, depth :=  1<br>
+   Type : N Value : 1<br>
+   Type : L Value : .T.<br>
+   Sub array, depth :=  2<br>
+   Type : C Value : SubA<br>
+   Type : C Value : SubB<br>
+   Type : N Value : 1<br>
+   Type : L Value : .F.<br>
+   Sub array, depth :=  3<br>
+   Type : C Value : 2<br>
+   Sub array, depth :=  2<br>
+   Sub array, depth :=  3<br>
+   Sub array, depth :=  3 Array is empty !<br>
+   Sub array, depth :=  2<br>
+   Sub array, depth :=  1<br>
+   Type : C Value : Top array<br>
+   Sub array, depth :=  0<br>
+   <br>
+   <br>Sample call for a single value:<br>
+   hwg_xvalLog2(.T.)<br>
+   <br>
+   Type : L Value : .T.<br>
+   <br>
+   <p></p>   
 
    <br><strong class="subhead"> hwg_Toggle_HalfByte( cchar )</strong><br>
    <p></p>
