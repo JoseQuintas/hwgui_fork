@@ -49,6 +49,7 @@ CLASS HPrinter INHERIT HObject
    DATA lprbutton      INIT .T.
    // --- International Language Support for internal dialogs --
    DATA aLangTexts
+
    // Print Preview Dialog with sub dialog:
    // The messages and control text's are delivered by other classes, calling
    // the method Preview() in Parameter aTooltips as an array.
@@ -62,70 +63,87 @@ CLASS HPrinter INHERIT HObject
    // HWINPRN, HRepTmpl , ...
    // For more details see inline comments in sample program "nlsdemo.prg"
 
-   METHOD New( cPrinter, lmm, nFormType , cdp )
+
+   // DF7BE: More methods on WinAPI as on GTK and some differences
+   // Methods of WinAPI are here deactivated by //
+   // 24 methods   
+
+   METHOD New( cPrinter, lmm, nFormType , cdp ) && More Parameter on WinAPI
    // FUNCTION hwg_HPrinter_LangArray_EN()
    METHOD DefaultLang()
    METHOD SetMode( nOrientation, nDuplex )
    METHOD Recalc( x1, y1, x2, y2 )
    METHOD AddFont( fontName, nHeight , lBold, lItalic, lUnderline, nCharset )
    METHOD SetFont( oFont )
-   METHOD AddPen( nWidth, style, color )
-   METHOD SetPen( nWidth, style, color )
+   METHOD AddPen( nWidth, style, color ) && GTK ONLY
+   METHOD SetPen( nWidth, style, color ) && GTK ONLY
+//   METHOD Settextcolor( nColor )  INLINE hwg_Settextcolor( ::hDC, nColor ) && WinAPI only
+//   METHOD SetTBkColor( nColor )   INLINE hwg_Setbkcolor( ::hDC, nColor ) && WinAPI only
+//   METHOD Setbkmode( lmode )   INLINE hwg_Setbkmode( ::hDC, IF( lmode, 1, 0 ) )  && WinAPI only
    METHOD StartDoc( lPreview, cScriptFile, lprbutton )
    METHOD EndDoc()
    METHOD StartPage()
    METHOD EndPage()
    METHOD End()
+   METHOD LoadScript( cScriptFile )
+   METHOD SaveScript( cScriptFile )
    METHOD Box( x1, y1, x2, y2, oPen )
    METHOD Line( x1, y1, x2, y2, oPen )
    METHOD Say( cString, x1, y1, x2, y2, nOpt, oFont )
    METHOD Bitmap( x1, y1, x2, y2, nOpt, hBitmap, cImageName )
-   METHOD LoadScript( cScriptFile )
-   METHOD SaveScript( cScriptFile )
    METHOD Preview(cTitle, aBitmaps, aTooltips, aBootUser)
    METHOD PaintDoc( oCanvas )
    METHOD PrintDoc()
    METHOD ChangePage( oCanvas, oSayPage, n, nPage )
+//   METHOD ReleaseMeta()  && WinAPI only
    METHOD GetTextWidth( cString, oFont )  INLINE hwg_gp_GetTextSize( ::hDC, cString, oFont:name, oFont:height )
+//   METHOD PrintDlg(aTooltips)  && WinAPI only
+//   METHOD PrintScript( hDC, nPage, x1, y1, x2, y2 )  && WinAPI only
+//   METHOD ReleaseRes()  && WinAPI only
+//   METHOD ResizePreviewDlg( oCanvas, nZoom, msg, wParam, lParam ) HIDDEN   && WinAPI only
+
 
 ENDCLASS
 
+
+
 FUNCTION hwg_HPrinter_LangArray_EN()
 
-   /* Returns array with captions for titles and controls of print preview dialog
-   in default language english.
-   Use this code snippet as template to set to your own desired language.
-   */
+  /* Returns array with captions for titles and controls of print preview dialog
+  in default language english.
+  Use this code snippet as template to set to your own desired language.
+  */
 
-   LOCAL aTooltips
+  LOCAL aTooltips
 
-   aTooltips := {}
+  aTooltips := {}
 
-   /* 1  */ AAdd(aTooltips,"Exit Preview")
-   /* 2  */ AAdd(aTooltips,"Print file")
-   /* 3  */ AAdd(aTooltips,"First page")
-   /* 4  */ AAdd(aTooltips,"Next page")
-   /* 5  */ AAdd(aTooltips,"Previous page")
-   /* 6  */ AAdd(aTooltips,"Last page")
-   /* 7  */ AAdd(aTooltips,"Zoom out")
-   /* 8  */ AAdd(aTooltips,"Zoom in")
-   /* 9  */ AAdd(aTooltips,"Print dialog")
-   // added (Titles and other Buttons)
-   /* 10 */ AAdd(aTooltips,"Print preview -") && Title
-   /* 11 */ AAdd(aTooltips,"Print")           && Button
-   /* 12 */ AAdd(aTooltips,"Exit")            && Button
-   /* 13 */ AAdd(aTooltips,"Dialog")          && Button
-   /* 14 */ AAdd(aTooltips,"User Button")     && aBootUser[ 3 ], Tooltip
-   /* 15 */ AAdd(aTooltips,"User Button")     && aBootUser[ 4 ]
-   // Subdialog "Printer Dialog"
-   /* 16 */ AAdd(aTooltips,"All")             && Radio Button              "All"
-   /* 17 */ AAdd(aTooltips,"Current")         && Radio Button              "Current"
-   /* 18 */ AAdd(aTooltips,"Pages")           && Radio Button              "Pages"
-   /* 19 */ AAdd(aTooltips,"Print")           && Button                    "Print"
-   /* 20 */ AAdd(aTooltips,"Cancel")          && Button                    "Cancel"
-   /* 21 */ AAdd(aTooltips,"Enter range of pages") && Tooltip              "Enter range of pages"
+  /* 1  */ AAdd(aTooltips,"Exit Preview")
+  /* 2  */ AAdd(aTooltips,"Print file")
+  /* 3  */ AAdd(aTooltips,"First page")
+  /* 4  */ AAdd(aTooltips,"Next page")
+  /* 5  */ AAdd(aTooltips,"Previous page")
+  /* 6  */ AAdd(aTooltips,"Last page")
+  /* 7  */ AAdd(aTooltips,"Zoom out")
+  /* 8  */ AAdd(aTooltips,"Zoom in")
+  /* 9  */ AAdd(aTooltips,"Print dialog")
+  // added (Titles and other Buttons)
+  /* 10 */ AAdd(aTooltips,"Print preview -") && Title
+  /* 11 */ AAdd(aTooltips,"Print")           && Button
+  /* 12 */ AAdd(aTooltips,"Exit")            && Button
+  /* 13 */ AAdd(aTooltips,"Dialog")          && Button
+  /* 14 */ AAdd(aTooltips,"User Button")     && aBootUser[ 3 ], Tooltip
+  /* 15 */ AAdd(aTooltips,"User Button")     && aBootUser[ 4 ]
+  // Subdialog "Printer Dialog"
+  /* 16 */ AAdd(aTooltips,"All")             && Radio Button              "All"
+  /* 17 */ AAdd(aTooltips,"Current")         && Radio Button              "Current"
+  /* 18 */ AAdd(aTooltips,"Pages")           && Radio Button              "Pages"
+  /* 19 */ AAdd(aTooltips,"Print")           && Button                    "Print"
+  /* 20 */ AAdd(aTooltips,"Cancel")          && Button                    "Cancel"
+  /* 21 */ AAdd(aTooltips,"Enter range of pages") && Tooltip              "Enter range of pages"
 
-   RETURN aTooltips
+RETURN aTooltips
+
 
 METHOD New( cPrinter, lmm, nFormType , cdp) CLASS HPrinter
 
@@ -183,9 +201,9 @@ METHOD New( cPrinter, lmm, nFormType , cdp) CLASS HPrinter
 
 METHOD DefaultLang() CLASS HPrinter
 
-   ::aLangTexts := hwg_HPrinter_LangArray_EN()
+  ::aLangTexts := hwg_HPrinter_LangArray_EN()
 
-   RETURN NIL
+RETURN NIL
 
 METHOD SetMode( nOrientation, nDuplex ) CLASS HPrinter
 
@@ -565,6 +583,7 @@ METHOD Preview( cTitle, aBitmaps, aTooltips, aBootUser ) CLASS HPrinter
       SIZE TOOL_SIDE_WIDTH - 6, 24 TEXT cmPrint FONT oFont         ;  && "Print"
       TOOLTIP iif( aTooltips != Nil, aTooltips[ 2 ], "Print file" )
   ENDIF
+
 
    IF aBitmaps != Nil .AND. Len( aBitmaps ) > 2 .AND. aBitmaps[ 3 ] != Nil
       oBtn:oBitmap := iif( aBitmaps[ 1 ], HBitmap():AddResource( aBitmaps[ 3 ] ), HBitmap():AddFile( aBitmaps[ 3 ] ) )
@@ -949,3 +968,5 @@ STATIC FUNCTION MessProc( oPrinter, oPanel, lParam )
    ENDIF
 
    RETURN 1
+
+* =================== EOF of hprinter.prg =================

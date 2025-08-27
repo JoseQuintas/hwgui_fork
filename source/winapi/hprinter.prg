@@ -15,14 +15,21 @@
 STATIC crlf := e"\r\n"
 #define SCREEN_PRINTER ".buffer"
 
-CLASS HPrinter INHERIT HObject
+// #if defined( __GTK__ ) .AND. defined( __RUSSIAN__ )
+//
+//   CLASS VAR cdp       SHARED  INIT "RUKOI8"
+// #else
+//   CLASS VAR cdp       SHARED  INIT "EN"
+// #endif
+
+   CLASS HPrinter INHERIT HObject
 
    CLASS VAR aPaper  INIT { { "A3", 297, 420 }, { "A4", 210, 297 }, { "A5", 148, 210 }, ;
       { "A6", 105, 148 } }
 
-   DATA hDCPrn     INIT 0
-   DATA hDC
-   DATA cPrinterName
+   DATA hDCPrn     INIT 0   && GTK only
+   DATA hDC                 && INIT 0 on GTK
+   DATA cPrinterName         && INIT "DEFAULT" on GTK
    DATA hPrinter   INIT 0
    DATA lPreview
    DATA nWidth, nHeight, nPWidth, nPHeight
@@ -60,6 +67,7 @@ CLASS HPrinter INHERIT HObject
    DATA lprbutton      INIT .T.
    // --- International Language Support for internal dialogs --
    DATA aLangTexts
+
    // Print Preview Dialog with sub dialog:
    // The messages and control text's are delivered by other classes, calling
    // the method Preview() in Parameter aTooltips as an array.
@@ -73,39 +81,49 @@ CLASS HPrinter INHERIT HObject
    // HWINPRN, HRepTmpl , ...
    // For more details see inline comments in sample program "nlsdemo.prg"
 
+
+   // DF7BE: More methods on WinAPI as on GTK and some differences
+   // Methods of GTK are here deactivated by //
+   // 30 methods  
+
    METHOD New( cPrinter, lmm, nFormType, nBin, lLandScape, nCopies, lProprierties, hDCPrn )
    // FUNCTION hwg_HPrinter_LangArray_EN()
    METHOD DefaultLang()
    METHOD SetMode( nOrientation, nDuplex )
+   METHOD Recalc( x1, y1, x2, y2 )
    METHOD AddFont( fontName, nHeight , lBold, lItalic, lUnderline, nCharset )
    METHOD SetFont( oFont )  INLINE (::oFont := oFont, hwg_Selectobject( ::hDC, oFont:handle ) )
-   METHOD Settextcolor( nColor )  INLINE hwg_Settextcolor( ::hDC, nColor )
-   METHOD SetTBkColor( nColor )   INLINE hwg_Setbkcolor( ::hDC, nColor )
-   METHOD Setbkmode( lmode )   INLINE hwg_Setbkmode( ::hDC, IF( lmode, 1, 0 ) )
-   METHOD Recalc( x1, y1, x2, y2 )
+//   METHOD AddPen( nWidth, style, color ) && GTK ONLY
+//   METHOD SetPen( nWidth, style, color ) && GTK ONLY
+   METHOD Settextcolor( nColor )  INLINE hwg_Settextcolor( ::hDC, nColor ) && WinAPI only
+   METHOD SetTBkColor( nColor )   INLINE hwg_Setbkcolor( ::hDC, nColor ) && WinAPI only
+   METHOD Setbkmode( lmode )   INLINE hwg_Setbkmode( ::hDC, IF( lmode, 1, 0 ) )  && WinAPI only
    METHOD StartDoc( lPreview, cScriptFile , lprbutton )
    METHOD EndDoc()
    METHOD StartPage()
    METHOD EndPage()
+   METHOD End()
    METHOD LoadScript( cScriptFile )
    METHOD SaveScript( cScriptFile )
-   METHOD ReleaseMeta()
-   METHOD PaintDoc( oWnd )
-   METHOD PrintDoc( nPage )
-   METHOD PrintDlg(aTooltips)
-   METHOD PrintScript( hDC, nPage, x1, y1, x2, y2 )
-   METHOD Preview( cTitle, aBitmaps, aTooltips, aBootUser )
-   METHOD End()
-   METHOD ReleaseRes()
    METHOD Box( x1, y1, x2, y2, oPen, oBrush )
    METHOD Line( x1, y1, x2, y2, oPen )
    METHOD Say( cString, x1, y1, x2, y2, nOpt, oFont, nTextColor, nBkColor )
    METHOD Bitmap( x1, y1, x2, y2, nOpt, hBitmap, cImageName )
-   METHOD GetTextWidth( cString, oFont )
-   METHOD ResizePreviewDlg( oCanvas, nZoom, msg, wParam, lParam ) HIDDEN
-   METHOD ChangePage( oCanvas, oSayPage, n, nPage ) HIDDEN
+   METHOD Preview(cTitle, aBitmaps, aTooltips, aBootUser )
+   METHOD PaintDoc( oWnd )
+   METHOD PrintDoc( nPage )
+   METHOD ChangePage( oCanvas, oSayPage, n, nPage ) HIDDEN   
+   METHOD ReleaseMeta()  && WinAPI only
+   METHOD GetTextWidth( cString, oFont )   
+   METHOD PrintDlg(aTooltips)  && WinAPI only
+   METHOD PrintScript( hDC, nPage, x1, y1, x2, y2 )  && WinAPI only
+   METHOD ReleaseRes()  && WinAPI only
+   METHOD ResizePreviewDlg( oCanvas, nZoom, msg, wParam, lParam ) HIDDEN   && WinAPI only
+
 
 ENDCLASS
+
+
 
 FUNCTION hwg_HPrinter_LangArray_EN()
 
@@ -115,6 +133,7 @@ FUNCTION hwg_HPrinter_LangArray_EN()
   */
 
   LOCAL aTooltips
+
   aTooltips := {}
 
   /* 1  */ AAdd(aTooltips,"Exit Preview")
@@ -143,9 +162,11 @@ FUNCTION hwg_HPrinter_LangArray_EN()
 
 RETURN aTooltips
 
+
 METHOD New( cPrinter, lmm, nFormType, nBin, lLandScape, nCopies, lProprierties, hDCPrn ) CLASS HPrinter
 
-   LOCAL aPrnCoors, cPrinterName, nTemp
+   LOCAL aPrnCoors
+   LOCAL cPrinterName, nTemp
 
    ::DefaultLang()
 
@@ -270,6 +291,7 @@ METHOD SetMode( nOrientation, nDuplex ) CLASS HPrinter
 
    RETURN .F.
 
+/* Added: , nCharset */
 METHOD AddFont( fontName, nHeight , lBold, lItalic, lUnderline, nCharset ) CLASS HPrinter
 
    LOCAL oFont
@@ -615,6 +637,8 @@ METHOD SaveScript( cScriptFile ) CLASS HPrinter
    ENDIF
 
    IF !Empty( cScriptFile )
+      // hwg_MsgInfo("Scriptfile=" + cScriptFile )
+      // Default scriptfile is "temp_a2.ps"
       han := FCreate( cScriptFile )
       FWrite( han, "job," + ;
             LTrim( Str(Iif(::lmm,::nWidth*::nHRes,::nWidth) ) ) + "," + ;
@@ -1373,3 +1397,5 @@ STATIC FUNCTION MessProc( oPrinter, oPanel, lParam )
    ENDIF
 
    RETURN 1
+
+* =================== EOF of hprinter.prg =================
