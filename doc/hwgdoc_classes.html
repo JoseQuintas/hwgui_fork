@@ -29,7 +29,7 @@
   </tr>
   <tr>
     <td width="15%" align="left"><a href="hwgdoc_functions.html">prev</a></td>
-    <td width="70%" align="center">Alexander S.Kresin, March 2025</td>
+    <td width="70%" align="center">Alexander S.Kresin, August 2025</td>
     <td width="15%" align="right"><a href="hwgdoc_misc.html">next</a></td>
   </tr>
 </table>
@@ -1946,9 +1946,9 @@
    HPrinter</a></strong>
    <pre class="code">DATA
       CLASS VAR aPaper         (R)
-      hDCPrn                   (R)
-      hDC                      (R)
-      cPrinterName             (R)
+      hDCPrn                   (R)    - GTK only
+      hDC                      (R)    - INIT 0 on GTK, no INIT on WinAPI
+      cPrinterName             (R)    - INIT "DEFAULT" on GTK, no INIT on WinAPI
       hPrinter                 (R)
       lPreview                 (R)
       cMetaName                (R)
@@ -1996,32 +1996,51 @@
       // HWINPRN, HRepTmpl , ...
       // For more details see inline comments in sample program "Winprn.prg"
    </pre>
+   <pre>
+    More methods on WinAPI as on GTK and some differences.
+    WinAPI 30 methods, GTK 24 methods
+   </pre>
    <pre class="code">METHODS
       New( cPrinter, lmm, nFormType, nBin, lLandScape, nCopies, lProprierties, hDCPrn ) - Windows
       New( cPrinter, lmm, nFormType , cdp )                                             - GTK
       FUNCTION hwg_HPrinter_LangArray_EN()
       DefaultLang()
       SetMode( nOrientation, nDuplex )
+      Recalc( x1, y1, x2, y2) 
       AddFont( fontName, nHeight ,lBold, lItalic, lUnderline, nCharset )
       SetFont( oFont )
+      AddPen( nWidth, style, color ) - GTK only
+      SetPen( nWidth, style, color ) - GTK only
+      Settextcolor( nColor ) - WinAPI only
+      SetTBkColor( nColor )  - WinAPI only
+      Setbkmode( lmode )     - WinAPI only
       StartDoc( lPreview,cMetaName,lprbutton ) - Starts printing of a document.
       EndDoc()                  - End of a document printing.
       StartPage()
       EndPage()
+      End()                     - Releasing the printer.
       LoadScript( cScriptFile )
       SaveScript( cScriptFile )
-      ReleaseMeta()
-      PaintDoc( oWnd )
-      PrintDoc( nPage )
-      PrintDlg(aTooltips)
-      PrintScript( hDC, nPage, x1, y1, x2, y2 )
-      Preview( cTitle, aBitmaps, aTooltips, aBootUser )
-      End()                     - Releasing the printer.
       Box( x1,y1,x2,y2,oPen )
       Line( x1,y1,x2,y2,oPen )
       Say( cString,x1,y1,x2,y2,nOpt,oFont )
       Bitmap( x1,y1,x2,y2,nOpt,hBitmap )
+      Preview( cTitle, aBitmaps, aTooltips, aBootUser )
+      PaintDoc( oWnd )
+      PrintDoc( nPage )
+      ChangePage( oCanvas, oSayPage, n, nPage ) HIDDEN
+      ReleaseMeta()             - WinAPI only
       GetTextWidth( cString, oFont )
+      PrintDlg(aTooltips)       - WinAPI only
+      PrintScript( hDC, nPage, x1, y1, x2, y2 )  - WinAPI only
+      ReleaseRes()                               - WinAPI only
+      ResizePreviewDlg( oCanvas, nZoom, msg, wParam, lParam ) HIDDEN   - WinAPI only
+
+      Defined later in source code file:
+      CLASS HGP_Font INHERIT HObject   - GTK only
+      CLASS HGP_Pen INHERIT HObject    - GTK only
+      For list of methods and data see source code file
+       source/gtk/hprinter.prg
    </pre>
    <p>
    Additional instructions:<br>
