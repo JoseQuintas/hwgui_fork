@@ -1,7 +1,9 @@
-Install HWGUI on Raspberry Pi
-=============================
+Quick Instructions for Raspberry Pi 400 and 5
+=============================================
 
   $Id$
+  
+
 
 By DF7BE
 
@@ -9,75 +11,195 @@ By DF7BE
 History:
 ========
 
+2025-11-12  DF7BE   Workaround missing package "libpecre"
 2025-07-06  DF7BE   Additional instructions for Raspberry Pi 5
 2025-06-20  DF7BE   ZBar support
 2025-06-03  DF7BE   Little correction
-2025-05-31  DF7BE   First issue
+2025-05-31  DF7BE   First issue derived from german instructions.
 
 
 Contents:
 =========
-1. Preface
-2. Installation of prerequisites
-3. Install Harbour
-4. Install HWGUI
-5. Literature reference and Internet links
+
+1.   Preface
+2.   System requirements
+3.   Installation of prerequisites
+3.1  System packages
+4.   Install Harbour
+5.   Install HWGUI
+6.   Install ZBar
+7.   Final instructions
+8.   Backup
+9.   Literature reference and Internet links
+10.  Appendix
+10.1 Installation libpecre from source
+10.2 Create a Clone of the SD Card
+10.3 Preliminary instructions for Installation ZBar from source code
+10.4 Libre Office
 
 
 
 1. Preface
 ----------
 
+As a multi-platform application,
+all HWGUI applications can also be run on the Raspberry Pi,
+a small computer widely used in several purposes.
+The running speed on a Model 400
+is already very good.
+
 The Raspberry OS bases on LINUX, so
 the installation is simular to
 the HWGUI installation on LINUX.
 
+Since the operating system is derived from Linux,
+the installation is similar, however, there are
+some special considerations which are covered in this guide.
+By following these instructions, you should
+reach your goal quickly.
 
-2. Installation of prerequisites
+
+2.  System requirements
+-----------------------
+
+Installation done at 24.06.2025 (DD.MM.YYYY)
+
+The data of the system:
+
+uname -a
+Linux raspberrypi 6.1.21-v8+ #1642 SMP PREEMPT Mon Apr  3 17:24:16 BST 2023 aarch64 GNU/Linux
+
+cat /proc/cpuinfo 
+processor	: 0
+BogoMIPS	: 108.00
+Features	: fp asimd evtstrm crc32 cpuid
+CPU implementer	: 0x41
+CPU architecture: 8
+CPU variant	: 0x0
+CPU part	: 0xd08
+CPU revision	: 3
+
+processor	: 1
+BogoMIPS	: 108.00
+Features	: fp asimd evtstrm crc32 cpuid
+CPU implementer	: 0x41
+CPU architecture: 8
+CPU variant	: 0x0
+CPU part	: 0xd08
+CPU revision	: 3
+
+processor	: 2
+BogoMIPS	: 108.00
+Features	: fp asimd evtstrm crc32 cpuid
+CPU implementer	: 0x41
+CPU architecture: 8
+CPU variant	: 0x0
+CPU part	: 0xd08
+CPU revision	: 3
+
+processor	: 3
+BogoMIPS	: 108.00
+Features	: fp asimd evtstrm crc32 cpuid
+CPU implementer	: 0x41
+CPU architecture: 8
+CPU variant	: 0x0
+CPU part	: 0xd08
+CPU revision	: 3
+
+Hardware	: BCM2835
+Revision	: c03130
+Serial		: 100000008f46e617
+Model		: Raspberry Pi 400 Rev 1.0
+
+ df -h
+Dateisystem    Größe Benutzt Verf. Verw% Eingehängt auf
+/dev/root        15G     12G  2,5G   82% 
+
+
+
+3. Installation of prerequisites
 --------------------------------
 
 This chapter describes the installation of:
-- The OS
+- Setting up the operating system
 - GCC
 - GTK2
 - wmctrl
+- Zbar  (needed for QR code decoding reading from camera)
 
-First after switching the Raspberry Pi on,
-follow the installation steps
-in the Raspberry Pi desktop.
-(Set language, set password of main user, 
-connect to LAN/WLAN, download and run first updates, final reboot )
+Note:
+
+Shell scripts must have execute permission.
+If a corresponding error message occurs when
+running a script, set this permission for all shell
+scripts using the command:
+chmod 755 *.sh
+
+
+
+3.1 System packages
+-------------------
+
+After powering on the Raspberry Pi for the first time,
+follow the setup steps in the
+Raspberry Pi Desktop.
+(Set language, set the main user and password,
+connect to the LAN/WLAN,
+download and run the first updates,
+final reboot)
 
 You need to enter a main userid (administrator role)
-and an associated password. For example (in my case)
-it is "afu".
+and an associated password. For example (in my case
+it is "afu")
+(The password can also be left blank).
+
+The main user's name can be chosen freely,
+for example, "afu"; the descriptions refer to this example.
 
 Terminal:
-Open a terminal window on your Raspberry Pi
-(you can do this by pressing Ctrl+Alt+T)
-and run the commands.
+To execute commands,
+a terminal window must be opened on the Raspberry Pi.
+This can be done with the key combination
+Ctrl+Alt+T (or) Ctrl+Alt+T.
 
+Now a complete system update must be performed:
 
-Now start the full upgrade:
-
+sudo apt-get update  1*)
+sudo apt-get upgrade 2*) 
 sudo apt-get update
-sudo apt-get upgrade
-sudo apt-get update
 
-This takes some time.
+1*) To refresh packet lists
+2*) To install any available updates
 
+This process takes some time.
 
-Install the developer environment:
+Installing the development environment:
 sudo apt install build-essential -y
 
-If not already installed (for example Pi 5 und up):
+Answer "Y" to confirm the installation:
+
+Do you want to continue? [Y/n]
+If not already installed (for example, on Pi 5 and up)
+(English text assumed):
+
 sudo apt install libpcre3 libpcre3-dev
 
 
+Special case, Pi 4:
+(November 2025)
+Error: Package libpcre3 cannot be found.
+Error: There is no installation candidate for package >libpcre3-dev<.
+A solution is described in appendix
+"10.1 Installation libpecre from source".
+
+We recommend setting up libpcre after compiling Harbour.
+
 Check the GCC by typing:
 gcc --version
-gcc (Rasbian 10.2.1-6+rpi1) 10.2.1 20210110 
+gcc (Rasbian 10.2.1-6+rpi1) 10.2.1 20210110
 
+
+Create test program:
 nano hello.cpp
 
 #include <iostream>
@@ -87,9 +209,15 @@ int main() {
   return 0;
 }
 
-Save and exit the editor (in nano, press Ctrl+X, then Y to save and Enter to confirm the filename). Now compile the program using GCC:
+Save and exit the editor 
+(In nano, press Ctrl+X, then Y to save, and
+Enter to confirm the filename).
+
+Now compile the program with GCC:
 
 g++ hello.cpp -o hello
+
+Run the program:
 
 ./hello
 
@@ -98,6 +226,8 @@ g++ hello.cpp -o hello
 sudo apt-get install pkg-config
 sudo apt-get install libgtk2.0-dev libgtk-3-dev
 
+If already installed:
+xxx have already the newest version (<version>)  (English text assumed)
 
 - Install "wmctrl"
   (Needed for progress bars on LINUX)
@@ -107,11 +237,12 @@ sudo apt-get install libgtk2.0-dev libgtk-3-dev
 Raspberry Pi 5:
 ---------------
 
-The following description refers to the Pi with an SSD installed.
+The following description refers to
+the Pi with an SSD installed.
 The operating system should be installed there
 and booted from there.
 
-Installation is also done in the same
+The installation is performed in the same
 way as for the Raspberry Pi 4,
 except that the following additional
 instructions must be noted:
@@ -140,50 +271,77 @@ instructions must be noted:
   sudo apt install libpcre3 libpcre3-dev
   This should allow all HWGUI programs to be built. 
 
-  
+ 
+Overview:
+---------
+Installation directories in the home directory
+of the user account:
+hwgui   (lower case)
+Harbour (1st letter in upper case) 
 
-3. Install Harbour
+ 
+
+4. Install Harbour
 ------------------
 
-- Create the installation destination with the
-  file explorer manually:
-  /home/afu/Harbour
+Replace "afu" with your username.
 
-  
-- Download the Harbour code snapshot from github.io.
-  (Browser is named "Chromium")
+- Manually create the installation target using the
+  file explorer (or the command "mkdir"):
+   /home/afu/Harbour
 
-- Extract it with the Archiver to
+- Download the Harbour Code snapshot from github.io.
+ (The browser should be "Chromium"; alternatively, Firefox
+  can be selected during the Raspberry Pi installation.)
+
+- Extract it the Archiver to the directory:
   /home/afu/Harbour/core-master
 
-- Go to this directory and start the build process by typing
-  make
-  (this needs some time)  
+- Navigate to this directory and start the build process by typing
+   make
+
+  (This takes approximately 20 minutes for the Model 400.)
 
 
-4. Install HWGUI
+5. Install HWGUI
 ----------------
 
-- Edit the .profile:
+- Edit the .bashrc:
   Open the file viewer and allow to show
   hidden files.
-  Goto to .profile and and right click:
+  Goto to .bashrc and and right click:
   Open with "Text Editor":
+ 
+  Copy this text at end of file:
 
 # --- Harbour and HWGUI --
-   HARBOUR_INSTALL=/home/afu/Harbour/core-master
+   HARBOUR_INSTALL=/home/logger/Harbour/core-master
    HWGUI_INSTALL=$HOME/hwgui
    PATH=$PATH:$HARBOUR_INSTALL/bin/linux/gcc:$HWGUI_INSTALL/bin
    export PATH
-   LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HARBOUR_INSTALL/lib/linux/gcc
+   LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HARBOUR_INSTALL/lib/linux/gcc:/usr/local/lib
    export LD_LIBRARY_PATH
    HB_COMPILER=gcc
    export HB_COMPILER
    HB_INSTALL_PREFIX=$HARBOUR_INSTALL
    export HB_INSTALL_PREFIX
 #
- 
+
 ==> Set "afu" to your userid.
+
+Instead of a graphical editor, you can also use
+the old "vi" editor:
+vi .bashrc
+with "G" go to the end of the file
+"A" allows you to append characters,
+now insert the text using the terminal's context menu.
+<ESC> exits insert mode.
+
+You can move around the text using the cursor keys.
+x: Delete the character under the cursor
+i: Insert text until the <ESC> key is pressed.
+
+
 
 - Logout and login for making this entries active.
 
@@ -207,8 +365,8 @@ following commands to perform these actions:
 - Download the recent code snapshot of HWGUI
   in the "Code" tab.
 
-- - Create the installation destination with the
-  file explorer manually:
+- Create the installation destination with the
+  file explorer manually (or with command mkdir):
   /home/afu/hwgui
   (concerning to the settings in .profile,
    this is the base directory of HWGUI )
@@ -232,22 +390,75 @@ following commands to perform these actions:
 - At final, build your own HWGUI application
 
 
-- Install ZBar from package or by compiling from source code 
-  following the instructions in file
-  contrib/qrcode/qrdecode/ReadMe.txt
+
+6. Install ZBar
+---------------
+
+Install ZBar from package (recommended)
+or by compiling from source code 
+following the instructions in file
+ contrib/qrcode/qrdecode/ReadMe.txt
+ 
+Preliminary instructions for installing
+ZBar from the source code
+are included in Appendix 10.1.
+
+  
+7. Final instructions
+---------------------  
+
+If the window is to big in the monitor, the following hotkeys can be used for:
+
+Close an application : Alt + F4
+Shutdown : Ctrl+Alt+Del
+
+We recommend cloning the SD card containing the system
+so that a backup copy of the system is available.
+Instructions for this can be found online.
+November 2025:
+
+It turned out that the required package "libpcre" (version 3)
+is no longer available for installation.
+
+The following error message indicates the missing component:
+./<your_exe> error while loading shared libraries: libpcre.so.1:
+cannot open shared object file: No such file or directory
+Or, if PCRE was installed, look for the missing entry in the
+environment variable LD_LIBRARY_PATH.
+ env | grep LD
+This should be:
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HARBOUR_INSTALL/lib/linux/gcc:/usr/local/lib
+Installation instructions for PCRE are in Appendix 10.1
+
+
+If the window is to big in the monitor,
+the following hotkeys can be used for:
+
+Close an application : Alt + F4
+Shutdown : Ctrl+Alt+Del 
+
+8.  Backup
+----------
+
+We recommend cloning the SD card containing the system
+so that a backup copy of the system is available.
+Instructions for this can be found online.
+
+
+
+Important!
+Remember to incorporate the changes when creating a new version of the script,
+as it will not be overwritten when a log instance is updated.
+
 
 
 We recommend to clone the SD card to get a
 backup copy of the system.
 Find instructions by searching in the Internet.
 
-If the window is to big, the following hotkeys can be used for:
-
-Close an application : Alt + F4
-Shutdown : Ctrl+Alt+Del 
 
 
-5. Literature reference and Internet links
+9. Literature reference and Internet links
 ------------------------------------------
 
 [1] The official Raspberry Pi handbook for beginners,
@@ -272,6 +483,154 @@ Shutdown : Ctrl+Alt+Del
     26452 Sande
     Germany
     (30th May 2025)	
-   
-=============================== EOF of Install_RaspberryPi.txt ======================
 
+
+
+10. Appendix
+============
+
+10.1 Installation libpecre from source
+--------------------------------------
+
+Installation (non-root),
+the installation directory (prefix) is
+$HOME/local
+
+Create the installation directory manually:
+mkdir pcre
+cd pcre
+
+Place the file "pcre3_8.39.orig.tar.gz" there and
+extract it using the following two commands:
+tar -xvzf pcre3_8.39.orig.tar.gz
+tar -xvf pcre3_8.39.orig.tar
+
+Now compile PCRE:
+cd pcre-8.39
+./configure --prefix=/home/cltest/local
+make
+
+The following warning can be ignored:
+Die folgende Warnung kann ignoriert werden:
+cregrep.c:3177:59: note: directive argument in the range [1, 2147483647]
+ 3177 |     if (patterns->next == NULL) s[0] = 0; else sprintf(s, " number %d", j);
+      |                                                           ^~~~~~~~~~~~
+In function ‘sprintf’,
+    inlined from ‘main’ at pcregrep.c:3177:48:
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:30:10: note: ‘__builtin___sprintf_chk’ output between 10 and 19 bytes into a destination of size 16
+   30 |   return __builtin___sprintf_chk (__s, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   31 |                                   __glibc_objsize (__s), __fmt,
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   32 |                                   __va_arg_pack ());
+      |                                   ~~~~~~~~~~~~~~~~~
+
+
+make install
+~/local/lib/lib$
+
+
+10.2 Create a Clone of the SD Card
+----------------------------------
+
+Instructions for creating an image on a Linux system.
+The instructions so far assume that an SD card slot is available.
+
+Copying with a USB adapter is still causing problems.
+An image file was successfully created using an 
+"ICY BOX IB-HUB1423CR-U3" adapter from RaidSonic Technology GmbH,
+Kurt-Fischer-Str. 50, 22926 Ahrensburg.
+
+However, when creating the target card,
+it was a few bytes too small,
+so the process was aborted with an error message.
+The Raspberry Pi therefore does not boot.
+(This will be investigated further under Ubuntu with the bs=4M option.)
+
+It can be copied to a larger SD card (32 GB),
+and the file system can then be enlarged later.
+
+Instructions should be easy to find by searching in the internet.
+Example command for direct copy (2 slots required):
+sudo dd if=/dev/your_card of=/dev/blank_card
+Basically:
+Create image file
+sudo dd if=/dev/sdb of=~/raspbian_backup.img
+
+Create the new SD card from this image file:
+sudo mount | grep sdb
+sudo umount /dev/sdb1 /dev/sdb2 /dev/sdb3 /dev/sdb4
+
+sudo dd if=~/raspbian_backup.img of=/dev/sdb
+
+The behavior with a USB adapter (here on Ubuntu)
+differs considerably:
+
+After plugging it in, two systems are displayed
+in the file explorer
+(indicated by a USB icon in the taskbar):
+
+bootfs
+rootfs (everything from "/" onwards is visible; it must be selected to unmount)
+
+Create the image file with:
+sudo dd bs=4M if=/dev/sda of=~/rasp.img
+Please pay attention to error messages and compare the
+size.
+
+
+10.3 Preliminary instructions for Installation ZBar from source code
+--------------------------------------------------------------------
+
+(June 2025)
+
+A complete installation package for using a USB camera
+is available.
+
+Older versions of the Raspberry Pi require an additional camera module,
+but this has not been tested here.
+
+The installation described in this appendix from the source code
+might also be helpful for installations on other operating systems.
+
+In older versions of the Raspberry Pi,
+the command "rpicam-hello" is available for testing the camera,
+but not for the 400.
+
+Plug the camera into the USB port and check for existing
+device files:
+ ls -l /dev/video*
+ /dev/video0
+
+Now start ZBar with
+ zbarcam
+and try scanning some QR codes.
+The result will be displayed in the terminal window.
+If the camera is not ready, zbarcam will exit
+with a format error message.
+
+
+10.4: Libre Office
+------------------
+(Optional)
+
+LibreOffice is usually pre-installed on the SD card included with the operating system.
+If it is not, the following description was found online (not tested):
+
+(June 24, 2025)
+
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get dist-upgrade
+sudo apt-get install libreoffice
+sudo apt-get install libreoffice-l10n-de   # Language package DE
+sudo apt-get install libreoffice-help-de   # Help texts
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Have success and fun,
+73 es 55 de
+
+Wilfried, DF7BE
+
+===================== EOF of RaspberryPi.txt ======================

@@ -9,7 +9,7 @@
  * Copyright 2005 Alexander S.Kresin <alex@belacy.belgorod.su>
  * www - http://kresin.belgorod.su
  *
- * Copyright 2020-2024 Wilfried Brunken, DF7BE
+ * Copyright 2020-2025 Wilfried Brunken, DF7BE
 */
 
     * Status:
@@ -48,7 +48,7 @@
  hwg_EOLStyle()
  hwg_RunConsoleApp( cCommand [, cOutFile] )
      coutfile is fixed set to "output.txt"
-
+ hwg_GetDecimals()
 
  Harbour functions:
  CurDir()
@@ -93,7 +93,7 @@ FUNCTION DemoFunc( lWithDialog, oDlg )
    LOCAL oButton18, oButton19 , oButton20 , oButton22 , oButton23 , oButton24 , oButton25
    LOCAL oButton26, oButton27, oButton28, oButton29
    LOCAL oButton30, oButton31, oButton32, oButton33, obutton34, obutton35
-   LOCAL obutton36, obutton37, obutton38
+   LOCAL obutton36, obutton37, obutton38, obutton39
 
    PUBLIC cDirSep := hwg_GetDirSep()
    PUBLIC bgtk , ndefaultcsrtype
@@ -458,7 +458,15 @@ FUNCTION DemoFunc( lWithDialog, oDlg )
       STYLE WS_TABSTOP + BS_FLAT ;
       ON CLICK { || hwg_MsgInfo( "WinMajorVers:" + hb_ValToExp( hwg_GetWinMajorVers() ) ) }
 
-   /* Last  obuttonxx is obutton38 */
+   @ ColPos(), nRowPos BUTTON oButton39 ;
+      CAPTION "hwg_GetDecimals()" ;
+      SIZE BUTTON_WIDTH, BUTTON_HEIGHT ;
+      FONT oFont  ;
+      STYLE WS_TABSTOP + BS_FLAT ;
+      ON CLICK { || hwg_MsgInfo( "hwg_GetDecimals() = " + ALLTRIM(STR(hwg_GetDecimals()) ) , ;
+      "hwg_GetDecimals(), expected default = 2" )  }
+
+   /* Last  obuttonxx is obutton39 */
 
    /* Disable buttons for Windows only functions */
 #ifndef __PLATFORM__WINDOWS

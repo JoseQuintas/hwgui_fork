@@ -33,6 +33,11 @@
 
 #include "hb_missing.h"
 
+#if (defined(_MSC_VER)&&(_MSC_VER>=1400))
+   #define sscanf sscanf_s
+#endif
+
+
 /*-
  * Copyright (c) 2008 - 2010 CAS Dev Team
  *
@@ -60,6 +65,12 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
+ 
+/* =========== Prototypes ============= */
+
+int hb_setGetDecimals();
+
+/* ========= End of prototypes ======== */ 
 
 typedef struct UCSTransMap
 {
@@ -1184,6 +1195,16 @@ HB_FUNC( HWG_GETEPOCH )
   int iEpoch = hb_setGetEpoch();
   
   hb_retni(iEpoch);
+}
+
+HB_FUNC( HWG_GETDECIMALS )
+{
+/* code of Harbour in set.c 
+ int     hb_setGetDecimals(void)
+*/
+ int ndezimale;
+ ndezimale = hb_setGetDecimals();
+ hb_retni(ndezimale);
 }
 
 /* ======================== EOF of cfuncs.c ================================ */

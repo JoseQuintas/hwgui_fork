@@ -15,6 +15,29 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-11-13 16:45 UTC+0100 W* doc/hwgdoc_classes.html
+* Install_RaspberryPi.txt
+* doc/hwgdoc_functions.html
+* samples/demofunc.prg
+* source/common/procmisc/cfuncs.c
+  ! New function hwg_GetDecimals()
+  ! Returns the value of recent Setting of SET DECIMALS TO ...
+  ! Docu updated.
+  ! Installation instructions for
+  ! Rapberry Pi 4 updated,
+  ! package libpcre3 cannot be found,
+  ! so substitute from source package
+  ! as described.
+  ! The archive tested is uploaded into
+  ! "Files" section.
+  ! Hello, developpers
+  ! using Microsoft C:
+  ! Check this define:
+  ! #if (defined(_MSC_VER)&&(_MSC_VER>=1400))
+  !   #define sscanf sscanf_s
+  ! #endif
+  ! I copied this from Harbour source
+
 
 2025-08-28 08:30 UTC+0200 Wilfried Brunken DF7BE
 * doc/hwgdoc_classes.html

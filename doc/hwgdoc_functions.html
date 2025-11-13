@@ -14,7 +14,7 @@
   </tr>
   <tr>
     <td width="15%" align="left"><a href="hwgdoc_commands.html">prev</a></td>
-    <td width="70%" align="center">Alexander S.Kresin, August 2025</td>
+    <td width="70%" align="center">Alexander S.Kresin, November 2025</td>
     <td width="15%" align="right"><a href="hwgdoc_classes.html">next</a></td>
   </tr>
 </table>
@@ -3664,6 +3664,30 @@ See sample program "demosplit.prg" for details.<br>
    </ul>
 
    <p></p>
+   
+   <br><strong class="subhead">hwg_GetDecimals()</strong>
+   <br>
+   Returns the value of recent setting<br>
+   of SET DECIMALS TO ...<br>
+   So get the recent setting,<br>
+   modify the setting for your<br>
+   processing and restore is previous<br>
+   value at end.<br>
+   The default value of 2 is not enough in most cases.<br>
+   Example:<br>
+     LOCAL nldezimale<br>
+     nldezimale := hwg_GetDecimals()<br>
+     SET DECIMALS TO 12  && ... to your own needs<br>
+     && your processing ...<br>
+     && Restore previous Setting<br>
+     SET DECIMALS TO (nldezimale)<br>
+  (The & macro operator fires an syntax error,<br>
+  so set the value to set in brackets as shown)<br>
+  <br>
+  <p></p>
+  
+   
+   
    <br><strong class="subhead"> hwg_GetUTCTimeDate()</strong><br>
    Returns a string with date and time in UTC.<br>
    This function is platform independant.<br>
