@@ -42,6 +42,7 @@ CLASS HControl INHERIT HCustomWindow
    METHOD Disable()
    METHOD Enable()
    METHOD Enabled( lEnabled ) SETGET
+   METHOD SetFont( oFont )
    METHOD Setfocus()    INLINE ( hwg_Sendmessage( ::oParent:handle, WM_NEXTDLGCTL, ;
       ::handle, 1 ), hwg_Setfocus( ::handle  ) )
    METHOD GetText()     INLINE hwg_Getwindowtext( ::handle )
@@ -91,10 +92,9 @@ METHOD INIT() CLASS HControl
          hwg_Addtooltip( ::handle, ::tooltip )
       ENDIF
       IF ::oFont != Nil
-         hwg_Setctrlfont( ::oParent:handle, ::id, ::oFont:handle )
+         ::SetFont( ::oFont )
       ELSEIF ::oParent:oFont != Nil
-         ::oFont := ::oParent:oFont
-         hwg_Setctrlfont( ::oParent:handle, ::id, ::oParent:oFont:handle )
+         ::SetFont( ::oParent:oFont )
       ENDIF
       IF ::lHide
          hwg_Hidewindow( ::handle )
@@ -146,6 +146,17 @@ METHOD Enabled( lEnabled ) CLASS HControl
    ENDIF
 
    RETURN hwg_Iswindowenabled( ::handle )
+
+METHOD SetFont( oFont )
+
+   LOCAL oFontOld := ::oFont
+
+   IF !Empty( oFont )
+      ::oFont := oFont
+      hwg_Setctrlfont( ::oParent:handle, ::id, ::oFont:handle )
+   ENDIF
+
+   RETURN oFontOld
 
 METHOD End() CLASS HControl
 

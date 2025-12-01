@@ -15,6 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-12-01 11:20 UTC+0300 Alexander Kresin <alex@belacy.ru>
+  * source/gtk/hcontrol.c
+  * source/winapi/hcontrol.c
+    * Setfont( oFont ) method added to HCONTROL class
+  * source/common/editor/hcedit.prg
+    ! Small fix
+  * source/cross/hdrawn.prg
+    ! Fixes
+
 2025-11-13 16:45 UTC+0100 W* doc/hwgdoc_classes.html
 * Install_RaspberryPi.txt
 * doc/hwgdoc_functions.html

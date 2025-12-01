@@ -484,8 +484,8 @@ METHOD Paint( hDC ) CLASS HDrawnTT
          hwg_Drawbitmap( hDC, ::hBitmapTmp,, ::nLeft, ::nTop )
          hwg_Deleteobject( ::hBitmapTmp )
          ::hBitmapTmp := Nil
-         ::Delete()
       ENDIF
+     ::Delete()
    ELSE
       hwg_RoundRect_Filled( hDC, ::nLeft, ::nTop, ::nLeft+::nWidth-1, ::nTop+::nHeight-1, 4, ;
          .F., ::oBrush:handle )
@@ -509,7 +509,7 @@ METHOD Paint( hDC ) CLASS HDrawnTT
       ENDIF
       hwg_Settransparentmode( hDC, .F. )
    ENDIF
-   ::Refresh()
+   //::Refresh()
 
    RETURN Nil
 

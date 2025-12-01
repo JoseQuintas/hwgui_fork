@@ -1146,6 +1146,9 @@ METHOD SetFont( oFont ) CLASS HCEdit
          hced_SetFont( ::hEdit, oFont1:handle, i )
       NEXT
    ENDIF
+   IF Empty( ::aFonts )
+      ::AddFont( ::oFont )
+   ENDIF
    ::aFonts[1] := oFont
    hced_SetFont( ::hEdit, oFont:handle, 1 )
    ::oFont := oFont
