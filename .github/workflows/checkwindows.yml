@@ -23,7 +23,7 @@ jobs:
       with:
          workflow: buildall.yml
          workflow_conclusion: success
-         name: mingw_1501
+         name: mingw_1502
          path: c:\temp
          repo: JoseQuintas/sefazclass
 
@@ -32,7 +32,7 @@ jobs:
       with:
          workflow: buildall.yml
          workflow_conclusion: success
-         name: hb32_mingw_1501
+         name: hb32_mingw_1502
          path: c:\temp
          repo: JoseQuintas/sefazclass
 
@@ -43,8 +43,8 @@ jobs:
          c:
          md c:\temp\harbour
          md c:\temp\harbour\comp
-         7z x -y c:\temp\mingw_1501.7z -oc:\temp\comp
-         7z x -y c:\temp\hb32_mingw_1501.7z -oc:\temp\harbour
+         7z x -y c:\temp\mingw_1502.7z -oc:\temp\comp
+         7z x -y c:\temp\hb32_mingw_1502.7z -oc:\temp\harbour
 
     - name: Load Source Code
       run: |
