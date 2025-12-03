@@ -15,6 +15,20 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-12-03 16:30 UTC+0200 Wilfried Brunken DF7BE
+* Install_Knoppix.txt (New) 
+  ! Installation instructions for
+  ! Knoppix V 9.1 by
+  ! Dipl.-Ing. Klaus Knopper.
+  ! (https://www.knopper.net/)
+  ! The short Readme contains a link
+  ! to CLLOG, where the full 
+  ! instructions are hosted and the
+  ! GTK2 source code file to
+  ! add the missing GTK2 -dev package
+  ! from source c
+
+
 2025-12-01 11:20 UTC+0300 Alexander Kresin <alex@belacy.ru>
   * source/gtk/hcontrol.c
   * source/winapi/hcontrol.c
