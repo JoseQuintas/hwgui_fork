@@ -1,0 +1,30 @@
+Install_Knoppix.txt 
+
+ $Id$
+ 
+
+By DF7BE, 2025-11-28 
+
+Installation instructions Harbour and HWGUI under Knoppix
+by Dipl.-Ing. Klaus Knopper.
+(https://www.knopper.net/) 
+(valid for version "V9.1 2021-01-25DE")
+
+You find the complete instructions on the project page of "CLLOG"
+
+https://sourceforge.net/projects/cllog/
+
+
+Under the "Code" tab you find
+instructions in the file :
+ Install_Knoppix_EN.txt
+or in german language:
+ Install_Knoppix_DE.txt
+
+Before starting, download the source code archive of GTK2
+in the "Files" tab, directory "contrib" ==> "GTK2".
+
+The Readme file contains also the license information.
+
+ 
+=================== EOF of Install_Knoppix.txt =================== 
