@@ -1090,9 +1090,14 @@ METHOD LineOut( nstroka, vybfld, hDC, lSelected, lClear ) CLASS HBrowse
                   FOR j := 1 TO Len( oColumn:aBitmaps )
                      IF Eval( oColumn:aBitmaps[j,1], Eval( oColumn:block,,Self,nCol ), lSelected )
                         IF !Empty( ob := oColumn:aBitmaps[j,2] )
-                           bh := ::height
-                           bw := Int( ob:nWidth * ( ob:nHeight / ::height ) )
-                           hwg_Drawbitmap( hDC, ob:handle, , x + ::aPadding[1], y1 + ::aPadding[2], bw, bh )
+                           IF ob:nHeight > ::height
+                              bh := ::height
+                              bw := Int( ob:nWidth * ( ob:nHeight / ::height ) )
+                              hwg_Drawbitmap( hDC, ob:handle, , x + ::aPadding[1], y1 + ::aPadding[2], bw, bh )
+                           ELSE
+                               hwg_Drawtransparentbitmap( hDC, ob:handle, x + ::aPadding[1], ;
+                                  Int( ( ::height - ob:nHeight )/2 ) + y1 + ::aPadding[2] )
+                           ENDIF
                         ENDIF
                         EXIT
                      ENDIF
