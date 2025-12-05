@@ -15,6 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2025-12-05 13:55 UTC-0300 ItamarLins itamarlins at gmail.com
+  * source/gtk/hbrowse.prg
+    ! Fix for display the bitmap correctly in the browser.
+    ! Piece of code borrowed \winapi\hbrowse.prg
+
 2025-12-04 23:38 UTC-0300 ItamarLins itamarlins at gmail.com
    * source/gtk/hbrowse.prg
    ! Fix for Refresh() Method MouseWeel GTK This Method not work.
