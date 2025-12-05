@@ -214,7 +214,7 @@ CLASS HBrowse INHERIT HControl
    METHOD ButtonUp( lParam )
    METHOD ButtonDbl( lParam )
    METHOD MouseMove( wParam, lParam )
-   METHOD MouseWheel( nKeys, nDelta, nXPos, nYPos )
+   METHOD MouseWheel()
    METHOD Edit( wParam )
    METHOD APPEND() INLINE ( ::Bottom( .F. ), ::LineDown() )
    METHOD RefreshLine()
@@ -346,12 +346,16 @@ METHOD onEvent( msg, wParam, lParam )  CLASS HBrowse
                ENDIF
             ENDIF
             retValue := 1
-         ELSEIF msg == WM_KEYDOWN
+         ELSEIF msg == WM_KEYDOWN //256
+
             IF ::bKeyDown != Nil
                IF !Eval( ::bKeyDown, Self, wParam )
+                  hwg_msginfo("Saiu: " + str(msg))
                   RETURN 1
                ENDIF
             ENDIF
+
+
             IF wParam == GDK_Down        // Down
                ::LINEDOWN()
             ELSEIF wParam == GDK_Up    // Up
@@ -399,14 +403,11 @@ METHOD onEvent( msg, wParam, lParam )  CLASS HBrowse
          ELSEIF msg == WM_RBUTTONDOWN
             ::ButtonRDown( lParam )
 
-         ELSEIF msg == WM_MOUSEMOVE
+         ELSEIF msg == WM_MOUSEMOVE //512
             ::MouseMove( wParam, lParam )
-
-         ELSEIF msg == WM_MOUSEWHEEL
-            ::MouseWheel( hwg_Loword( wParam ), ;
-               Iif( hwg_Hiword( wParam ) > 32768, ;
-               hwg_Hiword( wParam ) - 65535, hwg_Hiword( wParam ) ), ;
-               hwg_Loword( lParam ), hwg_Hiword( lParam ) )
+         ENDIF
+         IF msg == WM_KEYDOWN .and. wParam == GDK_Up .or. wParam == GDK_Down // 65362 .or. wParam == 65364 //WM_MOUSEWHEEL
+            ::MouseWheel()
          ENDIF
       ENDIF
    ENDIF
@@ -1157,11 +1158,11 @@ METHOD SetColumn( nCol ) CLASS HBrowse
             ::colpos := ::freeze + 1
             lPaint := .T.
          ENDIF
-//         ::lRefrBmp := .T.
+         ::lRefrBmp := .T.
          IF !lPaint
             ::RefreshLine()
          ELSE
-            /* hwg_Redrawwindow( ::handle, RDW_ERASE + RDW_INVALIDATE ) */
+             hwg_Redrawwindow( ::handle, RDW_ERASE + RDW_INVALIDATE )
          ENDIF
       ENDIF
 
@@ -1742,29 +1743,10 @@ METHOD MouseMove( wParam, lParam ) CLASS HBrowse
 
    RETURN Nil
 
-METHOD MouseWheel( nKeys, nDelta, nXPos, nYPos ) CLASS HBrowse
+METHOD MouseWheel()  CLASS HBrowse
 
-   * Parameters not used
-   HB_SYMBOL_UNUSED(nXPos)
-   HB_SYMBOL_UNUSED(nYPos)
-
-   // hwg_WriteLog( "Brw: MouseWheel" )
-   IF Hwg_BitAnd( nKeys, MK_MBUTTON ) != 0
-      IF nDelta > 0
-         ::PageUp()
-      ELSE
-         ::PageDown()
-      ENDIF
-   ELSE
-      IF nDelta > 0
-         ::LineUp()
-      ELSE
-         ::LineDown()
-      ENDIF
-   ENDIF
-   /* DF7BE : blank lines repainted here, if lost */
-   ::Refresh()
-   hwg_Setfocus( ::area )
+ ::Refresh()
+   //hwg_Setfocus( ::area )
    RETURN Nil
 
 METHOD Edit( wParam ) CLASS HBrowse
