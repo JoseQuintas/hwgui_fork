@@ -1182,82 +1182,68 @@ METHOD SetColumn( nCol ) CLASS HBrowse
 
    RETURN 1
 
-STATIC FUNCTION LINERIGHT( oBrw, lRefresh )
-
-   LOCAL maxPos, nPos, oldLeft := oBrw:nLeftCol, oldPos := oBrw:colpos, fif
-   LOCAL i, nColumns := Len( oBrw:aColumns )
+STATIC FUNCTION LineRight( oBrw, lRefresh )
+   LOCAL oldLeft := oBrw:nLeftCol
+   LOCAL oldPos  := oBrw:colpos
+   LOCAL nCols   := Len( oBrw:aColumns )
 
    IF oBrw:lEditable .AND. oBrw:colpos < oBrw:nColumns
       oBrw:colpos ++
-   ELSEIF oBrw:nColumns + oBrw:nLeftCol - oBrw:freeze - 1 < nColumns ;
-         .AND. oBrw:nLeftCol < nColumns
-      i := oBrw:nLeftCol + oBrw:nColumns
-      DO WHILE oBrw:nColumns + oBrw:nLeftCol - oBrw:freeze - 1 < nColumns .AND. oBrw:nLeftCol + oBrw:nColumns = i
-         oBrw:nLeftCol ++
-      ENDDO
-      oBrw:colpos := i - oBrw:nLeftCol + 1
+   ELSEIF oBrw:nLeftCol + oBrw:nColumns - oBrw:freeze - 1 < nCols
+      oBrw:nLeftCol ++
+      oBrw:colpos := oBrw:nColumns
    ENDIF
 
-   IF oBrw:nLeftCol != oldLeft .OR. oBrw:colpos != oldpos
+   IF oBrw:nLeftCol != oldLeft .OR. oBrw:colpos != oldPos
       IF oBrw:hScrollH != Nil
-         maxPos := hwg_getAdjValue( oBrw:hScrollH, 1 ) - hwg_getAdjValue( oBrw:hScrollH, 4 )
-         fif := Iif( oBrw:lEditable, oBrw:colpos + oBrw:nLeftCol - 1, oBrw:nLeftCol )
-         nPos := Iif( fif == 1, 0, Iif( fif = nColumns, maxpos, ;
-            Int( ( maxPos + 1 ) * fif/nColumns ) ) )
-         hwg_SetAdjOptions( oBrw:hScrollH, nPos )
-         oBrw:nScrollH := nPos
+         oBrw:nScrollH := oBrw:nLeftCol - 1
+         hwg_SetAdjOptions( oBrw:hScrollH, oBrw:nScrollH )
       ENDIF
       IF lRefresh == Nil .OR. lRefresh
          IF oBrw:nLeftCol == oldLeft
             oBrw:lRefrLinesOnly := .T.
-            hwg_Invalidaterect( oBrw:area, 0, oBrw:x1, oBrw:y1 + ( oBrw:height + 1 ) * oBrw:rowPosOld - oBrw:height, oBrw:x2, oBrw:y1 + ( oBrw:height + 1 ) * ( oBrw:rowPos ) )
+            hwg_Invalidaterect( oBrw:area, 0, oBrw:x1, oBrw:y1 + (oBrw:height+1)*oBrw:rowPosOld - oBrw:height, oBrw:x2, oBrw:y1 + (oBrw:height+1)*oBrw:rowPos )
          ELSE
             hwg_Invalidaterect( oBrw:area, 0 )
          ENDIF
       ENDIF
    ENDIF
    hwg_Setfocus( oBrw:area )
+RETURN Nil
 
-   RETURN Nil
+STATIC FUNCTION LineLeft( oBrw, lRefresh )
+   LOCAL oldLeft := oBrw:nLeftCol
+   LOCAL oldPos  := oBrw:colpos
 
-STATIC FUNCTION LINELEFT( oBrw, lRefresh )
-
-   LOCAL maxPos, nPos, oldLeft := oBrw:nLeftCol, oldPos := oBrw:colpos, fif
-   LOCAL nColumns := Len( oBrw:aColumns )
-
-   IF oBrw:lEditable
+   IF oBrw:lEditable .AND. oBrw:colpos > 1
       oBrw:colpos --
-   ENDIF
-   IF oBrw:nLeftCol > oBrw:freeze + 1 .AND. ( !oBrw:lEditable .OR. oBrw:colpos < oBrw:freeze + 1 )
+   ELSEIF oBrw:nLeftCol > oBrw:freeze + 1
       oBrw:nLeftCol --
-      IF ! oBrw:lEditable .OR. oBrw:colpos < oBrw:freeze + 1
-         oBrw:colpos := oBrw:freeze + 1
+      IF oBrw:lEditable
+         oBrw:colpos := 1
       ENDIF
    ENDIF
+
    IF oBrw:colpos < 1
       oBrw:colpos := 1
    ENDIF
-   IF oBrw:nLeftCol != oldLeft .OR. oBrw:colpos != oldpos
+
+   IF oBrw:nLeftCol != oldLeft .OR. oBrw:colpos != oldPos
       IF oBrw:hScrollH != Nil
-         maxPos := hwg_getAdjValue( oBrw:hScrollH, 1 ) - hwg_getAdjValue( oBrw:hScrollH, 4 )
-         fif := Iif( oBrw:lEditable, oBrw:colpos + oBrw:nLeftCol - 1, oBrw:nLeftCol )
-         nPos := Iif( fif == 1, 0, Iif( fif = nColumns, maxpos, ;
-            Int( ( maxPos + 1 ) * fif/nColumns ) ) )
-         hwg_SetAdjOptions( oBrw:hScrollH, nPos )
-         oBrw:nScrollH := nPos
+         oBrw:nScrollH := oBrw:nLeftCol - 1
+         hwg_SetAdjOptions( oBrw:hScrollH, oBrw:nScrollH )
       ENDIF
       IF lRefresh == Nil .OR. lRefresh
          IF oBrw:nLeftCol == oldLeft
             oBrw:lRefrLinesOnly := .T.
-            hwg_Invalidaterect( oBrw:area, 0, oBrw:x1, oBrw:y1 + ( oBrw:height + 1 ) * oBrw:rowPosOld - oBrw:height, oBrw:x2, oBrw:y1 + ( oBrw:height + 1 ) * ( oBrw:rowPos ) )
+            hwg_Invalidaterect( oBrw:area, 0, oBrw:x1, oBrw:y1 + (oBrw:height+1)*oBrw:rowPosOld - oBrw:height, oBrw:x2, oBrw:y1 + (oBrw:height+1)*oBrw:rowPos )
          ELSE
             hwg_Invalidaterect( oBrw:area, 0 )
          ENDIF
       ENDIF
    ENDIF
    hwg_Setfocus( oBrw:area )
-
-   RETURN Nil
+RETURN Nil
 
 METHOD DoVScroll( wParam ) CLASS HBrowse
 
