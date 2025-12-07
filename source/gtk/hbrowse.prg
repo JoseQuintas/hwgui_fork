@@ -1748,7 +1748,6 @@ METHOD Edit( wParam ) CLASS HBrowse
    LOCAL lSaveMem    && DF7BE
 
    lSaveMem := .T.
-
    bclsbutt := .T.
 
    fipos := ::colpos + ::nLeftCol - 1 - ::freeze
@@ -1818,20 +1817,16 @@ METHOD Edit( wParam ) CLASS HBrowse
          * ===================================== *
          * Special dialog for memo edit (DF7BE)
          * ===================================== *
-            INIT DIALOG oModDlg title ::cTextTitME AT 0, 0 SIZE 610, 410  ON INIT { |o|o:center() }
-            mvarbuff := ::varbuf  && DF7BE: inter variable avoids crash at store
-               // Debug: oModDlg:nWidth ==> set to 400
-//               @ 10, 10 HCEDIT oEdit SIZE oModDlg:nWidth - 20, 240 ;
-// DF7BE: The sizes of WinAPI are too small. Text was truncated at end of line.
-               @ 0, 30 HCEDIT ::oEdit SIZE 600, 300 ;
-                    FONT ::oFont
-               // old 010, 252 - 100, 252 - sizes 80,24 (too small)
-               @ 010, 340 ownerbutton owb2 TEXT ::cTextSave  size 100, 24 ON Click { || bclsbutt := .F. , mvarbuff := ::oEdit , omoddlg:close(), oModDlg:lResult := .T. }
-               @ 100, 340 ownerbutton owb1 TEXT ::cTextClose size 100, 24 ON CLICK { || mvarbuff := ::oEdit , omoddlg:close(), oModDlg:lResult := .T. }
-//               @ 100, 340 ownerbutton owb1 TEXT ::cTextClose size 100, 24 ON CLICK { ||oModDlg:close() }
+            INIT DIALOG oModDlg title ::cTextTitME AT 0, 0 SIZE 610, 390
+            mvarbuff := ::varbuf
+               @ 0, 30 HCEDIT ::oEdit SIZE 600, 300 FONT ::oFont
+
+               @ 200, 350 ownerbutton owb2 TEXT ::cTextSave  size 100, 30 ON Click { || bclsbutt := .F. , mvarbuff := ::oEdit , omoddlg:close(), oModDlg:lResult := .T. }
+               @ 320, 350 ownerbutton owb1 TEXT ::cTextClose size 100, 30 ON CLICK { || mvarbuff := ::oEdit , omoddlg:close(), oModDlg:lResult := .T. }
+
                  * serve memo field for editing
                 ::oEdit:SetText(mvarbuff)
-            ACTIVATE DIALOG oModDlg
+            oModDlg:Activate(,,,.T.)
           * is modified ? (.T.)
           bMemoMod := ::oEdit:lUpdated // on GTK forever .T.
           IF bMemoMod
@@ -1851,7 +1846,6 @@ METHOD Edit( wParam ) CLASS HBrowse
              // hwg_MsgInfo("Memo saved")  && Debug
             ENDIF  && lSaveMem
            ENDIF   && bMemoMod
-//          ENDIF
           // ::lEditing := .F.
           * ===================================== *
          ENDIF // memo edit
@@ -1895,7 +1889,6 @@ STATIC FUNCTION VldBrwEdit( oBrw, fipos, lAppM, bmemo )
       Not ever found, that  ::cTextLockRec is not here
       reachable, this function not member of HBROWSE class */
      cErrMsgRecLock := oBrw:cTextLockRec
-
    // Added case for memo edit (bmemo = .T.), because HCEDIT used
    IF bmemo == NIL
       bmemo := .F.
@@ -1924,7 +1917,7 @@ STATIC FUNCTION VldBrwEdit( oBrw, fipos, lAppM, bmemo )
          IF oBrw:type == BRW_DATABASE
             ( oBrw:alias ) -> ( dbAppend() )
             ( oBrw:alias ) -> ( Eval( oColumn:block,oBrw:varbuf,oBrw,fipos ) )
-            UNLOCK
+            ( oBrw:alias ) -> ( DbUnlock() ) //Here put alias same syntaxe dbapend line
          ELSE
             IF ValType( oBrw:aArray[1] ) == "A"
                AAdd( oBrw:aArray, Array( Len(oBrw:aArray[1] ) ) )
@@ -1951,8 +1944,9 @@ STATIC FUNCTION VldBrwEdit( oBrw, fipos, lAppM, bmemo )
          IF oBrw:type == BRW_DATABASE
             IF ( oBrw:alias ) -> ( RLock() )
                ( oBrw:alias ) -> ( Eval( oColumn:block,oBrw:varbuf,oBrw,fipos ) )
+               ( oBrw:alias ) -> ( DbUnlock() ) //Add unlock Itamar Lins
             ELSE
-            /* Can't lock the record! */
+               /* Can't lock the record! */
                hwg_Msgstop( cErrMsgRecLock )
             ENDIF
          ELSE
@@ -1971,7 +1965,7 @@ STATIC FUNCTION VldBrwEdit( oBrw, fipos, lAppM, bmemo )
       Eval( oBrw:bUpdate, oBrw, fipos )
    ENDIF
    IF bmemo
-     oBrw:oParent:DelControl( oBrw:oEdit )
+     //oBrw:oParent:DelControl( oBrw:oEdit ) //Here Crash on GTK! Itamar Lins
      oBrw:oEdit := Nil
    ELSE
      oBrw:oParent:DelControl( oBrw:oGet )
