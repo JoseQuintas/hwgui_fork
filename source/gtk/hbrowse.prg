@@ -472,7 +472,7 @@ STATIC FUNCTION InitColumn( oBrw, oColumn, n )
    ENDIF
    // DF7BE: The length must have a secure addition,
    // if century is on, the length of date field must set to 10 + 2 = 12
-   // off: 8 + 2 = 10 
+   // off: 8 + 2 = 10
    IF oColumn:type == "D"
      IF hwg_getCentury()
       oColumn:length := Max(oColumn:length,12)  && old: 10
@@ -774,7 +774,7 @@ METHOD Paint()  CLASS HBrowse
 
       ::LineOut( ::rowPos, ::colpos, hDC, .T. )
 
-   IF ::lRefrHead .OR. ::lAppMode
+   IF ::lRefrHead .OR. ::lAppMode .or. ::lDispHead //add .or. ::lDispHead By Itamar Lins
       ::HeaderOut( hDC )
       IF ::nFootRows > 0
          ::FooterOut( hDC )
@@ -895,7 +895,7 @@ METHOD HeaderOut( hDC ) CLASS HBrowse
       IF ::lAdjRight .AND. fif == Len( ::aColumns )
          xSize := Max( ::x2 - x, xSize )
       ENDIF
-      IF ::lDispHead .AND. !::lAppMode
+      IF ::lDispHead //.AND. !::lAppMode comment out by Itamar Lins (erase header while Append)
          ::DrawHeader( hDC, fif, x - 1, y1, x + xSize - 1, ::y1 + 1 )
       ENDIF
       hwg_Selectobject( hDC, ::oPenSep:handle )
