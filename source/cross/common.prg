@@ -632,22 +632,46 @@ FUNCTION hwg_RefreshAllGets( oDlg )
 
 FUNCTION hwg_CreateGetList( oDlg )
 
-   LOCAL i, j, aLen1 := Len( oDlg:aControls ), aLen2
+   // Rebuild GetList recursively to support nested containers (e.g., TAB inside TAB).
+   // The previous implementation only scanned one level deep (oDlg:aControls and one child level),
+   // which prevents <Enter> navigation between GETs placed deeper in the control tree.
 
-   FOR i := 1 TO aLen1
-      IF __ObjHasMsg( oDlg:aControls[i], "BSETGET" ) .AND. oDlg:aControls[i]:bSetGet != Nil
-         AAdd( oDlg:GetList, oDlg:aControls[i] )
-      ELSEIF !Empty( oDlg:aControls[i]:aControls )
-         aLen2 := Len( oDlg:aControls[i]:aControls )
-         FOR j := 1 TO aLen2
-            IF __ObjHasMsg( oDlg:aControls[i]:aControls[j], "BSETGET" ) .AND. oDlg:aControls[i]:aControls[j]:bSetGet != Nil
-               AAdd( oDlg:GetList, oDlg:aControls[i]:aControls[j] )
-            ENDIF
-         NEXT
-      ENDIF
-   NEXT
+   IF oDlg == Nil
+      RETURN Nil
+   ENDIF
 
+   // Ensure it starts clean
+   IF __ObjHasMsg( oDlg, "GETLIST" )
+      oDlg:GetList := {}
+   ENDIF
+
+   __hwg_AddGetsRecursive( oDlg, oDlg )
    RETURN Nil
+
+
+STATIC PROCEDURE __hwg_AddGetsRecursive( oNode, oDlg )
+
+   LOCAL i, aChildren, nLen
+
+   IF oNode == Nil
+      RETURN
+   ENDIF
+
+   // If this node is a GET-like control (has bSetGet), register it
+   IF __ObjHasMsg( oNode, "BSETGET" ) .AND. oNode:bSetGet != Nil
+      AAdd( oDlg:GetList, oNode )
+   ENDIF
+
+   // Recurse into children controls if available
+   IF __ObjHasMsg( oNode, "ACONTROLS" ) .AND. !Empty( oNode:aControls )
+      aChildren := oNode:aControls
+      nLen := Len( aChildren )
+      FOR i := 1 TO nLen
+         __hwg_AddGetsRecursive( aChildren[i], oDlg )
+      NEXT
+   ENDIF
+
+   RETURN
 
 FUNCTION hwg_GetSkip( oParent, hCtrl, nSkip, lClipper )
 
@@ -1067,7 +1091,6 @@ RETURN HBitmap():AddString("Datepick_Button", hwg_cHex2Bin(;
    "00 00 00 00 00 00 00 00 00 00 04 00 00 00 0E 00 " + ;
    "00 00 1F 00 00 00 3F 80 00 00 00 00 00 00 00 00 " + ;
    "00 00 00 00 00 00 00 00 00 00 " ) )
-
 
  FUNCTION hwg_pCalendar(dstartdate, cTitle , cOK, cCancel , nx , ny , wid, hei )
 * Date picker command for all platforms in the design of original
