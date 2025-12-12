@@ -15,7 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 2025-12-12 17:41 UTC-0300 ItamarLins itamarlins at gmail.com
-  * source/gtk/common.prg   
+  * source/cross/common.prg   
   ! Fix for rebuild GetList recursively to support nested containers (e.g., TAB inside TAB).
   ! Fix send by deividdjs forum hwgui https://pctoledo.org/viewtopic.php?p=170608#p170608
 
