@@ -14,6 +14,10 @@
  "oldlogs".
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+2025-12-12 22:24 UTC-0300 ItamarLins itamarlins at gmail.com
+  * source/gtk/window.c
+  ! Fix for disable automatic text selection when GtkEntry widgets (used in GETs) receive focus
+
 2025-12-12 17:41 UTC-0300 ItamarLins itamarlins at gmail.com
   * source/cross/common.prg   
   ! Fix for rebuild GetList recursively to support nested containers (e.g., TAB inside TAB).

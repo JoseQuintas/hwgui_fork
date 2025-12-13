@@ -121,6 +121,17 @@ gboolean cb_delete_event( GtkWidget *widget, gchar* data )
 HB_FUNC( HWG_GTK_INIT )
 {
    gtk_init( 0,0 );
+
+   #if GTK_MAJOR_VERSION -0 < 3   /* Only for GTK 2 */
+   /* Disable automatic text selection when GtkEntry widgets (used in GETs) receive focus */
+   {
+         GtkSettings *settings = gtk_settings_get_default();
+         if (settings) {
+               g_object_set(settings, "gtk-entry-select-on-focus", FALSE, NULL);
+         }
+   }
+   #endif
+
    setlocale( LC_NUMERIC, "C" );
    setlocale( LC_CTYPE, "" );
 }
