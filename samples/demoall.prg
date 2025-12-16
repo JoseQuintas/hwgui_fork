@@ -72,6 +72,9 @@ FUNCTION Main()
    LOCAL oDlg, aInitList := {}, aEndList := {}, bCode
 
    INIT DIALOG oDlg ;
+      CLIPPER ;
+      NOEXIT ;
+      NOEXITESC ;
       TITLE "demoall.prg - Show Samples on screen, and others on menu" ;
       AT 0,0 ;
       SIZE 1024, 768 ;
@@ -189,7 +192,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "1.Split",                        { |o| DemoSplit( .F., o, aInitList ) } )
       MenuOption( "2.Splitter",                     { |o| DemoSplitter( .F., o, aInitList ) } )
       MenuOption( "3.Tree",                         { |o| DemoTree( .F., o, aInitList ) } )
-#ifndef ___MACOSX___      
+#ifndef ___MACOSX___
       MenuOption( "4.XML Tree",                     { |o| DemoXmlTree( .F., o ) } )
 #endif
       MenuUnDrop()
@@ -212,7 +215,7 @@ STATIC FUNCTION CreateAllTabPages( oDlg, aInitList, aEndList )
       MenuOption( "1.Tree",                         { |o| DemoTree( .F., o, aInitList ) } )
       MenuOption( "2.Splitter1",                    { |o| DemoSplit( .F., o, aInitList ) } )
       MenuOption( "3.Splitter2",                    { |o| DemoSplitter( .F., o, aInitList ) } )
-#ifndef ___MACOSX___           
+#ifndef ___MACOSX___
       MenuOption( "4.XML Tree",                     { |o| DemoXmlTree( .F., o ) } )
 #endif
       MenuUnDrop()
@@ -547,7 +550,7 @@ FUNCTION demo_LoadResource( cFileName )
    CASE cFileName == "demotree.prg";        #pragma __binarystreaminclude "demotree.prg" | RETURN %s
    CASE cFileName == "demosplit.prg";       #pragma __binarystreaminclude "demosplit.prg" | RETURN %s
    CASE cFileName == "demosplitter.prg";    #pragma __binarystreaminclude "demosplitter.prg" | RETURN %s
-#ifndef ___MACOSX___   
+#ifndef ___MACOSX___
    CASE cFileName == "demoxmltree.prg";     #pragma __binarystreaminclude "demoxmltree.prg" | RETURN %s
 #endif
    CASE cFileName == "note1.txt"

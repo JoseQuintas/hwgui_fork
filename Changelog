@@ -14,12 +14,18 @@
  "oldlogs".
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+2025-12-16 14:51 UTC-0300 Jose Quintas jmcquintas at gmail.com
+   * samples/demoall.prg
+     ! dlg CLIPPER NOEXIT NOEXITESC
+   * source/cross/common.prg
+     ! var names nPos nGetCount, +=, no logic changed
+
 2025-12-12 22:24 UTC-0300 ItamarLins itamarlins at gmail.com
   * source/gtk/window.c
   ! Fix for disable automatic text selection when GtkEntry widgets (used in GETs) receive focus
 
 2025-12-12 17:41 UTC-0300 ItamarLins itamarlins at gmail.com
-  * source/cross/common.prg   
+  * source/cross/common.prg
   ! Fix for rebuild GetList recursively to support nested containers (e.g., TAB inside TAB).
   ! Fix send by deividdjs forum hwgui https://pctoledo.org/viewtopic.php?p=170608#p170608
 
@@ -47,13 +53,13 @@
    ! GTK Not exist this event -> msg == WM_MOUSEWHEEL
 
 2025-12-03 16:30 UTC+0200 Wilfried Brunken DF7BE
-* Install_Knoppix.txt (New) 
+* Install_Knoppix.txt (New)
   ! Installation instructions for
   ! Knoppix V 9.1 by
   ! Dipl.-Ing. Klaus Knopper.
   ! (https://www.knopper.net/)
   ! The short Readme contains a link
-  ! to CLLOG, where the full 
+  ! to CLLOG, where the full
   ! instructions are hosted and the
   ! GTK2 source code file to
   ! add the missing GTK2 -dev package
@@ -96,14 +102,14 @@
 2025-08-28 08:30 UTC+0200 Wilfried Brunken DF7BE
 * doc/hwgdoc_classes.html
   ! Document for HPRINTER class updated
-  
+
 
 2025-08-27 18:20 UTC+0200 Wilfried Brunken DF7BE
 * source/gtk/hprinter.prg
 * source/winapi/hprinter.prg
   ! For easier bugfixing Ticket 207:
   ! Reduce differences (with WinMerge)
-  
+
 
 2025-08-27 10:40 UTC+0200 Wilfried Brunken DF7BE
 * test/tickets/Ticket207.prg
@@ -120,7 +126,7 @@
   ! Allows debugging on
   ! arrays with sub arrays.
   ! (Need to help for
-  ! debugging of ticket207). 
+  ! debugging of ticket207).
 
 
 2025-08-25 10:00 UTC+0200 Wilfried Brunken DF7BE
@@ -171,8 +177,8 @@
 * samples/demoall.prg
 * samples/demoxmltree.prg
    ! Bugfix  samples demo by Jose Quintas on MacOS:
-   ! Windows only functions (unresolved symbols):	
-   !  HB_GT_GUI_DEFAULT(), HWG_SAVEFILE(), HWG_SELECTMULTIPLEFILES()    
+   ! Windows only functions (unresolved symbols):
+   !  HB_GT_GUI_DEFAULT(), HWG_SAVEFILE(), HWG_SELECTMULTIPLEFILES()
    ! Not solved yet:
    ! utfConvert() in demoxmltree.prg
    ! ICONV_CLOSE(),
@@ -202,10 +208,10 @@
 * source/cross/hmisccross.prg
 * doc/hwgdoc_functions.html
 * contrib/qrcode/qrdecode/qrdecode.prg
- ! Autodetect Raspberry Pi for 
+ ! Autodetect Raspberry Pi for
  ! calling "zbarcam".
  ! New Function hwg_IsRaspberry()
- 
+
 
 2025-06-20 19:00 UTC+0200 Wilfried Brunken DF7BE
 * Install_RaspberryPi.txt

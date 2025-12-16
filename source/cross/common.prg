@@ -675,7 +675,7 @@ STATIC PROCEDURE __hwg_AddGetsRecursive( oNode, oDlg )
 
 FUNCTION hwg_GetSkip( oParent, hCtrl, nSkip, lClipper )
 
-   LOCAL i, aLen
+   LOCAL nPos, nGetCount
 
    DO WHILE oParent != Nil .AND. !__ObjHasMsg( oParent, "GETLIST" )
       oParent := oParent:oParent
@@ -683,25 +683,23 @@ FUNCTION hwg_GetSkip( oParent, hCtrl, nSkip, lClipper )
    IF oParent == Nil .OR. ( lClipper != Nil .AND. lClipper .AND. !oParent:lClipper )
       RETURN .F.
    ENDIF
-   IF hCtrl == Nil
-      i := 0
-   ENDIF
-   IF ( hCtrl == Nil .OR. ( i := Ascan( oParent:Getlist,{ |o|o:handle == hCtrl } ) ) != 0 ) .AND. ;
-      ( aLen := Len( oParent:Getlist ) ) > 1
-      IF i > 0 .AND. __ObjHasMsg( oParent:Getlist[i], "LFIRST" )
-         oParent:Getlist[i]:lFirst := .T.
+   nGetCount := Len( oParent:GetList )
+   IF ( hCtrl == Nil .OR. ( nPos := Ascan( oParent:Getlist,{ |o|o:handle == hCtrl } ) ) != 0 ) ;
+      .AND. nGetCount > 1
+      IF nPos > 0 .AND. __ObjHasMsg( oParent:Getlist[ nPos ], "LFIRST" )
+         oParent:Getlist[ nPos ]:lFirst := .T.
       ENDIF
       IF nSkip > 0
-         DO WHILE ( i := i + nSkip ) <= aLen
-            IF !oParent:Getlist[i]:lHide .AND. hwg_Iswindowenabled( oParent:Getlist[i]:Handle ) // Now tab and enter goes trhow the check, combo, etc...
-               hwg_Setfocus( oParent:Getlist[i]:handle )
+         DO WHILE ( nPos += nSkip ) <= nGetCount
+            IF ! oParent:Getlist[ nPos ]:lHide .AND. hwg_Iswindowenabled( oParent:Getlist[ nPos ]:Handle ) // Now tab and enter goes trhow the check, combo, etc...
+               hwg_Setfocus( oParent:Getlist[ nPos ]:handle )
                RETURN .T.
             ENDIF
          ENDDO
       ELSE
-         DO WHILE ( i := i + nSkip ) > 0
-            IF !oParent:Getlist[i]:lHide .AND. hwg_Iswindowenabled( oParent:Getlist[i]:Handle )
-               hwg_Setfocus( oParent:Getlist[i]:handle )
+         DO WHILE ( nPos += nSkip ) > 0
+            IF ! oParent:Getlist[ nPos ]:lHide .AND. hwg_Iswindowenabled( oParent:Getlist[ nPos ]:Handle )
+               hwg_Setfocus( oParent:Getlist[ nPos ]:handle )
                RETURN .T.
             ENDIF
          ENDDO
