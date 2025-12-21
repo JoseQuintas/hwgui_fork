@@ -1798,9 +1798,22 @@ METHOD Edit( wParam ) CLASS HBrowse
          y1 := ::y1 + ( ::height + 1 ) * rowPos
          ::nGetRec := Eval( ::bRecno, Self )
          ::lEditing := .T.
-         IF type <> "M"
-            @ x1+::nLeft, y1+::nTop GET ::oGet VAR ::varbuf      ;
-               OF ::oParent                   ;
+
+         y1 := y1 + ::nTop
+         x1 := x1 + ::nLeft
+
+         IF __objHasMethod( ::oParent, "GetActivePage" )  // For browse into a TAB 
+           y1 += ::oParent:nTop + 5
+           x1 += ::oParent:nLeft + 5
+
+           IF ::lAppMode
+               y1 += ::height
+           ENDIF
+        ENDIF
+
+        IF type <> "M"
+            @ x1, y1 GET ::oGet VAR ::varbuf      ;
+               OF  ::oParent:oParent ;
                SIZE nWidth, ::height + 1      ;
                STYLE ES_AUTOHSCROLL           ;
                FONT ::oFont                   ;
