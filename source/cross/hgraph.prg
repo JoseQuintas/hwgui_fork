@@ -129,6 +129,8 @@ METHOD Paint() CLASS HGraph
    pps := hwg_Definepaintstru()
    hDC := hwg_Beginpaint( ::handle, pps )
 
+   hwg_Fillrect( hDC, 0, 0, ::nWidth, ::nHeight, ::brush:handle )
+
    IF ::nType == 0 .OR. ::nType > 3 .OR. Empty( ::aValues )
       ::Super:Paint( hDC )
       hwg_Endpaint( ::handle, pps )
@@ -166,7 +168,6 @@ METHOD Paint() CLASS HGraph
    x0 := x1 + ( 0 - ::xmin ) / scaleX
    y0 := Iif( ::lPositive, y2, y2 - ( 0 - ::ymin ) / scaleY )
 
-   hwg_Fillrect( hDC, 0, 0, ::nWidth, ::nHeight, ::brush:handle )
    IF ::nType != 3
       hwg_Selectobject( hDC, ::oPenGrid:handle )
       hwg_Drawline( hDC, x0, 3, x0, ::nHeight - 3 )
