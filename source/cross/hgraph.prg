@@ -20,6 +20,8 @@ CLASS HGraph INHERIT HBoard
    DATA nLineType  INIT 1            // Connecting lines for ::nType == 1 (line chart):
                                      //   0 - no lines, 1 - between poits, 2 - vertical
    DATA nPointSize INIT 2            // A point width/height for ::nLineType == 1
+   DATA lDrawX     INIT .T.          // Should I draw X axis
+   DATA lDrawY     INIT .T.          // Should I draw Y axis
    DATA lGridX     INIT .F.          // Should I draw grid lines for X axis
    DATA lGridY     INIT .F.          // Should I draw grid lines for Y axis
    DATA lGridXMid  INIT .T.          // Should I shift X axis grid line to a middle of a bar
@@ -169,9 +171,14 @@ METHOD Paint() CLASS HGraph
    y0 := Iif( ::lPositive, y2, y2 - ( 0 - ::ymin ) / scaleY )
 
    IF ::nType != 3
+      // Draw axes
       hwg_Selectobject( hDC, ::oPenGrid:handle )
-      hwg_Drawline( hDC, x0, 3, x0, ::nHeight - 3 )
-      hwg_Drawline( hDC, 3, y0, ::nWidth - 3, y0 )
+      IF :: lDrawY
+         hwg_Drawline( hDC, x0, 3, x0, ::nHeight - 3 )
+      ENDIF
+      IF :: lDrawX
+         hwg_Drawline( hDC, 3, y0, ::nWidth - 3, y0 )
+      ENDIF
    ENDIF
 
    IF ::ymax != ::ymin .OR. ::ymax != 0
