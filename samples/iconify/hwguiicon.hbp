@@ -1,0 +1,46 @@
+#
+# $Id$
+#
+
+#-n -w3
+
+-I../../include
+
+# Special parameters for LINUX/GTK and MacOS/GTK
+{linux}-static
+{linux}-d__LINUX__
+{linux}-d__GTK__
+{linux}-lm
+
+# MacOS
+{darwin}-static
+{darwin}-d__LINUX__
+{darwin}-d__GTK__
+{darwin}-d___MACOSX___
+
+# HWGUI installation location
+# Modify to your own needs
+
+{win}-L..\..\lib
+{win}-I..\..
+{win}-I..\..\include
+{win}..\..\hwgui.hbc
+
+# GTK2
+{linux}../../hwgui.hbc
+# GTK3: Deactivate previous line
+# and activate following line
+#{linux}../../hwguiGTK3.hbc
+
+-L../..
+hwgui.hbc
+
+# The exe file
+-ohwguiicon
+
+{win}hwgui.rc
+
+hwguiicon.prg
+
+
+# ==================== EOF of file2hex.hbp ===============

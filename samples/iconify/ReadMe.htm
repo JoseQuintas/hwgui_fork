@@ -1,0 +1,317 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+ <title> HWGUI documentation sample files for iconification</title>
+ <link rel="stylesheet" type="text/css" href="table.css">
+</head>
+<body bgcolor=#FFFFFF text="#000000">
+
+<br>
+<strong>
+HWGUI documentation and sample files for iconification<br>
+and creating desktop and dock/dash (task bar) shortcuts for HWGUI programs<br>
+on Windows, LINUX and MacOS.<br>
+</strong>
+<pre>
+<br>
+By DF7BE.<br>
+$Id$<br>
+<br>
+History<br>
+~~~~~~~<br>
+<br>
+2026-04-02  DF7BE  OK for Windows and Ubuntu<br>
+2026-03-29  DF7BE  First issue.<br>
+<br>
+<br>
+This feature is under construction,<br>
+to be continued with:<br>
+LINUXMint,Raspberry Pi 4 and 5, MacOS.<br>
+<br>
+The final description will be delivered<br>
+as soon as possible.<br>
+<br>
+<br>
+Contents<br>
+________<br>
+<br>
+1.  Preface<br>
+1.1 Prerequisites
+2.  Create basic icon file<br>
+3.  Create and convert icon files<br>
+3.1 Windows<br>
+3.2 LINUX with GTK2<br>
+3.3 MacOS (Darwin) with GTK2<br>
+4.  Insert icons and create shortcuts<br>
+4.1 Windows<br>
+4.2 LINUX with GTK2<br>
+4.3 MacOS (Darwin) with GTK2<br>
+<br>
+<br>
+<br>
+1. Preface<br>
+==========<br>
+<br>
+This document describe the steps to<br>
+- create icon files<br>
+- insert them into a HWGUI program<br>
+- create desktop and dock/dash (taskbar) shortcuts for<br>
+  quick start of a program.<br>
+<br>  
+<br>
+Note:<br>
+Because all of my computers are set to german system language,<br>
+the english words are guessed.<br>
+Please open a ticket to send us the correct words in english.<br>
+As an appended file you can also send us corresponding<br>
+screen shots.
+TNX!<br>
+<br>
+<br>
+1.1 Prerequisites<br>
+-----------------<br>
+<br>
+Be shure, that the Installation of Harbour and<br>
+HWGUI is done and<br>
+the main sample program is running.<br>
+<br>
+<br>
+2. Create basic icon file<br>
+=========================<br>
+First paint a basic image file with a suitable<br>
+program (for example Windows Paint)<br>
+with size 1024x1024 as Windows bitmap (.bmp).<br>
+This is the maximum size for some operation systems.<br>
+The size and format is strictly necessary.<br>
+In several cases, the size is shrinked.<br>
+<br>
+Note:<br>
+When using images, even parts thereof, from external sources,<br>
+you should respect copyright to avoid legal problems,<br>
+especially if the images are published.<br>
+<br>
+For the sample program the sample file
+is named "hwgui_1024x1024.bmp".
+<br>
+For next steps the file must be converted to<br>
+PNG format with a suitable program,<br>
+on Windows "Irfanview" (Free, but not Open Source)<br>
+is a good program, also for other image operations.<br>
+<br>
+<br>
+3. Create and convert icon files<br>
+================================<br>
+<br>
+3.1 Windows<br>
+===========<br>
+<br>
+The icon file is embedded into the EXE, also possible in DLL's.<br>
+The resource compiler "winres" will do this for you at<br>
+compile time.<br>
+<br>
+- First reduce icon file to 256x256 and<br>
+  convert them into *.ico format<br>
+  (possible also with "Paint" and "IrfanView").<br>
+<br>
+Continue with 4.1<br>
+The installation of shortcuts is very easy.<br>
+<br>
+<br>
+3.2 LINUX with GTK2<br>
+===================<br>
+<br>
+The recommended size for icons on GTK is 128x128.<br>
+<br>
+<br>
+3.3 MacOS (Darwin) with GTK2<br>
+============================<br>
+<br>
+The maximum size on MacOS is 1024x1024.<br>
+But some more lower sized are needed<br>
+and must be collected in a container with<br>
+extension *.icns.<br>
+A simple shell script are delivered<br>
+to create all resized icon files<br>
+and collect them in a .icns file.
+(macosiconconv.sh)<br>
+<br> 
+<br>
+4. Insert icons and create shortcuts<br>
+====================================<br>
+<br>
+4.1 Windows<br>
+===========<br>
+<br>
+Files:<br>
+- hwguiicon.prg<br>
+- hwguiicon.hbp<br>
+- hwgui_256x256.ico<br> 
+- hwgui.rc<br>
+- Windows.Manifest<br>
+- Windows64.Manifest<br>
+<br>
+<br>
+Tested on Windows 11 with MinGW (gcc (GCC) 4.6.2).<br>
+<br>
+Open a Console Window (CMD) and set the path by<br>
+pfad.bat<br>
+<br>
+Compile the sample program by command:<br>
+hbmk2 hwguiicon.hbp<br>
+Go with the Explorer to the directory<br>
+where the sample program is located, now<br>
+you can see the symbol with the HWGUI icon:<br>
+<img src="./images/Win_Expl_exe_with_icon.png" align=center alt="Exe with HWGUI icon in Explorer">
+<br>
+Start the program with:<br>
+hwguiicon.exe<br>
+<br>
+<img src="./images/Prg_Win.png" align=center alt="Program on Window screen">
+<br>
+Also the icon appears on the taskbar:<br>
+<img src="./images/Icon_Win_Taskbar.png" align=center alt="Icon on Windows taskbar">
+<br>
+Close the sample program.<br>
+Create a shortcut on the desktop:<br>
+Go to a blank position on the desktop<br>
+and mouse rightclick:<br>
+<img src="./images/Win_Desktop_rightClick.png" align=center alt="Win desktop right mouse click">
+<br>
+Say "New" (Neu) and "Link" (Verkn&uuml;pfung),<br>
+In the first windows click "Browse..." (Durchsuchen...)<br>
+and navigate to "hwguiicon.exe".<br> 
+If selected, say "Continue" (Weiter).<br>
+Enter a text for display, for example "HWGUI Icon sample".<br>
+End with "Finish" (Fertig stellen).<br>
+<br>
+<img src="./images/Win_Desktop_icon.png" align=center alt="Win desktop shortcut">
+<br>  
+Pin the start symbol to the taskbar:<br>
+Start the program by double click on the desktop shortcut and<br> 
+go to the icon on the taskbar and mouse right click:<br> 
+<img src="./images/Win_pin_at_taskbar.png" align=center alt="Win taskbar symbol right mouse click">  
+<br> 
+Say: "Pin at taskbar" (An Taskleiste anheften)<br>
+Now the symbol appears permantly.<br>
+Close the program and test start:<br> 
+Click onto symbol and the sample program<br>
+starts again (only one click).<br>
+<br>
+Ready !<br>
+<br>
+
+4.2 LINUX with GTK2<br>
+===================<br>
+<br>
+- hwguiicon.prg<br>
+- hwguiicon.hbp<br>
+- hwgui_128x128.png<br>
+- hwguiicon.desktop<br>
+<br>
+<br>
+Pre steps for all LINUX distributions:<br>
+-------------------------------------<br>
+<br>
+- Create in the home directory a directory containing<br>
+  the compiled sample program (sample running environment):<br>
+  mkdir hwgui_icon<br>
+<br>
+- Open a terminal and<br>
+  compile the sample program by:<br>
+  hbmk2 hwguiicon.hbp<br>
+<br>
+- Copy the generated EXE file "hwguiicon" into<br>
+  the above mentioned directory.<br>
+  Also follwing file:<br>
+   hwgui_128x128.png<br>
+<br>
+- Start the program by:<br>
+  ./hwguiicon<br> 
+  <img src="./images/LINUX_Running_hwguiicon.png" align=center alt="Linux Gear icon"> 
+<br>
+- Now the "Gear" icon appeared on the dock , if the sample<br>
+  program is running.<br>
+  <img src="./images/LINUX_Gear_Icon.png" align=center alt="Linux Gear icon"> 
+<br>
+4.2.2 Ubuntu:<br>
+<br>
+- Go with the mouse cursor to the icon,<br>
+  the name of the WMClass is displayed:<br>
+<img src="./images/LINUX_Gear_Icon_WMClass.png" align=center alt="Linux Gear icon with WMClass"><br>
+  The name is the file name of the EXE file, but the first<br>
+  character is in upper case: Hwguiicon<br>
+- Terminate the program.<br>  
+<br>
+Create a desktop shortcut:<br>
+- Now copy the file "hwguiicon.desktop"<br>
+  onto the desktop.<br>
+  Sample call:<br>
+  cd ~/Schreibtisch<br>
+  cp ~/svnwork/hwgui-code/hwgui/samples/iconify/hwguiicon.desktop .<br>
+  "Schreibtisch" means "Desktop", depends on system<br>
+  language setting, here german.<br>
+  The icon appears on the desktop with a cross:<br>
+<img src="./images/LINUX_Desktop_file_cross.png" align=center alt="Linux icon with cross"><br>
+- Modify the values to your own needs:<br>
+  Path=Path to location of the exefile<br>
+  (cd to it before running the applcation)<br>
+  Exec=Path and name to the exe file.<br>
+  Icon=Path and name to the icon file.<br>
+  (for this test this may be $HOME/hwgui_icon<br>
+  or in samples/iconify in the svn work directory)<br>
+- Set execute permission:<br>
+   chmod 755 ~/Schreibtisch/hwguiicon.desktop<br>
+- Check properties:<br>
+  Right mouse click and be shure, that<br>
+  the execute permission is allowed:<br>
+<img src="./images/LINUX_Destop_file_show_exec_p.png" align=center alt="Linux desktop file exec"><br>
+  Set "Allow execute as program" (Als Programm ausf&uuml;hrbar) to on.<br>       
+- It may be that the icon of HWGUI does not appear and the cross<br>
+  symbol is visible,<br>
+  move the icon symbol holding down the left mouse button<br>
+  to another position on the desktop.<br>
+  Otherwise the settings in the desktop file<br>
+  are not correct, check them again.<br>
+<img src="./images/LINUX_HWGUI_Desktop_shortcut.png" align=center alt="Linux desktop file exec"><br>
+- Start the program by double click.<br>
+  Continue only with the next step, if the<br>
+  program is running OK.<br>
+- Copy the desktop file also to:<br>
+  .local/share/applications<br>
+   in the home directory.<br>
+  The easyest way to copy is (because of hidden directory
+  (start in terminal in the home dirctory:<br> 
+  cd .local/share/applications<br>
+  cp ~/Schreibtisch/hwguiicon.desktop.<br>
+  If this file does not exist, create it with<br>
+  mkdir -p .local/share/applications<br>
+- If the program can be started from the desktop<br>
+  shortcut and the program icon appears in the doc,<br>
+  you can now pin the start icon onto the dock/dash.<br>   
+<img src="./images/LINUX_pin_to_dock.png" align=center alt="Linux desktop file exec"><br>
+  (An Dash anheften)<br>
+  The action is confirmed by a system message.<br>
+- Now close the running program and try to start it<br>
+  from the dock/dash (single click left mouse button.<br>
+<br>
+If successfull, the installation is finished.<br>    
+   
+     
+<br> 
+&lt;under construction&gt; for:<br> 
+LINUXMint, Raspberry Pi 4 and 5<br>     
+<br>
+<br> 
+4.3 MacOS (Darwin) with GTK2<br>
+============================<br>
+<br>
+&lt;under construction&gt;
+<br>
+<br>
+Now have succes and fun.<br>
+73 de DF7BE,Wilfried<br>
+</pre>
+
+</body>
+</html>
+<!-- =============== EOF of ReadMe.htm ============================= -->

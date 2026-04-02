@@ -1,0 +1,10 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Comment[de_DE]=Start
+Exec=/home/cltest/Schreibtisch/term_apps/hwgui_sample_g.sh
+Name= HWGUI Icon sample
+Comment=Start  HWGUI Icon sample
+Icon=/home/cltest/logbuch/DF7BE/cllog.ico

@@ -25,6 +25,7 @@ _________
 12.)   clean scripts
 13.)   Special samples:
 13.1)  Progress bars
+14.) Iconification
 
 
 
@@ -468,5 +469,14 @@ UNIX/LINUX/MacOS:
     A multi platform sample program see directory
     samples/progressbar
     (TNX to Alain Aupaix)
+
+  
+14.) Iconification
+~~~~~~~~~~~~~~~~~~
+
+   See sample files and instructions in directory:
+    samples/iconify
+    (also for creating desktop shortcuts and dock/dash (task bar)
+    shortcuts for HWGUI programs)
 
 * =================== EOF of Readme.txt ========================

@@ -15,6 +15,56 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+
+2026-04-02 18:50 UTC+0200 Wilfried Brunken DF7BE
+  ! Added instructions and sample files for
+  ! iconfications.
+  ! (OK for Windows and Ubuntu,
+  ! to be continued for LINUXMint,
+  ! Raspberrry Pi and MacOS)
+* doc/hwgdoc_commands.html
+* samples/Readme.txt  
++ samples/iconify/ReadMe.htm
++ samples/iconify/desktop
++ samples/iconify/desktop/macos
++ samples/iconify/desktop/raspberry_pi
++ samples/iconify/desktop/ubuntu
++ samples/iconify/desktop/ubuntu/hwgui.desktop
++ samples/iconify/desktop/ubuntu/term_apps
++ samples/iconify/desktop/ubuntu/term_apps/hwgui_sample.sh
++ samples/iconify/desktop/ubuntu/term_apps/hwgui_sample_g.sh
++ samples/iconify/hwg_icons_macos.sh
++ samples/iconify/hwgui.iconset
++ samples/iconify/hwgui.rc
++ samples/iconify/hwgui_1024x1024.bmp
++ samples/iconify/hwgui_1024x1024.png
++ samples/iconify/hwgui_128x128.ico
++ samples/iconify/hwgui_128x128.png
++ samples/iconify/hwgui_256x256.ico
++ samples/iconify/hwguiicon.desktop
++ samples/iconify/hwguiicon.hbp
++ samples/iconify/hwguiicon.prg
++ samples/iconify/images
++ samples/iconify/images/Icon_Win_Taskbar.png
++ samples/iconify/images/LINUX_Allow_Start_Desktop.png
++ samples/iconify/images/LINUX_Desktop_allow_start_right_click.png
++ samples/iconify/images/LINUX_Desktop_file_cross.png
++ samples/iconify/images/LINUX_Destop_file_show_exec_p.png
++ samples/iconify/images/LINUX_Gear_Icon.png
++ samples/iconify/images/LINUX_Gear_Icon_WMClass.png
++ samples/iconify/images/LINUX_HWGUI_Desktop_shortcut.png
++ samples/iconify/images/LINUX_Running_hwguiicon.png
++ samples/iconify/images/LINUX_pin_to_dock.png
++ samples/iconify/images/Prg_Win.png
++ samples/iconify/images/Win_Desktop_icon.png
++ samples/iconify/images/Win_Desktop_rightClick.png
++ samples/iconify/images/Win_Expl_exe_with_icon.png
++ samples/iconify/images/Win_pin_at_taskbar.png
++ samples/iconify/images/Windows.Manifest
++ samples/iconify/images/Windows64.Manifest
+
+
+
 2026-03-04 10:18 UTC+0300 Alexander Kresin <alex@belacy.ru>
   * source/cross/hgraph.prg
     * ::lDrawX, ::lDrawY variables added to disable, if needed, drawing of X and Y axes
