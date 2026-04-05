@@ -16,6 +16,42 @@
 */
 
 
+2026-04-025 15:20 UTC+0200 Wilfried Brunken DF7BE
+  ! Added instructions and sample files for
+  ! iconfications, next steps.
+  ! Add terminal shortcuts.
+  ! (OK for Windows and Ubuntu,
+  ! to be continued for LINUXMint,
+  ! Raspberrry Pi and MacOS)
+* samples/iconify/ReadMe.htm
+* samples/iconify/hwguiicon.desktop
++ samples/iconify/desktop/Mint (directory)
++ samples/iconify/desktop/Mint/hwguiicon.desktop
++ samples/iconify/desktop/ubuntu/helloworld.desktop
++ samples/iconify/desktop/ubuntu/term_apps/helloworld.sh
++ samples/iconify/desktop/ubuntu/term_apps/helloworld_t.sh
++ samples/iconify/helloworld
++ samples/iconify/helloworld.prg
++ samples/iconify/images/LINUX_Dock_term_started.png
++ samples/iconify/images/LINUX_helloworld_Desktop_allow_start.png
++ samples/iconify/images/LINUX_helloworld_Desktop_cross.png
++ samples/iconify/images/LINUX_helloworld_Desktop_shortcut.png
++ samples/iconify/images/Mint_Icon_permissions.png
++ samples/iconify/images/Mint_Melange_Display_WMClass.png
++ samples/iconify/images/Win_Desktop_helloworld_OK.png
++ samples/iconify/images/Win_Desktop_helloworld_blank.png
++ samples/iconify/images/Win_Desktop_helloworld_exe.png
++ samples/iconify/images/Win_Desktop_helloworld_name.png
++ samples/iconify/images/Win_Desktop_helloworld_symbo.png
++ samples/iconify/images/Win_Desktop_helloworld_symok.png
++ samples/iconify/images/Win_Desktop_helloworld_symse.png
++ samples/iconify/images/Win_Desktop_helloworld_symwa.png
++ samples/iconify/images/helloworld.bmp
++ samples/iconify/images/helloworld.png
++ samples/iconify/images/helloworld_128x128.png
++ samples/iconify/images/helloworld_256x256.ico
++ samples/iconify/images/helloworld_screenshot.png
+
 2026-04-02 18:50 UTC+0200 Wilfried Brunken DF7BE
   ! Added instructions and sample files for
   ! iconfications.
