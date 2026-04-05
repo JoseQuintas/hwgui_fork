@@ -25,6 +25,7 @@
   ! Raspberrry Pi and MacOS)
 * samples/iconify/ReadMe.htm
 * samples/iconify/hwguiicon.desktop
++ samples/iconify/desktop/ubuntu/helloworld.desktop
 + samples/iconify/desktop/Mint (directory)
 + samples/iconify/desktop/Mint/hwguiicon.desktop
 + samples/iconify/desktop/ubuntu/helloworld.desktop

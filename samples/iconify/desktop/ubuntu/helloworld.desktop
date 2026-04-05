@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Exec=/home/cltest/Schreibtisch/term_apps/helloworld_t.sh
+Name=Helloworld  Terminal
+Comment=Start Helloworld  Terminal
+Icon=/home/cltest/hwgui_icon/helloworld_128x128.png
+StartupWMClass=Helloworld
