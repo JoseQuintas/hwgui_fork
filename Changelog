@@ -16,7 +16,31 @@
 */
 
 
-2026-04-025 15:20 UTC+0200 Wilfried Brunken DF7BE
+2026-04-12 17:45 UTC+0200 Wilfried Brunken DF7BE
+  ! Added instructions and sample files for
+  ! iconfications, next steps:
+  ! Raspberry Pi 5, 
+  ! to be continued for LINUXMint,
+  ! Raspberrry Pi 4 and MacOS)
+!!! Files in directory samples/iconify:
+*  ReadMe.htm
++  desktop/raspberry_pi/hwguiicon.desktop
++  desktop/raspberry_pi/term_apps
++  helloworld
++  images/Raspi5_Add_Item.png
++  images/Raspi5_ControlCentre_Cfm_sele_icon.png
++  images/Raspi5_ControlCentre_hwgicadd_launcher.png
++  images/Raspi5_ControlCentre_hwgicon.png
++  images/Raspi5_ControlCentre_icon_fisel.png
++  images/Raspi5_ControlCentre_icon_sel.png
++  images/Raspi5_Control_Centre_new.png
++  images/Raspi5_Group_HamRadio_32x32.ico
++  images/Raspi5_exec_perm.png
++  images/Raspi5_launch_file.png
++  images/Raspi5_taskbar-prefer.png
+
+
+2026-04-05 15:20 UTC+0200 Wilfried Brunken DF7BE
   ! Added instructions and sample files for
   ! iconfications, next steps.
   ! Add terminal shortcuts.

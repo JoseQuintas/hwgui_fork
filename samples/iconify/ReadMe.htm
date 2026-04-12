@@ -20,6 +20,8 @@ $Id$<br>
 History<br>
 ~~~~~~~<br>
 <br>
+2026-04-12  DF7BE  For Raspberry Pi 5,
+                   to be contiunued for LINUXMint, Raspberry Pi and Macos<br>
 2026-04-05  DF7BE  For console/terminal programs on Windows and Ubuntu,
                    to be contiunued for LINUXMint, Raspberry Pi and Macos<br>
 2026-04-02  DF7BE  OK for Windows and Ubuntu, LINUXMint<br>
@@ -292,7 +294,7 @@ Checked on:<br>
 <br>
 - Copy the generated EXE file "hwguiicon" into<br>
   the above mentioned directory.<br>
-  Also follwing file:<br>
+  Also following file:<br>
    hwgui_128x128.png<br>
 <br>
 - Start the program by:<br>
@@ -313,7 +315,7 @@ Checked on:<br>
   character is in upper case: Hwguiicon<br>
 <br>  
   LINUXMint:<br>
-  The wmclass name is not display alike on Ubuntu,
+  The wmclass name is not displayed alike on Ubuntu,
   so find out in a terminal with command<br> 
    xprop WM_CLASS<br>
   and click in the open application.
@@ -403,15 +405,81 @@ LINUXMint:<br>
   as on Ubuntu, but the
   german text is
   "An der Leiste anheften"
-<br>  
-If successfull, the installation is finished.<br>    
-   
-     
 <br> 
+Raspberry Pi 5:
+- Set execute permission:
+  Right mouse click onto the shortcut
+  on the desktop:
+<img src="./images/Raspi5_exec_perm.png" align=center alt="Raspberry Pi5 set execute permission"><br>  
+  Go to tab "Permissions" (Berechtigungen)
+  and set "Execute" (Ausf&uuml;hren)
+  to "Everyone" (Jeder).
+  Confirm setting with "OK".  
+- Starting the sample program from the desktop shortcut,
+  the hwgui icon (if all is configured in the correct way)
+  appears in the Taskbar.
+  Before start, this dialog apprear:
+  Press "Launch" or "execute" or "start"
+  (Ausf&uuml;hren) to execute the sample program.
+  "Die Textdatei &lt;Hwguiicon&gt; scheint ausf&uuml;hrbar zu sein.
+  Was m&ouml;chten Sie damit tun?"
+  ==&gt; The textfile &gt;Hwguiicon&lt; seems to be executable.
+  What would you do with it?
+<img src="./images/Raspi5_launch_file.png" align=center alt="Raspberry Pi5 launch file"><br>
+- Close the sample program.
+- Copy the desktop file to .local/share/applications
+- Now add the shortcut to the taskbar:
+  Mouse right click on the taskbar, select
+<img src="./images/Raspi5_taskbar-prefer.png" align=center alt="Raspberry Pi5 taskbar prefernces"><br>
+ "Taskbar Preferences", the Control Centre opens:
+  Click on button "New Item" and
+  enter all preferences for the sample program:
+<img src="./images/Raspi5_Control_Centre_new.png" align=center alt="Raspberry Pi5 Control Centre New"><br>
+Enter the values and press "Set Icon":
+<img src="./images/Raspi5_Add_Item.png" align=center alt="Raspberry Pi5 Control Centre Add Item"><br>
+ Click on "Set Icon" and a dialog with standard icons appeared:
+<img src="./images/Raspi5_ControlCentre_icon_sel.png" align=center alt="Raspberry Pi5 Control Centre standard icons"><br>
+  Click on "From File" to select an own icon:
+<img src="./images/Raspi5_ControlCentre_icon_fisel.png" align=center alt="Raspberry Pi5 select icon"><br>
+and navigate to directory, where the HWGUI-Icon
+is located and select "hwgui_128x128.png"
+Press "Select" Button at bottom of dialog.
+<br><br>
+<img src="./images/Raspi5_ControlCentre_Cfm_sele_icon.png" align=center alt="Raspberry Pi5 select icon confirmed"><br>
+The HWGUI-Icon is now displayed on left upper corner.
+Press "OK" to confirm.
+Now the launcher is placed in the main menu.<br>
+Pin the launcher onto the taskbar:
+<img src="./images/Raspi5_ControlCentre_hwgicon.png" align=center alt="Raspberry Pi5 Control Centre standard HWGUI icon"><br>
+Right mouse click onto the taskbar,
+Select the group, where the hwgui launcher is
+placed and with another right click
+"Add to Launcher" appeared.
+<img src="./images/Raspi5_ControlCentre_hwgicadd_launcher.png" align=center alt="Raspberry Pi5 Control Centre add HWGUI to launcher"><br>
+Left mouse click, the dialog is closed
+and the launcher is now pinned at the taskbar.
+<br>
+Ready !  
+<br>
+<br>
+If sample program starts successfull, the installation is finished.<br>
+<br>
+Starting the HWGUI sample program, this dialog appears at first:
+<img src="./images/Raspi5_launch_file.png" align=center alt="Raspberry Pi5 HWGUI launch sample program"><br>
+Press button "Launch" or "Start" or "Execute" (Ausf&uuml;hren)
+to run the program.
+<br>
+Advice:
+At this time i found no way to extend the main menu
+with new categories. All the solution found in the
+internet doesn't work.
+Please be patient.  
+<br>
+<br>
 &lt;under construction&gt; for:<br> 
 Raspberry Pi 4 and 5<br>     
 <br>
-<br> 
+<br>
 4.3 MacOS (Darwin) with GTK2<br>
 ============================<br>
 <br>
@@ -431,18 +499,31 @@ Files:<br>
 - term_apps/helloworld.sh
 - term_apps/helloworld_t.sh
 <br>
- Advice:<br>
- To port old clipper programs under MS-DOS<br>
- the terminal/console geometry must be set to<br>
- 80x25, but on most systems the terminal/console<br>
- starts with 80x24.<br>
- So set them to 80x25 in the properties dialog,<br>
- in most cases, the setting is stored permanently.<br>
+ Advice:
+ To port old clipper programs under MS-DOS to Harbour
+ application,
+ the terminal/console geometry must be set to
+ 80x25, but on most systems the terminal/console
+ starts with default 80x24.
+ So set them to 80x25 in the properties dialog,
+ in most cases, the setting is stored permanently.
  <br>
- On Windows, the SETMODE() function do this<br>
+ On Windows, the SETMODE() function do this
  automatically.<br>
- <br>
 <br>
+For Operating systems:
+- Ubuntu
+- LINUXMint
+<br>
+On Raspberry Pi 5 the sample console program
+terminates immediately,
+try to find the reason later,
+sorry. Be patient for a solution,
+it seem a problem in the 
+lxterminal.
+<br>
+<br>
+
 First steps for all operating systems:<br>
 --------------------------------------<br>
 <br>
@@ -550,7 +631,7 @@ Do this with a file explorer or
 with mkdir command in a terminal.
 Copy helloworld.sh  and helloworld_t.sh
 to this directory.
-Modify them to yourown need and
+Modify them to your own need and
 set execute permissions:
 chmod 755 ~/Schreibtisch/term_apps/helloworld.sh  ~/Schreibtisch/term_apps/helloworld_t.sh
 chmod 755 ~/Schreibtisch/helloworld.desktop
@@ -576,10 +657,10 @@ So: this actions for grafical applicaions
 have no effect on terminal application,
 because the main application is the terminal !
 I tried this, but will be stored for
-future relaeses of the desktop environment.
+future releases of the desktop environment.
 <br>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Ignore for termianal applications !!!!!!!!!!!!!!
+Ignore for terminal applications !!!!!!!!!!!!!!
 If the sub directory "applications" does not exist,
 create it before copy by:
 mkdir -p .local/share/applications

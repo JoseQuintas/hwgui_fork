@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Hwguiicon
+Comment=Test Dock Icon
+Path=/home/afu/hwgui_icon
+Exec=/home/afu/hwgui_icon/hwguiicon
+Terminal=false
+Type=Application
+Icon=/home/afu/hwgui_icon/hwgui_128x128.png
+Categories=Test;
+StartupNotify=false
+StartupWMClass=Hwguiicon
