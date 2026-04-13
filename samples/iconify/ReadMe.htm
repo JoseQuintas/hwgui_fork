@@ -591,10 +591,19 @@ LINUX:<br>
 ------<br>
 <br>
 &lt;under construction&gt;<br>
+Instructions for:
+- Ubuntu
+- Raspberry Pi 5
+<br>
+To be continued for:
+- Raspberry Pi 4
+- LINUXMint
+- MacOS   
 <br>
 Files:
-- helloworld.prg
+- samples/iconify/helloworld.prg
 - samples/iconify/images/helloworld_128x128.png
+- samples/iconify/start_helloworld.sh
 <br>
 Problem:
 The "Exec=" entry in the .desktop file has here no effect,
@@ -636,6 +645,21 @@ set execute permissions:
 chmod 755 ~/Schreibtisch/term_apps/helloworld.sh  ~/Schreibtisch/term_apps/helloworld_t.sh
 chmod 755 ~/Schreibtisch/helloworld.desktop
 <br>
+Raspberry Pi 5:
+These actions for directory "term_apps" are not necessary.
+By using this scripts the Helloworld console does not start.
+(Very obscure):
+But do this here:
+Copy the script start_helloworld.sh into the
+directory ~/hwgui_icon
+and set execute permission by:
+chmod 755 start_helloworld.sh
+The desktop file "helloworld.desktop" in
+samples/iconify/desktop/raspberry_pi
+is modified to start this script from there. 
+Now the "Helloworld" should start successful
+in a terminal.
+<br>
 The desktop icon appears with a cross symbol:
 <img src="./images/LINUX_helloworld_Desktop_cross.png" align=center alt="Helloworld shortcut with cross symbol"><br>
 Rightclick on shortcut and select
@@ -651,6 +675,7 @@ Be shure that the 25th line with double line block character is visible.
 Another red point appeared at the dock symbol:
 <img src="./images/LINUX_Dock_term_started.png" align=center alt="Dock terminal new red point"><br>
 <br>
+Raspberry Pi:
 At this time, there is no way
 to place a shortcut on the dock with specified name.
 So: this actions for grafical applicaions
@@ -658,6 +683,14 @@ have no effect on terminal application,
 because the main application is the terminal !
 I tried this, but will be stored for
 future releases of the desktop environment.
+<br>
+Advice:
+The command
+ sudo apt-get install extra-xdg-menus
+installs extra categories in the main menu.
+There you may find one
+suitable for your application(s). 
+ 
 <br>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Ignore for terminal applications !!!!!!!!!!!!!!

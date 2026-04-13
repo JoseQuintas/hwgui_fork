@@ -16,6 +16,16 @@
 */
 
 
+2026-04-13 16:45 UTC+0200 Wilfried Brunken DF7BE
+  ! Project iconification sample:
+  ! Terminal miss start of "Helloworld.prg"
+  ! Fixed.
+  ! To be continued. 
+* samples/iconify/ReadMe.htm
++ samples/iconify/desktop/raspberry_pi/helloworld.desktop
++ samples/iconify/start_helloworld.sh
+
+
 2026-04-12 17:45 UTC+0200 Wilfried Brunken DF7BE
   ! Added instructions and sample files for
   ! iconfications, next steps:
