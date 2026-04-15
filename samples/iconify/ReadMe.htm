@@ -593,17 +593,21 @@ LINUX:<br>
 &lt;under construction&gt;<br>
 Instructions for:
 - Ubuntu
+- LINUXMint
 - Raspberry Pi 5
 <br>
 To be continued for:
 - Raspberry Pi 4
-- LINUXMint
 - MacOS   
 <br>
 Files:
 - samples/iconify/helloworld.prg
 - samples/iconify/images/helloworld_128x128.png
 - samples/iconify/start_helloworld.sh
+For LINUXMint:
+- samples/iconify/desktop/Mint/helloworld.desktop
+- samples/iconify/desktop/Mint/hwguiicon.desktop
+- samples/iconify/desktop/Mint/start_helloworld.sh
 <br>
 Problem:
 The "Exec=" entry in the .desktop file has here no effect,
@@ -660,6 +664,19 @@ is modified to start this script from there.
 Now the "Helloworld" should start successful
 in a terminal.
 <br>
+LINUXMint:
+The actions for directory "term_apps" are also not necessary.
+Copy the script
+samples/iconify/desktop/Mint/start_helloworld.sh
+into the directory ~/hwgui_icon
+and set execute permission by:
+chmod 755 start_helloworld.sh
+The desktop file "helloworld.desktop" in
+samples/iconify/desktop/Mint/
+is modified to start this script from there. 
+Now the "Helloworld" should start successful
+in a terminal.
+<br>
 The desktop icon appears with a cross symbol:
 <img src="./images/LINUX_helloworld_Desktop_cross.png" align=center alt="Helloworld shortcut with cross symbol"><br>
 Rightclick on shortcut and select
@@ -674,6 +691,10 @@ Now try to start the application:
 Be shure that the 25th line with double line block character is visible.
 Another red point appeared at the dock symbol:
 <img src="./images/LINUX_Dock_term_started.png" align=center alt="Dock terminal new red point"><br>
+LINUXMint:
+The running Helloworld appears like this:
+<img src="./images/LINUXMint_Running_Helloworld.png" align=center alt="Dock terminal new red point"><br>
+Here also there is no way to pin a shortcut at the dock.
 <br>
 Raspberry Pi:
 At this time, there is no way

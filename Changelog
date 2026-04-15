@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-04-15 11:35 UTC+0200 Wilfried Brunken DF7BE
+  ! Project iconification sample:
+  ! Finshed for LINUXMint.
+  ! To be continued with
+  ! Raspberry Pi 4 and MacOS. 
+* samples/iconify/ReadMe.htm
++ samples/iconify/desktop/Mint/helloworld.desktop
++ samples/iconify/desktop/Mint/start_helloworld.sh
++ samples/iconify/images/LINUXMint_Running_Helloworld.png
+
 
 2026-04-13 16:45 UTC+0200 Wilfried Brunken DF7BE
   ! Project iconification sample:
