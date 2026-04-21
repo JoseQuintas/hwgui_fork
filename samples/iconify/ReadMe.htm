@@ -20,6 +20,8 @@ $Id$<br>
 History<br>
 ~~~~~~~<br>
 <br>
+2026-04-21  DF7BE  For Raspberry Pi 4 and LINUXMint,
+                   to be contiunued for Macos<br>
 2026-04-12  DF7BE  For Raspberry Pi 5,
                    to be contiunued for LINUXMint, Raspberry Pi and Macos<br>
 2026-04-05  DF7BE  For console/terminal programs on Windows and Ubuntu,
@@ -30,7 +32,7 @@ History<br>
 <br>
 This feature is under construction,<br>
 to be continued with:<br>
-LINUXMint,Raspberry Pi 4 and 5, MacOS.<br>
+MacOS.<br>
 <br>
 The final description will be delivered<br>
 as soon as possible.<br>
@@ -51,6 +53,7 @@ ________<br>
 4.2 LINUX with GTK2<br>
 4.3 MacOS (Darwin) with GTK2<br>
 5.  Console/terminal programs<br>
+6.  Troubleshooting<br>
 <br>
 <br>
 <br>
@@ -125,10 +128,9 @@ xprop WM_CLASS
 and click in the open application.
 The wmclass name is displayed in the terminal
 windows.<br>
-In the .desktop launcher of the application,<br>
+In the .desktop launcher of the application,
 in the [Desktop Entry] section,
-add line<br>
-<br>
+add line
 StartupWMClass=myapplication<br>
 <br>
 <br>
@@ -282,7 +284,9 @@ Pre steps for all LINUX distributions:<br>
 -------------------------------------<br>
 Checked on:<br>
 - Ubuntu<br>
-- LINUXMint<br>
+- LINUXMint
+- Raspberry Pi 4, 5
+<br>
 <br>
 - Create in the home directory a directory containing<br>
   the compiled sample program (sample running environment):<br>
@@ -306,13 +310,13 @@ Checked on:<br>
   <img src="./images/LINUX_Gear_Icon.png" align=center alt="Linux Gear icon"> 
 <br>
 <br>
-- Go with the mouse cursor to the icon,<br>
+- Go with the mouse cursor to the icon,
   the name of the WMClass is displayed:<br>
 <img src="./images/LINUX_Gear_Icon_WMClass.png" align=center alt="Linux Gear icon with WMClass"><br>
   This is needed for entry:
   StartupWMClass=applicationname
-  The name is the file name of the EXE file, but the first<br>
-  character is in upper case: Hwguiicon<br>
+  The name is the file name of the EXE file, but the first
+  character is in upper case: Hwguiicon
 <br>  
   LINUXMint:<br>
   The wmclass name is not displayed alike on Ubuntu,
@@ -476,8 +480,8 @@ internet doesn't work.
 Please be patient.  
 <br>
 <br>
-&lt;under construction&gt; for:<br> 
-Raspberry Pi 4 and 5<br>     
+Trobleshooting:<br>
+
 <br>
 <br>
 4.3 MacOS (Darwin) with GTK2<br>
@@ -489,15 +493,18 @@ Raspberry Pi 4 and 5<br>
 5. Console/terminal programs<br>
 ============================<br>
 <br>
-Files:<br>
+Files: (basic set)<br>
 - helloworld.prg
 - helloworld.bmp
 - helloworld.png
 - helloworld_128x128.png
 - helloworld_256x256.ico
 - helloworld.desktop
-- term_apps/helloworld.sh
-- term_apps/helloworld_t.sh
+- term_apps/helloworld.sh *)
+- term_apps/helloworld_t.sh *)
+<br>
+*) Not needed for some LINUX distributions,
+some more files are listed in following chapters.
 <br>
  Advice:
  To port old clipper programs under MS-DOS to Harbour
@@ -515,12 +522,6 @@ For Operating systems:
 - Ubuntu
 - LINUXMint
 <br>
-On Raspberry Pi 5 the sample console program
-terminates immediately,
-try to find the reason later,
-sorry. Be patient for a solution,
-it seem a problem in the 
-lxterminal.
 <br>
 <br>
 
@@ -594,10 +595,10 @@ LINUX:<br>
 Instructions for:
 - Ubuntu
 - LINUXMint
+- Raspberry Pi 4
 - Raspberry Pi 5
 <br>
 To be continued for:
-- Raspberry Pi 4
 - MacOS   
 <br>
 Files:
@@ -608,6 +609,16 @@ For LINUXMint:
 - samples/iconify/desktop/Mint/helloworld.desktop
 - samples/iconify/desktop/Mint/hwguiicon.desktop
 - samples/iconify/desktop/Mint/start_helloworld.sh
+<br>
+For Raspberry Pi 4 (additional to list above):
+- samples/iconify/desktop/raspberry_pi/Pi4/helloworld.desktop
+- samples/iconify/desktop/raspberry_pi/Pi4/hwguiicon.desktop
+- samples/iconify/desktop/raspberry_pi/Pi4/start_helloworld.sh
+<br>
+For Raspberry Pi 5 (additional to list above):
+- samples/iconify/desktop/raspberry_pi/helloworld.desktop 
+- samples/iconify/desktop/raspberry_pi/hwguiicon.desktop
+<br>
 <br>
 Problem:
 The "Exec=" entry in the .desktop file has here no effect,
@@ -620,6 +631,10 @@ in the command line a shell script
 is started, do a cd into the
 directory, where the console
 program must be started.
+<br>
+Also there is a difference between the
+behaviour on Raspberry Pi 4 and 5.
+For details see chapter "Troubleshooting".
 <br>
 Simular as above described,
 compile the program "helloworld.prg" by
@@ -649,13 +664,17 @@ set execute permissions:
 chmod 755 ~/Schreibtisch/term_apps/helloworld.sh  ~/Schreibtisch/term_apps/helloworld_t.sh
 chmod 755 ~/Schreibtisch/helloworld.desktop
 <br>
-Raspberry Pi 5:
+Raspberry Pi 4 and 5:
 These actions for directory "term_apps" are not necessary.
 By using this scripts the Helloworld console does not start.
 (Very obscure):
 But do this here:
 Copy the script start_helloworld.sh into the
 directory ~/hwgui_icon
+<br>
+Pi 4: Adapted .desktop files and script start_helloworld.sh
+in directory samples/iconify/desktop/raspberry_pi/Pi4.
+<br>
 and set execute permission by:
 chmod 755 start_helloworld.sh
 The desktop file "helloworld.desktop" in
@@ -705,13 +724,24 @@ because the main application is the terminal !
 I tried this, but will be stored for
 future releases of the desktop environment.
 <br>
-Advice:
+Note:
+If the desired icon is not visible after 
+the instructions are done as above described (only with a default icon of the system),
+<img src="./images/Helloword_Raspi_Std_Icon.png" align=center alt="Helloworld with default icon"><br>
+at fist try to move the icon on another position on the desktop.
+If this does not help, reboot the system. 
+After login is performed, in most cases the desired icon should
+appear.
+This may work on all LINUX systems.
+<br>
+Advice (Raspberry Pi 4 and 5):
 The command
  sudo apt-get install extra-xdg-menus
 installs extra categories in the main menu.
 There you may find one
 suitable for your application(s). 
- 
+The administration of the main menu in the taskbar
+is very buggy. 
 <br>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Ignore for terminal applications !!!!!!!!!!!!!!
@@ -726,6 +756,46 @@ in another terminal in the home directory:<br>
 cd .local/share/applications<br>
 cp ~/Schreibtisch/helloworld.desktop.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<br>
+<br>
+6. Troubleshooting<br>
+------------------<br>
+<br>
+1.) If a program do not start without any
+    visible error message,
+    use the direction of output
+    channels (stdout and stderr) into
+    a file, for example:
+     ./helloworld 1>&2 2>mist.txt
+    In most cases, the error message
+    will appear here.
+<br>
+2.) Export problems with environment variables:
+    A very important variable is named
+    LD_LIBRARY_PATH
+    and is set in the .profile or .bash_profile
+    of the recent userid as described
+    in the HWGUI installation instructions.
+    This variable is necessary to search and find the
+    Harbour and HWGUI libraries at start time.
+    If starting a new terminal, the
+    variable is not set.
+    so say in the start script:
+    export LD_LIBRARY_PATH=:/home/logger/Harbour/core-master/lib/linux/gcc:/usr/local/lib
+<br>
+3.) Execute path not set:
+    The Path= parameter in the desktop file
+    may have on some systems no effect,
+    so make before programm call a
+    cd to the directory, where the
+    executable is located:
+      cd $HOME/hwgui_icon
+      ./helloworld
+<br>
+4.) Be shure, that all shell scripts (*.sh)
+    and .desktop file have execute permission.
+    Set it with 
+    chmod 755 &lt;filename&gt:
 <br>
 <br>   
 Now have succes and fun.<br>

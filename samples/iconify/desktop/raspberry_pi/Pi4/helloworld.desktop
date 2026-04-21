@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=true
+Path=/home/logger/hwgui_icon
+Exec=/home/logger/hwgui_icon/start_helloworld.sh
+Name=Helloworld  Terminal
+Comment=Start Helloworld  Terminal
+Icon=/home/logger/hwgui_icon/helloworld_128x128.png
+StartupWMClass=Helloworld

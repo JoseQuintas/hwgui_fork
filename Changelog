@@ -15,6 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-04-21 15:05 UTC+0200 Wilfried Brunken DF7BE
+  ! Project iconification sample:
+  ! Finshed for Rasberry Pi 4.
+  ! To be continued with
+  ! MacOS.
+* samples/iconify/ReadMe.htm
++ samples/iconify/desktop/raspberry_pi/Pi4/helloworld.desktop
++ samples/iconify/desktop/raspberry_pi/Pi4/hwguiicon.desktop
++ samples/iconify/desktop/raspberry_pi/Pi4/start_helloworld.sh
++ samples/iconify/images/Helloword_Raspi_Std_Icon.png
+  
+
 2026-04-15 11:35 UTC+0200 Wilfried Brunken DF7BE
   ! Project iconification sample:
   ! Finshed for LINUXMint.
