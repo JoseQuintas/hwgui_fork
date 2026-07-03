@@ -14,7 +14,7 @@
     </tr>
     <tr>
       <td width="15%" align="left"><a href="hwgdoc.html">prev</a></td>
-      <td width="70%" align="center">Alexander S.Kresin, April 2026</td>
+      <td width="70%" align="center">Alexander S.Kresin, July 2026</td>
       <td width="15%" align="right"><a href="hwgdoc_functions.html">next</a></td>
     </tr>
   </table>
@@ -908,6 +908,27 @@
     	 [ FONT &lt;oFont&gt; ]
     	 [ TOOLTIP &lt;ctoolt&gt; ]
     </pre>
+    <p></p><br>
+    The UPDOWN command creates an element to select<br>
+    a numerial value in a specified range:<br>
+    <br>
+    <img src="./image/UpDownWin.png" align=center wborder=0
+    alt="UPDOWN element"><br>
+    <br>
+    But there is some trouble to return the seleted value.<br>
+    For details see test program "Ticket92.prg" in the<br>
+    "test" directory in the comment lines.<br>
+    Instead of<br>
+    @ &lt;x&gt;,&lt;y&gt; UPDOWN ...<br>
+    use<br>
+    LOCAL numeric := 6   && Preset value instead of INIT &lt;n&gt;<br>
+    @ &lt;x&gt;,&lt;y&gt; GET UPDOWN odown1 VAR numeric ...<br>
+    ...<br>
+    and get the entered value after<br>
+    dialog is closed in the variable<br>
+    "numeric".<br>
+    <br>
+    </p>
 
     <br><a name="tab" href="#_tab"> @ &lt;x&gt;,&lt;y&gt; TAB</a>
     <p>
