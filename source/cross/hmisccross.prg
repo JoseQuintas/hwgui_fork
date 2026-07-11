@@ -2176,4 +2176,66 @@ FUNCTION hwg_UNIX2DOS(cText)
    ENDIF
 RETURN cText
 
+FUNCTION hwg_STRI2COMB(ccvalue,acomboitems)
+
+  LOCAL nlaenge,nindizi, ntreffer 
+  *     !       !        !
+  *     !       !        v
+  *     !       v        element number of match
+  *     v       index variable
+  *     The length    
+
+
+  IF acomboitems == NIL
+   RETURN 0
+  ENDIF
+  IF ccvalue == NIL
+   RETURN 0
+  ENDIF
+  ccvalue := ALLTRIM(ccvalue)
+
+  nlaenge := hwg_Array_Len(acomboitems)
+  IF nlaenge < 1
+   RETURN 0
+  ENDIF
+  ntreffer := 0   && In case of invalid parameters
+  * Search in array
+  FOR nindizi := 1 TO nlaenge
+   IF ntreffer < 1
+     IF acomboitems[nindizi] == ccvalue
+       ntreffer := nindizi
+     ENDIF
+   ENDIF
+  NEXT
+RETURN ntreffer
+
+
+FUNCTION hwg_CCOMB2STRI(ncombov,acomboitems)
+
+  LOCAL nlaenge  && The length
+
+  * Check for invalid parameters
+  IF ncombov == NIL
+   RETURN ""
+  ENDIF 
+
+  IF .NOT. (VALTYPE(ncombov) == "N" )
+   RETURN ""
+  ENDIF
+
+  IF acomboitems == NIL
+   RETURN ""
+  ENDIF 
+  nlaenge := hwg_Array_Len(acomboitems )
+  IF nlaenge < 1
+   RETURN ""
+  ENDIF
+
+  IF (ncombov < 1) .OR. (ncombov > nlaenge)
+   RETURN ""
+  ENDIF
+
+RETURN acomboitems[ncombov]
+
+
 * ======================= EOF of hmisccross.prg ===========================

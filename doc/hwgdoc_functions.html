@@ -14,7 +14,7 @@
   </tr>
   <tr>
     <td width="15%" align="left"><a href="hwgdoc_commands.html">prev</a></td>
-    <td width="70%" align="center">Alexander S.Kresin, November 2025</td>
+    <td width="70%" align="center">Alexander S.Kresin, July 2026</td>
     <td width="15%" align="right"><a href="hwgdoc_classes.html">next</a></td>
   </tr>
 </table>
@@ -3540,6 +3540,45 @@ See sample program "demosplit.prg" for details.<br>
     samples/demo.ch,<br>
     FUNCTION demo_ShowCode()<br>
     
+    <p></p>
+    
+  
+    <br><strong class="subhead">hwg_CCOMB2STRI(ncombov,acomboitems)</strong>
+    <br>
+    Helper function for handling<br>
+    inifiles parameter with combobox.<br>
+    Convert combobox values (N) to String<br>
+    (For the value of combobox edited)<br>
+    Parameters:<br>
+    acomboitems:<br>
+    Pass here the same array as<br>
+    passed to the ITEMS option<br> 
+    of the command:<br>
+    @ &lt;x&gt;,&lt;y&gt; GET COMBOBOX ...<br>
+    If parameter values are invalid,<br>
+    an empty string "" is returned.<br>
+    For details see comment lines in<br>
+    test program "test/tstcombovals.prg".<br>
+    <p></p>
+
+    <br><strong class="subhead">hwg_STRI2COMB(ccvalue,acomboitems)</strong>
+    <br>
+    Helper function for handling<br>
+    inifiles parameter with combobox.<br>
+    Converts a string for a combobox to numeric<br>
+    Is opposite function to hwg_CCOMB2STRI()<br>
+    Parameters:<br>
+    ccvalue:<br>
+    The value string from inifile<br> 
+    acomboitems:<br>
+    Pass here the same array as<br>
+    passed to the ITEMS option<br> 
+    of the command:<br>
+    @ &lt;x&gt;,&lt;y&gt; GET COMBOBOX ...<br>
+    If parameter values are invalid,<br>
+    0 is returned.<br>
+    For details see comment lines in<br>
+    test program "test/tstcombovals.prg".<br>
     <p></p>
 
 
