@@ -15,6 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-07-14 13:30 UTC-0200 Jose Quintas
+   ! demoupdown.prg
+     ! added ticket92
+  ! demoall.prg
+    ! moved demoupdown to say/get tabpage
 
 2026-07-11 18:45 UTC+0200 Wilfried Brunken DF7BE
   ! Sample test and demo program:
@@ -26,7 +31,7 @@
 * doc/hwgdoc_commands.html
 * doc/hwgdoc_functions.html
 + test/tstcombovals.prg
- 
+
 
 2026-07-03 09:40 UTC+0200 Wilfried Brunken DF7BE
   ! Ticket #92 UpDown values:
@@ -60,13 +65,13 @@
 + samples/iconify/desktop/raspberry_pi/Pi4/hwguiicon.desktop
 + samples/iconify/desktop/raspberry_pi/Pi4/start_helloworld.sh
 + samples/iconify/images/Helloword_Raspi_Std_Icon.png
-  
+
 
 2026-04-15 11:35 UTC+0200 Wilfried Brunken DF7BE
   ! Project iconification sample:
   ! Finshed for LINUXMint.
   ! To be continued with
-  ! Raspberry Pi 4 and MacOS. 
+  ! Raspberry Pi 4 and MacOS.
 * samples/iconify/ReadMe.htm
 + samples/iconify/desktop/Mint/helloworld.desktop
 + samples/iconify/desktop/Mint/start_helloworld.sh
@@ -77,7 +82,7 @@
   ! Project iconification sample:
   ! Terminal miss start of "Helloworld.prg"
   ! Fixed.
-  ! To be continued. 
+  ! To be continued.
 * samples/iconify/ReadMe.htm
 + samples/iconify/desktop/raspberry_pi/helloworld.desktop
 + samples/iconify/start_helloworld.sh
@@ -86,7 +91,7 @@
 2026-04-12 17:45 UTC+0200 Wilfried Brunken DF7BE
   ! Added instructions and sample files for
   ! iconfications, next steps:
-  ! Raspberry Pi 5, 
+  ! Raspberry Pi 5,
   ! to be continued for LINUXMint,
   ! Raspberrry Pi 4 and MacOS)
 !!! Files in directory samples/iconify:
@@ -151,7 +156,7 @@
   ! to be continued for LINUXMint,
   ! Raspberrry Pi and MacOS)
 * doc/hwgdoc_commands.html
-* samples/Readme.txt  
+* samples/Readme.txt
 + samples/iconify/ReadMe.htm
 + samples/iconify/desktop
 + samples/iconify/desktop/macos
