@@ -15,6 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-07-17 17:45 UTC+0200 Wilfried Brunken DF7BE
+  ! Bugfix hwg_hex_dump() 
+  ! for output format Nr.0
+* source/cross/hmisccross.prg
+
 2026-07-14 13:30 UTC-0200 Jose Quintas
    ! demoupdown.prg
      ! added ticket92

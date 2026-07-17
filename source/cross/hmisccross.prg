@@ -403,7 +403,7 @@ FUNCTION hwg_HEX_DUMP ( cinfield, npmode, cpVarName )
 * ================================= *
 
    LOCAL nlength, coutfield,  nindexcnt , cccchar, nccchar, ccchex, nlinepos, cccprint, ;
-      cccprline, ccchexline, nmode , cVarName , ncomma
+      cccprline, ccchexline, nmode , cVarName , ncomma, nblank
 
    IF npmode == NIL
       nmode := 2
@@ -416,7 +416,7 @@ FUNCTION hwg_HEX_DUMP ( cinfield, npmode, cpVarName )
       cVarName := cpVarName
    ENDIF
    * Check for valid mode
-   IF (nmode < 1 ) .OR. (nmode > 6 )
+   IF (nmode < 0 ) .OR. (nmode > 5 )
       RETURN ""
    ENDIF
    * get length of field to be dumped
@@ -464,14 +464,19 @@ FUNCTION hwg_HEX_DUMP ( cinfield, npmode, cpVarName )
          cccprline := cccprline + cccprint
          ccchexline := ccchexline + ccchex
       ELSE
+       IF ( nmode == 0 )
+          ccchexline := ccchexline + ccchex + " "
+       ELSE
          IF nmode == 5
             cccprline := cccprline + cccprint + " "
             ccchexline := ccchexline + "0x" + ccchex + ","
          ELSE
+ 
             * Add a blank between a hex value pair
             cccprline := cccprline + cccprint + " "
             ccchexline := ccchexline + ccchex + " "
          ENDIF
+       ENDIF
       ENDIF
       * end of line with 16 bytes reached
       IF nlinepos > 15
@@ -508,6 +513,9 @@ FUNCTION hwg_HEX_DUMP ( cinfield, npmode, cpVarName )
    IF  .NOT. EMPTY(ccchexline)  && nlinepos < 16
       DO CASE
       CASE nmode == 0
+        * Remove last blank at end of line
+         nblank := RAT(" ",ccchexline)
+         ccchexline := IIF(nblank > 0 , SUBSTR(ccchexline, 1, nblank - 1) , ccchexline )
          coutfield := coutfield + ccchexline
       CASE nmode == 1
          coutfield := coutfield + PADR(ccchexline,48) + ">> " +  PADR(cccprline,32) + hwg_EOLStyle()
