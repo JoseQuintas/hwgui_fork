@@ -119,7 +119,7 @@ HB_FUNC( HWG_INITMONTHCALENDAR )
 
    hMC = CreateWindowEx( 0,
                          MONTHCAL_CLASS,
-                         "",
+                         TEXT(""),
                          (LONG) hb_parnl(3), /* 0,0,0,0, */
                          hb_parni(4), hb_parni(5),      /* x, y       */
                          hb_parni(6), hb_parni(7),      /* nWidth, nHeight */

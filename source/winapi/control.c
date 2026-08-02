@@ -26,6 +26,8 @@
    #include "hbfast.h"
 #endif
 
+#include <tchar.h>
+
 /* Suppress compiler warnings */
 #include "incomp_pointer.h"
 #include "warnings.h"
@@ -2359,23 +2361,41 @@ HB_FUNC( HWG_GETTABNAME )
 }
 
 HB_FUNC( HWG_GETUTCTIMEDATE )
-/* Format: W,YYYYMMDD-HH:MM:SS */
 {
-  SYSTEMTIME st = { 0 };
-  char cst[41] = { 0 };
-  GetSystemTime(&st);
-  sprintf(cst,"%01d.%04d%02d%02d-%02d:%02d:%02d",st.wDayOfWeek, st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
-  HB_RETSTR(cst);
+      SYSTEMTIME st;
+
+   #if defined( HB_WIN_UNICODE )
+      WCHAR cst[41] = { 0 };
+      GetSystemTime( &st );
+      swprintf( cst, L"%01d.%04d%02d%02d-%02d:%02d:%02d",
+                st.wDayOfWeek, st.wYear, st.wMonth, st.wDay,
+                st.wHour, st.wMinute, st.wSecond );
+      HB_RETSTR( cst );
+   #else
+      char cst[41] = { 0 };
+      GetSystemTime( &st );
+      sprintf( cst, "%01d.%04d%02d%02d-%02d:%02d:%02d",
+               st.wDayOfWeek, st.wYear, st.wMonth, st.wDay,
+               st.wHour, st.wMinute, st.wSecond );
+      hb_retc( cst );
+   #endif
 }
 
 HB_FUNC( HWG_GETDATEANSI )
-/* Format: YYYYMMDD, based on local time */
 {
-  SYSTEMTIME lt = { 0 };
-  char cst[41] = { 0 };
-  GetLocalTime(&lt);
-  sprintf(cst,"%04d%02d%02d", lt.wYear, lt.wMonth, lt.wDay);
-  HB_RETSTR(cst);
+      SYSTEMTIME st;
+
+   #if defined( HB_WIN_UNICODE )
+      WCHAR cst[41] = { 0 };
+      GetLocalTime( &st );
+      swprintf( cst, L"%04d%02d%02d", st.wYear, st.wMonth, st.wDay );
+      HB_RETSTR( cst );
+   #else
+      char cst[41] = { 0 };
+      GetLocalTime( &st );
+      sprintf( cst, "%04d%02d%02d", st.wYear, st.wMonth, st.wDay );
+      hb_retc( cst );
+   #endif
 }
 
 HB_FUNC( HWG_GETLOCALEINFON )
@@ -2388,13 +2408,16 @@ HB_FUNC( HWG_GETLOCALEINFON )
 }
 
 HB_FUNC( HWG_DEFUSERLANG )
-/* Windows only , on other OSs available, returns forever "-1". */
 {
-  char clang[25] = { 0 };
-  LANGID l;  /* ==> WORD */
-  l = GetUserDefaultUILanguage();
-  sprintf(clang, "%d", l);
-  HB_RETSTR( clang  );
+   #if defined( HB_WIN_UNICODE )
+      WCHAR clang[10] = { 0 };
+      GetLocaleInfoW( LOCALE_USER_DEFAULT, LOCALE_SABBREVLANGNAME, clang, 10 );
+      HB_RETSTR( clang );
+   #else
+      char clang[10] = { 0 };
+      GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SABBREVLANGNAME, clang, 10 );
+      hb_retc( clang );
+   #endif
 }
 
 /*

@@ -3,8 +3,8 @@
  * Registry handling functions
  *
  * Copyright 2002 Alexander S.Kresin <alex@kresin.ru>
- * www - http://www.kresin.ru
-*/
+ * www - http://kresin.ru
+ */
 
 #define HB_OS_WIN_32_USED
 
@@ -17,108 +17,212 @@
 #include "hbapiitm.h"
 #include "hbvm.h"
 #include "hbstack.h"
-
-#include "incomp_pointer.h"
+#include "hbapistr.h"
 
 /*
  * Regcreatekey( handle, cKeyName ) --> handle
-*/
-
+ */
 HB_FUNC( HWG_REGCREATEKEY )
 {
-   HKEY hkResult = NULL;
-   DWORD dwDisposition;
+      HKEY hKey = NULL;
 
-   if( RegCreateKeyEx( (HKEY) hb_parnl(1), hb_parc(2), 0, NULL, 0, KEY_ALL_ACCESS, 
-          NULL, &hkResult, &dwDisposition ) == ERROR_SUCCESS )
-   {
-      hb_retnl( (ULONG) hkResult );
-   }
-   else
-      hb_retnl( -1 );
+   #if defined( HB_WIN_UNICODE )
+      void * pSubKey;
+      LPCWSTR lpSubKey = hb_parstr_u16( 2, &pSubKey, NULL );
+      if( RegCreateKeyExW( (HKEY) HB_PARHANDLE(1), lpSubKey, 0, NULL, 0, KEY_ALL_ACCESS,
+            NULL, &hKey, NULL ) == ERROR_SUCCESS )
+      {
+            hb_strfreev( pSubKey );
+            HB_RETHANDLE( hKey );
+      }
+      else
+      {
+            hb_strfreev( pSubKey );
+            HB_RETHANDLE( NULL );
+      }
+   #else
+      if( RegCreateKeyExA( (HKEY) HB_PARHANDLE(1), hb_parc(2), 0, NULL, 0, KEY_ALL_ACCESS,
+            NULL, &hKey, NULL ) == ERROR_SUCCESS )
+      {
+            HB_RETHANDLE( hKey );
+      }
+      else
+      {
+            HB_RETHANDLE( NULL );
+      }
+   #endif
 }
-
-/*
- * RegOpenKey( handle, cKeyName ) --> handle
-*/
 
 HB_FUNC( HWG_REGOPENKEY )
 {
-   HKEY hkResult = NULL;
+      HKEY hKey = NULL;
 
-   if( RegOpenKeyEx( (HKEY)hb_parnl(1), hb_parc(2), 0, KEY_ALL_ACCESS, 
-                &hkResult ) == ERROR_SUCCESS )
-   {
-      hb_retnl( (ULONG) hkResult );
-   }
-   else
-      hb_retnl( -1 );
+   #if defined( HB_WIN_UNICODE )
+      void * pSubKey;
+      LPCWSTR lpSubKey = hb_parstr_u16( 2, &pSubKey, NULL );
+      if( RegOpenKeyExW( (HKEY) HB_PARHANDLE(1), lpSubKey, 0, KEY_ALL_ACCESS, &hKey ) == ERROR_SUCCESS )
+      {
+            hb_strfreev( pSubKey );
+            HB_RETHANDLE( hKey );
+      }
+      else
+      {
+            hb_strfreev( pSubKey );
+            HB_RETHANDLE( NULL );
+      }
+   #else
+      if( RegOpenKeyExA( (HKEY) HB_PARHANDLE(1), hb_parc(2), 0, KEY_ALL_ACCESS, &hKey ) == ERROR_SUCCESS )
+      {
+            HB_RETHANDLE( hKey );
+      }
+      else
+      {
+            HB_RETHANDLE( NULL );
+      }
+   #endif
 }
-
-/*
- * RegCloseKey( handle )
-*/
-
-HB_FUNC( HWG_REGCLOSEKEY )
-{
-   if( RegCloseKey( (HKEY) hb_parnl(1) ) == ERROR_SUCCESS )
-   {
-      hb_retnl( ERROR_SUCCESS );
-   }
-   else
-   {
-      hb_retnl( -1 );
-   }
-}
-
-/*
- * RegSetString( handle, cKeyName, cKeyValue ) --> 0 (Success) or -1 (Error)
-*/
 
 HB_FUNC( HWG_REGSETSTRING )
 {
-   if( RegSetValueEx( (HKEY)hb_parnl(1), hb_parc(2), 0, REG_SZ, 
-           (BYTE*)hb_parc(3), hb_parclen(3)+1 ) == ERROR_SUCCESS )
-      hb_retnl( 0 );
-   else
-      hb_retnl( -1 );
+      LPBYTE lpData = ( LPBYTE ) hb_parc( 3 );
+      DWORD cbData = ( DWORD ) hb_parclen( 3 );
+
+   #if defined( HB_WIN_UNICODE )
+      void * pValueName;
+      LPCWSTR lpValueName = hb_parstr_u16( 2, &pValueName, NULL );
+      if( RegSetValueExW( (HKEY) HB_PARHANDLE(1), lpValueName, 0, REG_SZ, lpData, cbData ) == ERROR_SUCCESS )
+      {
+            hb_strfreev( pValueName );
+            hb_retl( 1 );
+      }
+      else
+      {
+            hb_strfreev( pValueName );
+            hb_retl( 0 );
+      }
+   #else
+      if( RegSetValueExA( (HKEY) HB_PARHANDLE(1), hb_parc(2), 0, REG_SZ, lpData, cbData ) == ERROR_SUCCESS )
+      {
+            hb_retl( 1 );
+      }
+      else
+      {
+            hb_retl( 0 );
+      }
+   #endif
 }
 
 HB_FUNC( HWG_REGSETBINARY )
 {
-   if( RegSetValueEx( (HKEY)hb_parnl(1), hb_parc(2), 0, REG_BINARY, 
-           (BYTE*)hb_parc(3), hb_parclen(3)+1 ) == ERROR_SUCCESS )
-      hb_retnl( 0 );
-   else
-      hb_retnl( -1 );
+      LPBYTE lpData = ( LPBYTE ) hb_parc( 3 );
+      DWORD cbData = ( DWORD ) hb_parclen( 3 );
+
+   #if defined( HB_WIN_UNICODE )
+      void * pValueName;
+      LPCWSTR lpValueName = hb_parstr_u16( 2, &pValueName, NULL );
+      if( RegSetValueExW( (HKEY) HB_PARHANDLE(1), lpValueName, 0, REG_BINARY, lpData, cbData ) == ERROR_SUCCESS )
+      {
+            hb_strfreev( pValueName );
+            hb_retl( 1 );
+      }
+      else
+      {
+            hb_strfreev( pValueName );
+            hb_retl( 0 );
+      }
+   #else
+      if( RegSetValueExA( (HKEY) HB_PARHANDLE(1), hb_parc(2), 0, REG_BINARY, lpData, cbData ) == ERROR_SUCCESS )
+      {
+            hb_retl( 1 );
+      }
+      else
+      {
+            hb_retl( 0 );
+      }
+   #endif
+}
+
+/*
+ * RegCloseKey( handle )
+ */
+HB_FUNC( HWG_REGCLOSEKEY )
+{
+      if( RegCloseKey( (HKEY) HB_PARHANDLE(1) ) == ERROR_SUCCESS )
+      {
+            hb_retnl( ERROR_SUCCESS );
+      }
+      else
+      {
+            hb_retnl( -1 );
+      }
 }
 
 HB_FUNC( HWG_REGGETVALUE )
 {
-   HKEY hKey = (HKEY)hb_parnl(1);
-   LPTSTR lpValueName = (LPTSTR)hb_parc(2);
-   DWORD lpType = 0;
-   LPBYTE lpData;
-   DWORD lpcbData;
-   int length;
+      HKEY hKey = (HKEY) HB_PARHANDLE(1);
+      DWORD lpType = 0;
+      LPBYTE lpData;
+      DWORD lpcbData;
+      int length;
 
-   if( RegQueryValueEx( hKey, lpValueName, NULL,NULL,NULL,&lpcbData ) == ERROR_SUCCESS )
-   {
-      length = (int) lpcbData;
-      lpData = (LPBYTE)hb_xgrab( length+1 );
-      if( RegQueryValueEx( hKey, lpValueName, NULL,&lpType,lpData,&lpcbData ) == ERROR_SUCCESS )
+   #if defined( HB_WIN_UNICODE )
+      void * pValueName;
+      LPCWSTR lpValueName = hb_parstr_u16( 2, &pValueName, NULL );
+
+      if( RegQueryValueExW( hKey, lpValueName, NULL, NULL, NULL, &lpcbData ) == ERROR_SUCCESS )
       {
-         hb_retclen( (char*)lpData,(lpType==REG_SZ || lpType==REG_MULTI_SZ || lpType==REG_EXPAND_SZ)? length-1:length );
-         if( hb_pcount() > 2 )
-            hb_stornl( (LONG) lpType,3 );
+            length = (int) lpcbData;
+            lpData = (LPBYTE)hb_xgrab( length + 2 );
+            if( RegQueryValueExW( hKey, lpValueName, NULL, &lpType, lpData, &lpcbData ) == ERROR_SUCCESS )
+            {
+                  int iAdjust = (lpType == REG_SZ || lpType == REG_MULTI_SZ || lpType == REG_EXPAND_SZ) ? 1 : 0;
+                  if( lpType == REG_SZ || lpType == REG_MULTI_SZ || lpType == REG_EXPAND_SZ )
+                  {
+                        ((WCHAR*)lpData)[(length / sizeof(WCHAR)) - iAdjust] = 0;
+                        hb_retstr_u16( HB_CDP_ENDIAN_NATIVE, (WCHAR*)lpData );
+                  }
+                  else
+                  {
+                        hb_retclen( (char*)lpData, length );
+                  }
+                  if( hb_pcount() > 2 )
+                        hb_stornl( (LONG) lpType, 3 );
+            }
+            else
+            {
+                  hb_ret();
+            }
+            hb_xfree( lpData );
       }
       else
-         hb_ret();
-      hb_xfree( lpData );
-   }
-   else
-      hb_ret();
+      {
+            hb_ret();
+      }
+      hb_strfreev( pValueName );
+   #else
+      LPCSTR lpValueName = hb_parc(2);
+
+      if( RegQueryValueExA( hKey, lpValueName, NULL, NULL, NULL, &lpcbData ) == ERROR_SUCCESS )
+      {
+            length = (int) lpcbData;
+            lpData = (LPBYTE)hb_xgrab( length + 1 );
+            if( RegQueryValueExA( hKey, lpValueName, NULL, &lpType, lpData, &lpcbData ) == ERROR_SUCCESS )
+            {
+                  hb_retclen( (char*)lpData, (lpType == REG_SZ || lpType == REG_MULTI_SZ || lpType == REG_EXPAND_SZ) ? length - 1 : length );
+                  if( hb_pcount() > 2 )
+                        hb_stornl( (LONG) lpType, 3 );
+            }
+            else
+            {
+                  hb_ret();
+            }
+            hb_xfree( lpData );
+      }
+      else
+      {
+            hb_ret();
+      }
+   #endif
 }
 
 /* ============================== EOF of registry.c ============================ */
-
