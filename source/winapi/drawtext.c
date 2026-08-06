@@ -345,10 +345,15 @@ HB_FUNC( HWG_EXTTEXTOUT )
 
 HB_FUNC( HWG_WRITESTATUSWINDOW )
 {
-   void *hString;
-   SendMessage( ( HWND ) HB_PARHANDLE( 1 ), SB_SETTEXT, hb_parni( 2 ),
-         ( LPARAM ) HB_PARSTR( 3, &hString, NULL ) );
-   hb_strfree( hString );
+      void *hString;
+      HB_SIZE nLen = 0; // Using HB_SIZE to guarantee type compatibility on both 32-bit and 64-bit architectures
+
+      // HB_PARSTR with &nLen automatically handles ANSI or UNICODE conversion
+      // based on the Harbour compiler initialization flags.
+      SendMessage( ( HWND ) HB_PARHANDLE( 1 ), SB_SETTEXT, hb_parni( 2 ),
+                   ( LPARAM ) HB_PARSTR( 3, &hString, &nLen ) );
+
+      hb_strfree( hString );
 }
 
 HB_FUNC( HWG_WINDOWFROMDC )

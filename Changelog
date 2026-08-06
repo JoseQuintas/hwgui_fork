@@ -14,6 +14,25 @@
  "oldlogs".
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+
+2026-08-06 18:30 UTC+0300 Itamar M. Lins Jr. <itamarlins at gmail.com>
+    * source/winapi/control.c:
+      - Fixed HB_FUNC( HWG_INITSTATUS ) to perform proper cumulative 
+        calculation of status bar right-edge parts coordinates (SB_SETPARTS).
+      - Replaced hb_arrayGetNI with hb_arrayGetNL to guarantee flawless 
+        numeric extraction on modern 64-bit architectures (GCC UCRT64).
+      - Added support for 0 and -1 sizes to properly auto-expand panels.
+
+    * source/winapi/drawtext.c:
+      - Fixed HB_FUNC( HWG_WRITESTATUSWINDOW ) to use correct HB_SIZE data type.
+      - Updated HB_PARSTR macro usage with explicit length pointer reference.
+      - Fixed string truncation bug (single char output) under Unicode builds.
+
+    * source/winapi/guimain.prg:
+      - Fixed hwg_WriteStatus() function to call hwg_WriteStatusWindow() 
+        instead of generic hwg_SendMessage().
+      - Ensures proper ANSI/Unicode string marshalling for HSTATUS controls.
+
 2026-08-01 23:44 UTC+0300 Itamar M. Lins Jr. <itamarlins at gmail.com>
    ! Fix for compiling UNICODE(UTF8) Windows OS.
     * \hwgui\source\winapi\hmonthc.prg

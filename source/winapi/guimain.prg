@@ -52,7 +52,9 @@ FUNCTION hwg_WriteStatus( oWnd, nPart, cText, lRedraw )
    ENDIF
    aControls := oWnd:aControls
    IF ( i := Ascan( aControls, { |o|o:ClassName() = "HSTATUS" } ) ) > 0
-      hwg_SendMessage( aControls[i]:handle, SB_SETTEXT, Iif(nPart==Nil,0,nPart-1), cText )
+      // Use specialized C function to handle safe ANSI/UNICODE string conversion via HB_PARSTR
+      hwg_WriteStatusWindow( aControls[i]:handle, Iif( nPart == Nil, 0, nPart - 1 ), cText )
+
       IF lRedraw != Nil .AND. lRedraw
          hwg_Redrawwindow( aControls[i]:handle, RDW_ERASE + RDW_INVALIDATE )
       ENDIF
