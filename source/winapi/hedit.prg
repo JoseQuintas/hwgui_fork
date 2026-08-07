@@ -12,7 +12,8 @@
 #include "hbclass.ch"
 #include "hblang.ch"
 
-#define WM_IME_CHAR      646
+#define WM_IME_CHAR       646
+#define WM_HWG_SETPOSEND  ( WM_USER + 777 )
 
 STATIC lColorinFocus := .F.
 STATIC tColorinFocus := 0
@@ -34,6 +35,16 @@ CLASS HEdit INHERIT HControl
    DATA aColorOld      INIT { 0,0 }
    DATA bColorBlock
 
+   DATA lNumInvert     INIT .F.
+   DATA lClearType     INIT .F.   // Configuration: clear field on first typed digit (via ES_CLEARTYPE)
+   DATA lClearOnType   INIT .F.   // Runtime trigger: armed on focus; first alphanumeric keypress clears
+
+   DATA lInvDecMode    INIT .F.   // NumInvert: active decimal entry mode (triggered after pressing ',')
+   DATA cInvInt        INIT ""    // NumInvert: tracks processed integer digits
+   DATA cInvDec        INIT ""    // NumInvert: tracks processed decimal digits (bounded by nInvDec size)
+   DATA nInvDec        INIT 0     // NumInvert: total count of expected decimal slots
+   DATA nInvDecPos     INIT 0     // NumInvert: active character cursor index inside the decimal buffer
+
    METHOD New( oWndParent, nId, vari, bSetGet, nStyle, nLeft, nTop, nWidth, nHeight, ;
       oFont, bInit, bSize, bGfocus, bLfocus, ctooltip, ;
       tcolor, bcolor, cPicture, lNoBorder, nMaxLength, lPassword, bKeyDown, bChange )
@@ -41,7 +52,7 @@ CLASS HEdit INHERIT HControl
    METHOD Init()
    METHOD onEvent( msg, wParam, lParam )
    METHOD Redefine( oWndParent, nId, vari, bSetGet, oFont, bInit, bSize, bGfocus, ;
-      bLfocus, ctooltip, tcolor, bcolor, cPicture, nMaxLength )
+      bLfocus, cToolTip, tcolor, bcolor, cPicture, nMaxLength )
    METHOD SetGet( value ) INLINE Eval( ::bSetGet, value, self )
    METHOD Refresh()
    METHOD Value ( xValue ) SETGET
@@ -54,6 +65,22 @@ METHOD New( oWndParent, nId, vari, bSetGet, nStyle, nLeft, nTop, nWidth, nHeight
       oFont, bInit, bSize, bGfocus, bLfocus, ctooltip, ;
       tcolor, bcolor, cPicture, lNoBorder, nMaxLength, lPassword, bKeyDown, bChange ) CLASS HEdit
 
+   LOCAL nHwgStyle
+
+   nHwgStyle := iif( nStyle == Nil, 0, nStyle )
+
+   IF Hwg_BitAnd( nHwgStyle, ES_NUMINVERT ) != 0
+      ::lNumInvert := .T.
+      // Do NOT subtract the flag yet, we need it stored inside the instance style bitmask
+   ENDIF
+
+   IF Hwg_BitAnd( nHwgStyle, ES_CLEARTYPE ) != 0
+      ::lClearType := .T.
+      // Do NOT subtract the flag yet, we need it stored inside the instance style bitmask
+   ENDIF
+
+   nStyle := nHwgStyle
+
    nStyle := Hwg_BitOr( iif( nStyle == Nil,0,nStyle ), ;
       WS_TABSTOP + iif( lNoBorder == Nil .OR. !lNoBorder, WS_BORDER, 0 ) + ;
       iif( lPassword == Nil .OR. !lPassword, 0, ES_PASSWORD )  )
@@ -61,8 +88,23 @@ METHOD New( oWndParent, nId, vari, bSetGet, nStyle, nLeft, nTop, nWidth, nHeight
    ::Super:New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, oFont, bInit, ;
       bSize,, ctooltip, Iif(tcolor==Nil,0,tcolor), Iif(bcolor==Nil,hwg_Getsyscolor(COLOR_BTNHIGHLIGHT),bcolor) )
 
+   // Safe-strip custom flags exclusively from the final WinAPI creation window style parameter
+   IF ::lNumInvert
+      ::style := ::style - ES_NUMINVERT
+   ENDIF
+   IF ::lClearType
+      ::style := ::style - ES_CLEARTYPE
+   ENDIF
+
    ::cType := ValType( vari )
    ::title := vari
+
+   IF ::cType == "U"
+      vari := ""
+      ::cType := "C"
+      ::title := vari
+   ENDIF
+
    ::bSetGet := bSetGet
    ::bKeyDown := bKeyDown
 
@@ -74,6 +116,8 @@ METHOD New( oWndParent, nId, vari, bSetGet, nStyle, nLeft, nTop, nWidth, nHeight
    IF !Empty( cPicture ) .OR. ::cType != "C" .OR. !Empty( bSetGet )
       ::oPicture := HPicture():New( cPicture, vari, nMaxLength )
       ::nMaxLength := ::oPicture:nMaxLength
+   ELSEIF nMaxLength != Nil
+       ::nMaxLength := nMaxLength
    ENDIF
 
    ::Activate()
@@ -92,6 +136,7 @@ METHOD New( oWndParent, nId, vari, bSetGet, nStyle, nLeft, nTop, nWidth, nHeight
          ::oParent:AddEvent( EN_KILLFOCUS, ::id, bLfocus )
       ENDIF
    ENDIF
+
    ::bChange := bChange
 
    ::aColorOld[1] := iif( tcolor = Nil, 0, ::tcolor )
@@ -101,6 +146,7 @@ METHOD New( oWndParent, nId, vari, bSetGet, nStyle, nLeft, nTop, nWidth, nHeight
 
 METHOD Activate() CLASS HEdit
 
+   // Uses the safely sanitized window style bitmask for WinAPI CreateWindowEx operations
    IF !Empty( ::oParent:handle )
       ::handle := hwg_Createedit( ::oParent:handle, ::id, ;
          ::style, ::nLeft, ::nTop, ::nWidth, ::nHeight, ::title )
@@ -128,6 +174,7 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HEdit
 
    LOCAL oParent := ::oParent, nPos, cText, cClipboardText
    LOCAL nexthandle, i
+   LOCAL cMask, cDig, nDec, nInt, nPoint, nDiv, nVal, k, cChar, lJustCleared
 
    IF ::bOther != Nil .AND. ( nPos := Eval( ::bOther, Self, msg, wParam, lParam ) ) != - 1
       RETURN nPos
@@ -137,6 +184,172 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HEdit
 
       IF ::bSetGet != Nil .OR. !Empty( ::oPicture )
          IF msg == WM_CHAR
+
+            // --- NumInvert: integer first; decimal only after pressing ',' ---
+            IF ::lNumInvert .AND. ::cType == "N" .AND. !hwg_IsCtrlShift( , .F. )
+
+               cMask := ::oPicture:cPicMask
+               nPoint := RAt( ".", cMask )
+               nInt   := 0
+               nDec   := 0
+
+               IF nPoint > 0
+                  FOR k := 1 TO nPoint - 1
+                     IF SubStr( cMask, k, 1 ) == "9"
+                        nInt++
+                     ENDIF
+                  NEXT
+                  FOR k := nPoint + 1 TO Len( cMask )
+                     IF SubStr( cMask, k, 1 ) == "9"
+                        nDec++
+                     ENDIF
+                  NEXT
+               ELSE
+                  FOR k := 1 TO Len( cMask )
+                     IF SubStr( cMask, k, 1 ) == "9"
+                        nInt++
+                     ENDIF
+                  NEXT
+               ENDIF
+
+               ::nInvDec := nDec
+
+               // ignore special keys
+               IF wParam == VK_RETURN .OR. wParam == VK_ESCAPE
+                  RETURN -1
+               ELSEIF wParam == VK_TAB
+                  RETURN 0
+               ENDIF
+
+               // FLAG CHECK: Stores if a reset just happened to block the old text reloading
+               lJustCleared := .F.
+
+               // if just entered the field and ES_CLEARTYPE is active:
+               // first digit clears buffer and starts a new input
+               IF ::lClearOnType .AND. ( ( wParam >= 48 .AND. wParam <= 57 ) .OR. ( wParam >= 96 .AND. wParam <= 105 ) )
+                  ::cInvInt := ""
+                  ::cInvDec := IIF( nDec > 0, Replicate( "0", nDec ), "" )
+                  ::lInvDecMode := .F.
+                  ::nInvDecPos := 0
+                  ::lClearOnType := .F.
+                  lJustCleared := .T. // Flags that the field was freshly cleared
+               ELSEIF ::lClearOnType .AND. ( wParam == VK_BACK .OR. wParam == VK_LEFT .OR. wParam == VK_RIGHT .OR. ;
+                     wParam == VK_HOME .OR. wParam == VK_END .OR. wParam == VK_DELETE )
+                  ::lClearOnType := .F.
+               ENDIF
+
+               // ensure initial buffers (loads data from the current text ONLY if not just cleared)
+               IF !lJustCleared .AND. ::cInvInt == "" .AND. ( ::cInvDec == "" .AND. nDec > 0 )
+                  cText := hwg_Getedittext( ::oParent:handle, ::id )
+
+                  cDig := ""
+                  FOR k := 1 TO Len( cText )
+                     cChar := SubStr( cText, k, 1 )
+                     IF cChar >= "0" .AND. cChar <= "9"
+                        cDig += cChar
+                     ENDIF
+                  NEXT
+
+                  IF nDec > 0
+                     IF Len( cDig ) < nDec
+                        ::cInvDec := Replicate( "0", nDec )
+                        ::cInvInt := cDig
+                     ELSE
+                        ::cInvDec := Right( cDig, nDec )
+                        ::cInvInt := Left( cDig, Len( cDig ) - nDec )
+                     ENDIF
+                  ELSE
+                     ::cInvInt := cDig
+                     ::cInvDec := ""
+                  ENDIF
+               ELSEIF ::cInvDec == "" .AND. nDec > 0
+                  ::cInvDec := Replicate( "0", nDec )
+               ENDIF
+
+               // ',' key switches to decimal mode (only if decimal places exist)
+               IF nDec > 0 .AND. !::lInvDecMode .AND. wParam == 44
+                  ::lInvDecMode := .T.
+                  ::nInvDecPos := 0
+                  hwg_PostMessage( ::handle, WM_HWG_SETPOSEND, 2, 0 )
+                  RETURN 0
+               ENDIF
+
+               // blocks '.' (user enters decimals exclusively using ',')
+               IF wParam == 46
+                  RETURN 0
+               ENDIF
+
+               IF wParam == VK_BACK
+
+                  IF ::lInvDecMode .AND. nDec > 0
+                     IF ::nInvDecPos > 0
+                        ::nInvDecPos--
+                        ::cInvDec := Stuff( ::cInvDec, ::nInvDecPos + 1, 1, "0" )
+                     ELSE
+                        ::lInvDecMode := .F.
+                     ENDIF
+                  ELSE
+                     IF Len( ::cInvInt ) > 0
+                        IF nDec == 0
+                           // no decimal places: classic NumInvert (units on the right)
+                           ::cInvInt := Left( ::cInvInt, Len( ::cInvInt ) - 1 )
+                        ELSE
+                           ::cInvInt := Left( ::cInvInt, Len( ::cInvInt ) - 1 )
+                        ENDIF
+                     ENDIF
+                  ENDIF
+
+               ELSEIF wParam >= 48 .AND. wParam <= 57
+
+                  IF ::lInvDecMode .AND. nDec > 0
+
+                     IF ::nInvDecPos >= nDec
+                        hwg_PostMessage( ::handle, WM_HWG_SETPOSEND, 2, 0 )
+                        RETURN 0
+                     ENDIF
+
+                     ::cInvDec := Stuff( ::cInvDec, ::nInvDecPos + 1, 1, Chr( wParam ) )
+                     ::nInvDecPos++
+
+                  ELSE
+
+                     IF nDec == 0
+                        // no decimal places: classic NumInvert (units on the right)
+                        // new digit appended to the end; if it exceeds, keeps the last nInt digits
+                        IF nInt > 0
+                           ::cInvInt := Right( ::cInvInt + Chr( wParam ), nInt )
+                        ELSE
+                           ::cInvInt := ::cInvInt + Chr( wParam )
+                        ENDIF
+                     ELSE
+                        // with decimal places: integer expands rightward; if it overflows, shifts (drop leftmost)
+                        IF nInt > 0 .AND. Len( ::cInvInt ) >= nInt
+                           ::cInvInt := Right( ::cInvInt, Max( 0, nInt - 1 ) )
+                        ENDIF
+                        ::cInvInt := ::cInvInt + Chr( wParam )
+                     ENDIF
+
+                  ENDIF
+
+               ELSE
+                  RETURN 0
+               ENDIF
+
+               cDig := ::cInvInt + IIF( nDec > 0, PadR( ::cInvDec, nDec, "0" ), "" )
+
+               nDiv := 10 ^ nDec
+               nVal := Val( cDig ) / nDiv
+
+               cText := ::oPicture:Transform( nVal )
+
+               hwg_Setwindowtext( ::handle, ::title := cText )
+               hwg_SetGetUpdated( Self )
+
+               hwg_PostMessage( ::handle, WM_HWG_SETPOSEND, IIF( ::lInvDecMode, 2, 1 ), 0 )
+
+               RETURN 0
+            ENDIF
+
             IF wParam == VK_BACK
                ::lFirst := .F.
                hwg_SetGetUpdated( Self )
@@ -157,6 +370,7 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HEdit
             ELSEIF wParam == VK_TAB
                RETURN 0
             ENDIF
+
             IF !hwg_IsCtrlShift( , .F. )
                DeleteSel( Self )
                nPos := i := hwg_edit_Getpos( ::handle )
@@ -181,6 +395,7 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HEdit
             ENDIF
 
          ELSEIF msg == WM_IME_CHAR
+
             DeleteSel( Self )
             nPos := hwg_edit_Getpos( ::handle )
             ::title := cText := hwg_Getedittext( oParent:handle, ::id )
@@ -381,23 +596,92 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HEdit
    ENDIF
 
    IF msg == WM_SETFOCUS
+
       oParent := hwg_getParentForm( Self )
+
       IF lColorinFocus .OR. oParent:tColorinFocus >= 0 .OR. oParent:bColorinFocus >= 0 .OR. ::bColorBlock != Nil
+
          ::aColorOld[1] := ::tcolor
          ::aColorOld[2] := ::bcolor
+
          IF ::bColorBlock != Nil
             Eval( ::bColorBlock, Self )
          ELSE
             ::Setcolor( Iif( oParent:tColorinFocus >= 0, oParent:tColorinFocus, tColorinFocus ), ;
-                  Iif( oParent:bColorinFocus >= 0, oParent:bColorinFocus, bColorinFocus ), .T. )
+                        Iif( oParent:bColorinFocus >= 0, oParent:bColorinFocus, bColorinFocus ), .T. )
          ENDIF
+
       ENDIF
+
+      IF ::lNumInvert
+
+         // resets mode and buffers on every focus
+         ::lInvDecMode := .F.
+         ::nInvDecPos  := 0
+         ::cInvInt     := ""
+         ::cInvDec     := ""
+
+         // arms "first digit clears" only if ES_CLEARTYPE is active
+         ::lClearOnType := ::lClearType
+
+         // positions on the INTEGER (before the decimal separator, if any)
+         hwg_PostMessage( ::handle, WM_HWG_SETPOSEND, 1, 0 )
+      ENDIF
+
    ELSEIF msg == WM_KILLFOCUS
+
       oParent := hwg_getParentForm( Self )
+
       IF lColorinFocus .OR. oParent:tColorinFocus >= 0 .OR. oParent:bColorinFocus >= 0 .OR. ::bColorBlock != Nil
          ::Setcolor( ::aColorOld[1], ::aColorOld[2], .T. )
       ENDIF
+
+   ELSEIF msg == WM_HWG_SETPOSEND
+
+      IF ::lNumInvert
+
+         cText := hwg_Getedittext( ::oParent:handle, ::id )
+
+         // If there are no decimal places, keeps the cursor at the very end (right side),
+         // even when thousands separators (',') appear
+         IF ::nInvDec <= 0
+            hwg_edit_SetPos( ::handle, 32767 )
+            RETURN 0
+         ENDIF
+
+         // UNICODE Safe: Normalizes text to ensure perfect string scanning length
+         // Looks for a visible decimal separator (prefers dot; falls back to comma)
+         nPos := RAt( ".", cText )
+         IF nPos == 0
+            nPos := RAt( ",", cText )
+         ENDIF
+
+         IF wParam == 1
+            // INTEGER: before the decimal separator
+            IF nPos > 0
+               hwg_edit_SetPos( ::handle, nPos - 1 )
+            ELSE
+               hwg_edit_SetPos( ::handle, 32767 )
+            ENDIF
+
+         ELSEIF wParam == 2
+            // DECIMAL: after the separator + advance based on typed digits
+            IF nPos > 0
+               hwg_edit_SetPos( ::handle, nPos + ::nInvDecPos )
+            ELSE
+               hwg_edit_SetPos( ::handle, 32767 )
+            ENDIF
+
+         ELSE
+            hwg_edit_SetPos( ::handle, 32767 )
+         ENDIF
+
+      ENDIF
+
+      RETURN 0
+
    ENDIF
+
 
    RETURN -1
 

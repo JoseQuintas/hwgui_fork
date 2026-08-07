@@ -15,7 +15,20 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2026-08-06 18:30 UTC+0300 Itamar M. Lins Jr. <itamarlins at gmail.com>
+2026-08-07 14:40 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+    * include/windows.ch:
+      - Added ES_NUMINVERT (16384) and ES_CLEARTYPE (512) style flags.
+    * source/hedit.prg:
+      - Added support for right-to-left entry in numeric fields.
+     Sample of use:
+     nVA := 0; nVB := 0
+     INIT DIALOG oDlg CLIPPER NOEXIT AT 0,0 SIZE 800,600
+        @ 10, 10 SAY "Any Value" TRANSPARENT SIZE 140, 21
+        @ 10, 30 GET oGetA Var nVA  PICTURE "@E 999,999,999.99" SIZE 160, 24 STYLE ES_RIGHT + ES_NUMINVERT
+        @ 10, 60 GET oGetB Var nVB  PICTURE "@E 999,999,999.99" SIZE 160, 24 STYLE ES_RIGHT + ES_NUMINVERT + ES_CLEARTYPE
+     oDlg:Activate(,,,.t.)
+
+2026-08-06 18:30 UTC+0300 Itamar Lins <itamarlins at gmail.com>
     * source/winapi/control.c:
       - Fixed HB_FUNC( HWG_INITSTATUS ) to perform proper cumulative 
         calculation of status bar right-edge parts coordinates (SB_SETPARTS).
@@ -33,7 +46,7 @@
         instead of generic hwg_SendMessage().
       - Ensures proper ANSI/Unicode string marshalling for HSTATUS controls.
 
-2026-08-01 23:44 UTC+0300 Itamar M. Lins Jr. <itamarlins at gmail.com>
+2026-08-01 23:44 UTC+0300 Itamar Lins <itamarlins at gmail.com>
    ! Fix for compiling UNICODE(UTF8) Windows OS.
     * \hwgui\source\winapi\hmonthc.prg
     * \hwgui\source\common\editor\hcedit_w.c

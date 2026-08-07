@@ -327,6 +327,8 @@
 #define ES_READONLY         2048       // 0x0800L
 #define ES_WANTRETURN       4096       // 0x1000L
 #define ES_NUMBER           8192       // 0x2000L
+#define ES_NUMINVERT        16384      // 0x4000
+#define ES_CLEARTYPE        512        // 0x0200
 
 /*
  * DatePicker Control Styles
