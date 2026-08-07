@@ -27,6 +27,7 @@
         @ 10, 30 GET oGetA Var nVA  PICTURE "@E 999,999,999.99" SIZE 160, 24 STYLE ES_RIGHT + ES_NUMINVERT
         @ 10, 60 GET oGetB Var nVB  PICTURE "@E 999,999,999.99" SIZE 160, 24 STYLE ES_RIGHT + ES_NUMINVERT + ES_CLEARTYPE
      oDlg:Activate(,,,.t.)
+    Thanks to Deivid José de Souza. https://pctoledo.org/viewtopic.php?t=23334
 
 2026-08-06 18:30 UTC+0300 Itamar Lins <itamarlins at gmail.com>
     * source/winapi/control.c:
