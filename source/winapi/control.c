@@ -14,6 +14,7 @@
 #include "hwingui.h"
 #include <commctrl.h>
 #include <winuser.h>
+#include <windowsx.h>
 #if defined(__DMC__)
 #include "missing.h"
 #endif
@@ -31,6 +32,18 @@
 /* Suppress compiler warnings */
 #include "incomp_pointer.h"
 #include "warnings.h"
+
+/* -------------------------------------------------------------------------
+ * MinGW/SDK compatibility:
+ * Some environments may miss GET_X_LPARAM / GET_Y_LPARAM even with windowsx.h.
+ * Provide safe fallbacks.
+ * --------------------------------------------------------------------- */
+#ifndef GET_X_LPARAM
+   #define GET_X_LPARAM( lp )  ((int)(short)LOWORD( (DWORD_PTR)(lp) ))
+#endif
+#ifndef GET_Y_LPARAM
+   #define GET_Y_LPARAM( lp )  ((int)(short)HIWORD( (DWORD_PTR)(lp) ))
+#endif
 
 #if defined(__BORLANDC__) || (defined(_MSC_VER) && !defined(__XCC__) || defined(__WATCOMC__) || defined(__DMC__) )
 HB_EXTERN_BEGIN
@@ -834,6 +847,163 @@ HB_FUNC( HWG_TAB_HITTEST )
 
    hb_storni( ht.flags, 4 );
    hb_retni( res );
+}
+
+/*
+ * Returns TRUE if nTab (1-based) is marked disabled in HTab data.
+ * Storage convention:
+ *  - GWLP_USERDATA of hTab -> HTab Harbour object
+ *  - HTab data var "aTabDisabled" is an array of .T./.F. flags
+ */
+static BOOL hwg_tab_is_disabled( HWND hTab, int nTab )
+{
+      PHB_ITEM pTabObj, pArr;
+
+      if( !hTab || nTab <= 0 )
+            return FALSE;
+
+      pTabObj = ( PHB_ITEM ) GetWindowLongPtr( hTab, GWLP_USERDATA );
+      if( !pTabObj )
+            return FALSE;
+
+      pArr = GetObjectVar( pTabObj, "ATABDISABLED" );
+      if( pArr && HB_IS_ARRAY( pArr ) && hb_arrayLen( pArr ) >= ( HB_SIZE ) nTab )
+            return hb_arrayGetL( pArr, nTab );
+
+      return FALSE;
+}
+
+/*
+ * HWG_TABSETOWNERDRAW( hTab, lOn )
+ * Enables/disables TCS_OWNERDRAWFIXED at runtime.
+ */
+HB_FUNC( HWG_TABSETOWNERDRAW )
+{
+      HWND hTab = ( HWND ) HB_PARHANDLE( 1 );
+      BOOL lOn = hb_parl( 2 );
+      LONG_PTR style;
+
+      if( !hTab )
+      {
+            hb_retl( FALSE );
+            return;
+      }
+
+      style = GetWindowLongPtr( hTab, GWL_STYLE );
+      if( lOn )
+            style |= ( LONG_PTR ) TCS_OWNERDRAWFIXED;
+      else
+            style &= ~( ( LONG_PTR ) TCS_OWNERDRAWFIXED );
+      SetWindowLongPtr( hTab, GWL_STYLE, style );
+
+      /* Refresh styles and repaint */
+      SetWindowPos( hTab, NULL, 0, 0, 0, 0,
+                    SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED );
+      InvalidateRect( hTab, NULL, TRUE );
+      UpdateWindow( hTab );
+
+      hb_retl( TRUE );
+}
+/*
+ * HWG_TABFORCEREFRESH( hTab )
+ * Forces immediate repaint of the tab control (avoid waiting for mouse hover).
+ */
+HB_FUNC( HWG_TABFORCEREFRESH )
+{
+      HWND hTab = ( HWND ) HB_PARHANDLE( 1 );
+      HWND hParent;
+
+      if( !hTab )
+      {
+            hb_retl( FALSE );
+            return;
+      }
+
+      /* Strong refresh: force immediate paint (avoid waiting for mouse hover) */
+      InvalidateRect( hTab, NULL, TRUE );
+
+      RedrawWindow( hTab, NULL, NULL,
+                    RDW_INVALIDATE | RDW_ERASE | RDW_UPDATENOW | RDW_ALLCHILDREN );
+
+      /* Some themes repaint the tab header only when the parent repaints */
+      hParent = GetParent( hTab );
+      if( hParent )
+            RedrawWindow( hParent, NULL, NULL,
+                          RDW_INVALIDATE | RDW_ERASE | RDW_UPDATENOW | RDW_ALLCHILDREN );
+
+   /* Extra safety */
+   UpdateWindow( hTab );
+
+   hb_retl( TRUE );
+}
+
+
+/* -------------------------------------------------------------------------
+ * Draw disabled tab captions in gray (Windows only)
+ * - Does NOT require TCS_OWNERDRAWFIXED
+ * - Works with nested tabs (tab inside tab)
+ * ------------------------------------------------------------------------- */
+static void hwg_tab_draw_disabled_captions( HWND hTab, HDC hdc )
+{
+      int nCount, i;
+      RECT rc, rcText;
+      TCITEM tci;
+      TCHAR szText[256];
+      HFONT hFont, hOldFont = NULL;
+
+      if( !hTab || !hdc )
+            return;
+
+      nCount = TabCtrl_GetItemCount( hTab );
+      if( nCount <= 0 )
+            return;
+
+      /* Use the same font used by the tab control (avoids blurry mismatch) */
+      hFont = (HFONT) SendMessage( hTab, WM_GETFONT, 0, 0 );
+      if( hFont )
+            hOldFont = (HFONT) SelectObject( hdc, hFont );
+
+      SetBkMode( hdc, TRANSPARENT );
+
+      for( i = 0; i < nCount; ++i )
+      {
+            if( hwg_tab_is_disabled( hTab, i + 1 ) )
+            {
+                  ZeroMemory( &tci, sizeof( tci ) );
+                  ZeroMemory( szText, sizeof( szText ) );
+
+                  tci.mask = TCIF_TEXT;
+                  tci.pszText = szText;
+                  tci.cchTextMax = (int)( sizeof( szText ) / sizeof( TCHAR ) ) - 1;
+
+                  if( TabCtrl_GetItem( hTab, i, &tci ) )
+                  {
+                        if( TabCtrl_GetItemRect( hTab, i, &rc ) )
+                        {
+                              /* Clear the text area first, otherwise we draw over the existing black text (blurry) */
+                              rcText = rc;
+                              rcText.left  += 6;
+                              rcText.right -= 6;
+                              rcText.top   += 2;
+                              rcText.bottom-= 2;
+
+                              FillRect( hdc, &rcText, GetSysColorBrush( COLOR_BTNFACE ) );
+
+                              {
+                                    COLORREF oldColor = SetTextColor( hdc, RGB( 180, 180, 180 ) );
+
+                                    DrawText( hdc, szText, -1, &rcText,
+                                              DT_SINGLELINE | DT_VCENTER | DT_CENTER | DT_END_ELLIPSIS );
+
+                                    SetTextColor( hdc, oldColor );
+                              }
+                        }
+                  }
+            }
+      }
+
+      if( hOldFont )
+            SelectObject( hdc, hOldFont );
 }
 
 HB_FUNC( HWG_GETNOTIFYKEYDOWN )
@@ -1770,6 +1940,88 @@ LRESULT APIENTRY TabSubclassProc( HWND hWnd, UINT message, WPARAM wParam,
 {
    long int res;
    PHB_ITEM pObject = ( PHB_ITEM ) GetWindowLongPtr( hWnd, GWLP_USERDATA );
+
+   /*
+    * Click suppression on disabled tabs.
+    * Without this, Windows still changes the selection briefly and the
+    * application has to revert it, causing visible flicker.
+    *
+    * Additional PATCH:
+    * - Clicking the already active tab does NOT let the tab steal focus from the current GET.
+    */
+   if( message == WM_LBUTTONDOWN || message == WM_LBUTTONDBLCLK || message == WM_LBUTTONUP )
+   {
+         TCHITTESTINFO ht;
+         int iTab;
+
+         ht.pt.x = GET_X_LPARAM( lParam );
+         ht.pt.y = GET_Y_LPARAM( lParam );
+         ht.flags = 0;
+         iTab = TabCtrl_HitTest( hWnd, &ht ); /* 0-based */
+
+         /* 1) If the tab is inactive: it consumes and does NOT steal focus */
+         if( iTab >= 0 && hwg_tab_is_disabled( hWnd, iTab + 1 ) )
+               return 0;
+
+         /* 2) If the already active tab was clicked: consume the event to avoid stealing focus from the GET */
+         if( iTab >= 0 )
+         {
+               int iCur = TabCtrl_GetCurSel( hWnd ); /* 0-based */
+               if( iCur == iTab )
+                     return 0;
+         }
+   }
+
+   /* -----------------------------------------------------------------
+    * Paint hook: overlay disabled captions in gray (Windows)
+    * - Keeps default tab rendering (works with nested tabs)
+    * ----------------------------------------------------------------- */
+   if( message == WM_PAINT )
+   {
+         PAINTSTRUCT ps;
+         HDC hdc = BeginPaint( hWnd, &ps );
+
+         if( hdc )
+         {
+               RECT rc;
+               HDC hdcMem;
+               HBITMAP hbmMem;
+               HBITMAP hbmOld;
+
+               GetClientRect( hWnd, &rc );
+
+               hdcMem = CreateCompatibleDC( hdc );
+               hbmMem = CreateCompatibleBitmap( hdc, rc.right - rc.left, rc.bottom - rc.top );
+               hbmOld = ( HBITMAP ) SelectObject( hdcMem, hbmMem );
+
+               CallWindowProc( wpOrigTabProc, hWnd, WM_PRINTCLIENT, ( WPARAM ) hdcMem,
+                               ( LPARAM ) ( PRF_CLIENT | PRF_ERASEBKGND ) );
+
+               hwg_tab_draw_disabled_captions( hWnd, hdcMem );
+
+               BitBlt( hdc, 0, 0, rc.right - rc.left, rc.bottom - rc.top, hdcMem, 0, 0, SRCCOPY );
+
+               SelectObject( hdcMem, hbmOld );
+               DeleteObject( hbmMem );
+               DeleteDC( hdcMem );
+
+               EndPaint( hWnd, &ps );
+         }
+         return 0;
+   }
+
+   else if( message == WM_PRINTCLIENT )
+   {
+         /* First let the original draw */
+         LRESULT lr = CallWindowProc( wpOrigTabProc, hWnd, message, wParam, lParam );
+
+         /* Then overlay on provided DC */
+         if( ( HDC ) wParam )
+               hwg_tab_draw_disabled_captions( hWnd, ( HDC ) wParam );
+
+         return lr;
+   }
+   //End add tab hide
 
    if( !pSym_onEvent )
       pSym_onEvent = hb_dynsymFindName( "ONEVENT" );

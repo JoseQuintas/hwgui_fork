@@ -11,6 +11,7 @@
 // #define OEMRESOURCE
 #include "hwingui.h"
 
+#include <commctrl.h>
 #if defined(__MINGW32__) || defined(__MINGW64__) || defined(__WATCOMC__)
 #include <prsht.h>
 #endif
@@ -80,6 +81,66 @@ HB_FUNC( HWG_CREATEDIALOG )
 HB_FUNC( HWG__ENDDIALOG )
 {
    EndDialog( ( HWND ) HB_PARHANDLE( 1 ), TRUE );
+}
+
+// ------------------------------------------------------------
+// TAB OwnerDraw (guia cinza quando desativada)
+// - Usa HTab:aTabDisabled[] (ATABDISABLED no objeto)
+// - Requer tab com estilo TCS_OWNERDRAWFIXED
+// ------------------------------------------------------------
+static int hwg_tab_is_disabled( HWND hTab, int nTab )
+{
+      PHB_ITEM pTabObj = ( PHB_ITEM ) GetWindowLongPtr( hTab, GWLP_USERDATA );
+      PHB_ITEM pArr;
+
+      if( !pTabObj )
+            return 0;
+
+      pArr = GetObjectVar( pTabObj, "ATABDISABLED" );
+      if( !pArr || !HB_IS_ARRAY( pArr ) )
+            return 0;
+
+      if( ( HB_SIZE ) nTab > hb_arrayLen( pArr ) )
+            return 0;
+
+      return hb_arrayGetL( pArr, nTab ) ? 1 : 0;
+}
+
+static BOOL hwg_draw_tab_item( const DRAWITEMSTRUCT *dis )
+{
+      if( !dis || dis->CtlType != ODT_TAB )
+            return FALSE;
+
+      {
+            HWND hTab = dis->hwndItem;
+            int idx = ( int ) dis->itemID;
+            int nTab = idx + 1;
+            RECT rc = dis->rcItem;
+            HDC hdc = dis->hDC;
+            TCHAR buf[ 256 ];
+            TCITEM tci;
+            COLORREF cr;
+
+            FillRect( hdc, &rc, GetSysColorBrush( COLOR_BTNFACE ) );
+
+            buf[ 0 ] = 0;
+            memset( &tci, 0, sizeof( tci ) );
+            tci.mask = TCIF_TEXT;
+            tci.pszText = buf;
+            tci.cchTextMax = 255;
+            SendMessage( hTab, TCM_GETITEM, ( WPARAM ) idx, ( LPARAM ) &tci );
+
+            SetBkMode( hdc, TRANSPARENT );
+            cr = GetSysColor( hwg_tab_is_disabled( hTab, nTab ) ? COLOR_GRAYTEXT : COLOR_BTNTEXT );
+            SetTextColor( hdc, cr );
+
+            DrawText( hdc, buf, -1, &rc, DT_SINGLELINE | DT_CENTER | DT_VCENTER );
+
+            if( dis->itemState & ODS_SELECTED )
+                  DrawEdge( hdc, &rc, EDGE_RAISED, BF_RECT );
+
+            return TRUE;
+      }
 }
 
 HB_FUNC( HWG_GETDLGITEM )
@@ -566,6 +627,13 @@ static LRESULT CALLBACK s_ModalDlgProc( HWND hDlg, UINT uMsg, WPARAM wParam,
    long int res;
    PHB_ITEM pObject;
 
+   /* Owner-draw rendering of the tabs (gray/disabled) */
+   if( uMsg == WM_DRAWITEM )
+   {
+         if( hwg_draw_tab_item( ( const DRAWITEMSTRUCT * ) lParam ) )
+               return TRUE;
+   }
+
    if( uMsg == WM_INITDIALOG )
    {
       PHB_ITEM temp;
@@ -616,6 +684,13 @@ static LRESULT CALLBACK s_DlgProc( HWND hDlg, UINT uMsg, WPARAM wParam,
 {
    long int res;
    PHB_ITEM pObject;
+
+   /* Owner-draw rendering of the tabs (gray/disabled) */
+   if( uMsg == WM_DRAWITEM )
+   {
+         if( hwg_draw_tab_item( ( const DRAWITEMSTRUCT * ) lParam ) )
+               return TRUE;
+   }
 
    if( uMsg == WM_INITDIALOG )
    {

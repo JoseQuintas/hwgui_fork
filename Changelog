@@ -14,11 +14,19 @@
  "oldlogs".
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-
+2026-08-08 12:39 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+    * source\winapi\control.c
+    * source\winapi\dialog.c
+    * source\winapi\htab.prg
+      - Add Tab Control Enable/Diasable option. Windows OS
+        Thanks to Deivid José de Souza. 
+        Compatible with old version of Hwgui 2.17 
+      - See https://pctoledo.org/viewtopic.php?p=170966#p170966
+      
 2026-08-07 14:40 UTC-0300 Itamar Lins <itamarlins at gmail.com>
-    * include/windows.ch:
+    * include\windows.ch:
       - Added ES_NUMINVERT (16384) and ES_CLEARTYPE (512) style flags.
-    * source/hedit.prg:
+    * source\winapi\hedit.prg:
       - Added support for right-to-left entry in numeric fields.
      Sample of use:
      nVA := 0; nVB := 0
