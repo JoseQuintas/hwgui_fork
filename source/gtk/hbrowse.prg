@@ -1759,7 +1759,8 @@ METHOD Edit( wParam ) CLASS HBrowse
          RETURN Nil
       ENDIF
       IF ::type == BRW_DATABASE
-         IF ( ::alias ) -> (Dbinfo(DBI_ISREADONLY))
+         /* FIXED: Explicit comparison to .T. prevents BASE/1066 conditional error when using SQLMIX or RDDs that return NIL */
+         IF ( ::alias ) -> (Dbinfo(DBI_ISREADONLY)) == .T.
             RETURN Nil
          ENDIF
          ::varbuf := ( ::alias ) -> ( Eval( oColumn:block,,Self,fipos ) )

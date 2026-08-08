@@ -16,6 +16,12 @@
 */
 
 2026-08-08 16:03 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+    * source/gtk/hbrowse.prg:
+      - Fixed a critical BASE/1066 parameter error inside METHOD Edit() when
+        using SQLMIX RDD. Explicitly checked DbInfo(DBI_ISREADONLY) against .T.
+        to handle NIL values gracefully.
+
+2026-08-08 16:03 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source/gtk/herrsys.prg:
       - Fixed a crash on exit by replacing the Harbour-level DIALOG with a native
         C GtkMessageDialog, separating it from the unstable object tree during panic mode.
