@@ -12,106 +12,101 @@
 #include "error.ch"
 #include "hwgui.ch"
 
+DYNAMIC hwg_ErrMsg, hwg_WriteLog
+
 STATIC LogInitialPath := ""
+STATIC lInError := .F.
 
 PROCEDURE hwg_ErrSys
-
    ErrorBlock( { | oError | DefError( oError ) } )
    LogInitialPath := "/" + CurDir() + iif( Empty( CurDir() ), "", "/" )
-
    RETURN
 
 STATIC FUNCTION DefError( oError )
-
    LOCAL cMessage
    LOCAL cDOSError
 
+   /* RECURSION PROTECTION: If an error hits while already in panic mode, force instant exit */
+   IF lInError
+      ErrorBlock( { || Nil } )
+      hwg_NativeErrorShow( "Fatal: Recursive error loop detected inside ErrorSys." )
+      RETURN .F.
+   ENDIF
+   lInError := .T.
+   ErrorBlock( { || Nil } )
+
    // By default, division by zero results in zero
    IF oError:genCode == EG_ZERODIV
+      lInError := .F.
+      ErrorBlock( { | o | DefError( o ) } )
       RETURN 0
    ENDIF
 
-   // Set NetErr() of there was a database open error
-   IF oError:genCode == EG_OPEN .AND. ;
-         oError:osCode == 32 .AND. ;
-         oError:canDefault
+   // Set NetErr() if there was a database open error
+   IF oError:genCode == EG_OPEN .AND. oError:osCode == 32 .AND. oError:canDefault
       NetErr( .T. )
+      lInError := .F.
+      ErrorBlock( { | o | DefError( o ) } )
       RETURN .F.
    ENDIF
 
    // Set NetErr() if there was a lock error on dbAppend()
-   IF oError:genCode == EG_APPENDLOCK .AND. ;
-         oError:canDefault
+   IF oError:genCode == EG_APPENDLOCK .AND. oError:canDefault
       NetErr( .T. )
+      lInError := .F.
+      ErrorBlock( { | o | DefError( o ) } )
       RETURN .F.
    ENDIF
 
    cMessage := hwg_ErrMsg( oError )
    IF ! Empty( oError:osCode )
       cDOSError := "(DOS Error " + LTrim( Str( oError:osCode ) ) + ")"
-   ENDIF
-
-   IF ! Empty( oError:osCode )
       cMessage += " " + cDOSError
    ENDIF
 
    cMessage += hwg_Trace()
-
-   cMessage += Chr( 13 ) + Chr( 10 )
-   cMessage += Chr( 13 ) + Chr( 10 ) + hwg_version()
+   cMessage += Chr( 13 ) + Chr( 10 ) + Chr( 13 ) + Chr( 10 ) + hwg_version()
    cMessage += Chr( 13 ) + Chr( 10 ) + "Date:" + DToC( Date() )
    cMessage += Chr( 13 ) + Chr( 10 ) + "Time:" + Time()
 
    hwg_ReleaseTimers()
-
    MemoWrit( LogInitialPath + "Error.log", cMessage )
 
-   ErrorPreview( cMessage )
-   hwg_gtk_exit()
-   QUIT
+   /*
+      SAFE DISPLAY & TERMINATION:
+      This call blocks inside C using native GTK signals and kills
+      the application instantly when the user clicks 'Close'.
+   */
+   hwg_NativeErrorShow( cMessage )
 
    RETURN .F.
 
 FUNCTION hwg_ErrMsg( oError )
-
    LOCAL cMessage
-
-   // start error message
    cMessage := iif( oError:severity > ES_WARNING, "Error", "Warning" ) + " "
-
-   // add subsystem name if available
    IF ISCHARACTER( oError:subsystem )
       cMessage += oError:subsystem()
    ELSE
       cMessage += "???"
    ENDIF
-
-   // add subsystem's error code if available
    IF ISNUMBER( oError:subCode )
       cMessage += "/" + LTrim( Str( oError:subCode ) )
    ELSE
       cMessage += "/???"
    ENDIF
-
-   // add error description if available
    IF ISCHARACTER( oError:description )
       cMessage += "  " + oError:description
    ENDIF
-
-   // add either filename or operation
    DO CASE
    CASE !Empty( oError:filename )
       cMessage += ": " + oError:filename
    CASE !Empty( oError:operation )
       cMessage += ": " + oError:operation
    ENDCASE
-
    RETURN cMessage
 
 FUNCTION hwg_WriteLog( cText, fname )
-
    LOCAL nHand
-
    fname := LogInitialPath + iif( fname == Nil, "a.log", fname )
    IF !File( fname )
       nHand := FCreate( fname )
@@ -121,21 +116,61 @@ FUNCTION hwg_WriteLog( cText, fname )
    FSeek( nHand, 0, 2 )
    FWrite( nHand, cText + Chr( 10 ) )
    FClose( nHand )
-
    RETURN nil
 
-STATIC FUNCTION ErrorPreview( cMess )
+#pragma BEGINDUMP
 
-   LOCAL oDlg, oEdit
+#include "hbapi.h"
+#include <unistd.h> /* Required for _exit() */
 
-   INIT DIALOG oDlg TITLE "Error.log" ;
-      AT 92, 61 SIZE 400, 400
+#ifdef HB_DEPRECATED
+   #undef HB_DEPRECATED
+#endif
+#include <gtk/gtk.h>
 
-   @ 10, 10 EDITBOX oEdit CAPTION cMess SIZE 380, 340 STYLE WS_VSCROLL + WS_HSCROLL + ES_MULTILINE + ES_READONLY ;
-      COLOR 16777088 BACKCOLOR 0
+/* Callback native function that kills the process instantly at kernel level */
+static void native_kill_callback(GtkWidget *widget, gint response_id, gpointer data)
+{
+    (void)widget;
+    (void)response_id;
+    (void)data;
 
-   @ 150, 360 BUTTON "Close" ON CLICK { ||hwg_EndDialog() } SIZE 100, 32
+    /* Absolute hardware-level exit bypasses all pending GTK/Harbour events */
+    _exit(0);
+}
 
-   oDlg:Activate()
+HB_FUNC( HWG_NATIVEERRORSHOW )
+{
+    const char * acMessage = hb_parc(1);
 
-   RETURN Nil
+    if( acMessage )
+    {
+        GtkWidget *pDialog;
+
+        pDialog = gtk_message_dialog_new( NULL,
+                                          GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                          GTK_MESSAGE_ERROR,
+                                          GTK_BUTTONS_CLOSE,
+                                          "%s", acMessage );
+
+        gtk_window_set_title( GTK_WINDOW(pDialog), "HwGUI - Critical Engine Exception" );
+
+        /*
+           SUPREME BLINDAGE: Connects the "response" signal directly to our killer callback.
+           The exact millisecond any button or the window close icon is pressed,
+           the application terminates inside C, avoiding the broken Harbour engine loop.
+        */
+        g_signal_connect( pDialog, "response", G_CALLBACK(native_kill_callback), NULL );
+
+        /* Show the widget visually without running the blocking gtk_dialog_run loop */
+        gtk_widget_show_all( pDialog );
+
+        /* Run a clean, isolated iteration loop to hold the window visible */
+        while ( gtk_widget_get_visible(pDialog) )
+        {
+            gtk_main_iteration();
+        }
+    }
+}
+
+#pragma ENDDUMP

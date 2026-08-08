@@ -14,6 +14,16 @@
  "oldlogs".
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+
+2026-08-08 16:03 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+    * source/gtk/herrsys.prg:
+      - Fixed a crash on exit by replacing the Harbour-level DIALOG with a native
+        C GtkMessageDialog, separating it from the unstable object tree during panic mode.
+      - Implemented a native GTK signal callback to capture the close event.
+      - Replaced the traditional Harbour QUIT with a low-level kernel exit (_exit(0))
+        inside C, preventing background widgets from triggering recursive error loops.
+      - Added global recursion protection (`lInError`) and temporary ErrorBlock deactivation.
+
 2026-08-08 12:39 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source\winapi\control.c
     * source\winapi\dialog.c
