@@ -93,11 +93,20 @@
    #define HB_ISSYMBOL( n )      ISSYMBOL( n )
 #endif
 
+
 #if defined( __XHARBOUR__ ) && !defined( hb_itemPutCLPtr )
    #define hb_dynsymIsFunction( h ) ( ( h )->pSymbol->value.pFunPtr != NULL )
    #define hb_itemPutCLPtr( pItem, szText, ulLen ) hb_itemPutCPtr( pItem, szText, ulLen )
 #endif
+
+/*
+ *   LINUX/GTK SPECIFIC WARNINGS SUPPRESSOR
+ *   Loads the GCC diagnostics compiler blindage for Unix/Linux environments.
+*/
+#if defined(__GNUC__) && !defined(__WIN32__)
+   #include "incomp_pointer.h"
+#endif
+
 #endif
 
 /* ================================== EOF of guilib.h ============================== */
-

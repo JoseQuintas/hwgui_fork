@@ -119,7 +119,11 @@ FUNCTION hwg_WriteLog( cText, fname )
    RETURN nil
 
 #pragma BEGINDUMP
-
+/*
+   FIXED: Including guilib.h guarantees that the global GCC diagnostics
+   and the incomp_pointer.h protections apply to this module as well.
+*/
+#include "guilib.h"
 #include "hbapi.h"
 #include <unistd.h> /* Required for _exit() */
 

@@ -15,6 +15,17 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-08 17:27 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+    * include/guilib.h:
+      - Conditionally included "incomp_pointer.h" for Linux/Unix environments
+        to apply global compiler warning suppressions.
+    * include/incomp_pointer.h:
+      - Added global GCC diagnostics to suppress GTK 2.0 deprecated warnings
+        and Harfbuzz macro redefinition conflicts (`HB_DEPRECATED`).
+    * source/gtk/herrsys.prg:
+      - Included "guilib.h" inside the BEGINDUMP block to enforce clean
+        compilation logs on the errorsys module.
+
 2026-08-08 16:03 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source/gtk/hbrowse.prg:
       - Fixed a critical BASE/1066 parameter error inside METHOD Edit() when
