@@ -14,6 +14,14 @@
  "oldlogs".
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+2026-08-08 20:45 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+    * source/gtk/control.c
+    * source/gtk/htab.prg
+      - Add Tab Control Enable/Disable support and cross-platform compatibility layer. Linux/GTK OS.
+        Fixed edge-clicking navigation vulnerability on disabled tab labels by introducing
+        signal interception inside switch-page handler.
+        Thanks to Deivid José de Souza.
+        Tests with Ubuntu 26.10(Kubuntu) KDE(Wayland)
 
 2026-08-08 17:27 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * include/guilib.h:

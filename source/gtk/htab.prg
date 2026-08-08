@@ -11,6 +11,8 @@
 #include "hwgui.ch"
 #include "hbclass.ch"
 
+DYNAMIC HTabPage
+
 CLASS HTab INHERIT HControl
 
    CLASS VAR winclass   INIT "SysTabControl32"
@@ -19,9 +21,8 @@ CLASS HTab INHERIT HControl
    DATA  bChange, bChange2
    DATA  oTemp
    DATA  bAction
-//   DATA  cToolTip INIT ""
-   DATA aTooltips   INIT {}  // Array with tooltips messages
-                             // One element for every tab
+   DATA  aTabDisabled INIT {}  // Array for Tab Disabled
+   DATA  aTooltips INIT {}     // Array with tooltips messages
 
    METHOD New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, ;
       oFont, bInit, bSize, bPaint, aTabs, bChange, aImages, lResour, nBC, ;
@@ -34,6 +35,8 @@ CLASS HTab INHERIT HControl
    METHOD EndPage()
    METHOD GetActivePage( nFirst, nEnd )
    METHOD DeletePage( nPage )
+   METHOD Page( nPage )
+   METHOD SetTabDisabled( nPage, lDisable )
 
    HIDDEN:
    DATA  nActive  INIT 0         // Active Page
@@ -148,6 +151,7 @@ METHOD StartPage( cname , ctooltip ) CLASS HTab
    AAdd( ::aTabs, cname )
    i := Len( ::aTabs )
    AAdd( ::aPages, { Len( ::aControls ), 0, .F., 0 } )
+   AAdd( ::aTabDisabled, .F. )
 
    * Collect tooltips in the array
    AAdd( ::aTooltips , IIF ( ctooltip == NIL , "" , ctooltip ) )
@@ -207,6 +211,9 @@ METHOD DeletePage( nPage ) CLASS HTab
    ADel( :: aTabs, nPage )
    ASize( :: aTabs, Len( :: aTabs) - 1 )
 
+   ADel( ::aTabDisabled, nPage )
+   ASize( ::aTabDisabled, Len( ::aTabDisabled ) - 1 )
+
    * Delete the tooltip
    ADel( ::aTooltips , nPage )
    ASize( ::aTooltips, Len( ::aTooltips ) - 1 )
@@ -221,3 +228,133 @@ METHOD DeletePage( nPage ) CLASS HTab
 
    RETURN ::nActive
 
+METHOD Page( nPage ) CLASS HTab
+   hb_default( @nPage, ::nActive )
+RETURN HTabPage():New( Self, nPage )
+
+METHOD SetTabDisabled( nPage, lDisable ) CLASS HTab
+   hb_default( @lDisable, .T. )
+
+   /* Keep Harbour logical array state synchronised */
+   IF Len( ::aTabDisabled ) < nPage
+      ASize( ::aTabDisabled, nPage )
+   ENDIF
+   ::aTabDisabled[ nPage ] := lDisable
+
+   /* Delegate to the existing native GTK C wrapper in control.c */
+   IF !Empty( ::handle )
+      hwg_Settabdisabled( ::handle, nPage, lDisable )
+   ENDIF
+RETURN Nil
+
+/*
+ * ============================================================================
+ * CROSS-PLATFORM COMPATIBILITY PATCH: HTabPage (GTK/Linux)
+ * Provides uniform support for chained syntax: oTab:Page(x):Disable()
+ * ============================================================================
+ */
+CREATE CLASS HTabPage
+
+   DATA oTab
+   DATA nTab
+
+   METHOD New( oTab, nTab )
+   METHOD Disable()
+   METHOD Enable()
+   METHOD IsDisabled()
+   METHOD Handle()
+   METHOD nChildId( nValue )
+   METHOD AddControl( oCtrl )
+   METHOD AddEvent( nMsg, nId, bAction, lNotify )
+   METHOD AddNotify( nMsg, nId, bAction )
+
+ENDCLASS
+
+METHOD New( oTab, nTab ) CLASS HTabPage
+   ::oTab := oTab
+   ::nTab := nTab
+RETURN Self
+
+METHOD Disable() CLASS HTabPage
+   IF ValType( ::oTab ) == "O"
+      IF ! ::IsDisabled()
+         ::oTab:SetTabDisabled( ::nTab, .T. )
+      ENDIF
+   ENDIF
+RETURN Self
+
+METHOD Enable() CLASS HTabPage
+   IF ValType( ::oTab ) == "O"
+      IF ::IsDisabled()
+         ::oTab:SetTabDisabled( ::nTab, .F. )
+      ENDIF
+   ENDIF
+RETURN Self
+
+METHOD IsDisabled() CLASS HTabPage
+   LOCAL lDis := .F.
+   BEGIN SEQUENCE
+      IF ValType( ::oTab ) == "O" .AND. ValType( ::oTab:aTabDisabled ) == "A"
+         IF Len( ::oTab:aTabDisabled ) >= ::nTab
+            lDis := ( ::oTab:aTabDisabled[ ::nTab ] == .T. )
+         ENDIF
+      ENDIF
+   RECOVER
+      lDis := .F.
+   END SEQUENCE
+RETURN lDis
+
+METHOD Handle() CLASS HTabPage
+RETURN IIF( ValType( ::oTab ) == "O", ::oTab:handle, 0 )
+
+METHOD nChildId( nValue ) CLASS HTabPage
+   LOCAL oHost
+   oHost := IIF( ValType( ::oTab ) == "O" .AND. ValType( ::oTab:oParent ) == "O", ::oTab:oParent, ::oTab )
+   IF ValType( oHost ) == "O"
+      IF PCount() >= 1
+         oHost:nChildId := nValue
+      ENDIF
+      RETURN oHost:nChildId
+   ENDIF
+RETURN 0
+
+METHOD AddControl( oCtrl ) CLASS HTabPage
+   LOCAL oHost
+   oHost := IIF( ValType( ::oTab ) == "O" .AND. ValType( ::oTab:oParent ) == "O", ::oTab:oParent, ::oTab )
+   IF ValType( oHost ) == "O"
+      BEGIN SEQUENCE
+         oHost:AddControl( oCtrl )
+      RECOVER
+      END SEQUENCE
+   ENDIF
+RETURN NIL
+
+METHOD AddEvent( nMsg, nId, bAction, lNotify ) CLASS HTabPage
+   LOCAL oHost
+   oHost := IIF( ValType( ::oTab ) == "O" .AND. ValType( ::oTab:oParent ) == "O", ::oTab:oParent, ::oTab )
+   IF ValType( oHost ) == "O"
+      BEGIN SEQUENCE
+         IF PCount() >= 4
+            oHost:AddEvent( nMsg, nId, bAction, lNotify )
+         ELSE
+            oHost:AddEvent( nMsg, nId, bAction )
+         ENDIF
+      RECOVER
+      END SEQUENCE
+   ENDIF
+RETURN NIL
+
+METHOD AddNotify( nMsg, nId, bAction ) CLASS HTabPage
+   LOCAL oHost
+   oHost := IIF( ValType( ::oTab ) == "O" .AND. ValType( ::oTab:oParent ) == "O", ::oTab:oParent, ::oTab )
+   IF ValType( oHost ) == "O"
+      BEGIN SEQUENCE
+         oHost:AddNotify( nMsg, nId, bAction )
+      RECOVER
+         BEGIN SEQUENCE
+            oHost:AddEvent( nMsg, nId, bAction, .T. )
+         RECOVER
+         END SEQUENCE
+      END SEQUENCE
+   ENDIF
+RETURN NIL
