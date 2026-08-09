@@ -23,7 +23,7 @@
 #include <cairo.h>
 // #include "gtk/gtk.h"
 #include <gtk/gtk.h>
-
+#include <gdk/gdkkeysyms.h>
 #include "hwgtk.h"
 #include "hbdate.h"
 #ifdef __XHARBOUR__
@@ -200,6 +200,52 @@ HB_FUNC( HWG_STATIC_GETTEXT )
                                                               "label" ) ) );
 }
 
+static gboolean hwg_button_focus_out( GtkWidget *widget, GdkEventFocus *event, gpointer user_data )
+{
+      /* Ensure that when a checkbox/radio loses focus, GTK yields control back to the HwGUI navigation chain */
+      return FALSE;
+}
+
+static gboolean hwg_button_key_press( GtkWidget *widget, GdkEventKey *event, gpointer user_data )
+{
+      HB_SYMBOL_UNUSED( user_data );
+
+      if( event->keyval == GDK_Tab || event->keyval == GDK_KP_Tab )
+      {
+            GtkWidget *parent = gtk_widget_get_parent( widget );
+
+            if( parent && GTK_IS_CONTAINER( parent ) )
+            {
+                  GList *children = gtk_container_get_children( GTK_CONTAINER( parent ) );
+                  GList *element = g_list_find( children, widget );
+
+                  /* Find the immediate next widget in the HwGUI layout creation order */
+                  if( element && element->next )
+                  {
+                        GtkWidget *next_widget = GTK_WIDGET( element->next->data );
+
+                        /* If the next widget can receive focus, jump straight to it */
+                        if( GTK_WIDGET_CAN_FOCUS( next_widget ) && GTK_WIDGET_IS_SENSITIVE( next_widget ) )
+                        {
+                              gtk_widget_grab_focus( next_widget );
+                              g_list_free( children );
+                              return TRUE; /* Focus successfully moved, intercept event */
+                        }
+                  }
+                  g_list_free( children );
+            }
+
+            /* Fallback: If no immediate sibling found, push focus to the window level */
+            GtkWidget *toplevel = gtk_widget_get_toplevel( widget );
+            if( GTK_IS_WINDOW( toplevel ) )
+            {
+                  g_signal_emit_by_name( G_OBJECT( toplevel ), "move-focus", GTK_DIR_TAB_FORWARD );
+                  return TRUE;
+            }
+      }
+      return FALSE;
+}
+
 /*
  *   hwg_CreateButton( hParentWindow, nButtonID, nStyle, x, y, nWidth, nHeight,
  *                 cCaption , hpixbuf )
@@ -220,13 +266,30 @@ HB_FUNC( HWG_CREATEBUTTON )
             hCtrl = gtk_radio_button_new_with_label( group, gcTitle );
             group = gtk_radio_button_get_group( ( GtkRadioButton * ) hCtrl );
             HB_STOREHANDLE( group, 2 );
+
+            GTK_WIDGET_SET_FLAGS( hCtrl, GTK_CAN_FOCUS );
       }
       else if( ( ulStyle & 0xf ) == BS_AUTO3STATE )
+      {
             hCtrl = gtk_check_button_new_with_label( gcTitle );
+
+            /* Enable explicit keyboard navigation flags for GTK2 checkboxes */
+            GTK_WIDGET_SET_FLAGS( hCtrl, GTK_CAN_FOCUS );
+
+            /* Connect explicit key press signal handler to bypass the GTK2 focus trap */
+            g_signal_connect( G_OBJECT( hCtrl ), "key-press-event", G_CALLBACK( hwg_button_key_press ), NULL );
+            g_signal_connect( G_OBJECT( hCtrl ), "focus-out-event", G_CALLBACK( hwg_button_focus_out ), NULL );
+      }
       else if( ( ulStyle & 0xf ) == BS_GROUPBOX )
+      {
             hCtrl = gtk_frame_new( gcTitle );
+            GTK_WIDGET_UNSET_FLAGS( hCtrl, GTK_CAN_FOCUS );
+      }
       else
+      {
             hCtrl = gtk_button_new_with_mnemonic( gcTitle );
+            GTK_WIDGET_SET_FLAGS( hCtrl, GTK_CAN_FOCUS );
+      }
 
       //#if GTK_CHECK_VERSION(2,4,1)
       if( hImg )
