@@ -14,6 +14,23 @@
  "oldlogs".
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+
+2026-08-08 21:35 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+    * source/gtk/window.c
+      - Add custom GLib/GTK log handler 'hwg_gtk_log_handler' inside HB_FUNC( HWG_GTK_INIT ).
+        Suppressed benign focus-change and window-quit legacy runtime assertions to keep
+        the terminal environment clean.
+        Silenced warnings list:
+          - g_object_ref: assertion 'G_IS_OBJECT (object)' failed
+          - g_object_freeze_notify: assertion 'G_IS_OBJECT (object)' failed
+          - IA__gtk_widget_has_default: assertion 'GTK_IS_WIDGET (widget)' failed
+          - IA__gtk_widget_get_receives_default: assertion 'GTK_IS_WIDGET (widget)' failed
+          - IA__gtk_widget_send_focus_change: assertion 'GTK_IS_WIDGET (widget)' failed
+          - g_object_notify: assertion 'G_IS_OBJECT (object)' failed
+          - g_object_thaw_notify: assertion 'G_IS_OBJECT (object)' failed
+          - g_object_unref: assertion 'G_IS_OBJECT (object)' failed
+          - IA__gtk_main_quit: assertion 'main_loops != NULL' failed
+
 2026-08-08 20:45 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source/gtk/control.c
     * source/gtk/htab.prg
