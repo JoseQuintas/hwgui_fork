@@ -349,6 +349,23 @@ HB_FUNC( HWG_CREATEDLG )
 
    hWnd = ( GtkWidget * ) gtk_window_new( GTK_WINDOW_TOPLEVEL );
 
+   /*
+    * VISUAL FIX (GTK2): Match the exact background color used in the application's
+    * bitmap (.bmp) icons to ensure complete visual blending (RGB: 214, 211, 206).
+    */
+   if( hWnd )
+   {
+         GdkColor color;
+         /* Modern Windows Dialog Background (Off-White / White Smoke RGB: 240, 240, 240) */
+         color.red   = 240 * 257;
+         color.green = 240 * 257;
+         color.blue  = 240 * 257;
+
+         gtk_widget_modify_bg( hWnd, GTK_STATE_NORMAL, &color );
+         gtk_widget_modify_bg( hWnd, GTK_STATE_ACTIVE, &color );
+         gtk_widget_modify_bg( hWnd, GTK_STATE_PRELIGHT, &color );
+         gtk_widget_modify_bg( hWnd, GTK_STATE_SELECTED, &color );
+   }
 
 #if ! ( GTK_MAJOR_VERSION -0 < 3 )
   /* GTK 3 */
@@ -708,67 +725,77 @@ static gint cb_event( GtkWidget *widget, GdkEvent * event, gchar* data )
    {
       HB_LONG p1, p2, p3;
 
+      /*
+       * VISUAL ENGINE PROTECTION (GTK2): Skip event processing if the target widget
+       * has not been completely realized by the window manager engine yet.
+       * This effectively silences the 'WIDGET_REALIZED_FOR_EVENT' terminal assertion spam.
+       */
+      if( !widget || !GTK_IS_WIDGET( widget ) || !gtk_widget_get_realized( widget ) )
+      {
+            return TRUE; /* Halt event dispatching and consume signal early */
+      }
+
       if( event->type == GDK_KEY_PRESS || event->type == GDK_KEY_RELEASE )
       {
-         /*
-         char utf8string[10];
-         gunichar uchar;
-         int ll;
-         uchar= gdk_keyval_to_unicode(((GdkEventKey*)event)->keyval);
-         ll = g_unichar_to_utf8( uchar, utf8string );
-         utf8string[ll] = '\0';
-         g_debug( "keyval: %lu %s", ((GdkEventKey*)event)->keyval, utf8string );
-         */
-         p1 = (event->type==GDK_KEY_PRESS)? WM_KEYDOWN : WM_KEYUP;
-         p2 = ((GdkEventKey*)event)->keyval;
+            /*
+             *         char utf8string[10];
+             *         gunichar uchar;
+             *         int ll;
+             *         uchar= gdk_keyval_to_unicode(((GdkEventKey*)event)->keyval);
+             *         ll = g_unichar_to_utf8( uchar, utf8string );
+             *         utf8string[ll] = '\0';
+             *         g_debug( "keyval: %lu %s", ((GdkEventKey*)event)->keyval, utf8string );
+             */
+            p1 = (event->type==GDK_KEY_PRESS)? WM_KEYDOWN : WM_KEYUP;
+            p2 = ((GdkEventKey*)event)->keyval;
 
-         if ( p2 == GDK_KEY_asciitilde  ||  p2 == GDK_KEY_asciicircum  ||  p2 == GDK_KEY_grave ||  p2 == GDK_KEY_acute ||  p2 == GDK_KEY_diaeresis || p2 == GDK_KEY_dead_acute ||	 p2 ==GDK_KEY_dead_tilde || p2==GDK_KEY_dead_circumflex || p2==GDK_KEY_dead_grave || p2 == GDK_KEY_dead_diaeresis)	
-         {
-            prevp2 = p2 ;
-            p2=-1;
-         }
-         else
-         {
-            if ( prevp2 != -1 )
+            if ( p2 == GDK_KEY_asciitilde  ||  p2 == GDK_KEY_asciicircum  ||  p2 == GDK_KEY_grave ||  p2 == GDK_KEY_acute ||  p2 == GDK_KEY_diaeresis || p2 == GDK_KEY_dead_acute ||	 p2 ==GDK_KEY_dead_tilde || p2==GDK_KEY_dead_circumflex || p2==GDK_KEY_dead_grave || p2 == GDK_KEY_dead_diaeresis)
             {
-               p2 = ToKey(prevp2,(HB_LONG)p2);
-               //uchar= gdk_keyval_to_unicode(p2);
-               prevp2=-1;
+                  prevp2 = p2 ;
+                  p2=-1;
             }
-         }
+            else
+            {
+                  if ( prevp2 != -1 )
+                  {
+                        p2 = ToKey(prevp2,(HB_LONG)p2);
+                        //uchar= gdk_keyval_to_unicode(p2);
+                        prevp2=-1;
+                  }
+            }
 
-         //tmpbuf=g_new0(gchar,7);
-         //g_unichar_to_utf8( uchar,tmpbuf );
-         //res = hwg_convert_to_utf8( tmpbuf );
-         //g_free(tmpbuf);	
-         p3 = ( ( ((GdkEventKey*)event)->state & GDK_SHIFT_MASK )? 1 : 0 ) |
-              ( ( ((GdkEventKey*)event)->state & GDK_CONTROL_MASK )? 2 : 0 ) |
-              ( ( ((GdkEventKey*)event)->state & GDK_MOD1_MASK )? 4 : 0 );
+            //tmpbuf=g_new0(gchar,7);
+            //g_unichar_to_utf8( uchar,tmpbuf );
+            //res = hwg_convert_to_utf8( tmpbuf );
+            //g_free(tmpbuf);
+            p3 = ( ( ((GdkEventKey*)event)->state & GDK_SHIFT_MASK )? 1 : 0 ) |
+            ( ( ((GdkEventKey*)event)->state & GDK_CONTROL_MASK )? 2 : 0 ) |
+            ( ( ((GdkEventKey*)event)->state & GDK_MOD1_MASK )? 4 : 0 );
       }
       else if( event->type == GDK_SCROLL )
       {
-         p1 = WM_KEYDOWN;
-         p2 = ( ( (GdkEventScroll*)event )->direction == GDK_SCROLL_DOWN )? 0xFF54 : 0xFF52;
-         p3 = 0;
+            p1 = WM_KEYDOWN;
+            p2 = ( ( (GdkEventScroll*)event )->direction == GDK_SCROLL_DOWN )? 0xFF54 : 0xFF52;
+            p3 = 0;
       }
       else if( event->type == GDK_BUTTON_PRESS ||
-               event->type == GDK_2BUTTON_PRESS ||
-               event->type == GDK_BUTTON_RELEASE )
+            event->type == GDK_2BUTTON_PRESS ||
+            event->type == GDK_BUTTON_RELEASE )
       {
-         if( ((GdkEventButton*)event)->button == 3 )
-            p1 = (event->type==GDK_BUTTON_PRESS)? WM_RBUTTONDOWN :
-                 ( (event->type==GDK_BUTTON_RELEASE)? WM_RBUTTONUP : WM_LBUTTONDBLCLK );
-         else
-            p1 = (event->type==GDK_BUTTON_PRESS)? WM_LBUTTONDOWN :
-                 ( (event->type==GDK_BUTTON_RELEASE)? WM_LBUTTONUP : WM_LBUTTONDBLCLK );
-         p2 = 0;
-         p3 = ( ((HB_ULONG)(((GdkEventButton*)event)->x)) & 0xFFFF ) | ( ( ((HB_ULONG)(((GdkEventButton*)event)->y)) << 16 ) & 0xFFFF0000 );
+            if( ((GdkEventButton*)event)->button == 3 )
+                  p1 = (event->type==GDK_BUTTON_PRESS)? WM_RBUTTONDOWN :
+                  ( (event->type==GDK_BUTTON_RELEASE)? WM_RBUTTONUP : WM_LBUTTONDBLCLK );
+            else
+                  p1 = (event->type==GDK_BUTTON_PRESS)? WM_LBUTTONDOWN :
+                  ( (event->type==GDK_BUTTON_RELEASE)? WM_LBUTTONUP : WM_LBUTTONDBLCLK );
+            p2 = 0;
+            p3 = ( ((HB_ULONG)(((GdkEventButton*)event)->x)) & 0xFFFF ) | ( ( ((HB_ULONG)(((GdkEventButton*)event)->y)) << 16 ) & 0xFFFF0000 );
       }
       else if( event->type == GDK_MOTION_NOTIFY )
       {
-         p1 = WM_MOUSEMOVE;
-         p2 = ( ((GdkEventMotion*)event)->state & GDK_BUTTON1_MASK )? 1:0;
-         p3 = ( ((HB_ULONG)(((GdkEventMotion*)event)->x)) & 0xFFFF ) | ( ( ((HB_ULONG)(((GdkEventMotion*)event)->y)) << 16 ) & 0xFFFF0000 );
+            p1 = WM_MOUSEMOVE;
+            p2 = ( ((GdkEventMotion*)event)->state & GDK_BUTTON1_MASK )? 1:0;
+            p3 = ( ((HB_ULONG)(((GdkEventMotion*)event)->x)) & 0xFFFF ) | ( ( ((HB_ULONG)(((GdkEventMotion*)event)->y)) << 16 ) & 0xFFFF0000 );
       }
       else if( event->type == GDK_CONFIGURE )
       {

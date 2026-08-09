@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-08 23:20 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+    * source/gtk/control.c
+    * source/gtk/window.c
+      - Modernize background color rendering across all core layout components and HDialogs.
+        Forced solid modern Windows off-white palette (RGB: 240, 240, 240) inside HWG_CREATEDLG,
+        HWG_CREATETABCONTROL, HWG_ADDTAB, and HWG_CREATEOWNBTN functions to guarantee
+        a flawless cross-platform visual appearance matching modern Windows OS themes and
+        eliminating legacy bitmap icon background mask contrasts under Linux/GTK2.
+
+
 2026-08-08 21:35 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source/gtk/window.c
       - Add custom GLib/GTK log handler 'hwg_gtk_log_handler' inside HB_FUNC( HWG_GTK_INIT ).
