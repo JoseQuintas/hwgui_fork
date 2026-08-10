@@ -15,6 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-09 21:02 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+    * cross/common.prg:
+      - Fix Ctrl+C GTK2 PICTURE "@R !!.!!!.!!!/!!!!-99"
+      - METHOD UnTransform( cBuffer ) CLASS HPicture
+        GTK Linux fix: Force strict character type conversion when
+        cBuffer is passed as NIL, numeric, logical, or as a widget
+        object (e.g., during Ctrl+C/DOCOPY clipboard events). Prevents
+        Harbour runtime error BASE/1110 (SUBSTR parameter error).
+
 2026-08-09 12:04 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source/gtk/control.c
       - Added 'hwg_button_key_press' and 'hwg_button_focus_out' callbacks
@@ -33,7 +42,6 @@
         HWG_CREATETABCONTROL, HWG_ADDTAB, and HWG_CREATEOWNBTN functions to guarantee
         a flawless cross-platform visual appearance matching modern Windows OS themes and
         eliminating legacy bitmap icon background mask contrasts under Linux/GTK2.
-
 
 2026-08-08 21:35 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source/gtk/window.c

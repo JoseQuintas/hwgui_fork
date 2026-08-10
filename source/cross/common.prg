@@ -434,6 +434,17 @@ METHOD UnTransform( cBuffer ) CLASS HPicture
 
    LOCAL xValue, cChar, nFor, minus
 
+   /* GTK Linux fix: completely isolate and force character type to prevent SUBSTR parameter error */
+   IF cBuffer == NIL
+     cBuffer := ""
+   ELSEIF ValType( cBuffer ) == "O" .AND. __ObjHasMethod( cBuffer, "GETTEXT" )
+     cBuffer := cBuffer:GetText()
+   ELSEIF ValType( cBuffer ) == "O" .AND. __ObjHasMethod( cBuffer, "VARGET" )
+     cBuffer := cBuffer:VarGet()
+   ELSEIF ValType( cBuffer ) != "C"
+     cBuffer := hb_ValToStr( cBuffer )
+   ENDIF
+
    IF ::cType == "C"
 
       IF "R" $ ::cPicFunc
