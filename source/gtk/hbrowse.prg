@@ -564,6 +564,7 @@ METHOD InitBrw( nType )  CLASS HBrowse
 METHOD Rebuild( hDC ) CLASS HBrowse
 
    LOCAL i, j, oColumn, xSize, nColLen, nHdrLen, nCount, arr
+   LOCAL nPadLeft, nPadRight
 
    IF ::oPenSep == Nil
       ::oPenSep := HPen():Add( PS_SOLID, 1, ::sepColor )
@@ -646,7 +647,13 @@ METHOD Rebuild( hDC ) CLASS HBrowse
          IF oColumn:type == "D" //.OR. nColLen <= 3
             oColumn:width := xSize - 6
          ELSE
-            oColumn:width := xSize + ::aPadding[1] + ::aPadding[3]
+            IF oColumn:length > 2
+               nPadLeft  := Iif( ::aPadding[1] == Nil .OR. ::aPadding[1] < 4, 4, ::aPadding[1] )
+               nPadRight := Iif( ::aPadding[3] == Nil .OR. ::aPadding[3] < 14, 14, ::aPadding[3] )
+               oColumn:width := xSize + nPadLeft + nPadRight
+            ELSE
+               oColumn:width := xSize + ::aPadding[1] + ::aPadding[3]
+            ENDIF
          ENDIF
       ENDIF
 
