@@ -605,8 +605,8 @@ METHOD Rebuild( hDC ) CLASS HBrowse
       ENDIF
       arr := hwg_GetTextMetric( hDC )
       ::nRowTextHeight := Max( ::nRowTextHeight, arr[1] )
-      ::width := Max( ::width, Round( ( ( arr[3] + arr[2] ) / 2 ) * 1, 0 ) )
       // ::width := Max( ::width, Round( ( arr[3] + arr[2] ) / 2 - 1, 0 ) )
+      ::width := Max( ::width, Round( hwg_GetTextWidth( hDC, "abcdefghijklmnopqrstuvwxyz" ) / 26, 0 ) )
 
       nColLen := oColumn:length
       IF oColumn:heading != Nil
@@ -633,8 +633,7 @@ METHOD Rebuild( hDC ) CLASS HBrowse
             ENDIF
          NEXT
       ELSE
-         xSize := Round( ( nColLen ) * ( ::width * 1.30 ) , 0 ) + 10
-         // xSize := Round( ( nColLen ) * ::width , 0 )
+         xSize := Round( nColLen * ::width, 0 )
       ENDIF
 
       IF oColumn:length < 0

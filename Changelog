@@ -15,13 +15,13 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2026-08-11 01:39 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+2026-08-11 02:01 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source/gtk/hbrowse.prg
       - METHOD Rebuild(): Fixed column width calculation in Linux (GTK2).
-        Removed the legacy -1 reducer from '::width' and updated 'xSize'
-        calculation with a 1.30 scale factor plus a 10-pixel padding.
-        This prevents text truncation on long columns, ensuring visual
-        parity with the Win32 layout.
+        Replaced the inaccurate 'arr[2]' metric with a real character width
+        average by measuring the full alphabet. This ensures 'Length' is
+        strictly respected across all column sizes (from Length 2 to 60)
+        without distortion, achieving exact parity with the Win32 layout.
 
 2026-08-09 21:02 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * cross/common.prg:
