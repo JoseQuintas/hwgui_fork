@@ -637,11 +637,7 @@ METHOD Rebuild( hDC ) CLASS HBrowse
          IF oColumn:type == Nil .AND. oColumn:block != Nil
             oColumn:type := ValType( Eval( oColumn:block,, Self, i ) )
          ENDIF
-         IF oColumn:type == "D"
-            xSize := Round( nColLen * ::width, 0 )
-         ELSE
-            xSize := Round( nColLen * ::width, 0 )
-         ENDIF
+         xSize := Round( nColLen * ::width, 0 )
       ENDIF
 
       IF oColumn:length < 0
