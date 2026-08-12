@@ -51,6 +51,8 @@
 #define WM_PAINT            15
 #define WM_HSCROLL         276
 #define WM_VSCROLL         277
+#define WS_HSCROLL     0x00100000L
+#define WS_VSCROLL     0x00200000L
 #define WM_USER           1024
 #define WS_EX_TRANSPARENT   32
 
@@ -357,6 +359,7 @@ HB_FUNC( HWG_ISBUTTONCHECKED )
 HB_FUNC( HWG_CREATEEDIT )
 {
       GtkWidget *hCtrl;
+      GtkWidget *hScroll = NULL;
       const char *cTitle = ( hb_pcount(  ) > 7 ) ? hb_parc( 8 ) : "";
       unsigned long ulStyle = ( HB_ISNIL( 3 ) ) ? 0 : hb_parnl( 3 );
 
@@ -366,7 +369,27 @@ HB_FUNC( HWG_CREATEEDIT )
             g_object_set_data( ( GObject * ) hCtrl, "multi", ( gpointer ) 1 );
             if( ulStyle & ES_READONLY )
                   gtk_text_view_set_editable( ( GtkTextView * ) hCtrl, 0 );
-            gtk_text_view_set_wrap_mode( GTK_TEXT_VIEW(hCtrl), GTK_WRAP_WORD_CHAR);
+
+            /* Disable wrapping if horizontal scroll is explicitly requested */
+            if( ulStyle & WS_HSCROLL )
+                  gtk_text_view_set_wrap_mode( GTK_TEXT_VIEW(hCtrl), GTK_WRAP_NONE );
+            else
+                  gtk_text_view_set_wrap_mode( GTK_TEXT_VIEW(hCtrl), GTK_WRAP_WORD_CHAR );
+
+            /* Create scrolled window container for multiline edit */
+            hScroll = gtk_scrolled_window_new( NULL, NULL );
+
+            /* Set scrollbar visibility policy based on Windows styles */
+            gtk_scrolled_window_set_policy( GTK_SCROLLED_WINDOW( hScroll ),
+                                            ( ulStyle & WS_HSCROLL ) ? GTK_POLICY_ALWAYS : GTK_POLICY_AUTOMATIC,
+                                            ( ulStyle & WS_VSCROLL ) ? GTK_POLICY_ALWAYS : GTK_POLICY_AUTOMATIC );
+
+            gtk_scrolled_window_set_shadow_type( GTK_SCROLLED_WINDOW( hScroll ), GTK_SHADOW_IN );
+
+            /* Ensure the text view expands properly inside the scrolled container */
+            gtk_container_add( GTK_CONTAINER( hScroll ), hCtrl );
+
+            g_object_set_data( ( GObject * ) hCtrl, "main_widget", ( gpointer ) hScroll );
       }
       else
       {
@@ -379,8 +402,17 @@ HB_FUNC( HWG_CREATEEDIT )
 
       GtkFixed *box = getFixedBox( ( GObject * ) HB_PARHANDLE( 1 ) );
       if( box )
-            gtk_fixed_put( box, hCtrl, hb_parni( 4 ), hb_parni( 5 ) );
-      gtk_widget_set_size_request( hCtrl, hb_parni( 6 ), hb_parni( 7 ) );
+      {
+            if( ulStyle & ES_MULTILINE && hScroll )
+                  gtk_fixed_put( box, hScroll, hb_parni( 4 ), hb_parni( 5 ) );
+            else
+                  gtk_fixed_put( box, hCtrl, hb_parni( 4 ), hb_parni( 5 ) );
+      }
+
+      if( ulStyle & ES_MULTILINE && hScroll )
+            gtk_widget_set_size_request( hScroll, hb_parni( 6 ), hb_parni( 7 ) );
+      else
+            gtk_widget_set_size_request( hCtrl, hb_parni( 6 ), hb_parni( 7 ) );
 
       if( *cTitle )
       {
@@ -401,9 +433,16 @@ HB_FUNC( HWG_CREATEEDIT )
       set_event( ( gpointer ) hCtrl, "button_release_event", 0, 0, 0 );
 
       all_signal_connect( ( gpointer ) hCtrl );
-      HB_RETHANDLE( hCtrl );
 
+      /* Recursively show the container and its internal text view */
+      if( ulStyle & ES_MULTILINE && hScroll )
+            gtk_widget_show_all( hScroll );
+      else
+            gtk_widget_show( hCtrl );
+
+      HB_RETHANDLE( hCtrl );
 }
+
 
 HB_FUNC( HWG_EDIT_SETTEXT )
 {
@@ -641,8 +680,8 @@ HB_FUNC( HWG_SETRANGEUPDOWN )
 }
 
 
-#define WS_VSCROLL          2097152     // 0x00200000L
-#define WS_HSCROLL          1048576     // 0x00100000L
+//#define WS_VSCROLL          2097152     // 0x00200000L
+//#define WS_HSCROLL          1048576     // 0x00100000L
 
 HB_FUNC( HWG_CREATEBROWSE )
 {
