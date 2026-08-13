@@ -15,6 +15,17 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-13 01:14 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+   * source/gtk/hbrowse.prg
+     - METHOD Paint(): Fixed GTK2 bug where the row cursor got isolated at the
+       top row (viewport row 1) with an empty viewport above it when opening
+       the browse with the database pointer positioned at EOF (e.g., dbGoBottom()).
+     - METHOD Paint(): Relocated the initialization sync block to execute right
+       after ::rowCount and nRows dimensions are computed from client rectangle.
+     - METHOD Paint(): Fixed EOF handler logic to only force rowPos := 1 if the
+       dataset is completely empty (::nRecords == 0), preventing the engine
+       from breaking standard bottom-up rendering on startup.
+
 2026-08-12 01:36 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source/gtk/control.c
       ! HWG_CREATEEDIT(): Fixed missing scrollbars in multi-line edit controls

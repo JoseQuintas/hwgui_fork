@@ -662,15 +662,11 @@ METHOD Rebuild( hDC ) CLASS HBrowse
    ::lChanged := .F.
 
    RETURN Nil
-
 METHOD Paint()  CLASS HBrowse
 
    LOCAL aCoors, i, l, tmp, nRows
-   LOCAL  hDC
-
-   * Variables not used
-   * LOCAL oldAlias, pps
-   * LOCAL oldBkColor, oldTColor
+   LOCAL hDC
+   LOCAL nOrigRec
 
    IF !::active .OR. Empty( ::aColumns )
       RETURN Nil
@@ -712,6 +708,19 @@ METHOD Paint()  CLASS HBrowse
    ::rowCount := Int( ( ::y2 - ::y1 ) / ( ::height + 1 ) ) - ::nFootRows
    nRows := Min( ::nRecords, ::rowCount )
 
+   // GTK Fix: Align viewport to bottom row on initialization if database is at EOF
+   IF ::rowCount > 0 .AND. ::rowPos < ::rowCount
+      IF ::type == BRW_DATABASE .AND. !Empty( ::alias )
+         nOrigRec := ( ::alias )->( RecNo() )
+         ( ::alias )->( DbSkip( 1 ) )
+         IF ( ::alias )->( Eof() )
+            ::rowPos := nRows
+            ::lRefrLinesOnly := .F.
+         ENDIF
+         ( ::alias )->( DbGoto( nOrigRec ) )
+      ENDIF
+   ENDIF
+
    IF ::hScrollV != Nil
       tmp := Iif( ::nRecords < 100, ::nRecords, 100 )
       i := Iif( ::nRecords < 100, 1, ::nRecords/100 )
@@ -735,8 +744,8 @@ METHOD Paint()  CLASS HBrowse
          Eval( ::bSkip, Self, ::rowPos - ::rowPosOld )
       ENDIF
    ELSE
-      // Modified by Luiz Henrique dos Santos (luizhsantos@gmail.com)
-      IF Eval( ::bEof, Self ) .OR. Eval( ::bBof, Self )
+      // GTK Fix: Only force top positioning if the database is genuinely empty
+      IF ( Eval( ::bEof, Self ) .OR. Eval( ::bBof, Self ) ) .AND. ::nRecords == 0
          Eval( ::bGoTop, Self )
          ::rowPos := 1
       ENDIF
@@ -790,7 +799,7 @@ METHOD Paint()  CLASS HBrowse
 
       ::LineOut( ::rowPos, ::colpos, hDC, .T. )
 
-   IF ::lRefrHead .OR. ::lAppMode .or. ::lDispHead //add .or. ::lDispHead By Itamar Lins
+   IF ::lRefrHead .OR. ::lAppMode .or. ::lDispHead
       ::HeaderOut( hDC )
       IF ::nFootRows > 0
          ::FooterOut( hDC )
