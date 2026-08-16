@@ -15,6 +15,24 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-16 16:58 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+   * source/gtk/window.c:
+     (HWG_ACTIVATEDIALOG): Injected a high-priority idle callback via g_idle_add_full
+     to force exact screen centering when the modal loop initiates, overriding
+     asynchronous layout shifts caused by packed controls.
+   * source/gtk/control.c:
+     (HWG_CREATEBROWSE): Removed gtk_main_iteration loop to prevent premature
+     event flushes from breaking dialog window alignment.
+     (HWG_SETADJOPTIONS): Re-enabled native adjustment changed notification signals.
+   * source/gtk/hbrowse.prg:
+     Fixed duplicate DATA declarations and mapped properties to proper uppercase.
+     Adjusted signal return values (retValue = 0) in hbrowse event loop to allow
+     proper GtkScrollbar allocation and render tracks correctly.
+   * source/gtk/hdialog.prg:
+     (InitModalDlg): Changed return statement from 1 to 0 to prevent the underlying
+     C engine from overriding position layout bounds after Center() execution.
+     (onPAINT): Removed infinite invalidation loop inside background canvas.
+
 2026-08-15 22:58 UTC-0300 Itamar Lins <itamarlins at gmail.com>
    - GTK: Add native ON PAINT support for DIALOG
    * source/gtk/window.c (HWG_CREATEDLG): Add GDK_EXPOSURE_MASK and connect expose_event.

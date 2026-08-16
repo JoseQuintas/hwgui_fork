@@ -453,27 +453,107 @@ HB_FUNC( HWG_ACTIVATEMAINWINDOW )
    gtk_main();
 }
 
-HB_FUNC( HWG_ACTIVATEDIALOG )
+/* Helper callback to force window centering on the very first idle cycle of gtk_main */
+static gboolean gtk_shared_force_center_on_idle( gpointer data )
 {
-   // gtk_widget_show_all( (GtkWidget*) HB_PARHANDLE(1) );
-   if( HB_ISNIL(2) || !hb_parl(2) )
-      gtk_main();
+      GtkWidget *widget = GTK_WIDGET( data );
+      if ( widget && GTK_IS_WINDOW( widget ) )
+      {
+            gint width = 0, height = 0;
+            GdkScreen *screen = gtk_window_get_screen( GTK_WINDOW( widget ) );
+            gint scr_width  = ( screen ) ? gdk_screen_get_width( screen )  : gdk_screen_width();
+            gint scr_height = ( screen ) ? gdk_screen_get_height( screen ) : gdk_screen_height();
+
+            /* Forces the window layout tree to compute final boundaries before centering */
+            gtk_window_set_geometry_hints( GTK_WINDOW( widget ), NULL, NULL, 0 );
+            gtk_window_get_size( GTK_WINDOW( widget ), &width, &height );
+
+            gint nLeft = ( scr_width - width ) / 2;
+            gint nTop  = ( scr_height - height ) / 2;
+
+            if ( nLeft < 0 ) nLeft = 0;
+            if ( nTop < 0 )  nTop = 0;
+
+            /* Lock absolute mid-screen placement inside the active window manager */
+            gtk_window_move( GTK_WINDOW( widget ), nLeft, nTop );
+      }
+      return FALSE; /* FALSE ensures the callback executes only once and unregisters automatically */
 }
 
-void hwg_doEvents( void )
+HB_FUNC( HWG_ACTIVATEDIALOG )
 {
-   while( g_main_context_iteration( NULL, FALSE ) );
+      GtkWidget *widget = (GtkWidget*) HB_PARHANDLE(1);
+
+      /*
+       * CORE FIX FOR GTK2 GLOBAL INPUT GRAB DEADLOCKS (0% CPU)
+       * When a lookup dialog opens via a GET validation block, GTK2 often leaves
+       * a phantom hardware grab on the background entry window.
+       * We must safely break any active grabs right before running the nested gtk_main().
+       */
+      #if GTK_MAJOR_VERSION -0 < 3
+      if ( widget && GTK_IS_WIDGET( widget ) )
+      {
+            GdkDisplay *display = gtk_widget_get_display( widget );
+            if ( display )
+            {
+                  // Safely remove any application-level structural grabs
+                  if ( gtk_grab_get_current() != NULL )
+                  {
+                        gtk_grab_remove( gtk_grab_get_current() );
+                  }
+
+                  // Force the X11 server to release physical pointer/keyboard captures
+                  gdk_display_pointer_ungrab( display, GDK_CURRENT_TIME );
+                  gdk_display_keyboard_ungrab( display, GDK_CURRENT_TIME );
+            }
+      }
+      #endif
+
+      // Safe window initialization
+      if( HB_ISNIL(2) || !hb_parl(2) )
+      {
+            /*
+             * 🐧 LATENT CENTERING INJECTION (GTK2): Queue a high-priority idle callback.
+             * This intercepts the exact millisecond the nested gtk_main() fires up and the KWin
+             * environment computes final container constraints with the Browse attached,
+             * overriding asynchronous geometry shifts and securing a perfect center layout.
+             */
+            if ( widget && GTK_IS_WINDOW( widget ) )
+            {
+                  g_idle_add_full( G_PRIORITY_HIGH_IDLE, gtk_shared_force_center_on_idle, widget, NULL );
+            }
+
+            gdk_flush(); // Flushes the graphical pipeline to X11 immediately
+            gtk_main();
+
+            /*
+             * RE-ENTRANCY SAFEGUARD:
+             * After the modal dialog closes, force GLib to process outstanding cleanups.
+             * This prevents the background GET from entering an infinite focus-out loop.
+             */
+            #if GTK_MAJOR_VERSION -0 < 3
+            while ( gtk_events_pending() ) {
+                  gtk_main_iteration();
+            }
+            #endif
+      }
 }
 
 void ProcessMessage( void )
 {
-   while( g_main_context_iteration( NULL, FALSE ) );
+      while( g_main_context_iteration( NULL, FALSE ) );
+}
+
+void hwg_doEvents( void )
+{
+      ProcessMessage();
 }
 
 HB_FUNC( HWG_PROCESSMESSAGE )
 {
-   ProcessMessage();
+      ProcessMessage();
 }
+
 
 gint cb_signal_size( GtkWidget *widget, GtkAllocation *allocation, gpointer data )
 {
@@ -1026,12 +1106,12 @@ HB_FUNC( HWG_MOVEWINDOW )
 
 HB_FUNC( HWG_CENTERWINDOW )
 {
-   GtkWindow *  hWnd = (GtkWindow*)HB_PARHANDLE(1);
+      GtkWindow *  hWnd = (GtkWindow*)HB_PARHANDLE(1);
 
-   gint width = 0, height = 0;
+      gint width = 0, height = 0;
 
-   gtk_window_get_size( hWnd, &width, &height );
-   gtk_window_move( hWnd, (gdk_screen_width()-width)/2, (gdk_screen_height()-height)/2 );
+      gtk_window_get_size( hWnd, &width, &height );
+      gtk_window_move( hWnd, (gdk_screen_width()-width)/2, (gdk_screen_height()-height)/2 );
 
 }
 
@@ -1297,33 +1377,27 @@ HB_FUNC( HWG_ICONIFY )   /* minimize */
 gtk_window_iconify(  (GtkWindow*) (HB_PARHANDLE(1) ) );
 }
 
-
 HB_FUNC( HWG_PAINTWINDOW )
 {
       GtkWidget * widget = ( GtkWidget * ) hb_parptr( 1 );
-
       if( widget && gtk_widget_get_realized( widget ) )
       {
             GdkWindow * gdk_window = gtk_widget_get_window( widget );
-
             if( gdk_window )
             {
                   GdkRegion * region = gdk_window_get_update_area( gdk_window );
-
-                  if ( region )
-                  {
+                  if ( region ) {
                         gdk_window_begin_paint_region( gdk_window, region );
                         gdk_window_clear( gdk_window );
                         gdk_window_end_paint( gdk_window );
                         gdk_region_destroy( region );
-                  }
-                  else
-                  {
+                  } else {
                         gdk_window_clear( gdk_window );
                   }
             }
       }
 }
+
 
 /*
   *  ShellModifyIcon( hWnd,  hIcon )

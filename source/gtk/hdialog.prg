@@ -147,6 +147,11 @@ METHOD Activate( lNoModal, lMaximized, lMinimized, lCentered, bActivate ) CLASS 
       hwg_WindowSetDecorated( ::handle, 0 )
    ENDIF
 
+   /* 🐧 GTK2 CENTERING BRIDGE: Connect signal to map-event to force absolute mid-screen placement */
+   IF !Empty( lCentered ) .OR. ( ::style > 0 .AND. hwg_BitAnd( ::style, DS_CENTER ) > 0 )
+      hwg_SetSignal( ::handle, "map-event", {|| ::Center(), .F. } )
+   ENDIF
+
    hwg_ShowAll( ::handle )
    InitModalDlg( Self )
    ::lActivated := .T.
@@ -160,13 +165,25 @@ METHOD Activate( lNoModal, lMaximized, lMinimized, lCentered, bActivate ) CLASS 
       aCoors := hwg_Getwindowrect( ::handle )
       aRect := hwg_GetClientRect( ::handle )
 
-      // RESTORED: Fixed the bracket indexing for coordinates calculation
-      IF aCoors[4] - aCoors[2] == aRect[4]
+      IF ( aCoors[4] - aCoors[2] ) == ( aRect[4] - aRect[2] )
          ::nAdjust := 0
       ELSE
-         ::Move( , , ::nWidth + ( aCoors[3] - aCoors[1] - aRect[3] ), ::nHeight + ( aCoors[4] - aCoors[2] - aRect[4] ) )
+         /* Update dimensions to include the physical scrollbar track pixels */
+         ::nWidth  := ::nWidth + ( (aCoors[3] - aCoors[1]) - (aRect[3] - aRect[1]) )
+         ::nHeight := ::nHeight + ( (aCoors[4] - aCoors[2]) - (aRect[4] - aRect[2]) )
+
+         /* 🐧 RE-CENTERING GEOMETRY MATH (GTK2): Recalculate true mid-screen coordinates
+            using the newly updated complete container size boundaries */
+         IF ::style > 0 .AND. hwg_BitAnd( ::style, DS_CENTER ) > 0
+            ::nLeft := Int( ( hwg_Getdesktopwidth() - ::nWidth ) / 2 )
+            ::nTop  := Int( ( hwg_Getdesktopheight() - ::nHeight ) / 2 )
+         ENDIF
+
+         /* Move and resize simultaneously using the freshly computed exact center targets */
+         ::Move( ::nLeft, ::nTop, ::nWidth, ::nHeight )
       ENDIF
    ENDIF
+
    IF !Empty( lMinimized )
       ::Minimize()
    ELSEIF !Empty( lMaximized )
@@ -176,6 +193,7 @@ METHOD Activate( lNoModal, lMaximized, lMinimized, lCentered, bActivate ) CLASS 
    ELSEIF ::oParent != Nil .AND. __ObjHasMsg( ::oParent, "nLeft" )
       hwg_MoveWindow( ::handle, ::oParent:nLeft + ::nLeft, ::oParent:nTop + ::nTop )
    ENDIF
+
    IF HB_ISBLOCK( bActivate )
       ::bActivate := bActivate
    ENDIF
@@ -185,27 +203,27 @@ METHOD Activate( lNoModal, lMaximized, lMinimized, lCentered, bActivate ) CLASS 
 
    hwg_HideHidden( Self )
    hwg_ActivateDialog( ::handle, lNoModal  )
+
    RETURN Nil
 
 METHOD onEvent( msg, wParam, lParam ) CLASS HDialog
 
    LOCAL i
 
-   // DIRECT INTERCEPTION: Route the generated simulated WM_PAINT from window.c core directly
+   /* DIRECT INTERCEPTION: Route the generated simulated WM_PAINT from window.c core directly */
    IF msg == WM_PAINT
       ::onPAINT( wParam, lParam )
       RETURN 0
    ENDIF
 
-   // FIX: Comparing a[1] instead of 'a' fixes the BASE/1070 parameter error
+   /* FIX: Comparing a[1] instead of 'a' fixes the BASE/1070 parameter error */
    IF ( i := Ascan( aMessModalDlg, { |a| a[1] == msg } ) ) != 0
       RETURN Eval( aMessModalDlg[i,2], Self, wParam, lParam )
    ELSE
       RETURN ::Super:onEvent( msg, wParam, lParam )
    ENDIF
 
-   RETURN 0
-
+RETURN 0
 
 METHOD onPAINT( wParam, lParam ) CLASS HDialog
 
@@ -274,11 +292,18 @@ STATIC FUNCTION InitModalDlg( oDlg )
    IF oDlg:bColor != Nil
       hwg_SetBgColor( oDlg:handle, oDlg:bColor )
    ENDIF
+
    IF oDlg:bInit != Nil
       Eval( oDlg:bInit, oDlg )
    ENDIF
 
-   RETURN 1
+   IF oDlg:style > 0 .AND. hwg_BitAnd( oDlg:style, DS_CENTER ) > 0
+      oDlg:Center()
+   ENDIF
+
+   /* 🐧 GTK2 CENTERING TRAFFIC FIX: Return 0 (FALSE) instead of 1
+      to prevent the C engine from resetting window coordinates after Center() */
+   RETURN 0
 
 FUNCTION hwg_DlgCommand( oDlg, wParam, lParam )
 

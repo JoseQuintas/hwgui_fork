@@ -682,11 +682,10 @@ HB_FUNC( HWG_SETRANGEUPDOWN )
 
 //#define WS_VSCROLL          2097152     // 0x00200000L
 //#define WS_HSCROLL          1048576     // 0x00100000L
-
 HB_FUNC( HWG_CREATEBROWSE )
 {
       GtkWidget *vbox, *hbox;
-      GtkWidget *vscroll, *hscroll;
+      GtkWidget *vscroll = NULL, *hscroll = NULL;
       GtkWidget *area;
       GtkFixed *box;
       PHB_ITEM pObject = hb_param( 1, HB_IT_OBJECT ), temp;
@@ -701,12 +700,15 @@ HB_FUNC( HWG_CREATEBROWSE )
       temp = GetObjectVar( pObject, "OPARENT" );
       handle = ( GObject * ) HB_GETHANDLE( GetObjectVar( temp, "HANDLE" ) );
 
+      /* Structural container creation */
       hbox = gtk_hbox_new( FALSE, 0 );
       vbox = gtk_vbox_new( FALSE, 0 );
 
       area = gtk_drawing_area_new(  );
 
+      /* Initial layout packing of the internal box */
       gtk_box_pack_start( GTK_BOX( hbox ), vbox, TRUE, TRUE, 0 );
+
       if( ulStyle & WS_VSCROLL )
       {
             #if GTK_MAJOR_VERSION -0 < 3
@@ -716,6 +718,10 @@ HB_FUNC( HWG_CREATEBROWSE )
             #endif
             adjV = gtk_adjustment_new( 0.0, 0.0, 101.0, 1.0, 10.0, 10.0 );
             vscroll = gtk_vscrollbar_new( GTK_ADJUSTMENT( adjV ) );
+
+            /* GEOMETRY LOCK: Force 16px width to bypass the Linux system overlay collapse mechanics */
+            gtk_widget_set_size_request( vscroll, 16, -1 );
+
             gtk_box_pack_end( GTK_BOX( hbox ), vscroll, FALSE, FALSE, 0 );
 
             temp = HB_PUTHANDLE( NULL, adjV );
@@ -726,7 +732,9 @@ HB_FUNC( HWG_CREATEBROWSE )
             set_signal( ( gpointer ) adjV, "value_changed", WM_VSCROLL, 0, 0 );
       }
 
+      /* Pack the grid drawing area inside the vertical layout box */
       gtk_box_pack_start( GTK_BOX( vbox ), area, TRUE, TRUE, 0 );
+
       if( ulStyle & WS_HSCROLL )
       {
             #if GTK_MAJOR_VERSION -0 < 3
@@ -736,6 +744,10 @@ HB_FUNC( HWG_CREATEBROWSE )
             #endif
             adjH = gtk_adjustment_new( 0.0, 0.0, 101.0, 1.0, 10.0, 10.0 );
             hscroll = gtk_hscrollbar_new( GTK_ADJUSTMENT( adjH ) );
+
+            /* GEOMETRY LOCK: Force 16px height to bypass the Linux system overlay collapse mechanics */
+            gtk_widget_set_size_request( hscroll, -1, 16 );
+
             gtk_box_pack_end( GTK_BOX( vbox ), hscroll, FALSE, FALSE, 0 );
 
             temp = HB_PUTHANDLE( NULL, adjH );
@@ -746,11 +758,15 @@ HB_FUNC( HWG_CREATEBROWSE )
             set_signal( ( gpointer ) adjH, "value_changed", WM_HSCROLL, 0, 0 );
       }
 
+      /* Position the parent container inside the Dialog or Panel */
       box = getFixedBox( handle );
       if( box )
             gtk_fixed_put( box, hbox, nLeft, nTop );
-      gtk_widget_set_size_request( hbox, nWidth, nHeight );
 
+      /* Lock the size request of the entire block to match Harbour pixel definitions */
+      gtk_widget_set_size_request( hbox, nWidth, nHeight );
+      hbox->allocation.width = nWidth;
+      hbox->allocation.height = nHeight;
       temp = HB_PUTHANDLE( NULL, area );
       SetObjectVar( pObject, "_AREA", temp );
       hb_itemRelease( temp );
@@ -762,12 +778,12 @@ HB_FUNC( HWG_CREATEBROWSE )
       set_event( ( gpointer ) area, "draw", WM_PAINT, 0, 0 );
       #endif
 
-      gtk_widget_set_can_focus(area,1);
-      //GTK_WIDGET_SET_FLAGS( area, GTK_CAN_FOCUS );
+      gtk_widget_set_can_focus( area, 1 );
 
       gtk_widget_add_events( area, GDK_BUTTON_PRESS_MASK |
       GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK |
-      GDK_POINTER_MOTION_MASK | GDK_SCROLL_MASK | GDK_FOCUS_CHANGE_MASK);
+      GDK_POINTER_MOTION_MASK | GDK_SCROLL_MASK | GDK_FOCUS_CHANGE_MASK );
+
       set_event( ( gpointer ) area, "button_press_event", 0, 0, 0 );
       set_event( ( gpointer ) area, "button_release_event", 0, 0, 0 );
       set_event( ( gpointer ) area, "motion_notify_event", 0, 0, 0 );
@@ -777,29 +793,68 @@ HB_FUNC( HWG_CREATEBROWSE )
       set_event( ( gpointer ) area, "focus_in_event", 0, 0, 0 );
       set_event( ( gpointer ) area, "focus_out_event", 0, 0, 0 );
 
-      // gtk_widget_show_all( hbox );
+      /* Force synchronous structural widget exhibition */
+      gtk_widget_show_all( hbox );
+
+      /*
+       * DEFINITIVE GTK2 SCROLL FIX (MOUSE FOCUS BYPASS)
+       * Force the GTK2 display engine to map and realize the scrollbars
+       * during the initial window creation lifecycle. This mimics the exact
+       * behavior triggered when the mouse pointer passes over the grid container.
+       */
+      if ( vscroll && GTK_IS_WIDGET( vscroll ) )
+      {
+            gtk_widget_map( vscroll );
+            gtk_widget_queue_draw( vscroll );
+      }
+      if ( hscroll && GTK_IS_WIDGET( hscroll ) )
+      {
+            gtk_widget_map( hscroll );
+            gtk_widget_queue_draw( hscroll );
+      }
+
+      /*
+       * SIZE ALLOCATION
+       * Updates the layout container geometry to lock the 16px size.
+       * The event loop iteration was completely removed to prevent premature
+       * signal flushes from overriding and shifting HDialog screen centering.
+       */
+      if( gtk_widget_get_realized( hbox ) )
+      {
+            gtk_widget_size_allocate( hbox, &(hbox->allocation) );
+      }
+
       all_signal_connect( ( gpointer ) area );
       g_object_set_data( ( GObject * ) hbox, "draw", ( gpointer ) area );
+
       HB_RETHANDLE( hbox );
 }
+
 
 HB_FUNC( HWG_GETADJVALUE )
 {
       GtkAdjustment *adj = ( GtkAdjustment * ) HB_PARHANDLE( 1 );
       int iOption = ( HB_ISNIL( 2 ) ) ? 0 : hb_parni( 2 );
 
-      if( iOption == 0 )
-            hb_retnl( ( HB_LONG ) gtk_adjustment_get_value(adj) );
-      else if( iOption == 1 )
-            hb_retnl( ( HB_LONG ) gtk_adjustment_get_upper(adj) );
-      else if( iOption == 2 )
-            hb_retnl( ( HB_LONG ) gtk_adjustment_get_step_increment(adj) );
-      else if( iOption == 3 )
-            hb_retnl( ( HB_LONG ) gtk_adjustment_get_page_increment(adj) );
-      else if( iOption == 4 )
-            hb_retnl( ( HB_LONG ) gtk_adjustment_get_page_size(adj) );
+      if( adj && GTK_IS_ADJUSTMENT( adj ) )
+      {
+            if( iOption == 0 )
+                  hb_retnl( ( HB_LONG ) gtk_adjustment_get_value(adj) );
+            else if( iOption == 1 )
+                  hb_retnl( ( HB_LONG ) gtk_adjustment_get_upper(adj) );
+            else if( iOption == 2 )
+                  hb_retnl( ( HB_LONG ) gtk_adjustment_get_step_increment(adj) );
+            else if( iOption == 3 )
+                  hb_retnl( ( HB_LONG ) gtk_adjustment_get_page_increment(adj) );
+            else if( iOption == 4 )
+                  hb_retnl( ( HB_LONG ) gtk_adjustment_get_page_size(adj) );
+            else
+                  hb_retnl( 0 );
+      }
       else
+      {
             hb_retnl( 0 );
+      }
 }
 
 /*
@@ -811,38 +866,64 @@ HB_FUNC( HWG_SETADJOPTIONS )
       gdouble value;
       int lChanged = 0;
 
-      if( !HB_ISNIL( 2 ) && ( ( value = ( gdouble ) hb_parnl( 2 ) ) != gtk_adjustment_get_value(adj) ) )
+      if( adj && GTK_IS_ADJUSTMENT( adj ) )
       {
-            gtk_adjustment_set_value(adj, value);
-            lChanged = 1;
+            /* 🐧 GEOMETRY LOCK: Freeze property notifications to block intermediate
+             *               asynchronous layout shifts from overriding active HDialog centering metrics */
+            g_object_freeze_notify( G_OBJECT( adj ) );
+
+            if( !HB_ISNIL( 2 ) && ( ( value = ( gdouble ) hb_parnl( 2 ) ) != gtk_adjustment_get_value(adj) ) )
+            {
+                  gtk_adjustment_set_value(adj, value);
+                  lChanged = 1;
+            }
+            if( !HB_ISNIL( 3 ) && ( ( value = ( gdouble ) hb_parnl( 3 ) ) != gtk_adjustment_get_upper(adj) ) )
+            {
+                  gtk_adjustment_set_upper(adj, value);
+                  lChanged = 1;
+            }
+            if( !HB_ISNIL( 4 ) &&
+                  ( ( value = ( gdouble ) hb_parnl( 4 ) ) != gtk_adjustment_get_step_increment(adj) ) )
+            {
+                  gtk_adjustment_set_step_increment(adj, value);
+                  lChanged = 1;
+            }
+            if( !HB_ISNIL( 5 ) &&
+                  ( ( value = ( gdouble ) hb_parnl( 5 ) ) != gtk_adjustment_get_page_increment(adj) ) )
+            {
+                  gtk_adjustment_set_page_increment(adj, value);
+                  lChanged = 1;
+            }
+            if( !HB_ISNIL( 6 ) &&
+                  ( ( value = ( gdouble ) hb_parnl( 6 ) ) != gtk_adjustment_get_page_size(adj) ) )
+            {
+                  gtk_adjustment_set_page_size(adj, value);
+                  lChanged = 1;
+            }
+
+            if( lChanged )
+            {
+                  /* GTK2 NATIVE EMISSION: Update underlying layout constraints safely */
+                  #if GTK_MAJOR_VERSION -0 < 3
+                  gtk_adjustment_changed( adj );
+                  gtk_adjustment_value_changed( adj );
+                  #else
+                  g_signal_emit_by_name( adj, "changed" );
+                  g_signal_emit_by_name( adj, "value-changed" );
+                  #endif
+            }
+
+            /* 🐧 RELEASE GEOMETRY LOCK: Unfreeze and flush queued adjustments into the main rendering loop */
+            g_object_thaw_notify( G_OBJECT( adj ) );
+
+            hb_retl( lChanged );
       }
-      if( !HB_ISNIL( 3 ) && ( ( value = ( gdouble ) hb_parnl( 3 ) ) != gtk_adjustment_get_upper(adj) ) )
+      else
       {
-            gtk_adjustment_set_upper(adj, value);
-            lChanged = 1;
+            hb_retl( FALSE );
       }
-      if( !HB_ISNIL( 4 ) &&
-            ( ( value = ( gdouble ) hb_parnl( 4 ) ) != gtk_adjustment_get_step_increment(adj) ) )
-      {
-            gtk_adjustment_set_step_increment(adj, value);
-            lChanged = 1;
-      }
-      if( !HB_ISNIL( 5 ) &&
-            ( ( value = ( gdouble ) hb_parnl( 5 ) ) != gtk_adjustment_get_page_increment(adj) ) )
-      {
-            gtk_adjustment_set_page_increment(adj, value);
-            lChanged = 1;
-      }
-      if( !HB_ISNIL( 6 ) &&
-            ( ( value = ( gdouble ) hb_parnl( 6 ) ) != gtk_adjustment_get_page_size(adj) ) )
-      {
-            gtk_adjustment_set_page_size(adj, value);
-            lChanged = 1;
-      }
-      //if( lChanged )
-      //  gtk_adjustment_changed( adj );
-      hb_retl( lChanged );
 }
+
 
 
 /* -----------------------------------------------------------------

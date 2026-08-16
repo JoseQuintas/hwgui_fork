@@ -229,9 +229,10 @@ METHOD New( lType, oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, oFont,
       bInit, bSize, bPaint, bEnter, bGfocus, bLfocus, lNoVScroll, ;
       lNoBorder, lAppend, lAutoedit, bUpdate, bKeyDown, bPosChg, lMultiSelect, bRClick ) CLASS HBrowse
 
+   // GTK2 SCROLL FIX: Force both WS_VSCROLL and WS_HSCROLL to enable vertical and horizontal bars
    nStyle := Hwg_BitOr( iif( nStyle == Nil,0,nStyle ), WS_CHILD + WS_VISIBLE +  ;
       iif( lNoBorder = Nil .OR. !lNoBorder, WS_BORDER, 0 ) +            ;
-      iif( lNoVScroll = Nil .OR. !lNoVScroll, WS_VSCROLL, 0 ) )
+      iif( lNoVScroll = Nil .OR. !lNoVScroll, WS_VSCROLL + WS_HSCROLL, WS_HSCROLL ) )
 
    ::Super:New( oWndParent, nId, nStyle, nLeft, nTop, iif( nWidth == Nil,0,nWidth ), ;
       iif( nHeight == Nil, 0, nHeight ), oFont, bInit, bSize, bPaint )
@@ -264,6 +265,7 @@ METHOD New( lType, oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, oFont,
    ::Activate()
 
    RETURN Self
+
 
 
 METHOD DefaultLang() CLASS HBrowse
@@ -304,14 +306,13 @@ METHOD onEvent( msg, wParam, lParam )  CLASS HBrowse
 
       IF msg == WM_PAINT
          ::Paint()
-         retValue := 1
+         retValue := 0 // GTK2 STANDARD: Return 0 (FALSE) to allow the expose-event chain to finalize drawing
 
       ELSEIF msg == WM_ERASEBKGND
          IF ::brush != Nil
-
             aCoors := hwg_Getclientrect( ::handle )
             hwg_Fillrect( wParam, aCoors[1], aCoors[2], aCoors[3] + 1, aCoors[4] + 1, ::brush:handle )
-            retValue := 1
+            retValue := 0
          ENDIF
 
       ELSEIF msg == WM_SETFOCUS
@@ -330,14 +331,15 @@ METHOD onEvent( msg, wParam, lParam )  CLASS HBrowse
       ELSEIF msg == WM_COMMAND
          hwg_DlgCommand( Self, wParam, lParam )
 
-
       ELSEIF ::oGet == Nil
 
          IF msg == WM_HSCROLL
             ::DoHScroll()
+            retValue := 0 // GTK2 SCROLL FIX: Allow GtkHScrollbar allocation processing without signal cancellation
 
          ELSEIF msg == WM_VSCROLL
             ::DoVScroll( wParam )
+            retValue := 0 // GTK2 SCROLL FIX: Allow GtkVScrollbar allocation processing without signal cancellation
 
          ELSEIF msg == WM_KEYUP
             IF wParam == GDK_Control_L .OR. wParam == GDK_Control_R
@@ -350,11 +352,9 @@ METHOD onEvent( msg, wParam, lParam )  CLASS HBrowse
 
             IF ::bKeyDown != Nil
                IF !Eval( ::bKeyDown, Self, wParam )
-                  hwg_msginfo("Saiu: " + str(msg))
                   RETURN 1
                ENDIF
             ENDIF
-
 
             IF wParam == GDK_Down        // Down
                ::LINEDOWN()
@@ -393,20 +393,26 @@ METHOD onEvent( msg, wParam, lParam )  CLASS HBrowse
 
          ELSEIF msg == WM_LBUTTONDOWN
             ::ButtonDown( lParam )
+            retValue := -1 // LINUX FIX: Allow click propagation for focus calculation
 
          ELSEIF msg == WM_LBUTTONUP
             ::ButtonUp( lParam )
+            retValue := -1
 
          ELSEIF msg == WM_LBUTTONDBLCLK
             ::ButtonDbl( lParam )
+            retValue := -1
 
          ELSEIF msg == WM_RBUTTONDOWN
             ::ButtonRDown( lParam )
+            retValue := -1
 
          ELSEIF msg == WM_MOUSEMOVE //512
             ::MouseMove( wParam, lParam )
+            retValue := -1 // LINUX FIX: Allows mouse movement to trigger scroll trackers refresh
          ENDIF
-         IF msg == WM_KEYDOWN .and. wParam == GDK_Up .or. wParam == GDK_Down // 65362 .or. wParam == 65364 //WM_MOUSEWHEEL
+
+         IF msg == WM_KEYDOWN .and. wParam == GDK_Up .or. wParam == GDK_Down
             ::MouseWheel()
          ENDIF
       ENDIF
@@ -414,11 +420,32 @@ METHOD onEvent( msg, wParam, lParam )  CLASS HBrowse
 
    RETURN retValue
 
+
 METHOD Init() CLASS HBrowse
 
    IF !::lInit
       ::Super:Init()
-      // hwg_Setwindowobject( ::handle,Self )
+
+      /*
+       * GTK2 SCROLL POINTER BRIDGE: Force the original class pointers (hScrollV/hScrollH)
+       * to safely inherit the active dynamic adjustment instances created by control.c (_HSCROLLV/_HSCROLLH).
+       * This unifies the Harbour event architecture and eliminates the hidden collapse mechanics.
+       */
+      IF __ObjHasMsg( Self, "_HSCROLLV" ) .AND. ::_HSCROLLV != Nil
+         ::hScrollV := ::_HSCROLLV
+      ENDIF
+
+      IF __ObjHasMsg( Self, "_HSCROLLH" ) .AND. ::_HSCROLLH != Nil
+         ::hScrollH := ::_HSCROLLH
+      ENDIF
+
+      IF ::handle != Nil
+         ::Show()
+
+         IF ::area != Nil
+            hwg_RedrawWindow( ::area )
+         ENDIF
+      ENDIF
    ENDIF
 
    RETURN Nil
@@ -544,6 +571,7 @@ METHOD InitBrw( nType )  CLASS HBrowse
       ::bRcou     :=  { || ( ::alias ) -> ( RecCount() ) }
       ::bRecnoLog := ::bRecno  := { ||( ::alias ) -> ( RecNo() ) }
       ::bGoTo     :=  { |o, n| HB_SYMBOL_UNUSED( o ) , ( ::alias ) -> ( dbGoto( n ) ) }
+      ::bScrollPos := { |o, n, lEof, nPos| hwg_VScrollPos( o, n, lEof, nPos ) }
 
    ELSEIF ::type == BRW_ARRAY
       ::bSKip   := { | o, x | ARSKIP( o, x ) }
@@ -606,7 +634,6 @@ METHOD Rebuild( hDC ) CLASS HBrowse
       ENDIF
       arr := hwg_GetTextMetric( hDC )
       ::nRowTextHeight := Max( ::nRowTextHeight, arr[1] )
-      // ::width := Max( ::width, Round( ( arr[3] + arr[2] ) / 2 - 1, 0 ) )
       ::width := Max( ::width, Round( hwg_GetTextWidth( hDC, "abcdefghijklmnopqrstuvwxyz" ) / 26, 0 ) )
 
       nColLen := oColumn:length
@@ -644,7 +671,7 @@ METHOD Rebuild( hDC ) CLASS HBrowse
       IF oColumn:length < 0
          oColumn:width := Abs( oColumn:length )
       ELSE
-         IF oColumn:type == "D" //.OR. nColLen <= 3
+         IF oColumn:type == "D"
             oColumn:width := xSize - 6
          ELSE
             IF oColumn:length > 2
@@ -661,7 +688,15 @@ METHOD Rebuild( hDC ) CLASS HBrowse
 
    ::lChanged := .F.
 
+   IF ::handle != Nil
+      // GTK2 GEOMETRY FIX: Comment out hwg_Showall to prevent GTK from collapsing scrollbars width/height back to 0
+      // hwg_Showall( ::handle )
+      hwg_RedrawWindow( ::handle )
+   ENDIF
+
    RETURN Nil
+
+
 METHOD Paint()  CLASS HBrowse
 
    LOCAL aCoors, i, l, tmp, nRows
@@ -674,7 +709,7 @@ METHOD Paint()  CLASS HBrowse
 
    hDC := hwg_Getdc( ::area )
 
-   if ::oFont != Nil
+   IF ::oFont != Nil
       hwg_Selectobject( hDC, ::oFont:handle )
    ENDIF
    IF ::brush == Nil .OR. ::lChanged
@@ -721,22 +756,25 @@ METHOD Paint()  CLASS HBrowse
       ENDIF
    ENDIF
 
-   IF ::hScrollV != Nil
+   // 🐧 DEFINITIVE GTK2 SCROLL FIX
+   // Read the dynamic properties injected by control.c without triggering warnings
+   IF __ObjHasMsg( Self, "_HSCROLLV" ) .AND. ::_HSCROLLV != Nil
       tmp := Iif( ::nRecords < 100, ::nRecords, 100 )
       i := Iif( ::nRecords < 100, 1, ::nRecords/100 )
-      IF hwg_SetAdjOptions( ::hScrollV, , tmp + nRows, i, nRows, nRows )
+      IF hwg_SetAdjOptions( ::_HSCROLLV, , tmp + nRows, i, nRows, nRows )
          ::lSetAdj := .T.
       ENDIF
    ENDIF
-   IF ::hScrollH != Nil
+
+   IF __ObjHasMsg( Self, "_HSCROLLH" ) .AND. ::_HSCROLLH != Nil
       tmp := Len( ::aColumns )
-      hwg_SetAdjOptions( ::hScrollH, , tmp + 1, 1, 1, 1 )
+      hwg_SetAdjOptions( ::_HSCROLLH, , tmp + 1, 1, 1, 1 )
    ENDIF
 
    IF ::lRefrLinesOnly
       IF ::rowPos != ::rowPosOld .AND. !::lAppMode
          Eval( ::bSkip, Self, ::rowPosOld - ::rowPos )
-         IF ::aSelected != Nil .AND. Ascan( ::aSelected, { |x| x = Eval( ::bRecno,Self ) } ) > 0
+         IF ::aSelected != Nil .AND. Ascan( ::aSelected, { |x| x == Eval( ::bRecno,Self ) } ) > 0
             ::LineOut( ::rowPosOld, 0, hDC, .T. )
          ELSE
             ::LineOut( ::rowPosOld, 0, hDC, .F. )
@@ -769,7 +807,7 @@ METHOD Paint()  CLASS HBrowse
          IF l
             l := .F.
          ELSE
-            IF ::aSelected != Nil .AND. Ascan( ::aSelected, { |x| x = Eval( ::bRecno,Self ) } ) > 0
+            IF ::aSelected != Nil .AND. Ascan( ::aSelected, { |x| x == Eval( ::bRecno,Self ) } ) > 0
                ::LineOut( i, 0, hDC, .T. )
             ELSE
                ::LineOut( i, 0, hDC, .F. )
@@ -780,26 +818,27 @@ METHOD Paint()  CLASS HBrowse
       ENDDO
       ::rowCurrCount := i - 1
 
-         IF ::rowPos >= i
-            ::rowPos := iif( i > 1, i - 1, 1 )
-         ENDIF
-         DO WHILE i <= nRows
-            ::LineOut( i, 0, hDC, .F. , .T. )
-            i ++
-         ENDDO
-
-         Eval( ::bGoTo, Self, tmp )
-
-         hwg_Fillrect( hDC, ::x1, ::y1 + ( ::height + 1 ) * nRows, ;
-            ::x2, ::y2, ::brush:handle )
+      IF ::rowPos >= i
+         ::rowPos := iif( i > 1, i - 1, 1 )
       ENDIF
-      IF ::lAppMode
-         ::LineOut( nRows + 1, 0, hDC, .F. , .T. )
-      ENDIF
+      DO WHILE i <= nRows
+         ::LineOut( i, 0, hDC, .F. , .T. )
+         i ++
+      ENDDO
 
-      ::LineOut( ::rowPos, ::colpos, hDC, .T. )
+      Eval( ::bGoTo, Self, tmp )
 
-   IF ::lRefrHead .OR. ::lAppMode .or. ::lDispHead
+      hwg_Fillrect( hDC, ::x1, ::y1 + ( ::height + 1 ) * nRows, ;
+         ::x2, ::y2, ::brush:handle )
+   ENDIF
+
+   IF ::lAppMode
+      ::LineOut( nRows + 1, 0, hDC, .F. , .T. )
+   ENDIF
+
+   ::LineOut( ::rowPos, ::colpos, hDC, .T. )
+
+   IF ::lRefrHead .OR. ::lAppMode .OR. ::lDispHead
       ::HeaderOut( hDC )
       IF ::nFootRows > 0
          ::FooterOut( hDC )
@@ -822,14 +861,10 @@ METHOD Paint()  CLASS HBrowse
       ::Edit()
    ENDIF
 
-   IF ::lInFocus .AND. ::oGet == Nil .AND. ( ( tmp := hwg_Getfocus() ) == ::oParent:handle .OR. ;
-         ::oParent:FindControl( , tmp ) != Nil )
-      hwg_Setfocus( ::area )
-   ENDIF
-
    ::lAppMode := .F.
 
    RETURN Nil
+
 
 METHOD DrawHeader( hDC, nColumn, x1, y1, x2, y2 ) CLASS HBrowse
 
@@ -1272,22 +1307,29 @@ RETURN Nil
 
 METHOD DoVScroll( wParam ) CLASS HBrowse
 
-   LOCAL nScrollV := hwg_getAdjValue( ::hScrollV )
+   LOCAL nScrollV
 
-   * Parameters not used
-   HB_SYMBOL_UNUSED(wParam)
+   // SAFETY CHECK: Ensure the hardware pointer is valid before querying the GtkAdjustment value
+   IF ::hScrollV == Nil
+      RETURN 0
+   ENDIF
+
+   nScrollV := hwg_getAdjValue( ::hScrollV )
+
+   HB_SYMBOL_UNUSED( wParam )
 
    IF ::lSetAdj
       ::lSetAdj := .F.
       RETURN 0
    ENDIF
+
    IF nScrollV - ::nScrollV == 1
       ::LINEDOWN( .T. )
-   ELSEIF nScrollV - ::nScrollV == - 1 // SB_LINEUP
+   ELSEIF nScrollV - ::nScrollV == - 1
       ::LINEUP( .T. )
-   ELSEIF nScrollV - ::nScrollV == 10  // SB_PAGEDOWN
+   ELSEIF nScrollV - ::nScrollV == 10
       ::PAGEDOWN( .T. )
-   ELSEIF nScrollV - ::nScrollV == - 10 // SB_PAGEUP
+   ELSEIF nScrollV - ::nScrollV == - 10
       ::PAGEUP( .T. )
    ELSE
       IF ::bScrollPos != Nil
@@ -1295,13 +1337,18 @@ METHOD DoVScroll( wParam ) CLASS HBrowse
       ENDIF
    ENDIF
    ::nScrollV := nScrollV
-   // hwg_WriteLog( "DoVScroll " + Ltrim(Str(::nScrollV)) + " " + Ltrim(Str(::nCurrent)) + "( " + Ltrim(Str(::nRecords)) + " )" )
 
    RETURN 0
+
 
 METHOD DoHScroll( wParam ) CLASS HBrowse
 
    LOCAL nScrollH, nLeftCol, colpos
+
+   // SAFETY CHECK: Ensure the hardware pointer is valid before querying the GtkAdjustment value
+   IF ::hScrollH == Nil
+      RETURN 0
+   ENDIF
 
    IF wParam == Nil
       nScrollH := hwg_getAdjValue( ::hScrollH )
@@ -1331,8 +1378,7 @@ METHOD DoHScroll( wParam ) CLASS HBrowse
             colPos := ::colPos
             LineRight( Self, .F. )
          ENDDO
-      ENDIF
-      hwg_Invalidaterect( ::area, 0 )
+      END      hwg_Invalidaterect( ::area, 0 )
    ENDIF
 
    RETURN Nil
@@ -1893,16 +1939,20 @@ METHOD Edit( wParam ) CLASS HBrowse
 
    RETURN Nil
 
-
 METHOD Repaint() CLASS HBrowse
    /*
      only internal usage:
      DF7BE : blank lines repainted, if lost.
      Reference: Bug Ticket #33
    */
+
+   // 1. Maintain the original row rendering safety call (Bug #33 fix)
    ::Refresh()
-   hwg_Setfocus( ::area )
-   RETURN Nil
+
+   // 2. SAFE FOCUS: Replaces hardware hwg_Setfocus() to prevent 100% CPU lock while maintaining navigation focus
+   ::Setfocus()
+
+RETURN Nil
 
 
 STATIC FUNCTION GetEventHandler( oBrw, msg, cod )
