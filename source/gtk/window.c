@@ -24,14 +24,15 @@
 #include "item.api"
 #include <locale.h>
 
-//#if ( GTK_MAJOR_VERSION -0 < 3 )
-#include "gtk/gtk.h"
-//#endif
+#include <gtk/gtk.h>
+#include "hbapi.h"
+#include "hbapilng.h"
+
 #include "gdk/gdkkeysyms.h"
 #ifdef __XHARBOUR__
-#include "hbfast.h"
+   #include "hbfast.h"
 #else
-#include "hbapicls.h"
+   #include "hbapicls.h"
 #endif
 #include "hwgtk.h"
 
@@ -42,11 +43,11 @@
 
 #if ! ( GTK_MAJOR_VERSION -0 < 3 )
 // #include <gtk/gdkx.h>
-#ifndef __PLATFORM__WINDOWS
-#include <gdk/gdk.h>
-#else
-#include <gdk/gdkwin32.h>
-#endif
+   #ifndef __PLATFORM__WINDOWS
+      #include <gdk/gdk.h>
+   #else
+      #include <gdk/gdkwin32.h>
+   #endif
 #endif
 
 #define WM_MOVE                           3
@@ -301,130 +302,133 @@ HB_FUNC( HWG_INITMAINWINDOW )
 }
 
 /*
-  hwg_CreateDlg(nhandle)
-*/
+ *  hwg_CreateDlg(nhandle)
+ */
 
 HB_FUNC( HWG_CREATEDLG )
 {
-   GtkWidget * hWnd;
-   GtkWidget * vbox;
-   GtkFixed  * box;
-#if GTK_MAJOR_VERSION -0 < 3
-   GdkPixmap * background = NULL;
-#else
-   /* GdkPixbuf * background; */
-  GtkWidget * background;
-  GtkStyleContext * context;
-#endif
+      GtkWidget * hWnd;
+      GtkWidget * vbox;
+      GtkFixed  * box;
+      #if GTK_MAJOR_VERSION -0 < 3
+      GdkPixmap * background = NULL;
+      #else
+      /* GdkPixbuf * background; */
+      GtkWidget * background;
+      GtkStyleContext * context;
+      #endif
 
-   GtkStyle * style;
-   PHB_ITEM pObject = hb_param( 1, HB_IT_OBJECT );
-   gchar *gcTitle = hwg_convert_to_utf8 ( hb_itemGetCPtr( GetObjectVar( pObject, "TITLE" ) ) );
-   int x = hb_itemGetNI( GetObjectVar( pObject, "NLEFT" ) );
-   int y = hb_itemGetNI( GetObjectVar( pObject, "NTOP" ) );
-   int width = hb_itemGetNI( GetObjectVar( pObject, "NWIDTH" ) );
-   int height = hb_itemGetNI( GetObjectVar( pObject, "NHEIGHT" ) );
-   //PHB_ITEM pIcon = GetObjectVar( pObject, "OICON" );
-   //PHB_ITEM pBmp = GetObjectVar( pObject, "OBMP" );
-   PHWGUI_PIXBUF szFile = HB_ISPOINTER(2) ? (PHWGUI_PIXBUF) HB_PARHANDLE(2): NULL;
-   PHWGUI_PIXBUF szBackFile = HB_ISPOINTER(3) ? (PHWGUI_PIXBUF) HB_PARHANDLE(3): NULL;
+      GtkStyle * style;
+      PHB_ITEM pObject = hb_param( 1, HB_IT_OBJECT );
+      gchar *gcTitle = hwg_convert_to_utf8 ( hb_itemGetCPtr( GetObjectVar( pObject, "TITLE" ) ) );
+      int x = hb_itemGetNI( GetObjectVar( pObject, "NLEFT" ) );
+      int y = hb_itemGetNI( GetObjectVar( pObject, "NTOP" ) );
+      int width = hb_itemGetNI( GetObjectVar( pObject, "NWIDTH" ) );
+      int height = hb_itemGetNI( GetObjectVar( pObject, "NHEIGHT" ) );
+      //PHB_ITEM pIcon = GetObjectVar( pObject, "OICON" );
+      //PHB_ITEM pBmp = GetObjectVar( pObject, "OBMP" );
+      PHWGUI_PIXBUF szFile = HB_ISPOINTER(2) ? (PHWGUI_PIXBUF) HB_PARHANDLE(2): NULL;
+      PHWGUI_PIXBUF szBackFile = HB_ISPOINTER(3) ? (PHWGUI_PIXBUF) HB_PARHANDLE(3): NULL;
 
-/*
-   if( HB_IS_OBJECT(pIcon) )
-      szFile = (PHWGUI_PIXBUF) hb_itemGetPtr( GetObjectVar(pIcon,"HANDLE") );
-   if( HB_IS_OBJECT(pBmp) )
-      szBackFile = (PHWGUI_PIXBUF) hb_itemGetPtr( GetObjectVar(pBmp,"HANDLE") );
-*/
-   /* Background style*/
-   style = gtk_style_new();
-   if (szBackFile)
-   {
-#if GTK_MAJOR_VERSION -0 < 3
-      /* GTK 2 */
-      gdk_pixbuf_render_pixmap_and_mask(szBackFile->handle, &background, NULL, 0);
-      if ( ! background ) g_error("%s\n","Error loading background image");
-      style->bg_pixmap[0] = background ;
-#endif
-   }
+      /*
+       *   if( HB_IS_OBJECT(pIcon) )
+       *      szFile = (PHWGUI_PIXBUF) hb_itemGetPtr( GetObjectVar(pIcon,"HANDLE") );
+       *   if( HB_IS_OBJECT(pBmp) )
+       *      szBackFile = (PHWGUI_PIXBUF) hb_itemGetPtr( GetObjectVar(pBmp,"HANDLE") );
+       */
+      /* Background style*/
+      style = gtk_style_new();
+      if (szBackFile)
+      {
+            #if GTK_MAJOR_VERSION -0 < 3
+            /* GTK 2 */
+            gdk_pixbuf_render_pixmap_and_mask(szBackFile->handle, &background, NULL, 0);
+            if ( ! background ) g_error("%s\n","Error loading background image");
+            style->bg_pixmap[0] = background ;
+            #endif
+      }
 
-   hWnd = ( GtkWidget * ) gtk_window_new( GTK_WINDOW_TOPLEVEL );
+      hWnd = ( GtkWidget * ) gtk_window_new( GTK_WINDOW_TOPLEVEL );
 
-   /*
-    * VISUAL FIX (GTK2): Match the exact background color used in the application's
-    * bitmap (.bmp) icons to ensure complete visual blending (RGB: 214, 211, 206).
-    */
-   if( hWnd )
-   {
-         GdkColor color;
-         /* Modern Windows Dialog Background (Off-White / White Smoke RGB: 240, 240, 240) */
-         color.red   = 240 * 257;
-         color.green = 240 * 257;
-         color.blue  = 240 * 257;
+      /*
+       * VISUAL FIX (GTK2): Match the exact background color used in the application's
+       * bitmap (.bmp) icons to ensure complete visual blending (RGB: 214, 211, 206).
+       */
+      if( hWnd )
+      {
+            GdkColor color;
+            /* Modern Windows Dialog Background (Off-White / White Smoke RGB: 240, 240, 240) */
+            color.red   = 240 * 257;
+            color.green = 240 * 257;
+            color.blue  = 240 * 257;
 
-         gtk_widget_modify_bg( hWnd, GTK_STATE_NORMAL, &color );
-         gtk_widget_modify_bg( hWnd, GTK_STATE_ACTIVE, &color );
-         gtk_widget_modify_bg( hWnd, GTK_STATE_PRELIGHT, &color );
-         gtk_widget_modify_bg( hWnd, GTK_STATE_SELECTED, &color );
-   }
+            gtk_widget_modify_bg( hWnd, GTK_STATE_NORMAL, &color );
+            gtk_widget_modify_bg( hWnd, GTK_STATE_ACTIVE, &color );
+            gtk_widget_modify_bg( hWnd, GTK_STATE_PRELIGHT, &color );
+            gtk_widget_modify_bg( hWnd, GTK_STATE_SELECTED, &color );
+      }
 
-#if ! ( GTK_MAJOR_VERSION -0 < 3 )
-  /* GTK 3 */
-  background = gtk_image_new_from_pixbuf( szBackFile->handle );
-  /* To be contiued
-  if ( background )
-     gdk_window_set_back_pixmap( GDK_WINDOW (hWnd), background, (gboolean) TRUE);
-  */
-#endif
+      #if ! ( GTK_MAJOR_VERSION -0 < 3 )
+      /* GTK 3 */
+      background = gtk_image_new_from_pixbuf( szBackFile->handle );
+      /* To be contiued
+       *  if ( background )
+       *     gdk_window_set_back_pixmap( GDK_WINDOW (hWnd), background, (gboolean) TRUE);
+       */
+      #endif
 
-   if (szFile)
-   {
-      gtk_window_set_icon(GTK_WINDOW(hWnd), szFile->handle  );
-   }
+      if (szFile)
+      {
+            gtk_window_set_icon(GTK_WINDOW(hWnd), szFile->handle  );
+      }
 
-   gtk_window_set_title( GTK_WINDOW(hWnd), gcTitle );
-   g_free( gcTitle );
-   //gtk_window_set_policy( GTK_WINDOW(hWnd), TRUE, TRUE, FALSE );
-   gtk_window_set_resizable( GTK_WINDOW(hWnd), TRUE);
-   gtk_window_set_default_size( GTK_WINDOW(hWnd), width, height );
-   gtk_window_move( GTK_WINDOW(hWnd), x, y );
+      gtk_window_set_title( GTK_WINDOW(hWnd), gcTitle );
+      g_free( gcTitle );
+      //gtk_window_set_policy( GTK_WINDOW(hWnd), TRUE, TRUE, FALSE );
+      gtk_window_set_resizable( GTK_WINDOW(hWnd), TRUE);
+      gtk_window_set_default_size( GTK_WINDOW(hWnd), width, height );
+      gtk_window_move( GTK_WINDOW(hWnd), x, y );
 
-   vbox = gtk_vbox_new (FALSE, 0);
-   gtk_container_add (GTK_CONTAINER(hWnd), vbox);
+      vbox = gtk_vbox_new (FALSE, 0);
+      gtk_container_add (GTK_CONTAINER(hWnd), vbox);
 
-   box = (GtkFixed*)gtk_fixed_new();
-   gtk_box_pack_start( GTK_BOX(vbox), (GtkWidget*)box, TRUE, TRUE, 0 );
+      box = (GtkFixed*)gtk_fixed_new();
+      gtk_box_pack_start( GTK_BOX(vbox), (GtkWidget*)box, TRUE, TRUE, 0 );
 
-   g_object_set_data( ( GObject * ) hWnd, "window", ( gpointer ) 1 );
-   SetWindowObject( hWnd, pObject );
-   g_object_set_data( (GObject*) hWnd, "vbox", (gpointer) vbox );
-   g_object_set_data( (GObject*) hWnd, "fbox", (gpointer) box );
+      g_object_set_data( ( GObject * ) hWnd, "window", ( gpointer ) 1 );
+      SetWindowObject( hWnd, pObject );
+      g_object_set_data( (GObject*) hWnd, "vbox", (gpointer) vbox );
+      g_object_set_data( (GObject*) hWnd, "fbox", (gpointer) box );
 
-   gtk_widget_add_events( hWnd, GDK_BUTTON_PRESS_MASK |
-         GDK_BUTTON_RELEASE_MASK |
-         GDK_POINTER_MOTION_MASK | GDK_FOCUS_CHANGE_MASK );
-   set_event( ( gpointer ) hWnd, "button_press_event", 0, 0, 0 );
-   set_event( ( gpointer ) hWnd, "button_release_event", 0, 0, 0 );
-   set_event( ( gpointer ) hWnd, "motion_notify_event", 0, 0, 0 );
+      /* ADDED: GDK_EXPOSURE_MASK added to event list to allow paint rendering detection */
+      gtk_widget_add_events( hWnd, GDK_BUTTON_PRESS_MASK |
+      GDK_BUTTON_RELEASE_MASK |
+      GDK_POINTER_MOTION_MASK | GDK_FOCUS_CHANGE_MASK | GDK_EXPOSURE_MASK );
 
-   g_signal_connect (G_OBJECT (hWnd), "delete-event",
-      G_CALLBACK (cb_delete_event), NULL );
+      set_event( ( gpointer ) hWnd, "button_press_event", 0, 0, 0 );
+      set_event( ( gpointer ) hWnd, "button_release_event", 0, 0, 0 );
+      set_event( ( gpointer ) hWnd, "motion_notify_event", 0, 0, 0 );
 
-   set_event( (gpointer)hWnd, "configure_event", 0, 0, 0 );
-   set_event( (gpointer)hWnd, "focus_in_event", 0, 0, 0 );
-   set_event( ( gpointer )hWnd, "focus_out_event", 0, 0, 0 );
+      g_signal_connect (G_OBJECT (hWnd), "delete-event",
+                        G_CALLBACK (cb_delete_event), NULL );
 
-   g_signal_connect( box, "size-allocate", G_CALLBACK (cb_signal_size), NULL );
-   //g_signal_connect( hWnd, "size-allocate", G_CALLBACK (cb_signal_size), NULL );
+      set_event( (gpointer)hWnd, "configure_event", 0, 0, 0 );
+      set_event( (gpointer)hWnd, "focus_in_event", 0, 0, 0 );
+      set_event( ( gpointer )hWnd, "focus_out_event", 0, 0, 0 );
 
-   /* Set Background */
-   if (szBackFile)
-   {
-     gtk_widget_set_style(GTK_WIDGET(hWnd), GTK_STYLE(style) );
-   }
+      /* ADDED: Bind the expose event to the HwGUI core signal route dispatcher */
+      set_event( ( gpointer )hWnd, "expose_event", 0, 0, 0 );
 
+      g_signal_connect( box, "size-allocate", G_CALLBACK (cb_signal_size), NULL );
+      //g_signal_connect( hWnd, "size-allocate", G_CALLBACK (cb_signal_size), NULL );
 
-   HB_RETHANDLE( hWnd );
+      /* Set Background */
+      if (szBackFile)
+      {
+            gtk_widget_set_style(GTK_WIDGET(hWnd), GTK_STYLE(style) );
+      }
 
+      HB_RETHANDLE( hWnd );
 }
 
 /*
@@ -1253,13 +1257,13 @@ HB_FUNC( HWG__ISUNICODE )
 {
 /* Windows */
 #if defined(_WIN32) || defined(_WIN64) || defined(__MINGW32__) || defined(__MINGW64__)
-#ifdef UNICODE
-   hb_retl( 1 );
+   #ifdef UNICODE
+      hb_retl( 1 );
+   #else
+      hb_retl( 0 );
+   #endif
 #else
-   hb_retl( 0 );
-#endif
-#else
-/* *NIX */
+   /* *NIX */
    hb_retl( 1 );
 #endif
 }
@@ -1291,6 +1295,34 @@ gtk_window_deiconify(  (GtkWindow*) (HB_PARHANDLE(1) ) );
 HB_FUNC( HWG_ICONIFY )   /* minimize */
 {
 gtk_window_iconify(  (GtkWindow*) (HB_PARHANDLE(1) ) );
+}
+
+
+HB_FUNC( HWG_PAINTWINDOW )
+{
+      GtkWidget * widget = ( GtkWidget * ) hb_parptr( 1 );
+
+      if( widget && gtk_widget_get_realized( widget ) )
+      {
+            GdkWindow * gdk_window = gtk_widget_get_window( widget );
+
+            if( gdk_window )
+            {
+                  GdkRegion * region = gdk_window_get_update_area( gdk_window );
+
+                  if ( region )
+                  {
+                        gdk_window_begin_paint_region( gdk_window, region );
+                        gdk_window_clear( gdk_window );
+                        gdk_window_end_paint( gdk_window );
+                        gdk_region_destroy( region );
+                  }
+                  else
+                  {
+                        gdk_window_clear( gdk_window );
+                  }
+            }
+      }
 }
 
 /*

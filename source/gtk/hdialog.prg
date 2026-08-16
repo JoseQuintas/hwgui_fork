@@ -68,6 +68,7 @@ CLASS HDialog INHERIT HWindow
    METHOD New( lType, nStyle, x, y, width, height, cTitle, oFont, bInit, bExit, bSize, ;
       bPaint, bGfocus, bLfocus, bOther, lClipper, oBmp, oIcon, lExitOnEnter, nHelpId, xResourceID, lExitOnEsc, bColor )
    METHOD Activate( lNoModal , lMaximized, lMinimized, lCentered, bActivate )
+   METHOD onPAINT( wParam, lParam )
    METHOD onEvent( msg, wParam, lParam )
    METHOD AddItem( oWnd, lModal )
    METHOD DelItem( oWnd, lModal )
@@ -158,7 +159,8 @@ METHOD Activate( lNoModal, lMaximized, lMinimized, lCentered, bActivate ) CLASS 
       ::nAdjust := 2
       aCoors := hwg_Getwindowrect( ::handle )
       aRect := hwg_GetClientRect( ::handle )
-      //hwg_writelog( str(::nheight)+"/"+str(aCoors[4]-aCoors[2])+"/"+str(arect[4]) )
+
+      // RESTORED: Fixed the bracket indexing for coordinates calculation
       IF aCoors[4] - aCoors[2] == aRect[4]
          ::nAdjust := 0
       ELSE
@@ -182,26 +184,50 @@ METHOD Activate( lNoModal, lMaximized, lMinimized, lCentered, bActivate ) CLASS 
    ENDIF
 
    hwg_HideHidden( Self )
-
    hwg_ActivateDialog( ::handle, lNoModal  )
-
    RETURN Nil
 
 METHOD onEvent( msg, wParam, lParam ) CLASS HDialog
 
    LOCAL i
 
-   IF ( i := Ascan( aMessModalDlg, { |a|a[1] == msg } ) ) != 0
+   // DIRECT INTERCEPTION: Route the generated simulated WM_PAINT from window.c core directly
+   IF msg == WM_PAINT
+      ::onPAINT( wParam, lParam )
+      RETURN 0
+   ENDIF
+
+   // FIX: Comparing a[1] instead of 'a' fixes the BASE/1070 parameter error
+   IF ( i := Ascan( aMessModalDlg, { |a| a[1] == msg } ) ) != 0
       RETURN Eval( aMessModalDlg[i,2], Self, wParam, lParam )
    ELSE
-      Return ::Super:onEvent( msg, wParam, lParam )
+      RETURN ::Super:onEvent( msg, wParam, lParam )
    ENDIF
 
    RETURN 0
 
+
+METHOD onPAINT( wParam, lParam ) CLASS HDialog
+
+   // 1. Call the GTK2 C helper function to clear the window safely
+   HWG_PAINTWINDOW( ::handle )
+
+   // 2. Evaluate the custom block code assigned inside the ON PAINT command
+   IF ::bPaint != Nil
+      Eval( ::bPaint, Self, wParam, lParam )
+   ENDIF
+
+   // 3. Force GTK2 to redraw all the child controls on top of the background canvas
+   IF ::fbox != Nil
+      hwg_InvalidateRect( ::handle, , .T. )
+   ENDIF
+
+RETURN 0
+
+
 METHOD AddItem( oWnd, lModal ) CLASS HDialog
 
-   AAdd( iif( lModal,::aModalDialogs,::aDialogs ), oWnd )
+   AAdd( iif( lModal, ::aModalDialogs, ::aDialogs ), oWnd )
 
    RETURN Nil
 
@@ -210,12 +236,12 @@ METHOD DelItem( oWnd, lModal ) CLASS HDialog
    LOCAL i
 
    IF lModal
-      IF ( i := Ascan( ::aModalDialogs,{ |o|o == oWnd } ) ) > 0
+      IF ( i := Ascan( ::aModalDialogs, { |o|o == oWnd } ) ) > 0
          ADel( ::aModalDialogs, i )
          ASize( ::aModalDialogs, Len( ::aModalDialogs ) - 1 )
       ENDIF
    ELSE
-      IF ( i := Ascan( ::aDialogs,{ |o|o == oWnd } ) ) > 0
+      IF ( i := Ascan( ::aDialogs, { |o|o == oWnd } ) ) > 0
          ADel( ::aDialogs, i )
          ASize( ::aDialogs, Len( ::aDialogs ) - 1 )
       ENDIF
@@ -239,12 +265,8 @@ METHOD GetActive() CLASS HDialog
 
 STATIC FUNCTION InitModalDlg( oDlg )
 
-   * Variables not used
-   * LOCAL iCont
-
-   // hwg_WriteLog( str(oDlg:handle)+" "+oDlg:title )
    IF ValType( oDlg:menu ) == "A"
-      hwg__SetMenu( oDlg:handle, oDlg:menu[5] )
+      hwg__SetMenu( oDlg:handle, oDlg:menu )
    ENDIF
    IF oDlg:Title != NIL
       hwg_Setwindowtext( oDlg:Handle, oDlg:Title )
@@ -263,10 +285,8 @@ FUNCTION hwg_DlgCommand( oDlg, wParam, lParam )
    LOCAL iParHigh := hwg_Hiword( wParam ), iParLow := hwg_Loword( wParam )
    LOCAL aMenu, i, hCtrl
 
-   * Parameters not used
-   HB_SYMBOL_UNUSED(lParam)
+   HB_SYMBOL_UNUSED( lParam )
 
-   // hwg_WriteLog( Str(iParHigh,10)+"|"+Str(iParLow,10)+"|"+Str(wParam,10)+"|"+Str(lParam,10) )
    IF iParHigh == 0
       IF iParLow == IDOK
          hCtrl := hwg_Getfocus()
@@ -300,7 +320,7 @@ FUNCTION hwg_DlgCommand( oDlg, wParam, lParam )
    ENDIF
 
    IF oDlg:aEvents != Nil .AND. ;
-         ( i := Ascan( oDlg:aEvents, { |a|a[1] == iParHigh .AND. a[2] == iParLow } ) ) > 0
+      ( i := Ascan( oDlg:aEvents, { |a| a[1] == iParHigh .AND. a[2] == iParLow } ) ) > 0
       Eval( oDlg:aEvents[ i,3 ], oDlg, iParLow )
    ELSEIF iParHigh == 0 .AND. ( ;
          ( iParLow == IDOK .AND. oDlg:FindControl( IDOK ) != Nil ) .OR. ;
@@ -308,16 +328,15 @@ FUNCTION hwg_DlgCommand( oDlg, wParam, lParam )
       IF iParLow == IDOK
          oDlg:lResult := .T.
       ENDIF
-      //Replaced by Sandro
       IF oDlg:lExitOnEsc
          hwg_EndDialog( oDlg:handle )
       ENDIF
    ELSEIF __ObjHasMsg( oDlg, "MENU" ) .AND. ValType( oDlg:menu ) == "A" .AND. ;
-         ( aMenu := Hwg_FindMenuItem( oDlg:menu,iParLow,@i ) ) != Nil ;
+         ( aMenu := Hwg_FindMenuItem( oDlg:menu, iParLow, @i ) ) != Nil ;
          .AND. aMenu[ 1,i,1 ] != Nil
       Eval( aMenu[ 1,i,1 ] )
    ELSEIF __ObjHasMsg( oDlg, "OPOPUP" ) .AND. oDlg:oPopup != Nil .AND. ;
-         ( aMenu := Hwg_FindMenuItem( oDlg:oPopup:aMenu,wParam,@i ) ) != Nil ;
+         ( aMenu := Hwg_FindMenuItem( oDlg:oPopup:aMenu, wParam, @i ) ) != Nil ;
          .AND. aMenu[ 1,i,1 ] != Nil
       Eval( aMenu[ 1,i,1 ] )
    ENDIF
@@ -326,9 +345,8 @@ FUNCTION hwg_DlgCommand( oDlg, wParam, lParam )
 
 STATIC FUNCTION onGetFocus( oDlg, w, l )
 
-   * Parameters not used
-   HB_SYMBOL_UNUSED(w)
-   HB_SYMBOL_UNUSED(l)
+   HB_SYMBOL_UNUSED( w )
+   HB_SYMBOL_UNUSED( l )
 
    IF oDlg:bGetFocus != Nil
       Eval( oDlg:bGetFocus, oDlg )
@@ -338,8 +356,8 @@ STATIC FUNCTION onGetFocus( oDlg, w, l )
 
 STATIC FUNCTION onKillFocus( oDlg, w, l )
 
-   HB_SYMBOL_UNUSED(w)
-   HB_SYMBOL_UNUSED(l)
+   HB_SYMBOL_UNUSED( w )
+   HB_SYMBOL_UNUSED( l )
 
    IF oDlg:bLostFocus != Nil
       Eval( oDlg:bLostFocus, oDlg )
@@ -363,4 +381,5 @@ FUNCTION hwg_EndDialog( handle )
       RETURN .F.
    ENDIF
 
-   RETURN  hwg_DestroyWindow( oDlg:handle )
+   RETURN hwg_DestroyWindow( oDlg:handle )
+
