@@ -453,7 +453,7 @@ HB_FUNC( HWG_ACTIVATEMAINWINDOW )
    gtk_main();
 }
 
-/* Helper callback to force window centering on the very first idle cycle of gtk_main */
+/* Helper callback to apply structural enhancements and grabs on the first idle cycle */
 static gboolean gtk_shared_force_center_on_idle( gpointer data )
 {
       GtkWidget *widget = GTK_WIDGET( data );
@@ -476,6 +476,17 @@ static gboolean gtk_shared_force_center_on_idle( gpointer data )
 
             /* Lock absolute mid-screen placement inside the active window manager */
             gtk_window_move( GTK_WINDOW( widget ), nLeft, nTop );
+
+            /*
+             * 🐧 CRITICAL MODAL GRAB INJECTION (REVISION 3852 FIX):
+             * Activating the application grab on idle ensures it triggers AFTER the Browse
+             * infrastructure (from control.c) completes its deferred size allocation.
+             * This captures all hardware pointer inputs and completely freezes the background GtkMenuBar.
+             */
+            if ( gtk_window_get_modal( GTK_WINDOW( widget ) ) )
+            {
+                  gtk_grab_add( widget );
+            }
       }
       return FALSE; /* FALSE ensures the callback executes only once and unregisters automatically */
 }
@@ -483,6 +494,11 @@ static gboolean gtk_shared_force_center_on_idle( gpointer data )
 HB_FUNC( HWG_ACTIVATEDIALOG )
 {
       GtkWidget *widget = (GtkWidget*) HB_PARHANDLE(1);
+      /*
+       * Parameter 2: lNoModal (boolean)
+       * Parameter 3: Parent window handle (added to pass the transient stacking hierarchy)
+       */
+      GtkWindow *parent = ( HB_ISPOINTER(3) || HB_ISNUM(3) ) ? (GtkWindow*) HB_PARHANDLE(3) : NULL;
 
       /*
        * CORE FIX FOR GTK2 GLOBAL INPUT GRAB DEADLOCKS (0% CPU)
@@ -513,10 +529,22 @@ HB_FUNC( HWG_ACTIVATEDIALOG )
       if( HB_ISNIL(2) || !hb_parl(2) )
       {
             /*
-             * 🐧 LATENT CENTERING INJECTION (GTK2): Queue a high-priority idle callback.
-             * This intercepts the exact millisecond the nested gtk_main() fires up and the KWin
-             * environment computes final container constraints with the Browse attached,
-             * overriding asynchronous geometry shifts and securing a perfect center layout.
+             * NATIVE MODAL ENFORCEMENT & TRANSIENT LINKAGE (GTK2):
+             * Establish window hierarchy chain and modal metadata before launching the loop.
+             */
+            if ( widget && GTK_IS_WINDOW( widget ) )
+            {
+                  gtk_window_set_modal( GTK_WINDOW( widget ), TRUE );
+
+                  if ( parent && GTK_IS_WINDOW( parent ) )
+                  {
+                        gtk_window_set_transient_for( GTK_WINDOW( widget ), parent );
+                  }
+            }
+
+            /*
+             * 🐧 LATENT CENTERING & GRAB INJECTION (GTK2): Queue a high-priority idle callback.
+             * This intercepts the exact millisecond the nested gtk_main() fires up.
              */
             if ( widget && GTK_IS_WINDOW( widget ) )
             {
@@ -527,10 +555,14 @@ HB_FUNC( HWG_ACTIVATEDIALOG )
             gtk_main();
 
             /*
-             * RE-ENTRANCY SAFEGUARD:
-             * After the modal dialog closes, force GLib to process outstanding cleanups.
-             * This prevents the background GET from entering an infinite focus-out loop.
+             * RE-ENTRANCY SAFEGUARD & GRAB RELEASE:
+             * Release the structural application grab when leaving the nested loop.
              */
+            if ( widget && GTK_IS_WIDGET( widget ) )
+            {
+                  gtk_grab_remove( widget );
+            }
+
             #if GTK_MAJOR_VERSION -0 < 3
             while ( gtk_events_pending() ) {
                   gtk_main_iteration();
@@ -538,6 +570,8 @@ HB_FUNC( HWG_ACTIVATEDIALOG )
             #endif
       }
 }
+
+
 
 void ProcessMessage( void )
 {

@@ -15,6 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-17 21:58 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+    * source/gtk/window.c: Updated HB_FUNC( HWG_ACTIVATEDIALOG ) to
+      receive and process the parent window handle parameter. Fixed
+      native GTK2 window modal and transient stacking layout chain by
+      applying gtk_window_set_modal() and gtk_window_set_transient_for().
+      Deferred the application input lock (gtk_grab_add) to the high-priority
+      idle cycle callback (gtk_shared_force_center_on_idle) to secure full
+      GtkMenuBar / background menus lockout right AFTER the asynchronous
+      Browse geometry allocation (introduced in r3852) completes its
+      lifecycle layout mapping. Ensured proper input recovery by calling
+      gtk_grab_remove() immediately upon nested gtk_main() termination.
+
 2026-08-16 16:58 UTC-0300 Itamar Lins <itamarlins at gmail.com>
    * source/gtk/window.c:
      (HWG_ACTIVATEDIALOG): Injected a high-priority idle callback via g_idle_add_full
