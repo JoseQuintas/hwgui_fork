@@ -14,7 +14,8 @@
  "oldlogs".
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-2026-08-20 21:58 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+
+2026-08-20 02:58 UTC-0300 Itamar Lins <itamarlins at gmail.com>
    Win64 Portability & Memory Alignment Fixes
    * source/winapi/dialog.c:
      - Fixed critical 32-bit pointer truncation in s_lpwAlign() by replacing
