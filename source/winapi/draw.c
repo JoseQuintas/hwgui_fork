@@ -199,7 +199,7 @@ HB_FUNC( HWG_GETPPSRECT )
 HB_FUNC( HWG_GETPPSERASE )
 {
    PAINTSTRUCT *pps = ( PAINTSTRUCT * ) HB_PARHANDLE( 1 );
-   BOOL fErase = ( BOOL ) ( &pps->fErase );
+   BOOL fErase = ( BOOL ) ( pps->fErase );
    hb_retni( fErase );
 }
 
@@ -657,7 +657,7 @@ HB_FUNC( HWG_FILLRECT )
    rc.bottom = hb_parni( 5 );
 
    FillRect( ( HDC ) HB_PARHANDLE( 1 ), &rc,
-         HB_ISPOINTER( 6 ) ? ( HBRUSH )HB_PARHANDLE( 6 ) : ( HBRUSH )hb_parnl(6) );
+         HB_ISPOINTER( 6 ) ? ( HBRUSH )HB_PARHANDLE( 6 ) : ( HBRUSH )hb_parptr(6) );
 }
 
 /*
@@ -737,25 +737,21 @@ HB_FUNC( HWG_DRAWBUTTON )
    else
    {
       FillRect( hDC, &rc,
-            ( HBRUSH ) ( ( ( iType & 2 ) ? COLOR_3DSHADOW : COLOR_3DHILIGHT )
-                  + 1 ) );
+            ( HBRUSH ) ( INT_PTR ) ( ( ( iType & 2 ) ? COLOR_3DSHADOW : COLOR_3DHILIGHT ) + 1 ) );
       rc.left++;
       rc.top++;
       FillRect( hDC, &rc,
-            ( HBRUSH ) ( ( ( iType & 2 ) ? COLOR_3DHILIGHT : ( iType & 4 ) ?
-                        COLOR_3DDKSHADOW : COLOR_3DSHADOW ) + 1 ) );
+            ( HBRUSH ) ( INT_PTR ) ( ( ( iType & 2 ) ? COLOR_3DSHADOW : COLOR_3DHILIGHT ) + 1 ) );
       rc.right--;
       rc.bottom--;
       if( iType & 4 )
       {
          FillRect( hDC, &rc,
-               ( HBRUSH ) ( ( ( iType & 2 ) ? COLOR_3DSHADOW : COLOR_3DLIGHT )
-                     + 1 ) );
+               ( HBRUSH ) ( INT_PTR ) ( ( ( iType & 2 ) ? COLOR_3DSHADOW : COLOR_3DHILIGHT ) + 1 ) );
          rc.left++;
          rc.top++;
          FillRect( hDC, &rc,
-               ( HBRUSH ) ( ( ( iType & 2 ) ? COLOR_3DLIGHT : COLOR_3DSHADOW )
-                     + 1 ) );
+               ( HBRUSH ) ( INT_PTR ) ( ( ( iType & 2 ) ? COLOR_3DSHADOW : COLOR_3DHILIGHT ) + 1 ) );
          rc.right--;
          rc.bottom--;
       }
@@ -809,7 +805,7 @@ HB_FUNC( HWG_LOADIMAGE )
 {
    void *hString = NULL;
 
-   HB_RETHANDLE( LoadImage( HB_ISNIL( 1 ) ? GetModuleHandle( NULL ) : ( HINSTANCE ) hb_parnl( 1 ),      // handle of the instance that contains the image
+   HB_RETHANDLE( LoadImage( HB_ISNIL( 1 ) ? GetModuleHandle( NULL ) : ( HINSTANCE ) hb_parptr( 1 ),      // handle of the instance that contains the image
                HB_ISNUM( 2 ) ? MAKEINTRESOURCE( hb_parni( 2 ) ) : HB_PARSTR( 2, &hString, NULL ),       // name or identifier of image
                ( UINT ) hb_parni( 3 ),  // type of image
                hb_parni( 4 ),   // desired width
@@ -1160,7 +1156,7 @@ HB_FUNC( HWG_OPENBITMAP )
          FILE_SHARE_READ, ( LPSECURITY_ATTRIBUTES ) NULL, OPEN_EXISTING,
          FILE_ATTRIBUTE_READONLY, ( HANDLE ) NULL );
    hb_strfree( hString );
-   if( ( ( long int ) hfbm ) <= 0 )
+   if( ( ( LONG_PTR ) hfbm ) <= 0 )
    {
       HB_RETHANDLE( NULL );
       return;
@@ -1403,8 +1399,8 @@ HB_FUNC( HWG_GETDC )
 
 HB_FUNC( HWG_RELEASEDC )
 {
-   HB_RETHANDLE( ReleaseDC( ( HWND ) HB_PARHANDLE( 1 ),
-               ( HDC ) HB_PARHANDLE( 2 ) ) );
+   hb_retl( ReleaseDC( ( HWND ) HB_PARHANDLE( 1 ),
+                       ( HDC ) HB_PARHANDLE( 2 ) ) != 0 );
 }
 
 HB_FUNC( HWG_GETDRAWITEMINFO )
@@ -1442,7 +1438,7 @@ HB_FUNC( HWG_GETDRAWITEMINFO )
    hb_itemArrayPut( aMetr, 7, temp );
    hb_itemRelease( temp );
 
-   temp = hb_itemPutNL( NULL, ( LONG ) lpdis->hwndItem );
+   temp = hb_itemPutPtr( NULL, lpdis->hwndItem );
    hb_itemArrayPut( aMetr, 8, temp );
    hb_itemRelease( temp );
 
