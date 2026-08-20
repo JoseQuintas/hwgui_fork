@@ -70,7 +70,7 @@ HB_FUNC( HWG_SETDLGRESULT )
 
 HB_FUNC( HWG_SETCAPTURE )
 {
-   hb_retnl( ( LONG ) SetCapture( ( HWND ) HB_PARHANDLE( 1 ) ) );
+   HB_RETHANDLE( SetCapture( ( HWND ) HB_PARHANDLE( 1 ) ) );
 }
 
 HB_FUNC( HWG_RELEASECAPTURE )
@@ -114,7 +114,7 @@ HB_FUNC( HWG_COPYSTRINGTOCLIPBOARD )
 
 HB_FUNC( HWG_GETCLIPBOARDTEXT )
 {
-   HWND hWnd = ( HWND ) hb_parnl( 1 );
+   HWND hWnd = ( HWND ) hb_parptr( 1 );
    LPTSTR lpText = NULL;
 
    if( OpenClipboard( hWnd ) )
@@ -504,7 +504,7 @@ HB_FUNC( HWG_GETWORKAREA )
 
 HB_FUNC( HWG_GETHELPDATA )
 {
-   HB_RETHANDLE( ( LONG ) ( ( ( HELPINFO FAR * ) HB_PARHANDLE( 1 ) )->hItemHandle ) );
+   HB_RETHANDLE( ( ( HELPINFO FAR * ) HB_PARHANDLE( 1 ) )->hItemHandle );
 }
 
 HB_FUNC( HWG_WINHELP )
@@ -786,7 +786,7 @@ HB_FUNC( HWG_HEDITEX_CTLCOLOR )
 
    if( !pObject )
    {
-      hb_retnl( ( LONG ) GetStockObject( HOLLOW_BRUSH ) );
+      HB_RETHANDLE( GetStockObject( HOLLOW_BRUSH ) );
       SetBkMode( hdc, TRANSPARENT );
       return;
    }

@@ -155,7 +155,7 @@ HB_FUNC( HWG_SHELLEXECUTE )
    if( lpDirectory == NULL )
       lpDirectory = TEXT( "C:\\" );
 
-   hb_retnl( ( LONG ) ShellExecute( GetActiveWindow(  ),
+   HB_RETHANDLE( ShellExecute( GetActiveWindow(  ),
                HB_PARSTRDEF( 2, &hOperation, NULL ),
                HB_PARSTR( 1, &hFile, NULL ),
                HB_PARSTR( 3, &hParameters, NULL ),

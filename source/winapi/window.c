@@ -119,7 +119,7 @@ HB_FUNC( HWG_INITMAINWINDOW )
       wndclass.hbrBackground = ( hb_pcount(  ) > 5 && !HB_ISNIL( 6 ) ) ?
             ( ( hb_parnl( 6 ) == -1 ) ? ( HBRUSH ) NULL :
             ( HB_ISPOINTER( 6 )? ( HBRUSH ) HB_PARHANDLE( 6 ) :
-            ( HBRUSH ) hb_parnl( 6 ) ) ) : ( HBRUSH ) ( COLOR_WINDOW + 1 );
+            ( HBRUSH ) hb_parptr( 6 ) ) ) : ( HBRUSH ) ( COLOR_WINDOW + 1 );
       wndclass.lpszMenuName = lpMenu;
       wndclass.lpszClassName = lpAppName;
 
@@ -698,7 +698,7 @@ HB_FUNC( HWG_GETACTIVEWINDOW )
 
 HB_FUNC( HWG_GETINSTANCE )
 {
-   hb_retnl( ( LONG ) GetModuleHandle( NULL ) );
+   HB_RETHANDLE( GetModuleHandle( NULL ) );
 }
 
 HB_FUNC( HWG_SETWINDOWSTYLE )

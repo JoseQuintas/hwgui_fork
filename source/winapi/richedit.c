@@ -517,7 +517,7 @@ HB_FUNC( HWG_SAVERICHEDIT )
       hb_retni( 0 );
       return;
    }
-   es.dwCookie = ( DWORD ) hFile;
+   es.dwCookie = ( DWORD_PTR ) hFile;
    es.pfnCallback = RichStreamOutCallback;
 
    SendMessage( hWnd, EM_STREAMOUT, ( WPARAM ) SF_RTF, ( LPARAM ) & es );

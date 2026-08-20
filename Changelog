@@ -14,6 +14,27 @@
  "oldlogs".
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+2026-08-20 21:58 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+   Win64 Portability & Memory Alignment Fixes
+   * source/winapi/dialog.c:
+     - Fixed critical 32-bit pointer truncation in s_lpwAlign() by replacing
+       legacy ULONG/ULONGLONG compiler-conditional guards with ULONG_PTR,
+       preventing C0000005 ACCESS_VIOLATION crashes under Win64 Clang environments.
+     - Upgraded dialog callback procedure signatures (s_ModalDlgProc, s_DlgProc,
+       s_PSPProc, s_PSPProcRelease) from LRESULT to INT_PTR to maintain stack
+       frame integrity on 64-bit systems.
+     - Fixed variable truncation for Harbour engine event handling by migrating
+       from 'long int' / hb_parnl() to LONG_PTR / hb_parnll().
+     - Refactored dynamic template handling in HWG_DLGBOXINDIRECT to utilize
+       explicit 64-bit casting and direct instance binding via GetModuleHandle(NULL).
+   * source/winapi/animat.c, draw.c, freeimg.c, misc.c, nice.c, resource.c, richedit.c, shellapi.c, window.c, wprint.c:
+     - Fixed widespread -Wint-to-pointer-cast and -Wpointer-to-int-cast warnings.
+     - Migrated API pointer/handle extractions from hb_parnl() to hb_parptr() or
+       HB_PARHANDLE() macros.
+     - Updated Windows API data mappings (e.g., EDITSTREAM.dwCookie mapped to
+       DWORD_PTR instead of DWORD).
+     - Fixed return macros by substituting invalid HB_RETHANDLE() usages on
+       pure logical indicators (e.g., ReleaseDC, DeleteEnhMetaFile) with hb_retl().
 
 2026-08-17 21:58 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source/gtk/window.c: Updated HB_FUNC( HWG_ACTIVATEDIALOG ) to
