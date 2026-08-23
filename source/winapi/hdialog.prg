@@ -168,12 +168,15 @@ METHOD Activate( lNoModal, lMaximized, lMinimized, lCentered, bActivate ) CLASS 
          ::AddItem()
          Hwg_CreateDialog( hParent, Self )
       ENDIF
-
    ELSEIF ::type == WND_DLG_NORESOURCE
       IF lNoModal == Nil .OR. !lNoModal
          ::lModal := .T.
          ::AddItem()
          Hwg_DlgBoxIndirect( hParent, Self, ::nLeft, ::nTop, ::nWidth, ::nHeight, ::style )
+         IF Empty( ::handle )                 // a janela nunca chegou a existir
+            ::DelItem()                       // remove o órfão da pilha AGORA, não deixa propagar
+            RETURN Nil
+         ENDIF
       ELSE
          ::lModal  := .F.
          ::handle  := 0
@@ -261,8 +264,14 @@ METHOD DelItem() CLASS HDialog
 
 METHOD FindDialog( hWnd ) CLASS HDialog
 
-   LOCAL i := Ascan( ::aDialogs, { |o|hwg_Isptreq( o:handle, hWnd ) } )
+   LOCAL i
 
+   i := Ascan( ::aModalDialogs, { |o|hwg_Isptreq( o:handle, hWnd ) } )
+   IF i > 0
+      RETURN ::aModalDialogs[i]
+   ENDIF
+
+   i := Ascan( ::aDialogs, { |o|hwg_Isptreq( o:handle, hWnd ) } )
    RETURN Iif( i == 0, Nil, ::aDialogs[i] )
 
 METHOD GetActive() CLASS HDialog
@@ -562,6 +571,9 @@ FUNCTION hwg_EndDialog( handle )
    IF oDlg:bDestroy != Nil
       lRes := Eval( oDlg:bDestroy, oDlg )
       IF Valtype( lRes ) != "L" .OR. lRes
+         //IF Empty( oDlg:handle )
+         //   RETURN Nil
+         //ENDIF
          RETURN Iif( oDlg:lModal, Hwg__EndDialog( oDlg:handle ), hwg_Destroywindow( oDlg:handle ) )
       ELSE
          RETURN Nil
