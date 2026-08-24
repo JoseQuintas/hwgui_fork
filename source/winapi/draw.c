@@ -1139,35 +1139,40 @@ HB_FUNC( HWG_CENTERBITMAP )
       DeleteDC( hDCmem );
 }
 
+/*
+ * hwg_GetBitmapSize( hBitmap )
+ */
 HB_FUNC( HWG_GETBITMAPSIZE )
 {
-   BITMAP bitmap;
-   PHB_ITEM aMetr = hb_itemArrayNew( 4 );
-   PHB_ITEM temp;
-   int nret;
+      BITMAP bitmap;
+      PHB_ITEM aMetr = hb_itemArrayNew( 4 );
+      PHB_ITEM temp = hb_itemNew( NULL ); // Allocate a single item container safely
+      int nret;
 
-   nret = GetObject( ( HBITMAP ) HB_PARHANDLE( 1 ), sizeof( BITMAP ),
-         ( LPVOID ) & bitmap );
+      // Initialize structure fields to zero in case GetObject fails
+      memset( &bitmap, 0, sizeof( BITMAP ) );
 
-   temp = hb_itemPutNL( NULL, bitmap.bmWidth );
-   hb_itemArrayPut( aMetr, 1, temp );
-   hb_itemRelease( temp );
+      nret = GetObject( ( HBITMAP ) HB_PARHANDLE( 1 ), sizeof( BITMAP ),
+                        ( LPVOID ) & bitmap );
 
-   temp = hb_itemPutNL( NULL, bitmap.bmHeight );
-   hb_itemArrayPut( aMetr, 2, temp );
-   hb_itemRelease( temp );
+      // Safely populate array elements using a single item container reference
+      hb_itemPutNL( temp, bitmap.bmWidth );
+      hb_itemArrayPut( aMetr, 1, temp );
 
-   temp = hb_itemPutNL( NULL, bitmap.bmBitsPixel );
-   hb_itemArrayPut( aMetr, 3, temp );
-   hb_itemRelease( temp );
+      hb_itemPutNL( temp, bitmap.bmHeight );
+      hb_itemArrayPut( aMetr, 2, temp );
 
-   temp = hb_itemPutNL( NULL, nret );
-   hb_itemArrayPut( aMetr, 4, temp );
-   hb_itemRelease( temp );
+      hb_itemPutNL( temp, bitmap.bmBitsPixel );
+      hb_itemArrayPut( aMetr, 3, temp );
 
+      hb_itemPutNL( temp, nret );
+      hb_itemArrayPut( aMetr, 4, temp );
 
-   hb_itemReturn( aMetr );
-   hb_itemRelease( aMetr );
+      // Release containers properly to prevent any VM memory leakage
+      hb_itemRelease( temp );
+
+      hb_itemReturn( aMetr );
+      hb_itemRelease( aMetr );
 }
 
 HB_FUNC( HWG_GETICONSIZE )

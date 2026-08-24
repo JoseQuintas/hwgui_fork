@@ -15,6 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-24 16:02 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+    - HWG_GETBITMAPSIZE: Fixed an internal Harbour VM memory leak by replacing
+      anonymous item allocations in hb_itemPutNL(NULL, ...) with a single,
+      safely managed PHB_ITEM container. Added structure initialization using
+      memset to prevent stack garbage collection on GetObject failures.
+
 2026-08-24 15:49 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
     - HWG_CENTERBITMAP: Fixed a critical GDI resource leak by implementing
       proper cleanup with hOldObj restoration before calling DeleteDC(). Added
