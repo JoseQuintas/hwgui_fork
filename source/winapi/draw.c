@@ -1715,160 +1715,188 @@ HB_FUNC( HWG_DRAWGRAYBITMAP )
 #include <ocidl.h>
 
 /* hwg_Openimage( cFileName , bString )
-  bString : .F. : from image file (default)
-            .T. : from pixbuffer
-  returns handle to pixbuffer
-  */
-
+ *  bString : .F. : from image file (default)
+ *            .T. : from pixbuffer
+ *  returns handle to pixbuffer
+ */
 HB_FUNC( HWG_OPENIMAGE )
 {
-   const char *cFileName = hb_parc( 1 );
-   BOOL bString = ( HB_ISNIL( 2 ) ) ? 0 : hb_parl( 2 );
-   int iType = ( HB_ISNIL( 3 ) ) ? IMAGE_BITMAP : hb_parni( 3 );
-   int iFileSize;
-   FILE *fp;
-   LPPICTURE pPic;
-   IStream *pStream;
-   HGLOBAL hG;
+      const char *cFileName = hb_parc( 1 );
+      BOOL bString = ( HB_ISNIL( 2 ) ) ? 0 : hb_parl( 2 );
+      int iType = ( HB_ISNIL( 3 ) ) ? IMAGE_BITMAP : hb_parni( 3 );
+      int iFileSize;
+      FILE *fp;
+      LPPICTURE pPic = NULL;
+      IStream *pStream = NULL;
+      HGLOBAL hG;
+      HBITMAP hRetResult = NULL;
 
-   if( bString )
-   /* From string (pixbuffer) */
-   {
-      iFileSize = hb_parclen( 1 );
-      hG = GlobalAlloc( GPTR, iFileSize );
-      if( !hG )
-      {
-         HB_RETHANDLE( 0 );
-         return;
-      }
-      memcpy( ( void * ) hG, ( void * ) cFileName, iFileSize );
-   }
-   else
-   /* From file */
-   {
-      fp = fopen( cFileName, "rb" );
-      if( !fp )
-      {
-         HB_RETHANDLE( 0 );
-         return;
-      }
+      if( bString )
+            /* From string (pixbuffer) */
+            {
+                  iFileSize = hb_parclen( 1 );
+                  hG = GlobalAlloc( GPTR, iFileSize );
+                  if( !hG )
+                  {
+                        #if defined(HB_LONG_PCOUNT) || defined(_WIN64)
+                           hb_retptr( NULL );
+                        #else
+                           HB_RETHANDLE( NULL );
+                        #endif
+                        return;
+                  }
+                  memcpy( ( void * ) hG, ( void * ) cFileName, iFileSize );
+            }
+            else
+                  /* From file */
+                  {
+                        fp = fopen( cFileName, "rb" );
+                        if( !fp )
+                        {
+                              #if defined(HB_LONG_PCOUNT) || defined(_WIN64)
+                                 hb_retptr( NULL );
+                              #else
+                                 HB_RETHANDLE( NULL );
+                              #endif
+                              return;
+                        }
 
-      fseek( fp, 0, SEEK_END );
-      iFileSize = ftell( fp );
-      hG = GlobalAlloc( GPTR, iFileSize );
-      if( !hG )
-      {
-         fclose( fp );
-         HB_RETHANDLE( 0 );
-         return;
-      }
-      fseek( fp, 0, SEEK_SET );
-      fread( ( void * ) hG, 1, iFileSize, fp );
-      fclose( fp );
-   }
+                        fseek( fp, 0, SEEK_END );
+                        iFileSize = ftell( fp );
+                        hG = GlobalAlloc( GPTR, iFileSize );
+                        if( !hG )
+                        {
+                              fclose( fp );
+                              #if defined(HB_LONG_PCOUNT) || defined(_WIN64)
+                                 hb_retptr( NULL );
+                              #else
+                                 HB_RETHANDLE( NULL );
+                              #endif
+                              return;
+                        }
+                        fseek( fp, 0, SEEK_SET );
+                        fread( ( void * ) hG, 1, iFileSize, fp );
+                        fclose( fp );
+                  }
 
-   CreateStreamOnHGlobal( hG, 0, &pStream );
+                  CreateStreamOnHGlobal( hG, 0, &pStream );
 
-   if( !pStream )
-   {
-      GlobalFree( hG );
-      HB_RETHANDLE( 0 );
-      return;
-   }
+                  if( !pStream )
+                  {
+                        GlobalFree( hG );
+                        #if defined(HB_LONG_PCOUNT) || defined(_WIN64)
+                           hb_retptr( NULL );
+                        #else
+                           HB_RETHANDLE( NULL );
+                        #endif
+                        return;
+                  }
 
-#if defined(__cplusplus)
-   OleLoadPicture( pStream, 0, 0, IID_IPicture, ( void ** ) &pPic );
-   pStream->Release(  );
-#else
-   OleLoadPicture( pStream, 0, 0, &IID_IPicture,
-         ( void ** ) ( void * ) &pPic );
-   pStream->lpVtbl->Release( pStream );
-#endif
+                  #if defined(__cplusplus)
+                     OleLoadPicture( pStream, 0, 0, IID_IPicture, ( void ** ) &pPic );
+                     pStream->Release(  );
+                  #else
+                     OleLoadPicture( pStream, 0, 0, &IID_IPicture, ( void ** ) ( void * ) &pPic );
+                     pStream->lpVtbl->Release( pStream );
+                  #endif
 
-   GlobalFree( hG );
+                  // Safe: Free memory global handle ONLY after OleLoadPicture finishes stream processing
+                  GlobalFree( hG );
 
-   if( !pPic )
-   {
-      HB_RETHANDLE( 0 );
-      return;
-   }
+                  if( !pPic )
+                  {
+                        #if defined(HB_LONG_PCOUNT) || defined(_WIN64)
+                           hb_retptr( NULL );
+                        #else
+                           HB_RETHANDLE( NULL );
+                        #endif
+                        return;
+                  }
 
-   if( iType == IMAGE_BITMAP )
-   {
-      HBITMAP hBitmap = 0;
-#if defined(__cplusplus)
-      pPic->get_Handle( ( OLE_HANDLE * ) & hBitmap );
-#else
-      pPic->lpVtbl->get_Handle( pPic, ( OLE_HANDLE * ) ( void * ) &hBitmap );
-#endif
+                  // CRITICAL: OLE_HANDLE is strictly 32-bit (LONG) across both 32-bit and 64-bit Windows architectures.
+                  // Variables like HBITMAP/HICON/HCURSOR are 64-bit pointers. We must fetch into a true OLE_HANDLE first.
+                  OLE_HANDLE oHnd = 0;
 
-      HB_RETHANDLE( CopyImage( hBitmap, IMAGE_BITMAP, 0, 0, LR_COPYRETURNORG ) );
-   }
-   else if( iType == IMAGE_ICON )
-   {
-      HICON hIcon = 0;
-#if defined(__cplusplus)
-      pPic->get_Handle( ( OLE_HANDLE * ) & hIcon );
-#else
-      pPic->lpVtbl->get_Handle( pPic, ( OLE_HANDLE * ) ( void * ) &hIcon );
-#endif
+                  if( iType == IMAGE_BITMAP )
+                  {
+                        #if defined(__cplusplus)
+                           pPic->get_Handle( &oHnd );
+                        #else
+                           pPic->lpVtbl->get_Handle( pPic, &oHnd );
+                        #endif
+                        if( oHnd )
+                              hRetResult = ( HBITMAP ) CopyImage( ( HBITMAP ) ( uintptr_t ) oHnd, IMAGE_BITMAP, 0, 0, LR_COPYRETURNORG );
+                  }
+                  else if( iType == IMAGE_ICON )
+                  {
+                        #if defined(__cplusplus)
+                           pPic->get_Handle( &oHnd );
+                        #else
+                           pPic->lpVtbl->get_Handle( pPic, &oHnd );
+                        #endif
+                        if( oHnd )
+                              hRetResult = ( HBITMAP ) CopyImage( ( HICON ) ( uintptr_t ) oHnd, IMAGE_ICON, 0, 0, 0 );
+                  }
+                  else
+                  {
+                        #if defined(__cplusplus)
+                           pPic->get_Handle( &oHnd );
+                        #else
+                           pPic->lpVtbl->get_Handle( pPic, &oHnd );
+                        #endif
+                        if( oHnd )
+                              hRetResult = ( HBITMAP ) CopyImage( ( HCURSOR ) ( uintptr_t ) oHnd, IMAGE_CURSOR, 0, 0, 0 );
+                  }
 
-      HB_RETHANDLE( CopyImage( hIcon, IMAGE_ICON, 0, 0, 0 ) );
-   }
-   else
-   {
-      HCURSOR hCur = 0;
-#if defined(__cplusplus)
-      pPic->get_Handle( ( OLE_HANDLE * ) & hCur );
-#else
-      pPic->lpVtbl->get_Handle( pPic, ( OLE_HANDLE * ) ( void * ) &hCur );
-#endif
+                  #if defined(__cplusplus)
+                     pPic->Release(  );
+                  #else
+                     pPic->lpVtbl->Release( pPic );
+                  #endif
 
-      HB_RETHANDLE( CopyImage( hCur, IMAGE_CURSOR, 0, 0, 0 ) );
-   }
-
-#if defined(__cplusplus)
-   pPic->Release(  );
-#else
-   pPic->lpVtbl->Release( pPic );
-#endif
+                  // Safe handle return architecture for 64-bit Clang systems
+                  #if defined(HB_LONG_PCOUNT) || defined(_WIN64)
+                     hb_retptr( ( void * ) hRetResult );
+                  #else
+                     HB_RETHANDLE( hRetResult );
+                  #endif
 }
 
 #if defined( __USE_GDIPLUS )
 
 void hwg_GdiplusInit( void )
 {
-   if( !gdiplusToken )
-   {
-      memset( &gdiplusStartupInput, 0, sizeof( GdiplusStartupInput ) );
-      gdiplusStartupInput.GdiplusVersion = 1;
+      if( !gdiplusToken )
+      {
+            memset( &gdiplusStartupInput, 0, sizeof( GdiplusStartupInput ) );
+            gdiplusStartupInput.GdiplusVersion = 1;
 
-      GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
-   }
+            GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+      }
 }
 
 void hwg_GdiplusExit( void )
 {
-   if( !gdiplusToken )
-      GdiplusShutdown(gdiplusToken);
-   gdiplusToken = 0;
+      // CORRECTION: Enforce shutdown only if a valid token exists
+      if( gdiplusToken )
+            GdiplusShutdown(gdiplusToken);
+      gdiplusToken = 0;
 }
 
 HBITMAP GpBitmapToHBITMAP(GpBitmap* bitmap)
 {
-    HBITMAP hBitmap = NULL;
-    GpStatus status;
-    GpGraphics* tempGraphics;
+      HBITMAP hBitmap = NULL;
+      GpStatus status;
+      GpGraphics* tempGraphics;
 
-    status = GdipCreateFromHWND(NULL, &tempGraphics);
+      status = GdipCreateFromHWND(NULL, &tempGraphics);
 
-    //hwg_writelog( "ac.log", "cnv-1 %d\r\n", status );
-    if (status == Ok) {
-        status = GdipCreateHBITMAPFromBitmap(bitmap, &hBitmap, 0);
-        GdipDeleteGraphics(tempGraphics);
-    }
+      if (status == Ok) {
+            status = GdipCreateHBITMAPFromBitmap(bitmap, &hBitmap, 0);
+            GdipDeleteGraphics(tempGraphics);
+      }
 
-    return hBitmap;
+      return hBitmap;
 }
 
 #endif

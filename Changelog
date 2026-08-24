@@ -15,13 +15,25 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2026-08-40 16:46 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+2026-08-24 17:01 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+   - HWG_OPENIMAGE: Fixed a severe 64-bit pointer truncation and crash bug.
+     Separated OLE_HANDLE extraction into a native 32-bit container before
+     performing safe uintptr_t casting to HBITMAP/HICON/HCURSOR. Moved
+     GlobalFree memory operations down to preserve stream safety thresholds.
+
+2026-08-24 16:53 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+    - HWG_OPENIMAGE: Fixed a severe 64-bit pointer truncation and crash bug.
+      Separated OLE_HANDLE extraction into a native 32-bit container before
+      performing safe uintptr_t casting to HBITMAP/HICON/HCURSOR. Moved
+      GlobalFree memory operations down to preserve stream safety thresholds.
+
+2026-08-24 16:46 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
     - HWG_GETDRAWITEMINFO: Fixed a critical Harbour VM memory leak by refactoring
       dynamic array insertions to use a single, pre-allocated PHB_ITEM container.
     - HWG_DRAWGRAYBITMAP: Enhanced GDI safety bounds by adding object size
       sanitization and ensured strict restoration of system context color properties.
 
-2026-08-40 16:32 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+2026-08-24 16:32 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
     - HWG_CREATESOLIDBRUSH, HWG_CREATEHATCHBRUSH, HWG_SELECTOBJECT, HWG_GETDC:
       Swapped legacy HB_RETHANDLE macros with safe 64-bit pointer returns (hb_retptr)
       to guarantee handle integrity and prevent pointer truncation under Clang.
