@@ -1474,23 +1474,45 @@ HB_FUNC( HWG_DRAWICON )
          ( HICON ) HB_PARHANDLE( 2 ) );
 }
 
+/*
+ * hwg_GetSysColor( nIndex )
+ */
 HB_FUNC( HWG_GETSYSCOLOR )
 {
-   hb_retnl( ( LONG ) GetSysColor( hb_parni( 1 ) ) );
+      // Correctly return the COLORREF value without truncating explicit casts
+      hb_retnl( ( HB_LONG ) GetSysColor( hb_parni( 1 ) ) );
 }
 
+/*
+ * hwg_GetSysColorBrush( nIndex )
+ */
 HB_FUNC( HWG_GETSYSCOLORBRUSH )
 {
-   HB_RETHANDLE( GetSysColorBrush( hb_parni( 1 ) ) );
+      HBRUSH hBrush = GetSysColorBrush( hb_parni( 1 ) );
+
+      // Safe handle return architecture for 64-bit Clang systems
+      #if defined(HB_LONG_PCOUNT) || defined(_WIN64)
+         hb_retptr( ( void * ) hBrush );
+      #else
+         HB_RETHANDLE( hBrush );
+      #endif
 }
 
+/*
+ * hwg_CreatePen( nStyle, nWidth, nColor )
+ */
 HB_FUNC( HWG_CREATEPEN )
 {
-   HB_RETHANDLE( CreatePen( hb_parni( 1 ),      // pen style
-               hb_parni( 2 ),   // pen width
-               ( COLORREF ) hb_parnl( 3 )       // pen color
-          ) );
+      HPEN hPen = CreatePen( hb_parni( 1 ), hb_parni( 2 ), ( COLORREF ) hb_parnl( 3 ) );
+
+      // Safe handle return architecture for 64-bit Clang systems
+      #if defined(HB_LONG_PCOUNT) || defined(_WIN64)
+         hb_retptr( ( void * ) hPen );
+      #else
+         HB_RETHANDLE( hPen );
+      #endif
 }
+
 
 HB_FUNC( HWG_CREATESOLIDBRUSH )
 {

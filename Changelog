@@ -15,6 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-24 16:32 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+    - HWG_GETSYSCOLOR: Fixed integer sign casting to match 64-bit Harbour architectures.
+    - HWG_GETSYSCOLORBRUSH, HWG_CREATEPEN: Implemented explicit 64-bit pointer
+      return macros (hb_retptr) to prevent handles from being truncated by Clang.
+
 2026-08-24 16:25 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
       - HWG_SAVEBITMAP: Fixed a severe graphic context leak by ensuring ReleaseDC
         is invoked unconditionally. Resolved a buffer overflow vulnerability in
