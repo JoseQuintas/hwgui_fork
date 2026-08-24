@@ -555,32 +555,56 @@ FUNCTION hwg_PropertySheet( hParentWindow, aPages, cTitle, x1, y1, width, height
 
 FUNCTION hwg_EndDialog( handle )
 
-   LOCAL oDlg, lRes
+   LOCAL oDlg, lRes, lModal, hWindow
 
    IF handle == Nil
       IF ( oDlg := Atail( HDialog():aModalDialogs ) ) == Nil
          RETURN Nil
       ENDIF
    ELSE
+      /* First check in the modal dialogs stack, then search the general active dialog list */
       IF ( ( oDlg := Atail( HDialog():aModalDialogs ) ) == Nil .OR. ;
             oDlg:handle != handle ) .AND. ;
             ( oDlg := HDialog():FindDialog( handle ) ) == Nil
          RETURN Nil
       ENDIF
    ENDIF
+
+   lModal := oDlg:lModal
+   hWindow := oDlg:handle
+
    IF oDlg:bDestroy != Nil
       lRes := Eval( oDlg:bDestroy, oDlg )
-      IF Valtype( lRes ) != "L" .OR. lRes
-         //IF Empty( oDlg:handle )
-         //   RETURN Nil
-         //ENDIF
-         RETURN Iif( oDlg:lModal, Hwg__EndDialog( oDlg:handle ), hwg_Destroywindow( oDlg:handle ) )
-      ELSE
+      IF Valtype( lRes ) == "L" .AND. !lRes
          RETURN Nil
       ENDIF
    ENDIF
 
-   RETURN  Iif( oDlg:lModal, Hwg__EndDialog( oDlg:handle ), hwg_Destroywindow( oDlg:handle ) )
+   /* CRITICAL 64-BIT SHIELD:
+      Break circular references to prevent the Harbour VM from crashing
+      when returning from the final WM_COMMAND evaluation loop. */
+   IF !lModal
+      /* 1. Safely break and nullify event triggers */
+      oDlg:bDestroy := Nil
+
+      /* 2. Empty the control arrays to clear object reference counters */
+      IF Valtype( oDlg:aControls ) == "A"
+         AFill( oDlg:aControls, Nil )
+         oDlg:aControls := {}
+      ENDIF
+
+      /* 3. Instruct Windows core to clear handles first */
+      hwg_Destroywindow( hWindow )
+
+      /* 4. Finally detach the dialogue definition from the active engine list */
+      oDlg:DelItem()
+      lRes := .T.
+   ELSE
+      lRes := Hwg__EndDialog( hWindow )
+   ENDIF
+
+   RETURN lRes
+
 
 STATIC FUNCTION onSysCommand( oDlg, wParam )
 

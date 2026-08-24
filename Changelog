@@ -14,6 +14,11 @@
  "oldlogs".
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+
+2026-08-24 13:43 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  * source/hdialog.prg
+    + fix: crash while close no modal dialogs
+
 2026-08-23 21:30 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   * source/dialog.c
     + Security fix: eliminated stack buffer overflow in
