@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-24 14:38 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+    * source/winapi/draw.c:
+      - HWG_WINDOW2BITMAP: Fixed a critical GDI resource leak. Replaced
+        incorrect DeleteDC() with ReleaseDC() for window device contexts.
+        Ensured old GDI object restoration before context deletion and
+        added proper 64-bit pointer return compatibility handling.
+      - HWG_DRAWBITMAP: Fixed a GDI resource leak. Restored the original
+        default bitmap handle (hOldObj) into the memory device context (hDCmem)
+        before calling DeleteDC().
+
 2026-08-24 13:43 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   * source/hdialog.prg
     + fix: crash while close no modal dialogs

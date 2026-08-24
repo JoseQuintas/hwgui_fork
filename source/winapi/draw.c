@@ -851,38 +851,42 @@ HB_FUNC( HWG_LOADBITMAP )
  */
 HB_FUNC( HWG_WINDOW2BITMAP )
 {
-   HWND hWnd = ( HWND ) HB_PARHANDLE( 1 );
-   //BOOL lFull = ( HB_ISNIL( 2 ) ) ? 0 : ( BOOL ) hb_parl( 2 );
-   //HDC hDC = ( lFull ) ? GetWindowDC( hWnd ) : GetDC( hWnd );
-   HDC hDC = GetWindowDC( hWnd );
-   HDC hDCmem = CreateCompatibleDC( hDC );
-   HBITMAP hBitmap;
-   int x1 = HB_ISNUM(2)? hb_parni(2):0, y1 = HB_ISNUM(3)? hb_parni(3):0;
-   int width= HB_ISNUM(4)? hb_parni(4):0, height = HB_ISNUM(5)? hb_parni(5):0;
-   RECT rc;
+      HWND hWnd = ( HWND ) HB_PARHANDLE( 1 );
+      HDC hDC = GetWindowDC( hWnd );
+      HDC hDCmem = CreateCompatibleDC( hDC );
+      HBITMAP hBitmap;
+      int x1 = HB_ISNUM(2) ? hb_parni(2) : 0;
+      int y1 = HB_ISNUM(3) ? hb_parni(3) : 0;
+      int width = HB_ISNUM(4) ? hb_parni(4) : 0;
+      int height = HB_ISNUM(5) ? hb_parni(5) : 0;
+      RECT rc;
 
-   if( width == 0 || height == 0 )
-   {
-      GetWindowRect( hWnd, &rc );
-      width = rc.right - rc.left;
-      height = rc.bottom - rc.top;
-   }
-   /*
-   if( lFull )
-      GetWindowRect( hWnd, &rc );
-   else
-      GetClientRect( hWnd, &rc );
-   */
+      if( width == 0 || height == 0 )
+      {
+            GetWindowRect( hWnd, &rc );
+            width = rc.right - rc.left;
+            height = rc.bottom - rc.top;
+      }
 
+      hBitmap = CreateCompatibleBitmap( hDC, width, height );
 
-   hBitmap = CreateCompatibleBitmap( hDC, width, height );
-   SelectObject( hDCmem, hBitmap );
+      // Guarda o objeto antigo para evitar vazamento ao selecionar o novo bitmap
+      HGDIOBJ hOldObj = SelectObject( hDCmem, hBitmap );
 
-   BitBlt( hDCmem, 0, 0, width, height, hDC, x1, y1, SRCCOPY );
+      BitBlt( hDCmem, 0, 0, width, height, hDC, x1, y1, SRCCOPY );
 
-   DeleteDC( hDCmem );
-   DeleteDC( hDC );
-   HB_RETHANDLE( hBitmap );
+      // Restaura o objeto original antes de deletar o contexto de memória
+      SelectObject( hDCmem, hOldObj );
+
+      DeleteDC( hDCmem );
+      ReleaseDC( hWnd, hDC ); // <--- Correção essencial para parar o crash!
+
+      // Retorno seguro adaptado para Clang de 64 bits
+      #if defined(HB_LONG_PCOUNT) || defined(_WIN64)
+      hb_retptr( ( void * ) hBitmap );
+      #else
+      HB_RETHANDLE( hBitmap );
+      #endif
 }
 
 /*
@@ -890,43 +894,49 @@ HB_FUNC( HWG_WINDOW2BITMAP )
  */
 HB_FUNC( HWG_DRAWBITMAP )
 {
-   HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
-   HDC hDCmem = CreateCompatibleDC( hDC );
-   DWORD dwraster = ( HB_ISNIL( 3 ) ) ? SRCCOPY : ( DWORD ) hb_parnl( 3 );
-   HBITMAP hBitmap = ( HBITMAP ) HB_PARHANDLE( 2 );
-   BITMAP bitmap;
-   int nWidthDest = ( hb_pcount(  ) >= 5 &&
-         !HB_ISNIL( 6 ) ) ? hb_parni( 6 ) : 0;
-   int nHeightDest = ( hb_pcount(  ) >= 6 &&
-         !HB_ISNIL( 7 ) ) ? hb_parni( 7 ) : 0;
+      HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
+      HDC hDCmem = CreateCompatibleDC( hDC );
+      DWORD dwraster = ( HB_ISNIL( 3 ) ) ? SRCCOPY : ( DWORD ) hb_parnl( 3 );
+      HBITMAP hBitmap = ( HBITMAP ) HB_PARHANDLE( 2 );
+      BITMAP bitmap;
+      int nWidthDest = ( hb_pcount(  ) >= 5 &&
+      !HB_ISNIL( 6 ) ) ? hb_parni( 6 ) : 0;
+      int nHeightDest = ( hb_pcount(  ) >= 6 &&
+      !HB_ISNIL( 7 ) ) ? hb_parni( 7 ) : 0;
 
-   SelectObject( hDCmem, hBitmap );
-   GetObject( hBitmap, sizeof( BITMAP ), ( LPVOID ) & bitmap );
-   if( nWidthDest && ( nWidthDest != bitmap.bmWidth ||
-               nHeightDest != bitmap.bmHeight ) )
-   {
-      SetStretchBltMode( hDC, COLORONCOLOR );
-      StretchBlt( hDC, hb_parni( 4 ), hb_parni( 5 ), nWidthDest, nHeightDest,
-            hDCmem, 0, 0, bitmap.bmWidth, bitmap.bmHeight, dwraster );
-   }
-   else
-   {
-      BitBlt( hDC, hb_parni( 4 ), hb_parni( 5 ), bitmap.bmWidth,
-            bitmap.bmHeight, hDCmem, 0, 0, dwraster );
-   }
+      // Save the original default bitmap to prevent memory leak
+      HGDIOBJ hOldObj = SelectObject( hDCmem, hBitmap );
 
-   DeleteDC( hDCmem );
-   
+      GetObject( hBitmap, sizeof( BITMAP ), ( LPVOID ) & bitmap );
+      if( nWidthDest && ( nWidthDest != bitmap.bmWidth ||
+            nHeightDest != bitmap.bmHeight ) )
+      {
+            SetStretchBltMode( hDC, COLORONCOLOR );
+            StretchBlt( hDC, hb_parni( 4 ), hb_parni( 5 ), nWidthDest, nHeightDest,
+                        hDCmem, 0, 0, bitmap.bmWidth, bitmap.bmHeight, dwraster );
+      }
+      else
+      {
+            BitBlt( hDC, hb_parni( 4 ), hb_parni( 5 ), bitmap.bmWidth,
+                    bitmap.bmHeight, hDCmem, 0, 0, dwraster );
+      }
+
+      // Restore the original bitmap before deleting the DC
+      SelectObject( hDCmem, hOldObj );
+
+      DeleteDC( hDCmem );
+
       /* DF7BE 2025-02-18: See bug report #195:
-       Found this function call 
-       in a program sample deleting
-       a drawn bitmap.
-       But it has severe side effects,
-       so it is not recommended to
-       activate this function call   
-     */
-     /* DeleteObject((HBITMAP)hBitmap); */
+       *       Found this function call
+       *       in a program sample deleting
+       *       a drawn bitmap.
+       *       But it has severe side effects,
+       *       so it is not recommended to
+       *       activate this function call
+       */
+      /* DeleteObject((HBITMAP)hBitmap); */
 }
+
 
 /*
  * DrawTransparentBitmap( hDC, hBitmap, x, y [,trColor] )
