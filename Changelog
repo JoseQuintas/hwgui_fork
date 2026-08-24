@@ -16,6 +16,35 @@
 */
 
 2026-08-24 19:57 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **HWG_DRAWGRADIENT**: fixed GDI handle leaks (bitmap and brush) caused by
+    missing restore `SelectObject()` calls before `DeleteObject()`/`DeleteDC()`.
+    The gradient bitmap (`bmp`) and the final brush applied to the caller's
+    `hDC` remained selected into their respective device contexts, causing
+    `DeleteObject()` to silently fail and the handle to never be released.
+    In applications that redraw gradients frequently (resize, repaint), this
+    exhausted the process's GDI handle quota over time.
+  - **HWG_DRAWGRADIENT**: fixed secondary leaks from temporary brushes created
+    while filling in the edges of linear, diagonal, and radial gradients
+    (they were never deselected from `hDC_mem` before `DeleteObject()`).
+  - **HWG_DRAWGRADIENT**: fixed a division-by-zero in `section_len` for diagonal
+    and radial gradients, which occurred when two consecutive `stops` rounded
+    to the same pixel, producing invalid (`inf`/`nan`) colors for the rest of
+    the gradient.
+  - **HWG_DRAWGRADIENT**: fixed the color conversion factor for `COLOR16`
+    (`TRIVERTEX`), which used `256` instead of `257`, leaving the maximum
+    value at 65280 instead of 65535 and introducing slight color inaccuracy
+    at the extremes.
+
+  ### Changed
+  - **HWG_DRAWGRADIENT**: changed `x`/`y` variables from `long` to `LONG` to
+    guarantee a consistent 32-bit width regardless of platform/compilation
+    target (avoids silent truncation if built under an LP64 data model).
+  - **HWG_DRAWGRADIENT**: added input validation rejecting invalid/inverted
+    rectangles (`x2 <= x1` or `y2 <= y1`) before any bitmap allocation,
+    preventing undefined behavior.
+
+2026-08-24 19:57 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
      - HWG_COPYRECT: Fixed a critical VM stack corruption bug by removing an
        invalid hb_itemRelease() execution in a returned object lifecycle.
      - HWG_GETMEASUREITEMINFO: Fixed an internal Harbour VM memory leak by
