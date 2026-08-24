@@ -145,15 +145,29 @@ typedef int ( _stdcall * GRADIENTFILL ) ( HDC, PTRIVERTEX, int, PVOID, int, int 
 static GRADIENTFILL FuncGradientFill = NULL;
 
 void TransparentBmp( HDC hDC, int x, int y, int nWidthDest, int nHeightDest,
-      HDC dcImage, int bmWidth, int bmHeight, int trColor )
+                     HDC dcImage, int bmWidth, int bmHeight, int trColor )
 {
-   if( s_pTransparentBlt == NULL )
-      s_pTransparentBlt =
-            ( TRANSPARENTBLT )
-            GetProcAddress( LoadLibrary( TEXT( "MSIMG32.DLL" ) ),
-            "TransparentBlt" );
-   s_pTransparentBlt( hDC, x, y, nWidthDest, nHeightDest, dcImage, 0, 0,
-         bmWidth, bmHeight, trColor );
+      // Safe initialization: load the library and function address only ONCE
+      if( s_pTransparentBlt == NULL )
+      {
+            HMODULE hMsImg = GetModuleHandle( TEXT( "MSIMG32.DLL" ) );
+            if( hMsImg == NULL )
+            {
+                  hMsImg = LoadLibrary( TEXT( "MSIMG32.DLL" ) );
+            }
+
+            if( hMsImg != NULL )
+            {
+                  s_pTransparentBlt = ( TRANSPARENTBLT ) GetProcAddress( hMsImg, "TransparentBlt" );
+            }
+      }
+
+      // Strict safety check before calling the 64-bit function pointer
+      if( s_pTransparentBlt != NULL )
+      {
+            s_pTransparentBlt( hDC, x, y, nWidthDest, nHeightDest, dcImage, 0, 0,
+                               bmWidth, bmHeight, trColor );
+      }
 }
 
 BOOL Array2Rect( PHB_ITEM aRect, RECT * rc )

@@ -14,6 +14,11 @@
  "oldlogs".
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+2026-08-24 14:57 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+      - TransparentBmp: Fixed a critical resource leak and potential crash in
+        64-bit systems. Resolved recursive LoadLibrary() calls on MSIMG32.DLL by
+        implementing proper lazy-loading validation. Added strict NULL pointer
+        checks for the dynamic function call to prevent memory access violations.
 
 2026-08-24 14:38 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
     * source/winapi/draw.c:
