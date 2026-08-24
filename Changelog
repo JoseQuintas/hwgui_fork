@@ -15,6 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-24 16:25 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+      - HWG_SAVEBITMAP: Fixed a severe graphic context leak by ensuring ReleaseDC
+        is invoked unconditionally. Resolved a buffer overflow vulnerability in
+        WriteFile by enforcing exact memory boundary bounds instead of computing
+        offset file header sizes.
+
 2026-08-24 16:17 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
     - HWG_OPENBITMAP: Fixed critical 64-bit file handle verification by checking
       against INVALID_HANDLE_VALUE. Added integer overflow sanitization to the bit-shifting

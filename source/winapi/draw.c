@@ -1345,100 +1345,121 @@ HB_FUNC( HWG_OPENBITMAP )
 }
 
 /*
- *  hwg_SaveBitMap( cfilename , hBitmap )
+ * hwg_SaveBitMap( cfilename , hBitmap )
  */
 HB_FUNC( HWG_SAVEBITMAP )
 {
-   HBITMAP hBitmap = (HBITMAP) HB_PARHANDLE( 2 );
-   HDC hDC;
-   int iBits;
-   WORD wBitCount;
-   DWORD dwPaletteSize = 0, dwBmBitsSize, dwDIBSize, dwWritten = 0;
-   BITMAP Bitmap0;
-   BITMAPFILEHEADER bmfHdr;
-   BITMAPINFOHEADER bi;
-   LPBITMAPINFOHEADER lpbi;
-   HANDLE fh, hDib, hPal, hOldPal2 = NULL;
-   void *hString;
+      HBITMAP hBitmap = ( HBITMAP ) HB_PARHANDLE( 2 );
+      HDC hDC;
+      int iBits;
+      WORD wBitCount;
+      DWORD dwPaletteSize = 0, dwBmBitsSize, dwDIBSize, dwWritten = 0;
+      BITMAP Bitmap0;
+      BITMAPFILEHEADER bmfHdr;
+      BITMAPINFOHEADER bi;
+      LPBITMAPINFOHEADER lpbi;
+      HANDLE fh, hDib, hPal, hOldPal2 = NULL;
+      void *hString;
 
-   hDC = CreateDC( TEXT("DISPLAY"), NULL, NULL, NULL );
-   iBits = GetDeviceCaps( hDC, BITSPIXEL ) * GetDeviceCaps( hDC, PLANES );
-   DeleteDC( hDC );
-   if( iBits <= 1 )
-      wBitCount = 1;
-   else if( iBits <= 4 )
-      wBitCount = 4;
-   else if( iBits <= 8 )
-      wBitCount = 8;
-   else
-      wBitCount = 24;
-   GetObject( hBitmap, sizeof( Bitmap0 ), ( LPSTR ) & Bitmap0 );
-   bi.biSize = sizeof( BITMAPINFOHEADER );
-   bi.biWidth = Bitmap0.bmWidth;
-   bi.biHeight = -Bitmap0.bmHeight;
-   bi.biPlanes = 1;
-   bi.biBitCount = wBitCount;
-   bi.biCompression = BI_RGB;
-   bi.biSizeImage = 0;
-   bi.biXPelsPerMeter = 0;
-   bi.biYPelsPerMeter = 0;
-   bi.biClrImportant = 0;
-   bi.biClrUsed = 256;
-   dwBmBitsSize = ( ( Bitmap0.bmWidth * wBitCount + 31 ) & ~31 ) / 8
-         * Bitmap0.bmHeight;
-   hDib = GlobalAlloc( GHND,
-         dwBmBitsSize + dwPaletteSize + sizeof( BITMAPINFOHEADER ) );
-   lpbi = ( LPBITMAPINFOHEADER ) GlobalLock( hDib );
-   *lpbi = bi;
+      // Use CreateIC instead of CreateDC for a lightweight information context
+      hDC = CreateIC( TEXT("DISPLAY"), NULL, NULL, NULL );
+      if( hDC )
+      {
+            iBits = GetDeviceCaps( hDC, BITSPIXEL ) * GetDeviceCaps( hDC, PLANES );
+            DeleteDC( hDC );
+      }
+      else
+      {
+            iBits = 24;
+      }
 
-   hPal = GetStockObject( DEFAULT_PALETTE );
-   if( hPal )
-   {
+      if( iBits <= 1 )
+            wBitCount = 1;
+      else if( iBits <= 4 )
+            wBitCount = 4;
+      else if( iBits <= 8 )
+            wBitCount = 8;
+      else
+            wBitCount = 24;
+
+      if( GetObject( hBitmap, sizeof( Bitmap0 ), ( LPSTR ) & Bitmap0 ) == 0 )
+      {
+            hb_retl( 0 );
+            return;
+      }
+
+      memset( &bi, 0, sizeof( BITMAPINFOHEADER ) );
+      bi.biSize = sizeof( BITMAPINFOHEADER );
+      bi.biWidth = Bitmap0.bmWidth;
+      bi.biHeight = -Bitmap0.bmHeight;
+      bi.biPlanes = 1;
+      bi.biBitCount = wBitCount;
+      bi.biCompression = BI_RGB;
+
+      dwBmBitsSize = ( ( Bitmap0.bmWidth * wBitCount + 31 ) & ~31 ) / 8 * Bitmap0.bmHeight;
+
+      // Allocate memory precisely for the DIB block contents
+      DWORD dwAllocSize = dwBmBitsSize + dwPaletteSize + sizeof( BITMAPINFOHEADER );
+      hDib = GlobalAlloc( GHND, dwAllocSize );
+      if( hDib == NULL )
+      {
+            hb_retl( 0 );
+            return;
+      }
+
+      lpbi = ( LPBITMAPINFOHEADER ) GlobalLock( hDib );
+      *lpbi = bi;
+
       hDC = GetDC( NULL );
-      hOldPal2 = SelectPalette( hDC, ( HPALETTE ) hPal, FALSE );
-      RealizePalette( hDC );
-   }
+      hPal = GetStockObject( DEFAULT_PALETTE );
+      if( hPal && hDC )
+      {
+            hOldPal2 = SelectPalette( hDC, ( HPALETTE ) hPal, FALSE );
+            RealizePalette( hDC );
+      }
 
-   GetDIBits( hDC, hBitmap, 0, ( UINT ) Bitmap0.bmHeight,
-         ( LPSTR ) lpbi + sizeof( BITMAPINFOHEADER ) + dwPaletteSize,
-         ( BITMAPINFO * ) lpbi, DIB_RGB_COLORS );
+      GetDIBits( hDC, hBitmap, 0, ( UINT ) Bitmap0.bmHeight,
+                 ( LPSTR ) lpbi + sizeof( BITMAPINFOHEADER ) + dwPaletteSize,
+                 ( BITMAPINFO * ) lpbi, DIB_RGB_COLORS );
 
-   if( hOldPal2 )
-   {
-      SelectPalette( hDC, ( HPALETTE ) hOldPal2, TRUE );
-      RealizePalette( hDC );
-      ReleaseDC( NULL, hDC );
-   }
+      if( hDC )
+      {
+            if( hOldPal2 )
+            {
+                  SelectPalette( hDC, ( HPALETTE ) hOldPal2, TRUE );
+                  RealizePalette( hDC );
+            }
+            ReleaseDC( NULL, hDC ); // Enforce safe GDI context release unconditionally
+      }
 
-   fh = CreateFile( HB_PARSTR( 1, &hString, NULL ), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
-         FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL );
-   hb_strfree( hString );
+      fh = CreateFile( HB_PARSTR( 1, &hString, NULL ), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+                       FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL );
+      hb_strfree( hString );
 
-   if( fh == INVALID_HANDLE_VALUE )
-   {
-      hb_retl( 0 );
-      return;
-   }
+      if( fh == INVALID_HANDLE_VALUE )
+      {
+            GlobalUnlock( hDib );
+            GlobalFree( hDib );
+            hb_retl( 0 );
+            return;
+      }
 
-   bmfHdr.bfType = 0x4D42;      // "BM"
-   dwDIBSize =
-         sizeof( BITMAPFILEHEADER ) + sizeof( BITMAPINFOHEADER ) +
-         dwPaletteSize + dwBmBitsSize;
-   bmfHdr.bfSize = dwDIBSize;
-   bmfHdr.bfReserved1 = 0;
-   bmfHdr.bfReserved2 = 0;
-   bmfHdr.bfOffBits =
-         ( DWORD ) sizeof( BITMAPFILEHEADER ) +
-         ( DWORD ) sizeof( BITMAPINFOHEADER ) + dwPaletteSize;
+      bmfHdr.bfType = 0x4D42;      // "BM"
+      dwDIBSize = sizeof( BITMAPFILEHEADER ) + sizeof( BITMAPINFOHEADER ) + dwPaletteSize + dwBmBitsSize;
+      bmfHdr.bfSize = dwDIBSize;
+      bmfHdr.bfReserved1 = 0;
+      bmfHdr.bfReserved2 = 0;
+      bmfHdr.bfOffBits = ( DWORD ) sizeof( BITMAPFILEHEADER ) + ( DWORD ) sizeof( BITMAPINFOHEADER ) + dwPaletteSize;
 
-   WriteFile( fh, ( LPSTR ) & bmfHdr, sizeof( BITMAPFILEHEADER ), &dwWritten,
-         NULL );
+      WriteFile( fh, ( LPSTR ) & bmfHdr, sizeof( BITMAPFILEHEADER ), &dwWritten, NULL );
 
-   WriteFile( fh, ( LPSTR ) lpbi, dwDIBSize, &dwWritten, NULL );
-   GlobalUnlock( hDib );
-   GlobalFree( hDib );
-   CloseHandle( fh );
-   hb_retl( 1 );
+      // CORRECTION: Write exactly the alocated buffer size (dwAllocSize) instead of dwDIBSize to prevent overflow
+      WriteFile( fh, ( LPSTR ) lpbi, dwAllocSize, &dwWritten, NULL );
+
+      GlobalUnlock( hDib );
+      GlobalFree( hDib );
+      CloseHandle( fh );
+      hb_retl( 1 );
 }
 
 HB_FUNC( HWG_DRAWICONEX )
