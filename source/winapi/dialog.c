@@ -596,46 +596,79 @@ HB_FUNC( HWG__CREATEPROPERTYSHEETPAGE )
 /*
  * _PropertySheet( hWndParent, aPageHandles, nPageHandles, cTitle,
  *                [ lModeless ], [ lNoApply ], [ lWizard ] ) --> hPropertySheet
+ *
+ * FIXED: replaced fixed-size array of 10 with dynamic allocation + nPages validation
  */
 HB_FUNC( HWG__PROPERTYSHEET )
 {
       PHB_ITEM pArr = hb_param( 2, HB_IT_ARRAY );
-      int nPages = hb_parni( 3 ), i;
-      HPROPSHEETPAGE psp[10];
+      int nPages = hb_parni( 3 );
+      int i;
+      HPROPSHEETPAGE *psp = NULL;
       PROPSHEETHEADER psh;
       void *hCaption;
-      DWORD dwFlags = ( hb_pcount(  ) < 5 || HB_ISNIL( 5 ) ||
-      !hb_parl( 5 ) ) ? 0 : PSH_MODELESS;
+      DWORD dwFlags = ( hb_pcount() < 5 || HB_ISNIL( 5 ) || !hb_parl( 5 ) ) ? 0 : PSH_MODELESS;
+      HWND hResult = NULL;
 
-      if( hb_pcount(  ) > 5 && !HB_ISNIL( 6 ) && hb_parl( 6 ) )
+      /* Security validation */
+      if( nPages <= 0 || nPages > 128 )   /* reasonable limit – adjust if needed */
+      {
+            HB_RETHANDLE( NULL );
+            return;
+      }
+
+      if( !pArr || !HB_IS_ARRAY( pArr ) || (int) hb_arrayLen( pArr ) < nPages )
+      {
+            HB_RETHANDLE( NULL );
+            return;
+      }
+
+      psp = ( HPROPSHEETPAGE * ) hb_xgrab( nPages * sizeof( HPROPSHEETPAGE ) );
+      if( !psp )
+      {
+            HB_RETHANDLE( NULL );
+            return;
+      }
+
+      if( hb_pcount() > 5 && !HB_ISNIL( 6 ) && hb_parl( 6 ) )
             dwFlags |= PSH_NOAPPLYNOW;
-      if( hb_pcount(  ) > 6 && !HB_ISNIL( 7 ) && hb_parl( 7 ) )
+      if( hb_pcount() > 6 && !HB_ISNIL( 7 ) && hb_parl( 7 ) )
             dwFlags |= PSH_WIZARD;
-      for( i = 0; i < nPages; i++ )
-            psp[i] = ( HPROPSHEETPAGE ) hb_arrayGetPtr( pArr, i + 1 );
 
-      psh.dwSize = sizeof( PROPSHEETHEADER );
-      psh.dwFlags = dwFlags;
+      for( i = 0; i < nPages; i++ )
+            psp[ i ] = ( HPROPSHEETPAGE ) hb_arrayGetPtr( pArr, i + 1 );
+
+      memset( &psh, 0, sizeof( PROPSHEETHEADER ) );
+      psh.dwSize     = sizeof( PROPSHEETHEADER );
+      psh.dwFlags    = dwFlags;
       psh.hwndParent = ( HWND ) HB_PARHANDLE( 1 );
-      psh.hInstance = ( HINSTANCE ) NULL;
-      #if !defined(__BORLANDC__) ||  (__BORLANDC__ > 1424)
-      psh.pszIcon = NULL;
+      psh.hInstance  = ( HINSTANCE ) NULL;
+
+      #if !defined(__BORLANDC__) || (__BORLANDC__ > 1424)
+         psh.pszIcon    = NULL;
       #else
-      psh.DUMMYUNIONNAME.pszIcon = NULL;
+         psh.DUMMYUNIONNAME.pszIcon = NULL;
       #endif
+
       psh.pszCaption = HB_PARSTR( 4, &hCaption, NULL );
-      psh.nPages = nPages;
-      #if !defined(__BORLANDC__)||  (__BORLANDC__ > 1424)
-      psh.nStartPage = 0;
-      psh.phpage = psp;
+      psh.nPages     = nPages;
+
+      #if !defined(__BORLANDC__) || (__BORLANDC__ > 1424)
+         psh.nStartPage = 0;
+         psh.phpage     = psp;
       #else
-      psh.DUMMYUNIONNAME2.nStartPage = 0;
-      psh.DUMMYUNIONNAME3.phpage = psp;
+         psh.DUMMYUNIONNAME2.nStartPage = 0;
+         psh.DUMMYUNIONNAME3.phpage     = psp;
       #endif
+
       psh.pfnCallback = NULL;
 
-      HB_RETHANDLE( PropertySheet( &psh ) );
+      hResult = ( HWND ) PropertySheet( &psh );
+
       hb_strfree( hCaption );
+      hb_xfree( psp );
+
+      HB_RETHANDLE( hResult );
 }
 
 /* Hwg_CreateDlgIndirect( hParentWnd, pArray, x1, y1, nWidth, nHeight, nStyle )
