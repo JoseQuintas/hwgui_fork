@@ -15,6 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-24 20:44 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+   - HWG_BMPNEWIMAGE, HWG_QRCODEZOOM_C: Fixed critical stack overflow
+     vulnerabilities under Clang 64-bit by moving heavy buffer allocations
+     to heap memory (hb_xgrab). Added defensive buffer boundaries.
+   - HWG_BMPDESTROY: Nullified bmp_fileimg pointer post-destruction to
+     prevent Double Free process crash anomalies.
 
 2026-08-24 20:30 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed

@@ -3380,334 +3380,229 @@ void * hwg_BMPNewImageC(
       return bmp_fileimg;
 
 }
-
 /* Calculates the offset to pixel array (image data) */
 uint32_t hwg_BMPCalcOffsPixArrC(unsigned int colors)
-   {
-    uint32_t fileoffset_to_pixelarray;
-
-    fileoffset_to_pixelarray = sizeof (fileheader) + sizeof(bitmapinfoheader) +
-    colors * 4 ;
-
-    return fileoffset_to_pixelarray;
-
+{
+      return (uint32_t)(sizeof(fileheader) + sizeof(bitmapinfoheader) + (colors * 4));
 }
 
-
-/*
- Calculates the offset to palette data,
- located after the pixel matrix (jagged array)
- */
-
-
+/* Calculates the offset to palette data */
 uint32_t hwg_BMPCalcOffsPalC(int bmp_height)
 {
-  uint32_t iret;
-  iret = sizeof(bitmapheader3x) + ( bmp_height * sizeof(pixel*) );
-  return iret;
+      return (uint32_t)(sizeof(bitmapheader3x) + (bmp_height * sizeof(pixel*)));
 }
-
 
 /*  ==== HWGUI Interface function for raw bitmap support ==== */
-
 HB_FUNC( HWG_BMPNEWIMAGE )
 {
+      int bmp_width = hb_parni(1);
+      int bmp_height = hb_parni(2);
+      int bmp_bit_depth = hb_parni(3);
+      unsigned int colors = hb_parni(4);
+      uint32_t xpixelpermeter = hb_parnl(5);
+      uint32_t ypixelpermeter = hb_parnl(6);
+      void *rci;
+      uint32_t filesize;
 
-    int bmp_width;
-    int bmp_height;
-    int bmp_bit_depth;
-    unsigned int colors;
-    uint32_t xpixelpermeter;
-    uint32_t ypixelpermeter;
-    void * rci;
-    char rcbuff[BMPFILEIMG_MAXSZ];
-    uint32_t filesize ;
+      rci = hwg_BMPNewImageC(bmp_width, bmp_height, bmp_bit_depth, colors, xpixelpermeter, ypixelpermeter);
 
-    bmp_width = hb_parni(1);
-    bmp_height = hb_parni(2);
-    bmp_bit_depth = hb_parni(3);
-    colors = hb_parni(4);
-    xpixelpermeter = hb_parnl(5);
-    ypixelpermeter = hb_parnl(6);
+      if ( !rci )
+      {
+            hb_retc("Error");
+            return;
+      }
 
+      /* Calculate the file size */
+      filesize = hwg_BMPFileSizeC(bmp_width, bmp_height, bmp_bit_depth, colors);
 
+      if ( filesize > BMPFILEIMG_MAXSZ || filesize == 0 )
+      {
+            hb_retc("Error");
+            return;
+      }
 
-    rci = hwg_BMPNewImageC(
-     bmp_width,
-     bmp_height,
-     bmp_bit_depth,
-     colors,
-     xpixelpermeter,
-     ypixelpermeter );
+      // Safe: Allocate a temporary buffer on the heap instead of the stack to prevent stack overflow
+      char *rcbuff = (char *) hb_xgrab(filesize);
+      if ( rcbuff == NULL )
+      {
+            hb_retc("Error");
+            return;
+      }
 
+      memcpy(rcbuff, rci, filesize);
+      hb_retclen_buffer(rcbuff, filesize);
 
-     if ( ! rci )
-     {
-      hb_retc("Error");
-     }
-
-    /* Calculate the file size */
-    filesize = hwg_BMPFileSizeC(bmp_width, bmp_height, bmp_bit_depth, colors) ;
-
-    if ( filesize > BMPFILEIMG_MAXSZ )
-    {
-      hb_retc("Error");
-    }
-
-     memcpy(&rcbuff,rci,filesize);
-
-
-     hb_retclen_buffer(rcbuff,filesize);
-
-    /* HB_RETSTR(rcbuff) stops writing bytes at first appearence of 0x00 */
-
+      // Memory ownership is transferred to the Harbour VM return stack buffer
 }
 
-
-/* Free's the allocted memory of a bitmap */
+/* Free's the allocated memory of a bitmap */
 HB_FUNC( HWG_BMPDESTROY )
 {
-   if ( bmp_fileimg )
-   {
-    free(bmp_fileimg);
-   }
+      if ( bmp_fileimg )
+      {
+            free(bmp_fileimg);
+            bmp_fileimg = NULL; // CRITICAL: Nullify pointer after freeing to prevent Double Free crashes
+      }
 }
 
 /* Calculates the expected filesize of a bitmap W3.x file */
 HB_FUNC( HWG_BMPFILESIZE )
 {
-    uint32_t image_size;
-    uint32_t pad;
-    uint32_t fileoffset_to_pixelarray;
-    uint32_t filesize ;
+      uint32_t image_size;
+      uint32_t pad;
+      uint32_t fileoffset_to_pixelarray;
+      uint32_t filesize;
 
-    int bmp_width;
-    int bmp_height;
-    int bmp_bit_depth;
-    unsigned int colors;
+      int bmp_width = hb_parni(1);
+      int bmp_height = hb_parni(2);
+      int bmp_bit_depth = hb_parni(3);
+      unsigned int colors = hb_parni(4);
 
-    bmp_width = hb_parni(1);
-    bmp_height = hb_parni(2);
-    bmp_bit_depth = hb_parni(3);
-    colors = hb_parni(4);
+      pad = (4 - (bmp_bit_depth * bmp_width + 7) / 8 % 4) % 4;
+      image_size = ((bmp_bit_depth * bmp_width + 7) / 8 + pad) * bmp_height;
 
-    pad = (4 - (bmp_bit_depth * bmp_width + 7 ) / 8 % 4) % 4;
-    image_size = ((bmp_bit_depth * bmp_width + 7 ) / 8 + pad ) * bmp_height;
+      fileoffset_to_pixelarray = (uint32_t)(sizeof(fileheader) + sizeof(bitmapinfoheader) + (colors * 4));
+      filesize = fileoffset_to_pixelarray + image_size;
 
-    fileoffset_to_pixelarray = sizeof (fileheader) + sizeof(bitmapinfoheader) +
-    colors * 4 ;
-    filesize = fileoffset_to_pixelarray + image_size ;
-
-    hb_retnl(filesize);
+      hb_retnl(filesize);
 }
 
 /* Returns the size of BMPImage3x structure */
 HB_FUNC( HWG_BMPSZ3X )
 {
-  uint32_t i;
-  i = ( sizeof(BMPImage3x) );
-  hb_retnl(i);
+      hb_retnl((uint32_t)sizeof(BMPImage3x));
 }
 
 /* Returns the maximum size of the bitmap file size */
 HB_FUNC( HWG_BMPMAXFILESZ )
 {
-  hb_retnl(BMPFILEIMG_MAXSZ);
+      hb_retnl(BMPFILEIMG_MAXSZ);
 }
 
 /* Calculates the offset to pixel array (image data) */
-
 HB_FUNC( HWG_BMPCALCOFFSPIXARR )
 {
-
-    unsigned int colors;
-    uint32_t fileoffset_to_pixelarray;
-
-    colors = hb_parni(1);
-
-    fileoffset_to_pixelarray = hwg_BMPCalcOffsPixArrC(colors);
-    hb_retnl(fileoffset_to_pixelarray);
-
+      hb_retnl(hwg_BMPCalcOffsPixArrC(hb_parni(1)));
 }
 
 /* Calculates the offset to palette data */
 HB_FUNC( HWG_BMPCALCOFFSPAL )
 {
-  uint32_t rc;
-  int bmp_height;
-
-  bmp_height = hb_parni(1);
-  rc = hwg_BMPCalcOffsPalC(bmp_height);
-  hb_retnl(rc);
+      hb_retnl(hwg_BMPCalcOffsPalC(hb_parni(1)));
 }
 
-/*
-  BMPImageSize(width,height,bitsperpixel)
-  Calculates the imagesize of a bitmap W3x .
-*/
-
+/* Calculates the imagesize of a bitmap W3x */
 HB_FUNC( HWG_BMPIMAGESIZE )
 {
-    uint32_t image_size;
+      int bmp_width = hb_parni(1);
+      int bmp_height = hb_parni(2);
+      int bmp_bit_depth = hb_parni(3);
+      uint32_t pad = (4 - (bmp_bit_depth * bmp_width + 7) / 8 % 4) % 4;
+      uint32_t image_size = ((bmp_bit_depth * bmp_width + 7) / 8 + pad) * bmp_height;
 
-    int bmp_width;
-    int bmp_height;
-    int bmp_bit_depth;
-
-    uint32_t pad;
-
-    bmp_width = hb_parni(1);
-    bmp_height = hb_parni(2);
-    bmp_bit_depth = hb_parni(3);
-
-
-    pad = (4 - (bmp_bit_depth * bmp_width + 7 ) / 8 % 4) % 4;
-    image_size = ((bmp_bit_depth * bmp_width + 7 ) / 8 + pad ) * bmp_height;
-
-   hb_retnl(image_size);
-
+      hb_retnl(image_size);
 }
 
-
-/*
-  hwg_BMPLineSize(width,bitsperpixel)
-  Returns the size of a pixel line in bytes,
-  accepting the padding at end of line
-*/
+/* Returns the size of a pixel line in bytes, including padding */
 HB_FUNC( HWG_BMPLINESIZE )
 {
-    uint32_t line_size;
+      int bmp_width = hb_parni(1);
+      int bmp_bit_depth = hb_parni(2);
+      uint32_t pad = (4 - (bmp_bit_depth * bmp_width + 7) / 8 % 4) % 4;
+      uint32_t line_size = ((bmp_bit_depth * bmp_width + 7) / 8 + pad);
 
-    int bmp_width;
-    int bmp_bit_depth;
-
-    uint32_t pad;
-
-    bmp_width = hb_parni(1);
-    bmp_bit_depth = hb_parni(2);
-
-
-    pad = (4 - (bmp_bit_depth * bmp_width + 7 ) / 8 % 4) % 4;
-    line_size = ((bmp_bit_depth * bmp_width + 7 ) / 8 + pad );
-
-    hb_retnl(line_size);
-
+      hb_retnl(line_size);
 }
 
-/*   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~   */
-/*   End of Functions for raw bitmap support   */
-/*   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~   */
-
-/*
-* Increases the size of a QR code image
-* cqrcode : The QR code in text format
-* nlen    : Pass LEN(cqrcode)
-* nzoom   : The zoom factor 1 ... n
-*           The default is 1 (no zoom)
-* Return the new QR code text string
-
-hwg_QRCodeZoom_C(cqrcode,nlen,<nzoom>)
-
-*/
-
-HB_FUNC ( HWG_QRCODEZOOM_C )
+/* Increases the size of a QR code image */
+HB_FUNC( HWG_QRCODEZOOM_C )
 {
-  int i , j, leofq;
-  // leofq: 0 = .F. , 1 = .T.
-  int nzoom, nlen;
-  int cptr,lptr;
-  char cqrcode [16385];
-  char cout[16385];
-  char cLine[8192];
-  const char *hString;
+      int i, j, leofq;
+      int nzoom = ( HB_ISNIL( 3 ) ? 1 : hb_parni( 3 ) );
+      int nlen = hb_parni( 2 );
+      int cptr = 0, lptr = 0;
+      const char *hString = hb_parc( 1 );
 
+      if ( nzoom < 1 )
+      {
+            hb_retclen(hString, nlen);
+            return;
+      }
 
+      // Heap allocation to prevent stack overflow conditions on 64-bit architectures
+      char *cqrcode = (char *) hb_xgrab(16385);
+      char *cout = (char *) hb_xgrab(16385);
+      char *cLine = (char *) hb_xgrab(8192);
 
+      if ( !cqrcode || !cout || !cLine )
+      {
+            if (cqrcode) hb_xfree(cqrcode);
+            if (cout) hb_xfree(cout);
+            if (cLine) hb_xfree(cLine);
+            hb_retc("");
+            return;
+      }
 
-  nlen  =  hb_parni( 2 );
-  nzoom =  ( HB_ISNIL( 3 ) ? 1 : hb_parni( 3 )  );
+      memset(cout, 0x00, 16385);
+      memset(cLine, 0x00, 8192);
+      memcpy(cqrcode, hString, (nlen > 16384) ? 16384 : nlen);
 
+      leofq = 0;
+      for (i = 0; i < nlen; i++)
+      {
+            if ( leofq == 0 )
+            {
+                  if ( cqrcode[i] == 10 )
+                  {
+                        if ( !(cqrcode[i + 1] == 32) )
+                        {
+                              leofq = 1;
+                        }
+                        for (j = 1; j <= nzoom; j++)
+                        {
+                              // Defensive validation against buffer overflow bounds
+                              if (cptr + lptr + 2 >= 16384) break;
 
-  lptr = 0;  // Position in a line
-  cptr = 0;  // Position in cout
-  memset(&cout , 0x00, 16385 );
-  memset(&cLine , 0x00, 8192 );
+                              memcpy(&cout[cptr], cLine, lptr);
+                              cout[cptr + lptr + 1] = 10;
+                              cptr = cptr + lptr + 2;
+                        }
+                        lptr = 0;
+                        memset(cLine, 0x00, 8192);
+                  }
+                  else
+                  {
+                        for (j = 1; j <= nzoom; j++)
+                        {
+                              if (lptr >= 8190) break;
+                              cLine[lptr] = cqrcode[i];
+                              lptr++;
+                        }
+                        cLine[lptr] = 10;
+                  }
+            }
+      }
 
-  // Copy the image into char array
-  hString = hb_parc( 1 );
-  memcpy(&cqrcode,hString,nlen);
+      if (lptr > 0 && cptr + lptr + 2 < 16384)
+      {
+            memcpy(&cout[cptr], cLine, lptr);
+            cout[cptr + lptr + 1] = 10;
+            cptr = cptr + lptr + 2;
+      }
 
+      if (cptr + 2 < 16384)
+      {
+            cout[cptr + 1] = 10;
+            cptr += 2;
+      }
 
+      hb_retclen(cout, cptr);
 
-  if ( nzoom < 1 )
-  {
-    hb_retclen(cqrcode,nlen);
-  }
-
-
-leofq = 0;
-// i: Position in cqrcode
-
-for (i = 0 ; i < nlen ; i++ )
-{
- if ( leofq == 0 )
- {
-  if ( cqrcode[i] == 10 )
-  {
-    if ( ! ( cqrcode[ i + 1 ] == 32 )  )
-    {
-      // Empty line following, stop here
-      leofq = 1;
-    }
-    // Count line ending and start with new line
-
-    // Replicate line with zoom factor
-    // and add line to output string
-        for(j = 1 ; j <= nzoom ; j++ )
-        {
-          memcpy(&cout[cptr],&cLine,lptr);
-          cout[cptr + lptr + 1 ] = 10;
-          cptr = cptr + lptr + 2; // Next line
-        }
-        lptr = 0;
-        memset(&cLine , 0x00, 8192 );
-  }
-  else  // SUBSTR " "
-  {
-    // Replicate characters in line with zoom factor
-
-    for(j = 1 ; j <= nzoom ; j++ )
-    {
-      cLine[lptr] = cqrcode[i];
-      lptr++;
-    }
-    // Set line ending
-    cLine[lptr] = 10;
-
-
-  }  // is CHR(10)
- }   // .NOT. leofq
-
-} // NEXT
-
-  if (lptr > 0)
-  {
-      memcpy(&cout[cptr],&cLine,lptr);
-      cout[cptr + lptr + 1] = 10;
-      cptr = cptr + lptr + 2; // Next line
-  }
-
-// Empty line as mark for EOF
-
-
-   cout[cptr + 1] = 10;
-   cptr++;
-   cptr++;
-
-   hb_retclen(cout,cptr);
-
+      // Free heap allocations cleanly
+      hb_xfree(cqrcode);
+      hb_xfree(cout);
+      hb_xfree(cLine);
 }
-
 
 /* ================== EOF of draw.c ========================== */
 
