@@ -16,6 +16,12 @@
 */
 
 2026-08-24 15:49 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+    - HWG_CENTERBITMAP: Fixed a critical GDI resource leak by implementing
+      proper cleanup with hOldObj restoration before calling DeleteDC(). Added
+      validation bounds for GetObject dimensions to prevent memory calculation
+      faults on invalid bitmap handles.
+
+2026-08-24 15:49 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
     - HWG_SPREADBITMAP: Fixed a critical GDI resource leak by properly
       restoring the original bitmap handle (hOldObj) before destroying hDCmem.
       Added structural protection rules against zero or negative dimensions

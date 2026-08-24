@@ -1100,33 +1100,44 @@ HB_FUNC( HWG_SPREADBITMAP )
       DeleteDC( hDCmem );
 }
 
-/*  CenterBitmap( hDC, hWnd, hBitmap, style, brush )
-*/
-
+/*
+ * CenterBitmap( hDC, hWnd, hBitmap, style, brush )
+ */
 HB_FUNC( HWG_CENTERBITMAP )
 {
-   HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
-   HDC hDCmem = CreateCompatibleDC( hDC );
-   DWORD dwraster = ( HB_ISNIL( 4 ) ) ? SRCCOPY : ( DWORD ) hb_parnl( 4 );
-   HBITMAP hBitmap = ( HBITMAP ) HB_PARHANDLE( 3 );
-   BITMAP bitmap;
-   RECT rc;
-   HBRUSH hBrush =
-         ( HB_ISNIL( 5 ) ) ? ( HBRUSH ) ( COLOR_WINDOW +
-         1 ) : ( HBRUSH ) HB_PARHANDLE( 5 );
+      HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
+      HDC hDCmem = CreateCompatibleDC( hDC );
+      DWORD dwraster = ( HB_ISNIL( 4 ) ) ? SRCCOPY : ( DWORD ) hb_parnl( 4 );
+      HBITMAP hBitmap = ( HBITMAP ) HB_PARHANDLE( 3 );
+      BITMAP bitmap;
+      RECT rc;
+      HBRUSH hBrush =
+      ( HB_ISNIL( 5 ) ) ? ( HBRUSH ) ( uintptr_t ) ( COLOR_WINDOW +
+      1 ) : ( HBRUSH ) HB_PARHANDLE( 5 );
 
-   SelectObject( hDCmem, hBitmap );
-   GetObject( hBitmap, sizeof( BITMAP ), ( LPVOID ) & bitmap );
-   GetClientRect( ( HWND ) HB_PARHANDLE( 2 ), &rc );
+      // Save the original default bitmap to prevent memory leak
+      HGDIOBJ hOldObj = SelectObject( hDCmem, hBitmap );
 
-   FillRect( hDC, &rc, hBrush );
-   BitBlt( hDC, ( rc.right - bitmap.bmWidth ) / 2,
-         ( rc.bottom - bitmap.bmHeight ) / 2, bitmap.bmWidth, bitmap.bmHeight,
-         hDCmem, 0, 0, dwraster );
+      // Safely validate bitmap properties before performing rendering calculations
+      if( GetObject( hBitmap, sizeof( BITMAP ), ( LPVOID ) & bitmap ) == 0 ||
+            bitmap.bmWidth <= 0 || bitmap.bmHeight <= 0 )
+      {
+            SelectObject( hDCmem, hOldObj );
+            DeleteDC( hDCmem );
+            return;
+      }
 
-   DeleteDC( hDCmem );
+      GetClientRect( ( HWND ) HB_PARHANDLE( 2 ), &rc );
+
+      FillRect( hDC, &rc, hBrush );
+      BitBlt( hDC, ( rc.right - bitmap.bmWidth ) / 2,
+              ( rc.bottom - bitmap.bmHeight ) / 2, bitmap.bmWidth, bitmap.bmHeight,
+              hDCmem, 0, 0, dwraster );
+
+      // Restore the original bitmap before deleting the memory device context
+      SelectObject( hDCmem, hOldObj );
+      DeleteDC( hDCmem );
 }
-
 
 HB_FUNC( HWG_GETBITMAPSIZE )
 {
