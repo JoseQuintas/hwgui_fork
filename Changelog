@@ -15,17 +15,22 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-24 15:13 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+    - HWG_INVALIDATERECT: Fixed a data type mismatch for 64-bit compatibility.
+      Adjusted the erase-background parameter to check for boolean types (HB_ISLOG)
+      before numerical conversion, preventing stack corruption and rendering issues.
+
 2026-08-24 15:07 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
-      - HWG_DRAWTRANSPARENTBITMAP: Fixed potential GDI leak by adding explicit
-        null-pointer checks before releasing resources. Adjusted mask bitmap
-        creation sizing to dynamic destination constraints to guarantee layout
-        stability and avoid buffer overrun on stretched contexts.
+    - HWG_DRAWTRANSPARENTBITMAP: Fixed potential GDI leak by adding explicit
+      null-pointer checks before releasing resources. Adjusted mask bitmap
+      creation sizing to dynamic destination constraints to guarantee layout
+      stability and avoid buffer overrun on stretched contexts.
 
 2026-08-24 14:57 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
-      - TransparentBmp: Fixed a critical resource leak and potential crash in
-        64-bit systems. Resolved recursive LoadLibrary() calls on MSIMG32.DLL by
-        implementing proper lazy-loading validation. Added strict NULL pointer
-        checks for the dynamic function call to prevent memory access violations.
+    - TransparentBmp: Fixed a critical resource leak and potential crash in
+      64-bit systems. Resolved recursive LoadLibrary() calls on MSIMG32.DLL by
+      implementing proper lazy-loading validation. Added strict NULL pointer
+      checks for the dynamic function call to prevent memory access violations.
 
 2026-08-24 14:38 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
     * source/winapi/draw.c:

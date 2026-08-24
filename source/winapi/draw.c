@@ -225,22 +225,26 @@ HB_FUNC( HWG_GETUPDATERECT )
    hb_retni( fErase );
 }
 
+/*
+ * InvalidateRect( hWnd, bErase [, nLeft, nTop, nRight, nBottom] )
+ */
 HB_FUNC( HWG_INVALIDATERECT )
 {
-   RECT rc;
+      RECT rc;
+      HWND hWnd = ( HWND ) HB_PARHANDLE( 1 );
 
-   if( hb_pcount(  ) > 2 )
-   {
-      rc.left = hb_parni( 3 );
-      rc.top = hb_parni( 4 );
-      rc.right = hb_parni( 5 );
-      rc.bottom = hb_parni( 6 );
-   }
+      // Safely determine the boolean flag for background erasing
+      BOOL bErase = HB_ISLOG( 2 ) ? ( BOOL ) hb_parl( 2 ) : ( BOOL ) hb_parni( 2 );
 
-   InvalidateRect( ( HWND ) HB_PARHANDLE( 1 ),  // handle of window with changed update region
-         ( hb_pcount(  ) > 2 ) ? &rc : NULL,    // address of rectangle coordinates
-         hb_parni( 2 )          // erase-background flag
-          );
+      if( hb_pcount(  ) > 2 )
+      {
+            rc.left   = hb_parni( 3 );
+            rc.top    = hb_parni( 4 );
+            rc.right  = hb_parni( 5 );
+            rc.bottom = hb_parni( 6 );
+      }
+
+      InvalidateRect( hWnd, ( hb_pcount(  ) > 2 ) ? &rc : NULL, bErase );
 }
 
 HB_FUNC( HWG_MOVETO )
