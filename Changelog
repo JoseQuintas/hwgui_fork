@@ -15,6 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-40 16:46 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+    - HWG_GETDRAWITEMINFO: Fixed a critical Harbour VM memory leak by refactoring
+      dynamic array insertions to use a single, pre-allocated PHB_ITEM container.
+    - HWG_DRAWGRAYBITMAP: Enhanced GDI safety bounds by adding object size
+      sanitization and ensured strict restoration of system context color properties.
+
 2026-08-40 16:32 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
     - HWG_CREATESOLIDBRUSH, HWG_CREATEHATCHBRUSH, HWG_SELECTOBJECT, HWG_GETDC:
       Swapped legacy HB_RETHANDLE macros with safe 64-bit pointer returns (hb_retptr)

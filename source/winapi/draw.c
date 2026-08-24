@@ -1591,51 +1591,55 @@ HB_FUNC( HWG_RELEASEDC )
       hb_retl( ReleaseDC( ( HWND ) HB_PARHANDLE( 1 ), ( HDC ) HB_PARHANDLE( 2 ) ) != 0 );
 }
 
+/*
+ * hwg_GetDrawItemInfo( pDrawItemStruct )
+ */
 HB_FUNC( HWG_GETDRAWITEMINFO )
 {
+      DRAWITEMSTRUCT *lpdis = ( DRAWITEMSTRUCT * ) HB_PARHANDLE( 1 );
+      PHB_ITEM aMetr = hb_itemArrayNew( 9 );
+      PHB_ITEM temp = hb_itemNew( NULL ); // Allocate a single item container safely
 
-   DRAWITEMSTRUCT *lpdis = ( DRAWITEMSTRUCT * ) HB_PARHANDLE( 1 );      //hb_parnl( 1 );
-   PHB_ITEM aMetr = hb_itemArrayNew( 9 );
-   PHB_ITEM temp;
+      if( lpdis )
+      {
+            // Safely populate array elements using a single item container reference
+            hb_itemPutNL( temp, lpdis->itemID );
+            hb_itemArrayPut( aMetr, 1, temp );
 
-   temp = hb_itemPutNL( NULL, lpdis->itemID );
-   hb_itemArrayPut( aMetr, 1, temp );
-   hb_itemRelease( temp );
+            hb_itemPutNL( temp, lpdis->itemAction );
+            hb_itemArrayPut( aMetr, 2, temp );
 
-   temp = hb_itemPutNL( NULL, lpdis->itemAction );
-   hb_itemArrayPut( aMetr, 2, temp );
-   hb_itemRelease( temp );
+            #if defined(HB_LONG_PCOUNT) || defined(_WIN64)
+            hb_itemPutPtr( temp, ( void * ) lpdis->hDC );
+            #else
+            HB_PUTHANDLE( temp, lpdis->hDC );
+            #endif
+            hb_itemArrayPut( aMetr, 3, temp );
 
-   temp = HB_PUTHANDLE( NULL, lpdis->hDC );
-   hb_itemArrayPut( aMetr, 3, temp );
-   hb_itemRelease( temp );
+            hb_itemPutNL( temp, lpdis->rcItem.left );
+            hb_itemArrayPut( aMetr, 4, temp );
 
-   temp = hb_itemPutNL( NULL, lpdis->rcItem.left );
-   hb_itemArrayPut( aMetr, 4, temp );
-   hb_itemRelease( temp );
+            hb_itemPutNL( temp, lpdis->rcItem.top );
+            hb_itemArrayPut( aMetr, 5, temp );
 
-   temp = hb_itemPutNL( NULL, lpdis->rcItem.top );
-   hb_itemArrayPut( aMetr, 5, temp );
-   hb_itemRelease( temp );
+            hb_itemPutNL( temp, lpdis->rcItem.right );
+            hb_itemArrayPut( aMetr, 6, temp );
 
-   temp = hb_itemPutNL( NULL, lpdis->rcItem.right );
-   hb_itemArrayPut( aMetr, 6, temp );
-   hb_itemRelease( temp );
+            hb_itemPutNL( temp, lpdis->rcItem.bottom );
+            hb_itemArrayPut( aMetr, 7, temp );
 
-   temp = hb_itemPutNL( NULL, lpdis->rcItem.bottom );
-   hb_itemArrayPut( aMetr, 7, temp );
-   hb_itemRelease( temp );
+            hb_itemPutPtr( temp, ( void * ) lpdis->hwndItem );
+            hb_itemArrayPut( aMetr, 8, temp );
 
-   temp = hb_itemPutPtr( NULL, lpdis->hwndItem );
-   hb_itemArrayPut( aMetr, 8, temp );
-   hb_itemRelease( temp );
+            hb_itemPutNL( temp, ( LONG ) lpdis->itemState );
+            hb_itemArrayPut( aMetr, 9, temp );
+      }
 
-   temp = hb_itemPutNL( NULL, ( LONG ) lpdis->itemState );
-   hb_itemArrayPut( aMetr, 9, temp );
-   hb_itemRelease( temp );
+      // Release the dynamic item container memory completely
+      hb_itemRelease( temp );
 
-   hb_itemReturn( aMetr );
-   hb_itemRelease( aMetr );
+      hb_itemReturn( aMetr );
+      hb_itemRelease( aMetr );
 }
 
 /*
@@ -1643,48 +1647,67 @@ HB_FUNC( HWG_GETDRAWITEMINFO )
  */
 HB_FUNC( HWG_DRAWGRAYBITMAP )
 {
-   HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
-   HBITMAP hBitmap = ( HBITMAP ) HB_PARHANDLE( 2 );
-   HBITMAP bitmapgray;
-   HBITMAP pOldBitmapImage, pOldbitmapgray;
-   BITMAP bitmap;
-   HDC dcImage, dcTrans;
-   int x = hb_parni( 3 );
-   int y = hb_parni( 4 );
+      HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
+      HBITMAP hBitmap = ( HBITMAP ) HB_PARHANDLE( 2 );
+      HBITMAP bitmapgray = NULL;
+      HBITMAP pOldBitmapImage = NULL, pOldbitmapgray = NULL;
+      BITMAP bitmap;
+      HDC dcImage, dcTrans;
+      int x = hb_parni( 3 );
+      int y = hb_parni( 4 );
 
-   SetBkColor( hDC, GetSysColor( COLOR_BTNHIGHLIGHT ) );
-   //SetTextColor( hDC, GetSysColor( COLOR_BTNFACE ) );
-   SetTextColor( hDC, GetSysColor( COLOR_BTNSHADOW ) );
-   // Create two memory dcs for the image and the mask
-   dcImage = CreateCompatibleDC( hDC );
-   dcTrans = CreateCompatibleDC( hDC );
-   // Select the image into the appropriate dc
-   pOldBitmapImage = ( HBITMAP ) SelectObject( dcImage, hBitmap );
-   GetObject( hBitmap, sizeof( BITMAP ), ( LPVOID ) & bitmap );
-   // Create the mask bitmap
-   bitmapgray = CreateBitmap( bitmap.bmWidth, bitmap.bmHeight, 1, 1, NULL );
-   // Select the mask bitmap into the appropriate dc
-   pOldbitmapgray = ( HBITMAP ) SelectObject( dcTrans, bitmapgray );
-   // Build mask based on transparent colour
-   SetBkColor( dcImage, RGB( 255, 255, 255 ) );
-   BitBlt( dcTrans, 0, 0, bitmap.bmWidth, bitmap.bmHeight, dcImage, 0, 0,
-         SRCCOPY );
-   // Do the work - True Mask method - cool if not actual display
-   BitBlt( hDC, x, y, bitmap.bmWidth, bitmap.bmHeight, dcImage, 0, 0,
-         SRCINVERT );
-   BitBlt( hDC, x, y, bitmap.bmWidth, bitmap.bmHeight, dcTrans, 0, 0,
-         SRCAND );
-   BitBlt( hDC, x, y, bitmap.bmWidth, bitmap.bmHeight, dcImage, 0, 0,
-         SRCINVERT );
-   // Restore settings
-   SelectObject( dcImage, pOldBitmapImage );
-   SelectObject( dcTrans, pOldbitmapgray );
-   SetBkColor( hDC, GetPixel( hDC, 0, 0 ) );
-   SetTextColor( hDC, 0 );
+      if( !hDC || !hBitmap )
+            return;
 
-   DeleteObject( bitmapgray );
-   DeleteDC( dcImage );
-   DeleteDC( dcTrans );
+      if( GetObject( hBitmap, sizeof( BITMAP ), ( LPVOID ) & bitmap ) == 0 ||
+            bitmap.bmWidth <= 0 || bitmap.bmHeight <= 0 )
+      {
+            return;
+      }
+
+      COLORREF crOldBack = SetBkColor( hDC, GetSysColor( COLOR_BTNHIGHLIGHT ) );
+      COLORREF crOldText = SetTextColor( hDC, GetSysColor( COLOR_BTNSHADOW ) );
+
+      // Create two memory dcs for the image and the mask
+      dcImage = CreateCompatibleDC( hDC );
+      dcTrans = CreateCompatibleDC( hDC );
+
+      // Select the image into the appropriate dc
+      pOldBitmapImage = ( HBITMAP ) SelectObject( dcImage, hBitmap );
+
+      // Create the mask bitmap
+      bitmapgray = CreateBitmap( bitmap.bmWidth, bitmap.bmHeight, 1, 1, NULL );
+
+      // Select the mask bitmap into the appropriate dc
+      pOldbitmapgray = ( HBITMAP ) SelectObject( dcTrans, bitmapgray );
+
+      // Build mask based on transparent colour
+      SetBkColor( dcImage, RGB( 255, 255, 255 ) );
+      BitBlt( dcTrans, 0, 0, bitmap.bmWidth, bitmap.bmHeight, dcImage, 0, 0, SRCCOPY );
+
+      // Do the work - True Mask method
+      BitBlt( hDC, x, y, bitmap.bmWidth, bitmap.bmHeight, dcImage, 0, 0, SRCINVERT );
+      BitBlt( hDC, x, y, bitmap.bmWidth, bitmap.bmHeight, dcTrans, 0, 0, SRCAND );
+      BitBlt( hDC, x, y, bitmap.bmWidth, bitmap.bmHeight, dcImage, 0, 0, SRCINVERT );
+
+      // Restore settings safely
+      if( dcImage && pOldBitmapImage )
+            SelectObject( dcImage, pOldBitmapImage );
+
+      if( dcTrans && pOldbitmapgray )
+            SelectObject( dcTrans, pOldbitmapgray );
+
+      SetBkColor( hDC, crOldBack );
+      SetTextColor( hDC, crOldText );
+
+      if( bitmapgray )
+            DeleteObject( bitmapgray );
+
+      if( dcImage )
+            DeleteDC( dcImage );
+
+      if( dcTrans )
+            DeleteDC( dcTrans );
 }
 
 #include <olectl.h>
