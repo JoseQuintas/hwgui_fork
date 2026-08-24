@@ -1215,114 +1215,134 @@ HB_FUNC( HWG_GETICONSIZE )
       hb_itemReturn( aMetr );
       hb_itemRelease( aMetr );
 }
-
-
 /*
-  hwg_Openbitmap( cBitmap, hDC )
-  cBitmap : File name of bitmap
-  hDC     : Printer device handle
-*/
+ * hwg_Openbitmap( cBitmap, hDC )
+ * cBitmap : File name of bitmap
+ * hDC     : Printer device handle
+ */
 HB_FUNC( HWG_OPENBITMAP )
 {
-   BITMAPFILEHEADER bmfh;
-   BITMAPINFOHEADER bmih;
-   LPBITMAPINFO lpbmi;
-   DWORD dwRead;
-   LPVOID lpvBits;
-   HGLOBAL hmem1, hmem2;
-   HBITMAP hbm;
-   HDC hDC = ( hb_pcount(  ) > 1 && !HB_ISNIL( 2 ) ) ?
-         ( HDC ) HB_PARHANDLE( 2 ) : NULL;
-   void *hString;
-   HANDLE hfbm;
+      BITMAPFILEHEADER bmfh;
+      BITMAPINFOHEADER bmih;
+      LPBITMAPINFO lpbmi;
+      DWORD dwRead;
+      LPVOID lpvBits;
+      HGLOBAL hmem1, hmem2;
+      HBITMAP hbm = NULL;
+      HDC hDC = ( hb_pcount(  ) > 1 && !HB_ISNIL( 2 ) ) ?
+      ( HDC ) HB_PARHANDLE( 2 ) : NULL;
+      void *hString;
+      HANDLE hfbm;
 
-   hfbm = CreateFile( HB_PARSTR( 1, &hString, NULL ), GENERIC_READ,
-         FILE_SHARE_READ, ( LPSECURITY_ATTRIBUTES ) NULL, OPEN_EXISTING,
-         FILE_ATTRIBUTE_READONLY, ( HANDLE ) NULL );
-   hb_strfree( hString );
-   if( ( ( LONG_PTR ) hfbm ) <= 0 )
-   {
-      HB_RETHANDLE( NULL );
-      return;
-   }
-   /* Retrieve the BITMAPFILEHEADER structure. */
-   ReadFile( hfbm, &bmfh, sizeof( BITMAPFILEHEADER ), &dwRead, NULL );
+      hfbm = CreateFile( HB_PARSTR( 1, &hString, NULL ), GENERIC_READ,
+                         FILE_SHARE_READ, ( LPSECURITY_ATTRIBUTES ) NULL, OPEN_EXISTING,
+                         FILE_ATTRIBUTE_READONLY, ( HANDLE ) NULL );
+      hb_strfree( hString );
 
-   /* Retrieve the BITMAPFILEHEADER structure. */
-   ReadFile( hfbm, &bmih, sizeof( BITMAPINFOHEADER ), &dwRead, NULL );
+      // CRITICAL: Proper validation of Windows file handle for 64-bit Clang compliance
+      if( hfbm == INVALID_HANDLE_VALUE )
+      {
+            #if defined(HB_LONG_PCOUNT) || defined(_WIN64)
+            hb_retptr( NULL );
+            #else
+            HB_RETHANDLE( NULL );
+            #endif
+            return;
+      }
 
-   /* Allocate memory for the BITMAPINFO structure. */
+      /* Retrieve the BITMAPFILEHEADER structure. */
+      ReadFile( hfbm, &bmfh, sizeof( BITMAPFILEHEADER ), &dwRead, NULL );
 
-   hmem1 = GlobalAlloc( GHND, sizeof( BITMAPINFOHEADER ) +
-         ( ( 1 << bmih.biBitCount ) * sizeof( RGBQUAD ) ) );
-   lpbmi = ( LPBITMAPINFO ) GlobalLock( hmem1 );
+      /* Retrieve the BITMAPINFOHEADER structure. */
+      ReadFile( hfbm, &bmih, sizeof( BITMAPINFOHEADER ), &dwRead, NULL );
 
-   /*  Load BITMAPINFOHEADER into the BITMAPINFO  structure. */
-   lpbmi->bmiHeader.biSize = bmih.biSize;
-   lpbmi->bmiHeader.biWidth = bmih.biWidth;
-   lpbmi->bmiHeader.biHeight = bmih.biHeight;
-   lpbmi->bmiHeader.biPlanes = bmih.biPlanes;
+      // Sanitize biBitCount to prevent integer overflow during bit shifting
+      int colorCount = ( bmih.biBitCount < 24 ) ? ( 1 << bmih.biBitCount ) : 0;
+      if( colorCount > 256 ) colorCount = 256; // Standard BMP color tables do not exceed 256 for <= 8bpp
 
-   lpbmi->bmiHeader.biBitCount = bmih.biBitCount;
-   lpbmi->bmiHeader.biCompression = bmih.biCompression;
-   lpbmi->bmiHeader.biSizeImage = bmih.biSizeImage;
-   lpbmi->bmiHeader.biXPelsPerMeter = bmih.biXPelsPerMeter;
-   lpbmi->bmiHeader.biYPelsPerMeter = bmih.biYPelsPerMeter;
-   lpbmi->bmiHeader.biClrUsed = bmih.biClrUsed;
-   lpbmi->bmiHeader.biClrImportant = bmih.biClrImportant;
+      /* Allocate memory for the BITMAPINFO structure. */
+      hmem1 = GlobalAlloc( GHND, sizeof( BITMAPINFOHEADER ) + ( colorCount * sizeof( RGBQUAD ) ) );
+      if( hmem1 == NULL )
+      {
+            CloseHandle( hfbm );
+            #if defined(HB_LONG_PCOUNT) || defined(_WIN64)
+            hb_retptr( NULL );
+            #else
+            HB_RETHANDLE( NULL );
+            #endif
+            return;
+      }
 
-   /*  Retrieve the color table.
-    * 1 << bmih.biBitCount == 2 ^ bmih.biBitCount
-    */
-   switch ( bmih.biBitCount )
-   {
-      case 1:
-      case 4:
-      case 8:
-         ReadFile( hfbm, lpbmi->bmiColors,
-               ( ( 1 << bmih.biBitCount ) * sizeof( RGBQUAD ) ),
-               &dwRead, ( LPOVERLAPPED ) NULL );
-         break;
+      lpbmi = ( LPBITMAPINFO ) GlobalLock( hmem1 );
 
-      case 16:
-      case 32:
-         if( bmih.biCompression == BI_BITFIELDS )
-            ReadFile( hfbm, lpbmi->bmiColors,
-                  ( 3 * sizeof( RGBQUAD ) ), &dwRead, ( LPOVERLAPPED ) NULL );
-         break;
+      /*  Load BITMAPINFOHEADER into the BITMAPINFO structure. */
+      lpbmi->bmiHeader.biSize = bmih.biSize;
+      lpbmi->bmiHeader.biWidth = bmih.biWidth;
+      lpbmi->bmiHeader.biHeight = bmih.biHeight;
+      lpbmi->bmiHeader.biPlanes = bmih.biPlanes;
+      lpbmi->bmiHeader.biBitCount = bmih.biBitCount;
+      lpbmi->bmiHeader.biCompression = bmih.biCompression;
+      lpbmi->bmiHeader.biSizeImage = bmih.biSizeImage;
+      lpbmi->bmiHeader.biXPelsPerMeter = bmih.biXPelsPerMeter;
+      lpbmi->bmiHeader.biYPelsPerMeter = bmih.biYPelsPerMeter;
+      lpbmi->bmiHeader.biClrUsed = bmih.biClrUsed;
+      lpbmi->bmiHeader.biClrImportant = bmih.biClrImportant;
 
-      case 24:
-         break;
-   }
+      /*  Retrieve the color table. */
+      switch ( bmih.biBitCount )
+      {
+            case 1:
+            case 4:
+            case 8:
+                  ReadFile( hfbm, lpbmi->bmiColors, ( colorCount * sizeof( RGBQUAD ) ), &dwRead, ( LPOVERLAPPED ) NULL );
+                  break;
 
-   /* Allocate memory for the required number of  bytes. */
-   hmem2 = GlobalAlloc( GHND, ( bmfh.bfSize - bmfh.bfOffBits ) );
-   lpvBits = GlobalLock( hmem2 );
+            case 16:
+            case 32:
+                  if( bmih.biCompression == BI_BITFIELDS )
+                        ReadFile( hfbm, lpbmi->bmiColors, ( 3 * sizeof( RGBQUAD ) ), &dwRead, ( LPOVERLAPPED ) NULL );
+            break;
 
-   /* Retrieve the bitmap data. */
+            case 24:
+                  break;
+      }
 
-   ReadFile( hfbm, lpvBits, ( bmfh.bfSize - bmfh.bfOffBits ), &dwRead, NULL );
+      /* Allocate memory for the required number of bytes. */
+      DWORD bitsSize = bmfh.bfSize - bmfh.bfOffBits;
+      hmem2 = ( bitsSize > 0 ) ? GlobalAlloc( GHND, bitsSize ) : NULL;
 
-   if( !hDC )
-      hDC = GetDC( 0 );
+      if( hmem2 != NULL )
+      {
+            lpvBits = GlobalLock( hmem2 );
 
-   /* Create a bitmap from the data stored in the .BMP file.  */
-   hbm = CreateDIBitmap( hDC, &bmih, CBM_INIT, lpvBits, lpbmi,
-         DIB_RGB_COLORS );
+            /* Retrieve the bitmap data. */
+            ReadFile( hfbm, lpvBits, bitsSize, &dwRead, NULL );
 
-   if( hb_pcount(  ) < 2 || HB_ISNIL( 2 ) )
-      ReleaseDC( 0, hDC );
+            if( !hDC )
+                  hDC = GetDC( 0 );
 
-   /* Unlock the global memory objects and close the .BMP file. */
-   GlobalUnlock( hmem1 );
-   GlobalUnlock( hmem2 );
-   GlobalFree( hmem1 );
-   GlobalFree( hmem2 );
-   CloseHandle( hfbm );
+            /* Create a bitmap from the data stored in the .BMP file.  */
+            hbm = CreateDIBitmap( hDC, &bmih, CBM_INIT, lpvBits, lpbmi, DIB_RGB_COLORS );
 
-   HB_RETHANDLE( hbm );
+            if( hb_pcount(  ) < 2 || HB_ISNIL( 2 ) )
+                  ReleaseDC( 0, hDC );
+
+            GlobalUnlock( hmem2 );
+            GlobalFree( hmem2 );
+      }
+
+      /* Unlock the global memory objects and close the .BMP file. */
+      GlobalUnlock( hmem1 );
+      GlobalFree( hmem1 );
+      CloseHandle( hfbm );
+
+      // Safe return pointer handling for 64-bit architectures
+      #if defined(HB_LONG_PCOUNT) || defined(_WIN64)
+      hb_retptr( ( void * ) hbm );
+      #else
+      HB_RETHANDLE( hbm );
+      #endif
 }
-
 
 /*
  *  hwg_SaveBitMap( cfilename , hBitmap )
