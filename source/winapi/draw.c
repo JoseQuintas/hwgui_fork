@@ -172,57 +172,75 @@ void TransparentBmp( HDC hDC, int x, int y, int nWidthDest, int nHeightDest,
 
 BOOL Array2Rect( PHB_ITEM aRect, RECT * rc )
 {
-   if( HB_IS_ARRAY( aRect ) && hb_arrayLen( aRect ) == 4 )
-   {
-      rc->left = hb_arrayGetNL( aRect, 1 );
-      rc->top = hb_arrayGetNL( aRect, 2 );
-      rc->right = hb_arrayGetNL( aRect, 3 );
-      rc->bottom = hb_arrayGetNL( aRect, 4 );
-      return TRUE;
-   }
-   else
-   {
-      rc->left = rc->top = rc->right = rc->bottom = 0;
-   }
-   return FALSE;
+      if( HB_IS_ARRAY( aRect ) && hb_arrayLen( aRect ) == 4 )
+      {
+            rc->left = hb_arrayGetNL( aRect, 1 );
+            rc->top = hb_arrayGetNL( aRect, 2 );
+            rc->right = hb_arrayGetNL( aRect, 3 );
+            rc->bottom = hb_arrayGetNL( aRect, 4 );
+            return TRUE;
+      }
+      else
+      {
+            rc->left = rc->top = rc->right = rc->bottom = 0;
+      }
+      return FALSE;
 }
 
 PHB_ITEM Rect2Array( RECT * rc )
 {
-   PHB_ITEM aRect = hb_itemArrayNew( 4 );
-   PHB_ITEM element = hb_itemNew( NULL );
+      PHB_ITEM aRect = hb_itemArrayNew( 4 );
+      PHB_ITEM element = hb_itemNew( NULL );
 
-   hb_arraySet( aRect, 1, hb_itemPutNL( element, rc->left ) );
-   hb_arraySet( aRect, 2, hb_itemPutNL( element, rc->top ) );
-   hb_arraySet( aRect, 3, hb_itemPutNL( element, rc->right ) );
-   hb_arraySet( aRect, 4, hb_itemPutNL( element, rc->bottom ) );
-   hb_itemRelease( element );
-   return aRect;
+      // Safely assign coordinates by creating proper value instances
+      hb_arraySet( aRect, 1, hb_itemPutNL( element, rc->left ) );
+      hb_itemRelease( element );
+
+      element = hb_itemNew( NULL );
+      hb_arraySet( aRect, 2, hb_itemPutNL( element, rc->top ) );
+      hb_itemRelease( element );
+
+      element = hb_itemNew( NULL );
+      hb_arraySet( aRect, 3, hb_itemPutNL( element, rc->right ) );
+      hb_itemRelease( element );
+
+      element = hb_itemNew( NULL );
+      hb_arraySet( aRect, 4, hb_itemPutNL( element, rc->bottom ) );
+      hb_itemRelease( element );
+
+      return aRect;
 }
 
 HB_FUNC( HWG_GETPPSRECT )
 {
-   PAINTSTRUCT *pps = ( PAINTSTRUCT * ) HB_PARHANDLE( 1 );
+      PAINTSTRUCT *pps = ( PAINTSTRUCT * ) HB_PARHANDLE( 1 );
 
-   PHB_ITEM aMetr = Rect2Array( &pps->rcPaint );
-
-   hb_itemReturn( aMetr );
-   hb_itemRelease( aMetr );
+      if( pps )
+      {
+            PHB_ITEM aMetr = Rect2Array( &pps->rcPaint );
+            hb_itemReturn( aMetr );
+            hb_itemRelease( aMetr );
+      }
+      else
+      {
+            hb_ret();
+      }
 }
 
 HB_FUNC( HWG_GETPPSERASE )
 {
-   PAINTSTRUCT *pps = ( PAINTSTRUCT * ) HB_PARHANDLE( 1 );
-   BOOL fErase = ( BOOL ) ( pps->fErase );
-   hb_retni( fErase );
+      PAINTSTRUCT *pps = ( PAINTSTRUCT * ) HB_PARHANDLE( 1 );
+      BOOL fErase = ( pps ) ? ( BOOL ) ( pps->fErase ) : FALSE;
+      // Correctly return a boolean type to the Harbour VM
+      hb_retl( fErase );
 }
 
 HB_FUNC( HWG_GETUPDATERECT )
 {
-   HWND hWnd = ( HWND ) HB_PARHANDLE( 1 );
-   BOOL fErase;
-   fErase = GetUpdateRect( hWnd, NULL, 0 );
-   hb_retni( fErase );
+      HWND hWnd = ( HWND ) HB_PARHANDLE( 1 );
+      BOOL fErase = GetUpdateRect( hWnd, NULL, 0 );
+      // Correctly return a boolean type to the Harbour VM
+      hb_retl( fErase );
 }
 
 /*

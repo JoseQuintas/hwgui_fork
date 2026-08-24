@@ -15,6 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-24 15:41 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+    - Rect2Array: Fixed a memory allocation leak by properly destroying and
+      reinitializing the internal PHB_ITEM element for each array index injection.
+    - HWG_GETPPSERASE, HWG_GETUPDATERECT: Adjusted return macros from hb_retni()
+      to hb_retl() to ensure proper boolean data transmission to the Harbour VM.
+
 2026-08-24 15:13 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
     - HWG_INVALIDATERECT: Fixed a data type mismatch for 64-bit compatibility.
       Adjusted the erase-background parameter to check for boolean types (HB_ISLOG)
