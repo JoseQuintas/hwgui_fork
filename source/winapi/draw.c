@@ -2057,79 +2057,101 @@ HB_FUNC( HWG_CREATECOMPATIBLEBITMAP )
 
 HB_FUNC( HWG_INFLATERECT )
 {
-   RECT pRect;
-   int x = hb_parni( 2 );
-   int y = hb_parni( 3 );
+      RECT pRect;
+      int x = hb_parni( 2 );
+      int y = hb_parni( 3 );
+      BOOL bResult = FALSE;
 
-   if( HB_ISARRAY( 1 ) )
-      Array2Rect( hb_param( 1, HB_IT_ARRAY ), &pRect );
-   hb_retl( InflateRect( &pRect, x, y ) );
+      // Secure initialization to prevent stack garbage memory pollution
+      memset( &pRect, 0, sizeof( RECT ) );
 
-   hb_storvni( pRect.left, 1, 1 );
-   hb_storvni( pRect.top, 1, 2 );
-   hb_storvni( pRect.right, 1, 3 );
-   hb_storvni( pRect.bottom, 1, 4 );
+      if( HB_ISARRAY( 1 ) )
+            Array2Rect( hb_param( 1, HB_IT_ARRAY ), &pRect );
+
+      bResult = InflateRect( &pRect, x, y );
+
+      // CORRECTION: Store values back into the Harbour array BEFORE returning from the function
+      hb_storvni( pRect.left, 1, 1 );
+      hb_storvni( pRect.top, 1, 2 );
+      hb_storvni( pRect.right, 1, 3 );
+      hb_storvni( pRect.bottom, 1, 4 );
+
+      hb_retl( bResult );
 }
 
 HB_FUNC( HWG_FRAMERECT )
 {
-   HDC hdc = ( HDC ) HB_PARHANDLE( 1 );
-   HBRUSH hbr = ( HBRUSH ) HB_PARHANDLE( 3 );
-   RECT pRect;
+      HDC hdc = ( HDC ) HB_PARHANDLE( 1 );
+      HBRUSH hbr = ( HBRUSH ) HB_PARHANDLE( 3 );
+      RECT pRect;
 
-   if( HB_ISARRAY( 2 ) )
-      Array2Rect( hb_param( 2, HB_IT_ARRAY ), &pRect );
+      memset( &pRect, 0, sizeof( RECT ) );
 
-   hb_retni( FrameRect( hdc, &pRect, hbr ) );
+      if( HB_ISARRAY( 2 ) )
+            Array2Rect( hb_param( 2, HB_IT_ARRAY ), &pRect );
+
+      hb_retni( FrameRect( hdc, &pRect, hbr ) );
 }
 
 HB_FUNC( HWG_DRAWFRAMECONTROL )
 {
-   HDC hdc = ( HDC ) HB_PARHANDLE( 1 );
-   RECT pRect;
-   UINT uType = hb_parni( 3 );  // frame-control type
-   UINT uState = hb_parni( 4 ); // frame-control state
+      HDC hdc = ( HDC ) HB_PARHANDLE( 1 );
+      RECT pRect;
+      UINT uType = hb_parni( 3 );  // frame-control type
+      UINT uState = hb_parni( 4 ); // frame-control state
 
-   if( HB_ISARRAY( 2 ) )
-      Array2Rect( hb_param( 2, HB_IT_ARRAY ), &pRect );
+      memset( &pRect, 0, sizeof( RECT ) );
 
-   hb_retl( DrawFrameControl( hdc, &pRect, uType, uState ) );
+      if( HB_ISARRAY( 2 ) )
+            Array2Rect( hb_param( 2, HB_IT_ARRAY ), &pRect );
+
+      hb_retl( DrawFrameControl( hdc, &pRect, uType, uState ) );
 }
 
 HB_FUNC( HWG_OFFSETRECT )
 {
-   RECT pRect;
-   int x = hb_parni( 2 );
-   int y = hb_parni( 3 );
+      RECT pRect;
+      int x = hb_parni( 2 );
+      int y = hb_parni( 3 );
+      BOOL bResult = FALSE;
 
-   if( HB_ISARRAY( 1 ) )
-      Array2Rect( hb_param( 1, HB_IT_ARRAY ), &pRect );
+      memset( &pRect, 0, sizeof( RECT ) );
 
-   hb_retl( OffsetRect( &pRect, x, y ) );
-   hb_storvni( pRect.left, 1, 1 );
-   hb_storvni( pRect.top, 1, 2 );
-   hb_storvni( pRect.right, 1, 3 );
-   hb_storvni( pRect.bottom, 1, 4 );
+      if( HB_ISARRAY( 1 ) )
+            Array2Rect( hb_param( 1, HB_IT_ARRAY ), &pRect );
+
+      bResult = OffsetRect( &pRect, x, y );
+
+      hb_storvni( pRect.left, 1, 1 );
+      hb_storvni( pRect.top, 1, 2 );
+      hb_storvni( pRect.right, 1, 3 );
+      hb_storvni( pRect.bottom, 1, 4 );
+
+      hb_retl( bResult );
 }
 
 HB_FUNC( HWG_DRAWFOCUSRECT )
 {
-   RECT pRect;
-   HDC hc = ( HDC ) HB_PARHANDLE( 1 );
-   if( HB_ISARRAY( 2 ) )
-      Array2Rect( hb_param( 2, HB_IT_ARRAY ), &pRect );
-   hb_retl( DrawFocusRect( hc, &pRect ) );
+      RECT pRect;
+      HDC hc = ( HDC ) HB_PARHANDLE( 1 );
+
+      memset( &pRect, 0, sizeof( RECT ) );
+
+      if( HB_ISARRAY( 2 ) )
+            Array2Rect( hb_param( 2, HB_IT_ARRAY ), &pRect );
+
+      hb_retl( DrawFocusRect( hc, &pRect ) );
 }
 
 BOOL Array2Point( PHB_ITEM aPoint, POINT * pt )
 {
-   if( HB_IS_ARRAY( aPoint ) && hb_arrayLen( aPoint ) == 2 )
-   {
-      pt->x = hb_arrayGetNL( aPoint, 1 );
-      pt->y = hb_arrayGetNL( aPoint, 2 );
-      return TRUE;
-   }
-   return FALSE;
+      if( HB_IS_ARRAY( aPoint ) && hb_arrayLen( aPoint ) == 2 )
+      {
+            pt->x = hb_arrayGetNL( aPoint, 1 );
+            pt->y = hb_arrayGetNL( aPoint, 2 );
+            return TRUE;
+      }
+      return FALSE;
 }
 
 HB_FUNC( HWG_PTINRECT )

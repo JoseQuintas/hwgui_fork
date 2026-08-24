@@ -15,7 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2026-08-24 19:33 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+2026-08-24 19:52 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+     - HWG_INFLATERECT: Fixed an early return sequence bug that caused array value
+       updates (hb_storvni) to become unreachable dead code.
+     - HWG_FRAMERECT, HWG_DRAWFRAMECONTROL, HWG_OFFSETRECT, HWG_DRAWFOCUSRECT:
+       Added stack defensive design using memset initialization to block garbage
+       memory execution crashes on invalid parameters under Clang 64-bit.
+
+2026-08-24 19:46 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
     - HWG_SETWINDOWORGEX, HWG_SETWINDOWEXTEX, HWG_SETVIEWPORTORGEX, HWG_SETVIEWPORTEXTEX:
       Added stack validation checks for parameter counts before invoking hb_stornl().
     - HWG_CREATECOMPATIBLEBITMAP: Swapped legacy HB_RETHANDLE macro with an
