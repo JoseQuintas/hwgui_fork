@@ -15,6 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-24 15:49 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+    - HWG_SPREADBITMAP: Fixed a critical GDI resource leak by properly
+      restoring the original bitmap handle (hOldObj) before destroying hDCmem.
+      Added structural protection rules against zero or negative dimensions
+      to avoid application freeze and infinite loop bugs.
+
 2026-08-24 15:41 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
     - Rect2Array: Fixed a memory allocation leak by properly destroying and
       reinitializing the internal PHB_ITEM element for each array index injection.
