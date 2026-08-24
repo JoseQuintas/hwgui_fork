@@ -14,8 +14,17 @@
  "oldlogs".
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+2026-08-23 21:30 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  * source/dialog.c
+    + Security fix: eliminated stack buffer overflow in
+      HWG__PROPERTYSHEET().
+      Previously the function used a fixed array of 10 elements
+      (HPROPSHEETPAGE psp[10]). If the caller requested more than
+      10 pages, the code wrote past the end of the array.
+      The array is now allocated dynamically according to the
+      actual number of pages, with proper bounds checking.
 
-2026-08-23 17:01 UTC+0200  Itamar Lins  <itamarlins at gmail.com>
+2026-08-23 17:01 UTC-0300  Itamar Lins  <itamarlins at gmail.com>
    * source/winapi/dialog.c
      - s_DlgProc(), s_PSPProc(): fixed WM_DESTROY handler unconditionally
        decrementing iDialogs/shifting aDialogs[] even when the closing
@@ -61,7 +70,7 @@
        unrelated Close()/hwg_EndDialog() call to receive an empty
        handle and fail with a parameter error.
 
-2026-08-20 02:58 UTC-0200 Itamar Lins <itamarlins at gmail.com>
+2026-08-20 02:58 UTC-0300 Itamar Lins <itamarlins at gmail.com>
    Win64 Portability & Memory Alignment Fixes
    * source/winapi/dialog.c:
      - Fixed critical 32-bit pointer truncation in s_lpwAlign() by replacing
@@ -83,7 +92,7 @@
      - Fixed return macros by substituting invalid HB_RETHANDLE() usages on
        pure logical indicators (e.g., ReleaseDC, DeleteEnhMetaFile) with hb_retl().
 
-2026-08-17 21:58 UTC-0200 Itamar Lins <itamarlins at gmail.com>
+2026-08-17 21:58 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source/gtk/window.c: Updated HB_FUNC( HWG_ACTIVATEDIALOG ) to
       receive and process the parent window handle parameter. Fixed
       native GTK2 window modal and transient stacking layout chain by
@@ -95,7 +104,7 @@
       lifecycle layout mapping. Ensured proper input recovery by calling
       gtk_grab_remove() immediately upon nested gtk_main() termination.
 
-2026-08-16 16:58 UTC-0200 Itamar Lins <itamarlins at gmail.com>
+2026-08-16 16:58 UTC-0300 Itamar Lins <itamarlins at gmail.com>
    * source/gtk/window.c:
      (HWG_ACTIVATEDIALOG): Injected a high-priority idle callback via g_idle_add_full
      to force exact screen centering when the modal loop initiates, overriding
@@ -113,13 +122,13 @@
      C engine from overriding position layout bounds after Center() execution.
      (onPAINT): Removed infinite invalidation loop inside background canvas.
 
-2026-08-15 22:58 UTC-0200 Itamar Lins <itamarlins at gmail.com>
+2026-08-15 22:58 UTC-0300 Itamar Lins <itamarlins at gmail.com>
    - GTK: Add native ON PAINT support for DIALOG
    * source/gtk/window.c (HWG_CREATEDLG): Add GDK_EXPOSURE_MASK and connect expose_event.
    * source/gtk/window.c (HWG_PAINTWINDOW): Implement GTK2 native window clear and repaint session.
    * source/gtk/hdialog.prg (HDialog:onEvent, HDialog:onPAINT): Add WM_PAINT interception and handle expose signal.
 
-2026-08-13 01:14 UTC-0200 Itamar Lins <itamarlins at gmail.com>
+2026-08-13 01:14 UTC-0300 Itamar Lins <itamarlins at gmail.com>
    * source/gtk/hbrowse.prg
      - METHOD Paint(): Fixed GTK2 bug where the row cursor got isolated at the
        top row (viewport row 1) with an empty viewport above it when opening
@@ -130,7 +139,7 @@
        dataset is completely empty (::nRecords == 0), preventing the engine
        from breaking standard bottom-up rendering on startup.
 
-2026-08-12 01:36 UTC-0200 Itamar Lins <itamarlins at gmail.com>
+2026-08-12 01:36 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source/gtk/control.c
       ! HWG_CREATEEDIT(): Fixed missing scrollbars in multi-line edit controls
         (ES_MULTILINE) by embedding GtkTextView inside a GtkScrolledWindow container.
@@ -142,7 +151,7 @@
         on the scrolled window container to prevent rendering issues with the
         internal text buffer.
 
-2026-08-11 03:01 UTC-0200 Itamar Lins <itamarlins at gmail.com>
+2026-08-11 03:01 UTC-0300 Itamar Lins <itamarlins at gmail.com>
 * source/gtk/hbrowse.prg
       - METHOD Rebuild(): Refactored column width rendering for GTK2.
         Replaced legacy metrics calculation with an alphabet-based average
@@ -151,13 +160,13 @@
         Date types ("D") to handle century offsets, and enforced a minimum
         14px right margin on text columns to prevent vertical line clipping.
 
-2026-08-11 03:01 UTC-0200 Itamar Lins <itamarlins at gmail.com>
+2026-08-11 03:01 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source/gtk/hbrowse.prg
       - METHOD Rebuild(): Fixed column width calculation in Linux (GTK2).
         customized evaluation for Date types ("D")
         to respect 'nColLen' (handling SET CENTURY ON/OFF) without truncation.
 
-2026-08-11 02:01 UTC-0200 Itamar Lins <itamarlins at gmail.com>
+2026-08-11 02:01 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source/gtk/hbrowse.prg
       - METHOD Rebuild(): Fixed column width calculation in Linux (GTK2).
         Replaced the inaccurate 'arr[2]' metric with a real character width
@@ -165,7 +174,7 @@
         strictly respected across all column sizes (from Length 2 to 60)
         without distortion, achieving exact parity with the Win32 layout.
 
-2026-08-09 21:02 UTC-0200 Itamar Lins <itamarlins at gmail.com>
+2026-08-09 21:02 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * cross/common.prg:
       ! Fix Ctrl+C GTK2 PICTURE "@R !!.!!!.!!!/!!!!-99"
       - METHOD UnTransform( cBuffer ) CLASS HPicture
@@ -174,7 +183,7 @@
         object (e.g., during Ctrl+C/DOCOPY clipboard events). Prevents
         Harbour runtime error BASE/1110 (SUBSTR parameter error).
 
-2026-08-09 12:04 UTC-0200 Itamar Lins <itamarlins at gmail.com>
+2026-08-09 12:04 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source/gtk/control.c
       - Added 'hwg_button_key_press' and 'hwg_button_focus_out' callbacks
         for BS_AUTO3STATE and BS_AUTORADIOBUTTON.
@@ -184,7 +193,7 @@
         programmatically scanning the container children list.
       - Included <gdk/gdkkeysyms.h> for proper keyboard constant mappings.
 
-2026-08-08 23:20 UTC-0200 Itamar Lins <itamarlins at gmail.com>
+2026-08-08 23:20 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source/gtk/control.c
     * source/gtk/window.c
       - Modernize background color rendering across all core layout components and HDialogs.
@@ -193,7 +202,7 @@
         a flawless cross-platform visual appearance matching modern Windows OS themes and
         eliminating legacy bitmap icon background mask contrasts under Linux/GTK2.
 
-2026-08-08 21:35 UTC-0200 Itamar Lins <itamarlins at gmail.com>
+2026-08-08 21:35 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source/gtk/window.c
       - Add custom GLib/GTK log handler 'hwg_gtk_log_handler' inside HB_FUNC( HWG_GTK_INIT ).
         Suppressed benign focus-change and window-quit legacy runtime assertions to keep
@@ -209,7 +218,7 @@
           - g_object_unref: assertion 'G_IS_OBJECT (object)' failed
           - IA__gtk_main_quit: assertion 'main_loops != NULL' failed
 
-2026-08-08 20:45 UTC-0200 Itamar Lins <itamarlins at gmail.com>
+2026-08-08 20:45 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source/gtk/control.c
     * source/gtk/htab.prg
       - Add Tab Control Enable/Disable support and cross-platform compatibility layer. Linux/GTK OS.
@@ -218,7 +227,7 @@
         Thanks to Deivid José de Souza.
         Tests with Ubuntu 26.10(Kubuntu) KDE(Wayland)
 
-2026-08-08 17:27 UTC-0200 Itamar Lins <itamarlins at gmail.com>
+2026-08-08 17:27 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * include/guilib.h:
       - Conditionally included "incomp_pointer.h" for Linux/Unix environments
         to apply global compiler warning suppressions.
@@ -229,13 +238,13 @@
       - Included "guilib.h" inside the BEGINDUMP block to enforce clean
         compilation logs on the errorsys module.
 
-2026-08-08 16:03 UTC-0200 Itamar Lins <itamarlins at gmail.com>
+2026-08-08 16:03 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source/gtk/hbrowse.prg:
       - Fixed a critical BASE/1066 parameter error inside METHOD Edit() when
         using SQLMIX RDD. Explicitly checked DbInfo(DBI_ISREADONLY) against .T.
         to handle NIL values gracefully.
 
-2026-08-08 16:03 UTC-0200 Itamar Lins <itamarlins at gmail.com>
+2026-08-08 16:03 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source/gtk/herrsys.prg:
       - Fixed a crash on exit by replacing the Harbour-level DIALOG with a native
         C GtkMessageDialog, separating it from the unstable object tree during panic mode.
@@ -244,7 +253,7 @@
         inside C, preventing background widgets from triggering recursive error loops.
       - Added global recursion protection (`lInError`) and temporary ErrorBlock deactivation.
 
-2026-08-08 12:39 UTC-0200 Itamar Lins <itamarlins at gmail.com>
+2026-08-08 12:39 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source\winapi\control.c
     * source\winapi\dialog.c
     * source\winapi\htab.prg
@@ -253,7 +262,7 @@
         Compatible with old version of Hwgui 2.17 
       - See https://pctoledo.org/viewtopic.php?p=170966#p170966
       
-2026-08-07 14:40 UTC-0200 Itamar Lins <itamarlins at gmail.com>
+2026-08-07 14:40 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * include\windows.ch:
       - Added ES_NUMINVERT (16384) and ES_CLEARTYPE (512) style flags.
     * source\winapi\hedit.prg:
@@ -267,7 +276,7 @@
      oDlg:Activate(,,,.t.)
     Thanks to Deivid José de Souza. https://pctoledo.org/viewtopic.php?t=23334
 
-2026-08-06 18:30 UTC+0200 Itamar Lins <itamarlins at gmail.com>
+2026-08-06 18:30 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source/winapi/control.c:
       - Fixed HB_FUNC( HWG_INITSTATUS ) to perform proper cumulative 
         calculation of status bar right-edge parts coordinates (SB_SETPARTS).
@@ -285,7 +294,7 @@
         instead of generic hwg_SendMessage().
       - Ensures proper ANSI/Unicode string marshalling for HSTATUS controls.
 
-2026-08-01 23:44 UTC+0200 Itamar Lins <itamarlins at gmail.com>
+2026-08-01 23:44 UTC-0300 Itamar Lins <itamarlins at gmail.com>
    ! Fix for compiling UNICODE(UTF8) Windows OS.
     * \hwgui\source\winapi\hmonthc.prg
     * \hwgui\source\common\editor\hcedit_w.c
@@ -327,7 +336,6 @@
 * doc/hwgdoc_functions.html
 + test/tstcombovals.prg
 
-
 2026-07-03 09:40 UTC+0200 Wilfried Brunken DF7BE
   ! Ticket #92 UpDown values:
   ! Some trouble getting result value.
@@ -348,7 +356,6 @@
   + test/Ticket92.prg
   + test/hwmk.bat
   + test/hwmk.sh
-
 
 2026-04-21 15:05 UTC+0200 Wilfried Brunken DF7BE
   ! Project iconification sample:
@@ -499,7 +506,7 @@
   * source/cross/hgraph.prg
     ! Small fix
 
-2025-12-21 10:40 UTC-0200 Itamar Lins itamarlins at gmail.com
+2025-12-21 10:40 UTC-0300 Itamar Lins itamarlins at gmail.com
    * source/gtk/hbrowse.prg
      ! Fix for ... BROWSE ... APPEND AUTOEDIT flags into a TAB control
 
@@ -509,34 +516,34 @@
    * source/cross/common.prg
      ! var names nPos nGetCount, +=, no logic changed
 
-2025-12-12 22:24 UTC-0200 ItamarLins itamarlins at gmail.com
+2025-12-12 22:24 UTC-0300 ItamarLins itamarlins at gmail.com
   * source/gtk/window.c
   ! Fix for disable automatic text selection when GtkEntry widgets (used in GETs) receive focus
 
-2025-12-12 17:41 UTC-0200 ItamarLins itamarlins at gmail.com
+2025-12-12 17:41 UTC-0300 ItamarLins itamarlins at gmail.com
   * source/cross/common.prg
   ! Fix for rebuild GetList recursively to support nested containers (e.g., TAB inside TAB).
   ! Fix send by deividdjs forum hwgui https://pctoledo.org/viewtopic.php?p=170608#p170608
 
-2025-12-08 01:14 UTC-0200 ItamarLins itamarlins at gmail.com
+2025-12-08 01:14 UTC-0300 ItamarLins itamarlins at gmail.com
   * source/gtk/hbrowse.prg
   ! Fix for erase header of browse while append a record
 
-2025-12-07 03:36 UTC-0200 ItamarLins itamarlins at gmail.com
+2025-12-07 03:36 UTC-0300 ItamarLins itamarlins at gmail.com
   * source/gtk/hbrowse.prg
   ! Fix memo edit crash after save. VldBrwEdit() a line comment out
   ! add alias dbunlock() for memo field
 
-2025-12-06 15:20 UTC-0200 ItamarLins itamarlins at gmail.com
+2025-12-06 15:20 UTC-0300 ItamarLins itamarlins at gmail.com
   * source/gtk/hbrowse.prg
   ! Fix the LineLeft and LineRight methods that were skipping more than one column.
 
-2025-12-05 13:55 UTC-0200 ItamarLins itamarlins at gmail.com
+2025-12-05 13:55 UTC-0300 ItamarLins itamarlins at gmail.com
   * source/gtk/hbrowse.prg
     ! Fix for display the bitmap correctly in the browser.
     ! Piece of code borrowed \winapi\hbrowse.prg
 
-2025-12-04 23:38 UTC-0200 ItamarLins itamarlins at gmail.com
+2025-12-04 23:38 UTC-0300 ItamarLins itamarlins at gmail.com
    * source/gtk/hbrowse.prg
    ! Fix for Refresh() Method MouseWeel GTK This Method not work.
    ! GTK Not exist this event -> msg == WM_MOUSEWHEEL
@@ -553,7 +560,6 @@
   ! GTK2 source code file to
   ! add the missing GTK2 -dev package
   ! from source c
-
 
 2025-12-01 11:20 UTC+0300 Alexander Kresin <alex@belacy.ru>
   * source/gtk/hcontrol.c
@@ -592,13 +598,11 @@
 * doc/hwgdoc_classes.html
   ! Document for HPRINTER class updated
 
-
 2025-08-27 18:20 UTC+0200 Wilfried Brunken DF7BE
 * source/gtk/hprinter.prg
 * source/winapi/hprinter.prg
   ! For easier bugfixing Ticket 207:
   ! Reduce differences (with WinMerge)
-
 
 2025-08-27 10:40 UTC+0200 Wilfried Brunken DF7BE
 * test/tickets/Ticket207.prg
@@ -617,13 +621,11 @@
   ! (Need to help for
   ! debugging of ticket207).
 
-
 2025-08-25 10:00 UTC+0200 Wilfried Brunken DF7BE
 * test/tickets/Ticket90.prg
   ! Added french test text.
   ! For result see post to Ticket.
   ! (it is running OK on Ubuntu)
-
 
 2025-08-24 10:45 UTC+0200 Wilfried Brunken DF7BE
 * test/tickets/Ticket207.hbp
@@ -631,7 +633,6 @@
   ! The bug can be reproduced
   ! with this test program.
   ! Bugfixing to be continued
-
 
 2025-08-19 17:30 UTC+0200 Wilfried Brunken DF7BE
 * doc/hwgdoc_functions.html
@@ -644,11 +645,9 @@
   ! For details see post to ticket
   ! an comment in test program.
 
-
 2025-07-07 18:10 UTC+0200 Wilfried Brunken DF7BE
 * Install_RaspberryPi.txt
   ! Instructions for Raspberry Pi 5 added
-
 
 2025-07-04 16:20 UTC+0200 Wilfried Brunken DF7BE
 * source/cross/hmisccross.prg
@@ -658,7 +657,6 @@
   ! added, for common purposes.
   ! The code in demo.ch is moved
   ! to this function.
-
 
 2025-06-24 17:00 UTC+0200 Wilfried Brunken DF7BE
 * samples/allhbp.hbp
