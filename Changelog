@@ -15,6 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-24 16:07 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+    - HWG_GETICONSIZE: Fixed a severe GDI leak by explicitly destroying hbmColor
+      and hbmMask bitmaps allocated by GetIconInfo(). Resolved internal Harbour VM
+      memory leaks by optimizing dynamic item container lifecycles.
+
 2026-08-24 16:02 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
     - HWG_GETBITMAPSIZE: Fixed an internal Harbour VM memory leak by replacing
       anonymous item allocations in hb_itemPutNL(NULL, ...) with a single,

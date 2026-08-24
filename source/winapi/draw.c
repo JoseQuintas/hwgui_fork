@@ -1175,31 +1175,47 @@ HB_FUNC( HWG_GETBITMAPSIZE )
       hb_itemRelease( aMetr );
 }
 
+/*
+ * hwg_GetIconSize( hIcon )
+ */
 HB_FUNC( HWG_GETICONSIZE )
 {
-   ICONINFO iinfo;
-   PHB_ITEM aMetr = hb_itemArrayNew( 3 );
-   PHB_ITEM temp;
-   int nret;
+      ICONINFO iinfo;
+      PHB_ITEM aMetr = hb_itemArrayNew( 3 );
+      PHB_ITEM temp = hb_itemNew( NULL ); // Allocate a single item container safely
+      int nret;
 
-   nret = GetIconInfo( ( HICON ) HB_PARHANDLE( 1 ), &iinfo );
+      // Initialize structure fields to zero safely
+      memset( &iinfo, 0, sizeof( ICONINFO ) );
 
-   temp = hb_itemPutNL( NULL, iinfo.xHotspot * 2 );
-   hb_itemArrayPut( aMetr, 1, temp );
-   hb_itemRelease( temp );
+      nret = GetIconInfo( ( HICON ) HB_PARHANDLE( 1 ), &iinfo );
 
-   temp = hb_itemPutNL( NULL, iinfo.yHotspot * 2 );
-   hb_itemArrayPut( aMetr, 2, temp );
-   hb_itemRelease( temp );
+      // Populate array elements using the safe single container reference
+      hb_itemPutNL( temp, iinfo.xHotspot * 2 );
+      hb_itemArrayPut( aMetr, 1, temp );
 
-   temp = hb_itemPutNL( NULL, nret );
-   hb_itemArrayPut( aMetr, 3, temp );
-   hb_itemRelease( temp );
+      hb_itemPutNL( temp, iinfo.yHotspot * 2 );
+      hb_itemArrayPut( aMetr, 2, temp );
 
+      hb_itemPutNL( temp, nret );
+      hb_itemArrayPut( aMetr, 3, temp );
 
-   hb_itemReturn( aMetr );
-   hb_itemRelease( aMetr );
+      // Release the Harbour item container properly
+      hb_itemRelease( temp );
+
+      // CRITICAL: Clean up internal GDI bitmaps allocated by GetIconInfo to prevent severe leaks
+      if( nret )
+      {
+            if( iinfo.hbmColor )
+                  DeleteObject( iinfo.hbmColor );
+            if( iinfo.hbmMask )
+                  DeleteObject( iinfo.hbmMask );
+      }
+
+      hb_itemReturn( aMetr );
+      hb_itemRelease( aMetr );
 }
+
 
 /*
   hwg_Openbitmap( cBitmap, hDC )
