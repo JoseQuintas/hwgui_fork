@@ -1513,41 +1513,82 @@ HB_FUNC( HWG_CREATEPEN )
       #endif
 }
 
-
+/*
+ * hwg_CreateSolidBrush( nColor )
+ */
 HB_FUNC( HWG_CREATESOLIDBRUSH )
 {
-   HB_RETHANDLE( CreateSolidBrush( ( COLORREF ) hb_parnl( 1 )   // brush color
-          ) );
+      HBRUSH hBrush = CreateSolidBrush( ( COLORREF ) hb_parnl( 1 ) );
+
+      // Safe handle return architecture for 64-bit Clang systems
+      #if defined(HB_LONG_PCOUNT) || defined(_WIN64)
+         hb_retptr( ( void * ) hBrush );
+      #else
+         HB_RETHANDLE( hBrush );
+      #endif
 }
 
+/*
+ * hwg_CreateHatchBrush( nStyle, nColor )
+ */
 HB_FUNC( HWG_CREATEHATCHBRUSH )
 {
-   HB_RETHANDLE( CreateHatchBrush( hb_parni( 1 ),
-               ( COLORREF ) hb_parnl( 2 ) ) );
+      HBRUSH hBrush = CreateHatchBrush( hb_parni( 1 ), ( COLORREF ) hb_parnl( 2 ) );
+
+      // Safe handle return architecture for 64-bit Clang systems
+      #if defined(HB_LONG_PCOUNT) || defined(_WIN64)
+         hb_retptr( ( void * ) hBrush );
+      #else
+         HB_RETHANDLE( hBrush );
+      #endif
 }
 
+/*
+ * hwg_SelectObject( hDC, hGdiObj )
+ */
 HB_FUNC( HWG_SELECTOBJECT )
 {
-   HB_RETHANDLE( SelectObject( ( HDC ) HB_PARHANDLE( 1 ),       // handle of device context
-               ( HGDIOBJ ) HB_PARHANDLE( 2 )    // handle of object
-          ) );
+      HGDIOBJ hOldObj = SelectObject( ( HDC ) HB_PARHANDLE( 1 ), ( HGDIOBJ ) HB_PARHANDLE( 2 ) );
+
+      // Safe handle return architecture for 64-bit Clang systems
+      #if defined(HB_LONG_PCOUNT) || defined(_WIN64)
+         hb_retptr( ( void * ) hOldObj );
+      #else
+         HB_RETHANDLE( hOldObj );
+      #endif
 }
 
+/*
+ * hwg_DeleteObject( hGdiObj )
+ */
 HB_FUNC( HWG_DELETEOBJECT )
 {
-   DeleteObject( ( HGDIOBJ ) HB_PARHANDLE( 1 )  // handle of object
-          );
+      // Correctly calls DeleteObject; returns true/false of the API operation
+      hb_retl( DeleteObject( ( HGDIOBJ ) HB_PARHANDLE( 1 ) ) );
 }
 
+/*
+ * hwg_GetDC( hWnd )
+ */
 HB_FUNC( HWG_GETDC )
 {
-   HB_RETHANDLE( GetDC( ( HWND ) HB_PARHANDLE( 1 ) ) );
+      HDC hDC = GetDC( ( HWND ) HB_PARHANDLE( 1 ) );
+
+      // Safe handle return architecture for 64-bit Clang systems
+      #if defined(HB_LONG_PCOUNT) || defined(_WIN64)
+         hb_retptr( ( void * ) hDC );
+      #else
+         HB_RETHANDLE( hDC );
+      #endif
 }
 
+/*
+ * hwg_ReleaseDC( hWnd, hDC )
+ */
 HB_FUNC( HWG_RELEASEDC )
 {
-   hb_retl( ReleaseDC( ( HWND ) HB_PARHANDLE( 1 ),
-                       ( HDC ) HB_PARHANDLE( 2 ) ) != 0 );
+      // Fully correct for 64-bit; handles are extracted properly via HB_PARHANDLE
+      hb_retl( ReleaseDC( ( HWND ) HB_PARHANDLE( 1 ), ( HDC ) HB_PARHANDLE( 2 ) ) != 0 );
 }
 
 HB_FUNC( HWG_GETDRAWITEMINFO )

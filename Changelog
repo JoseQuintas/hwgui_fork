@@ -15,16 +15,23 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-40 16:32 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+    - HWG_CREATESOLIDBRUSH, HWG_CREATEHATCHBRUSH, HWG_SELECTOBJECT, HWG_GETDC:
+      Swapped legacy HB_RETHANDLE macros with safe 64-bit pointer returns (hb_retptr)
+      to guarantee handle integrity and prevent pointer truncation under Clang.
+    - HWG_DELETEOBJECT: Enhanced function to return a boolean value reflecting
+      the GDI operation status.
+
 2026-08-24 16:32 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
     - HWG_GETSYSCOLOR: Fixed integer sign casting to match 64-bit Harbour architectures.
     - HWG_GETSYSCOLORBRUSH, HWG_CREATEPEN: Implemented explicit 64-bit pointer
       return macros (hb_retptr) to prevent handles from being truncated by Clang.
 
 2026-08-24 16:25 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
-      - HWG_SAVEBITMAP: Fixed a severe graphic context leak by ensuring ReleaseDC
-        is invoked unconditionally. Resolved a buffer overflow vulnerability in
-        WriteFile by enforcing exact memory boundary bounds instead of computing
-        offset file header sizes.
+    - HWG_SAVEBITMAP: Fixed a severe graphic context leak by ensuring ReleaseDC
+      is invoked unconditionally. Resolved a buffer overflow vulnerability in
+      WriteFile by enforcing exact memory boundary bounds instead of computing
+      offset file header sizes.
 
 2026-08-24 16:17 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
     - HWG_OPENBITMAP: Fixed critical 64-bit file handle verification by checking
