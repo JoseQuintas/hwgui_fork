@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-24 19:57 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+     - HWG_COPYRECT: Fixed a critical VM stack corruption bug by removing an
+       invalid hb_itemRelease() execution in a returned object lifecycle.
+     - HWG_GETMEASUREITEMINFO: Fixed an internal Harbour VM memory leak by
+       reusing a single, pre-allocated PHB_ITEM container.
+     - HWG_GETWINDOWDC: Swapped legacy HB_RETHANDLE macro with an explicit
+       64-bit pointer return (hb_retptr) to prevent HDC truncation.
+
 2026-08-24 19:52 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
      - HWG_INFLATERECT: Fixed an early return sequence bug that caused array value
        updates (hb_storvni) to become unreachable dead code.

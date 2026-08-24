@@ -2153,69 +2153,94 @@ BOOL Array2Point( PHB_ITEM aPoint, POINT * pt )
       }
       return FALSE;
 }
-
 HB_FUNC( HWG_PTINRECT )
 {
-   POINT pt;
-   RECT rect;
+      POINT pt;
+      RECT rect;
 
-   Array2Rect( hb_param( 1, HB_IT_ARRAY ), &rect );
-   Array2Point( hb_param( 2, HB_IT_ARRAY ), &pt );
-   hb_retl( PtInRect( &rect, pt ) );
+      // Secure initialization to prevent stack garbage memory pollution
+      memset( &rect, 0, sizeof( RECT ) );
+      memset( &pt, 0, sizeof( POINT ) );
+
+      if( HB_ISARRAY( 1 ) )
+            Array2Rect( hb_param( 1, HB_IT_ARRAY ), &rect );
+
+      if( HB_ISARRAY( 2 ) )
+            Array2Point( hb_param( 2, HB_IT_ARRAY ), &pt );
+
+      hb_retl( PtInRect( &rect, pt ) );
 }
 
 HB_FUNC( HWG_GETMEASUREITEMINFO )
 {
-   MEASUREITEMSTRUCT *lpdis = ( MEASUREITEMSTRUCT * ) HB_PARHANDLE( 1 );        //hb_parnl(1);
-   PHB_ITEM aMetr = hb_itemArrayNew( 5 );
-   PHB_ITEM temp;
+      MEASUREITEMSTRUCT *lpdis = ( MEASUREITEMSTRUCT * ) HB_PARHANDLE( 1 );
+      PHB_ITEM aMetr = hb_itemArrayNew( 5 );
+      PHB_ITEM temp = hb_itemNew( NULL ); // Allocate a single item container safely
 
-   temp = hb_itemPutNL( NULL, lpdis->CtlType );
-   hb_itemArrayPut( aMetr, 1, temp );
-   hb_itemRelease( temp );
+      if( lpdis )
+      {
+            // Safely populate array elements using a single item container reference
+            hb_itemPutNL( temp, lpdis->CtlType );
+            hb_itemArrayPut( aMetr, 1, temp );
 
-   temp = hb_itemPutNL( NULL, lpdis->CtlID );
-   hb_itemArrayPut( aMetr, 2, temp );
-   hb_itemRelease( temp );
+            hb_itemPutNL( temp, lpdis->CtlID );
+            hb_itemArrayPut( aMetr, 2, temp );
 
-   temp = hb_itemPutNL( NULL, lpdis->itemID );
-   hb_itemArrayPut( aMetr, 3, temp );
-   hb_itemRelease( temp );
+            hb_itemPutNL( temp, lpdis->itemID );
+            hb_itemArrayPut( aMetr, 3, temp );
 
-   temp = hb_itemPutNL( NULL, lpdis->itemWidth );
-   hb_itemArrayPut( aMetr, 4, temp );
-   hb_itemRelease( temp );
+            hb_itemPutNL( temp, lpdis->itemWidth );
+            hb_itemArrayPut( aMetr, 4, temp );
 
-   temp = hb_itemPutNL( NULL, lpdis->itemHeight );
-   hb_itemArrayPut( aMetr, 5, temp );
-   hb_itemRelease( temp );
-   hb_itemReturn( aMetr );
-   hb_itemRelease( aMetr );
+            hb_itemPutNL( temp, lpdis->itemHeight );
+            hb_itemArrayPut( aMetr, 5, temp );
+      }
+
+      // Release the dynamic item container memory completely
+      hb_itemRelease( temp );
+
+      hb_itemReturn( aMetr );
+      hb_itemRelease( aMetr );
 }
 
 HB_FUNC( HWG_COPYRECT )
 {
-   RECT p;
+      RECT p;
+      memset( &p, 0, sizeof( RECT ) );
 
-   Array2Rect( hb_param( 1, HB_IT_ARRAY ), &p );
-   hb_itemRelease( hb_itemReturn( Rect2Array( &p ) ) );
+      if( HB_ISARRAY( 1 ) )
+            Array2Rect( hb_param( 1, HB_IT_ARRAY ), &p );
+
+      // CORRECTION: Let the Harbour VM handle item ownership safely after return
+      PHB_ITEM aRect = Rect2Array( &p );
+      hb_itemReturn( aRect );
+      hb_itemRelease( aRect );
 }
 
 HB_FUNC( HWG_GETWINDOWDC )
 {
-   HWND hWnd = ( HWND ) HB_PARHANDLE( 1 );
-   HDC hDC = GetWindowDC( hWnd );
-   HB_RETHANDLE( hDC );
+      HWND hWnd = ( HWND ) HB_PARHANDLE( 1 );
+      HDC hDC = GetWindowDC( hWnd );
+
+      // Safe handle return architecture for 64-bit Clang systems
+      #if defined(HB_LONG_PCOUNT) || defined(_WIN64)
+         hb_retptr( ( void * ) hDC );
+      #else
+         HB_RETHANDLE( hDC );
+      #endif
 }
 
 HB_FUNC( HWG_MODIFYSTYLE )
 {
-   HWND hWnd = ( HWND ) HB_PARHANDLE( 1 );
-   DWORD dwStyle = GetWindowLongPtr( ( HWND ) hWnd, GWL_STYLE );
-   DWORD a = hb_parnl( 2 );
-   DWORD b = hb_parnl( 3 );
-   DWORD dwNewStyle = ( dwStyle & ~a ) | b;
-   SetWindowLongPtr( hWnd, GWL_STYLE, dwNewStyle );
+      HWND hWnd = ( HWND ) HB_PARHANDLE( 1 );
+      if( hWnd )
+      {
+            DWORD dwStyle = GetWindowLongPtr( hWnd, GWL_STYLE );
+            DWORD a = hb_parnl( 2 );
+            DWORD b = hb_parnl( 3 );
+            DWORD dwNewStyle = ( dwStyle & ~a ) | b;
+            SetWindowLongPtr( hWnd, GWL_STYLE, dwNewStyle );
+      }
 }
 
 #define SECTORS_NUM 100
