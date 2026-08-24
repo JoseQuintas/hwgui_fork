@@ -15,7 +15,26 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2026-08-24 19:57 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+
+2026-08-24 20:30 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **hwg_BMPNewImageC**: fixed BMP file corruption from copying the full
+    `BMPImage3x` struct (including in-memory pointers) into the output
+    buffer instead of just the 54-byte header; size varied between 32-bit
+    and 64-bit builds, corrupting the palette/pixel area inconsistently.
+  - **hwg_BMPNewImageC**: fixed pointer corruption from `memset()` on the
+    address of the `palette` pointer instead of its contents.
+  - **hwg_BMPNewImageC**: fixed use-after-free in the pixel-row allocation
+    loop (missing `return` after cleanup on allocation failure).
+  - **hwg_BMPNewImageC**: fixed out-of-bounds read in the 4bpp encoding path
+    (`j + 1 < bmp_height` compared a column index against the row count;
+    now `bmp_width`).
+  - **hwg_BMPNewImageC**: added missing `NULL` checks for `malloc`/`calloc`
+    calls (file buffer, pixel rows, palette, pixel buffer).
+  - **hwg_BMPNewImageC**: fixed memory leaks of `pixel_data` and `palette`
+    on the success path (never freed before return).
+
+2026-08-24 20:20 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **HWG_DRAWGRADIENT**: fixed GDI handle leaks (bitmap and brush) caused by
     missing restore `SelectObject()` calls before `DeleteObject()`/`DeleteDC()`.

@@ -2811,461 +2811,573 @@ HB_FUNC( HWG_LOADPNG )
 
 */
 
-
-
 #pragma pack(push,1)
 
 /* Alternative declaration:
-typedef struct <name> {
- ...
-}  __attribute__((packed)) <name> ;
-*/
+ * typedef struct <name> {
+ * ...
+ * }  __attribute__((packed)) <name> ;
+ */
 
 typedef struct{
-    uint8_t signature[2];              /* 0  "BM" */
-    uint32_t filesize;                 /* 2  Size of file in bytes */
-    uint32_t reserved;                 /* 6  reserved, forever 0 */
-    uint32_t fileoffset_to_pixelarray; /* 10 Start position of image data in bytes */
+      uint8_t signature[2];              /* 0  "BM" */
+      uint32_t filesize;                 /* 2  Size of file in bytes */
+      uint32_t reserved;                 /* 6  reserved, forever 0 */
+      uint32_t fileoffset_to_pixelarray; /* 10 Start position of image data in bytes */
 } fileheader;                          /* 14 l = 14 */
 
 /* Win 3.x info header */
 typedef struct{
-    uint32_t dibheadersize;            /* 14  Size of this header in bytes */
-    uint32_t width;                    /* 18  Image width in pixels */
-    uint32_t height;                   /* 22  Image height in pixels */
-    uint16_t planes;                   /* 26  Number of color planes */
-    uint16_t bitsperpixel;             /* 28  Number of bits per pixel */
-    uint32_t compression;              /* 30  Compression methods used */
-    uint32_t imagesize;                /* 34  Size of bitmap in bytes */
-    uint32_t ypixelpermeter;           /* 38  Horizontal resolution in pixels per meter */
-    uint32_t xpixelpermeter;           /* 42  Vertical resolution in pixels per meter */
-    uint32_t numcolorspallette;        /* 46  Number of colors in the image */
-    uint32_t mostimpcolor;             /* 50  Minimum number of important colors */
+      uint32_t dibheadersize;            /* 14  Size of this header in bytes */
+      uint32_t width;                    /* 18  Image width in pixels */
+      uint32_t height;                   /* 22  Image height in pixels */
+      uint16_t planes;                   /* 26  Number of color planes */
+      uint16_t bitsperpixel;             /* 28  Number of bits per pixel */
+      uint32_t compression;              /* 30  Compression methods used */
+      uint32_t imagesize;                /* 34  Size of bitmap in bytes */
+      uint32_t ypixelpermeter;           /* 38  Horizontal resolution in pixels per meter */
+      uint32_t xpixelpermeter;           /* 42  Vertical resolution in pixels per meter */
+      uint32_t numcolorspallette;        /* 46  Number of colors in the image */
+      uint32_t mostimpcolor;             /* 50  Minimum number of important colors */
 } bitmapinfoheader;                    /* 54 l = 40 */
 
 
 /* Color components (Win3x palette element)  */
 typedef struct {
-    uint8_t b; /* Blue */
-    uint8_t g; /* Green */
-    uint8_t r; /* Red component */
-    uint8_t a; /* Reserved = 0 */
+      uint8_t b; /* Blue */
+      uint8_t g; /* Green */
+      uint8_t r; /* Red component */
+      uint8_t a; /* Reserved = 0 */
 } color;
 
 typedef struct
 {
-    uint8_t b;
-    uint8_t g;
-    uint8_t r;
-    uint8_t i;
+      uint8_t b;
+      uint8_t g;
+      uint8_t r;
+      uint8_t i;
 }  pixel;
 
 /* W3.x complete header */
 typedef struct {
-    fileheader fileheader;             /* l = 14 */
-    bitmapinfoheader bitmapinfoheader; /* l = 40 */
+      fileheader fileheader;             /* l = 14 */
+      bitmapinfoheader bitmapinfoheader; /* l = 40 */
 } bitmapheader3x;  /* l=54 */
 
 typedef struct {
-   char Blue;      /* Blue component */
-   char Green;     /* Green component */
-   char Red;       /* Red component */
+      char Blue;      /* Blue component */
+      char Green;     /* Green component */
+      char Red;       /* Red component */
 } Win2xPaletteElement ;
 
 /* Fields added for Windows 4.x follow this line */
 
 typedef struct {
- uint32_t RedMask;       /* 54 Mask identifying bits of red component */
- uint32_t GreenMask;     /* 58 Mask identifying bits of green component */
- uint32_t BlueMask;      /* 62 Mask identifying bits of blue component */
- uint32_t AlphaMask;     /* Mask identifying bits of alpha component */
- uint32_t CSType;        /* Color space type */
- uint32_t RedX;          /* X coordinate of red endpoint */
- uint32_t RedY;          /* Y coordinate of red endpoint */
- uint32_t RedZ;          /* Z coordinate of red endpoint */
- uint32_t GreenX;        /* X coordinate of green endpoint */
- uint32_t GreenY;        /* Y coordinate of green endpoint */
- uint32_t GreenZ;        /* Z coordinate of green endpoint */
- uint32_t BlueX;         /* X coordinate of blue endpoint */
- uint32_t BlueY;         /* Y coordinate of blue endpoint */
- uint32_t BlueZ;         /* Z coordinate of blue endpoint */
- uint32_t GammaRed;      /* Gamma red coordinate scale value */
- uint32_t GammaGreen;    /* Gamma green coordinate scale value */
- uint32_t GammaBlue;     /* Gamma blue coordinate scale value */
+      uint32_t RedMask;       /* 54 Mask identifying bits of red component */
+      uint32_t GreenMask;     /* 58 Mask identifying bits of green component */
+      uint32_t BlueMask;      /* 62 Mask identifying bits of blue component */
+      uint32_t AlphaMask;     /* Mask identifying bits of alpha component */
+      uint32_t CSType;        /* Color space type */
+      uint32_t RedX;          /* X coordinate of red endpoint */
+      uint32_t RedY;          /* Y coordinate of red endpoint */
+      uint32_t RedZ;          /* Z coordinate of red endpoint */
+      uint32_t GreenX;        /* X coordinate of green endpoint */
+      uint32_t GreenY;        /* Y coordinate of green endpoint */
+      uint32_t GreenZ;        /* Z coordinate of green endpoint */
+      uint32_t BlueX;         /* X coordinate of blue endpoint */
+      uint32_t BlueY;         /* Y coordinate of blue endpoint */
+      uint32_t BlueZ;         /* Z coordinate of blue endpoint */
+      uint32_t GammaRed;      /* Gamma red coordinate scale value */
+      uint32_t GammaGreen;    /* Gamma green coordinate scale value */
+      uint32_t GammaBlue;     /* Gamma blue coordinate scale value */
 } bitmapinfoheader4x;    /* l=68 */
 
 typedef struct {
-    uint32_t        intent;             /* Rendering intent */
-    uint32_t        profile_data;       /* Profile data offset in byte) */
-    uint32_t        profile_size;       /* Profile data size in byte */
-    uint32_t        reserved;           /* 0 */
+      uint32_t        intent;             /* Rendering intent */
+      uint32_t        profile_data;       /* Profile data offset in byte) */
+      uint32_t        profile_size;       /* Profile data size in byte */
+      uint32_t        reserved;           /* 0 */
 } bitmapinfoheader5x;
 
 /* Bmp image W3.x structure for QR encoding */
 typedef struct {
-    bitmapheader3x bmp_header;   /* full Header of the bitmap */
-    pixel **pixel_data;    /* Pixel matrix (jagged array) */
-    color *palette;        /* Color palette (array) */
+      bitmapheader3x bmp_header;   /* full Header of the bitmap */
+      pixel **pixel_data;    /* Pixel matrix (jagged array) */
+      color *palette;        /* Color palette (array) */
 }  BMPImage3x;
-
-
+/* NOTE: this struct mixes an on-disk header (bmp_header, fixed layout) with
+ * in-memory-only pointers (pixel_data, palette). Its sizeof() is NOT the
+ * on-disk header size, and it also differs between 32-bit and 64-bit builds
+ * because pointer width changes (8 bytes each on 64-bit vs 4 bytes on
+ * 32-bit). NEVER memcpy() this whole struct into the file buffer - only
+ * bmp_header may be copied byte-for-byte on disk. See FIX below. */
 
 
 typedef struct {
- uint32_t  RedMask;         /* Mask red component */
- uint32_t  GreenMask;       /* Mask green component */
- uint32_t  BlueMask;        /* Mask blue component */
+      uint32_t  RedMask;         /* Mask red component */
+      uint32_t  GreenMask;       /* Mask green component */
+      uint32_t  BlueMask;        /* Mask blue component */
 } WINNTBITFIELDSMASKS ;
 
 
 
 typedef struct {
-    pixel **pixel_data;    /* Pixel matrix (jagged array) */
-    color *palette;        /* Color palette (array) */
+      pixel **pixel_data;    /* Pixel matrix (jagged array) */
+      color *palette;        /* Color palette (array) */
 }  imagedata;
 
 typedef struct {
-    fileheader fileheader;                  /* l = 14 */
-    bitmapinfoheader bitmapinfoheader;      /* l = 40 */
-    bitmapinfoheader4x bitmapinfoheader4x;  /* l = 68 */
+      fileheader fileheader;                  /* l = 14 */
+      bitmapinfoheader bitmapinfoheader;      /* l = 40 */
+      bitmapinfoheader4x bitmapinfoheader4x;  /* l = 68 */
 } bitmap4x;  /* l=122 */
 
 typedef struct
 {
-    bitmap4x bmp_header;   /* full Header of the bitmap */
-    pixel **pixel_data;    /* Pixel matrix (jagged array) */
-    color *palette;        /* Color palette (array) */
+      bitmap4x bmp_header;   /* full Header of the bitmap */
+      pixel **pixel_data;    /* Pixel matrix (jagged array) */
+      color *palette;        /* Color palette (array) */
 }  BMPImage4x; /* W4x */
 
 #pragma pack(pop)
 
 static unsigned int cc_null(uint32_t wert)
 {
-    unsigned int zae ;
+      unsigned int zae ;
 
-    zae = 0;
+      zae = 0;
 
-    if (! wert)
-    {
-      return 0u;
-    }
+      if (! wert)
+      {
+            return 0u;
+      }
 
-    while (!(wert & 0x1))
-    {
-        ++zae;
-        wert >>= 1;
-    }
+      while (!(wert & 0x1))
+      {
+            ++zae;
+            wert >>= 1;
+      }
 
-    return zae;
+      return zae;
 }
 
 
 uint32_t hwg_BMPFileSizeC(
-    int bmp_width,
-    int bmp_height,
-    int bmp_bit_depth,
-    unsigned int colors
-    )
+      int bmp_width,
+      int bmp_height,
+      int bmp_bit_depth,
+      unsigned int colors
+)
 {
-    uint32_t image_size;
-    uint32_t pad;
-    uint32_t fileoffset_to_pixelarray;
-    uint32_t filesize ;
+      uint32_t image_size;
+      uint32_t pad;
+      uint32_t fileoffset_to_pixelarray;
+      uint32_t filesize ;
 
 
-    pad = (4 - (bmp_bit_depth * bmp_width + 7 ) / 8 % 4) % 4;
-    image_size = ((bmp_bit_depth * bmp_width + 7 ) / 8 + pad ) * bmp_height;
+      pad = (4 - (bmp_bit_depth * bmp_width + 7 ) / 8 % 4) % 4;
+      image_size = ((bmp_bit_depth * bmp_width + 7 ) / 8 + pad ) * bmp_height;
 
-    fileoffset_to_pixelarray = sizeof (fileheader) + sizeof(bitmapinfoheader) +
-    colors * 4 ;
-    filesize = fileoffset_to_pixelarray + image_size ;
+      fileoffset_to_pixelarray = sizeof (fileheader) + sizeof(bitmapinfoheader) +
+      colors * 4 ;
+      filesize = fileoffset_to_pixelarray + image_size ;
 
-    return filesize;
+      return filesize;
 }
 
 /* Creates a C element with bitmap file image */
 
 void * hwg_BMPNewImageC(
 
-    int pbmp_width,
-    int pbmp_height,
-    int pbmp_bit_depth,
-    unsigned int colors,
-    uint32_t xpixelpermeter,
-    uint32_t ypixelpermeter )
+      int pbmp_width,
+      int pbmp_height,
+      int pbmp_bit_depth,
+      unsigned int colors,
+      uint32_t xpixelpermeter,
+      uint32_t ypixelpermeter )
 
 {
-    BMPImage3x pbitmap;  /* Memory for the image with pointers */
-    uint32_t image_size;
-    uint32_t pad;
-    uint32_t fileoffset_to_pixelarray;
+      BMPImage3x pbitmap;  /* Memory for the image with pointers */
+      uint32_t image_size;
+      uint32_t pad;
+      uint32_t fileoffset_to_pixelarray;
 
-    uint32_t filesize ;
-    uint32_t max_colors;
-//    int i;
-    uint32_t i,j;
-    void * bmp_locpointer;
-    uint8_t * bitmap_buffer;
-    uint8_t * buf;
-    uint8_t tmp;
-    short bit;
-    char csig[2];
-    uint32_t bmp_width;
-    uint32_t bmp_height;
-    uint32_t bmp_bit_depth;
+      uint32_t filesize ;
+      uint32_t max_colors;
+      //    int i;
+      uint32_t i,j;
+      void * bmp_locpointer;
+      uint8_t * bitmap_buffer;
+      uint8_t * buf;
+      uint8_t tmp;
+      short bit;
+      char csig[2];
+      uint32_t bmp_width;
+      uint32_t bmp_height;
+      uint32_t bmp_bit_depth;
 
-    /* uint8_t mask1[8]; */
-    uint8_t mask4[2];
+      /* uint8_t mask1[8]; */
+      uint8_t mask4[2];
 
-    /* Reserved for later releases
-    mask1[0] = 128;
-    mask1[1] = 64;
-    mask1[2] = 32;
-    mask1[3] = 16;
-    mask1[4] = 8;
-    mask1[5] = 4;
-    mask1[6] = 2;
-    mask1[7] = 1;
-   */
+      /* Reserved for later releases
+       *    mask1[0] = 128;
+       *    mask1[1] = 64;
+       *    mask1[2] = 32;
+       *    mask1[3] = 16;
+       *    mask1[4] = 8;
+       *    mask1[5] = 4;
+       *    mask1[6] = 2;
+       *    mask1[7] = 1;
+       */
 
-    mask4[0] = 240,
-    mask4[1] = 15;
+      mask4[0] = 240,
+      mask4[1] = 15;
 
-    max_colors = (uint32_t) 1;
+      max_colors = (uint32_t) 1;
 
-    /* Fixed signature "BM" */
-    csig[0] = 0x42;
-    csig[1] = 0x4d;
+      /* Fixed signature "BM" */
+      csig[0] = 0x42;
+      csig[1] = 0x4d;
 
-    /* Cast for avoiding warnings in for loops (int ==> uint32_t */
-     bmp_width = (uint32_t) pbmp_width;
-     bmp_height = (uint32_t) pbmp_height;
-     bmp_bit_depth = (uint32_t) pbmp_bit_depth;
+      /* Cast for avoiding warnings in for loops (int ==> uint32_t */
+      bmp_width = (uint32_t) pbmp_width;
+      bmp_height = (uint32_t) pbmp_height;
+      bmp_bit_depth = (uint32_t) pbmp_bit_depth;
 
-    memset(&pbitmap, 0, sizeof (BMPImage3x));
+      memset(&pbitmap, 0, sizeof (BMPImage3x));
 
-    /* Some parameter checks */
-    if (bmp_bit_depth != 1 && bmp_bit_depth != 4 && bmp_bit_depth != 8 && bmp_bit_depth != 16 && bmp_bit_depth != 24 )
-    {
-       return NULL;
-    }
-
-    if ( bmp_width < 1 || bmp_height < 1 )
-    {
-       return NULL;
-    }
-
-
-    for (i = 0; i < bmp_bit_depth; ++i)
-    {
-        max_colors *= 2;
-    }
-
-    if (colors > max_colors)
-    {
-        /* Colors and max colors not compatible */
-        return NULL;
-    }
-
-    pad = (4 - (bmp_bit_depth * bmp_width + 7 ) / 8 % 4) % 4;
-    image_size = ((bmp_bit_depth * bmp_width + 7 ) / 8 + pad ) * bmp_height;
-
-
-
-    /* Pre init with 0 */
-    memset(&pbitmap,0x00,sizeof(BMPImage3x) );
-
-
-    fileoffset_to_pixelarray = sizeof (fileheader) + sizeof(bitmapinfoheader) +
-    colors * 4 ;
-    filesize = fileoffset_to_pixelarray + image_size ;
-
-    /* Allocate memory for full file size */
-    bmp_fileimg = malloc(filesize);
-
-
-    /* Bitmap file header */
-
-    memcpy( &pbitmap.bmp_header.fileheader.signature,csig,2);                     /* fixed signature */
-    pbitmap.bmp_header.fileheader.filesize = filesize;                            /* Size of file in bytes */
-    pbitmap.bmp_header.fileheader.reserved = 0;
-    pbitmap.bmp_header.fileheader.fileoffset_to_pixelarray = fileoffset_to_pixelarray; /* Start position of image data in bytes */
-
-    /* Bitmap information header 3.x*/
-    pbitmap.bmp_header.bitmapinfoheader.dibheadersize = (uint32_t) sizeof(bitmapinfoheader); /* Size of this header in bytes */
-    pbitmap.bmp_header.bitmapinfoheader.width =  bmp_width;            /* Image width in pixels */
-    pbitmap.bmp_header.bitmapinfoheader.height = bmp_height;          /* Image height in pixels */
-    pbitmap.bmp_header.bitmapinfoheader.planes = (uint32_t) _planes;             /* Number of color planes (must be 1) */
-    pbitmap.bmp_header.bitmapinfoheader.bitsperpixel = (uint16_t) bmp_bit_depth; /* Number of bits per pixel `*/
-    pbitmap.bmp_header.bitmapinfoheader.compression = _compression;              /* Compression methods used */
-    pbitmap.bmp_header.bitmapinfoheader.imagesize = (uint32_t) image_size;       /* Size of bitmap in bytes (pixelbytesize) */
-    pbitmap.bmp_header.bitmapinfoheader.ypixelpermeter = ypixelpermeter ;        /* Horizontal resolution in pixels per meter */
-    pbitmap.bmp_header.bitmapinfoheader.xpixelpermeter = xpixelpermeter ;        /* Vertical resolution in pixels per meter */
-    pbitmap.bmp_header.bitmapinfoheader.numcolorspallette = colors;              /* Number of colors in the image */
-    pbitmap.bmp_header.bitmapinfoheader.mostimpcolor = colors;                   /* Minimum number of important colors */
-
-
-    /* process image data */
-
-    /* Alloc pixel data (jagged array) */
-    pbitmap.pixel_data = (pixel**) malloc(bmp_height * sizeof(pixel*) );
-
-    if ( ! pbitmap.pixel_data)
-    {
-       return NULL;
-    }
-    for (i = 0; i < bmp_height; ++i)
-    {
-      pbitmap.pixel_data[i] = (pixel*) calloc(bmp_width, sizeof (pixel));
-
-      if (! pbitmap.pixel_data[i])
+      /* Some parameter checks */
+      if (bmp_bit_depth != 1 && bmp_bit_depth != 4 && bmp_bit_depth != 8 && bmp_bit_depth != 16 && bmp_bit_depth != 24 )
       {
-        while (i > 0)
-        {
-          free( pbitmap.pixel_data[--i]);
-        }
-          free(pbitmap.pixel_data);
+            return NULL;
       }
-    }
 
-    /* Alloc color palette */
-    pbitmap.palette = (color*) calloc(colors, sizeof (color));
-    memset(&pbitmap.palette, 0x00, sizeof (color));
-
-    /* Copy structure pbitmap (BMPImage3x) to file buffer */
-    memcpy(bmp_fileimg,&pbitmap, sizeof(BMPImage3x) );
-
-    /*
-      Now until here processed:
-      - Fileheader
-      - Info header
-      - Pixel pointer
-      - Palette
-     */
-
-    /* Move pointer to end of block : start position of pixel data */
-    bmp_locpointer = (void*) ( ((unsigned char*)bmp_fileimg) + fileoffset_to_pixelarray );
-
-    /* Process initialization of  pixel data */
-
-    /* allocate buffer for bitmap pixel data */
-    bitmap_buffer = (uint8_t *) calloc(1, image_size);
-    memset(bitmap_buffer,0x00,image_size);
-    buf = bitmap_buffer;
-
-    /* convert pixel data into bitmap format */
-    switch (bmp_bit_depth)
-    {
-    /* Each byte of data represents 8 pixels, with the most significant
-       bit mapped into the leftmost pixel */
-    case 1:
-       for (i = 0; i < bmp_height; ++i)
-       {
-         j = 0;
-         while (j < bmp_width)
-         {
-           tmp = 0;
-           for (bit = 7; bit >= 0 && j < bmp_width; --bit)
-           {
-             tmp |= (pbitmap.pixel_data[i][j].i == 0 ? 0u : 1u) << bit;
-             ++j;
-           }
-           *buf++ = tmp;
-         }
-         buf += pad;
-       }
-       break;
-
-    /* Each byte represents 2 pixel byte, nibble */
-
-    case 4:
-       for (i = 0; i < bmp_height; ++i)
-        {
-         for (j = 0; j < bmp_width; j += 2)
-          {
-             /* write two pixels in the one byte variable tmp */
-             tmp = 0;
-             /* most significant nibble */
-             tmp |= pbitmap.pixel_data[i][j].i << 4;
-             if (j + 1 < bmp_height)
-             {
-              /* least significant nibble */
-               tmp |= pbitmap.pixel_data[i][j + 1].i & mask4[LO_NIBBLE];
-             }
-              /* write the byte in the image buffer */
-              *buf++ = tmp;
-          }
-          /* each row has a padding to a 4 byte alignment */
-          buf += pad;
-        }
-        break;
-
-    /* represents 1 byte pixel */
-    case 8:
-       for (i = 0; i < bmp_height; ++i)
-        {
-         for (j = 0; j < bmp_width; ++j)
-          {
-           *buf++ = pbitmap.pixel_data[i][j].i;
-          }
-
-          /* each row has a padding to a 4 byte alignment */
-          buf += pad;
-        }
-        break;
-
-    /* 2 bytes pixel*/
-    case 16:
-       for (i = 0; i < bmp_height; ++i)
-        {
-          for (j = 0; j < bmp_width; ++j)
-          {
-            uint16_t *px = (uint16_t*) buf;
-            *px =
-             (pbitmap.pixel_data[i][j].b << cc_null(pbitmap.palette->b)) +
-             (pbitmap.pixel_data[i][j].g << cc_null(pbitmap.palette->g)) +
-             (pbitmap.pixel_data[i][j].r << cc_null(pbitmap.palette->r));
-            buf += 2;
-          }
-          buf += pad;
-       }
-       break;
-
-    /* 3 bytes pixel, 1 byte for one color */
-    case 24:
-       for (i = 0; i < bmp_height; ++i)
-       {
-          for (j = 0; j < bmp_width; ++j)
-          {
-             *buf++ = pbitmap.pixel_data[i][j].b;
-             *buf++ = pbitmap.pixel_data[i][j].g;
-             *buf++ = pbitmap.pixel_data[i][j].r;
-          }
-          /* Each row has a padding to a 4 byte alignment */
-          buf += pad;
-       }
-       break;
-     }
+      if ( bmp_width < 1 || bmp_height < 1 )
+      {
+            return NULL;
+      }
 
 
-    /* Copy the image data to the file buffer */
-    memcpy(bmp_locpointer,bitmap_buffer, image_size );
+      for (i = 0; i < bmp_bit_depth; ++i)
+      {
+            max_colors *= 2;
+      }
 
-    /* Free all the memory not needed */
+      if (colors > max_colors)
+      {
+            /* Colors and max colors not compatible */
+            return NULL;
+      }
 
-    free(bitmap_buffer);
-/*
-    free(bmp_locpointer);
-    free(buf);
-*/
+      pad = (4 - (bmp_bit_depth * bmp_width + 7 ) / 8 % 4) % 4;
+      image_size = ((bmp_bit_depth * bmp_width + 7 ) / 8 + pad ) * bmp_height;
+
+      /* FIX: removed the duplicate memset(&pbitmap, 0x00, sizeof(BMPImage3x))
+       * that used to be here - pbitmap was already zeroed above, this second
+       * call was dead code with no effect other than wasting cycles. */
+
+      fileoffset_to_pixelarray = sizeof (fileheader) + sizeof(bitmapinfoheader) +
+      colors * 4 ;
+      filesize = fileoffset_to_pixelarray + image_size ;
+
+      /* Allocate memory for full file size */
+      /* FIX: filesize/image_size are computed with 'int' width parameters
+       * (pbmp_width/pbmp_height), so on both 32-bit and 64-bit builds this
+       * stays within uint32_t range as long as the caller passes sane
+       * dimensions; malloc() itself takes size_t, which is fine on either
+       * width. The real portability bug was further down (see BMPImage3x
+       * memcpy note) where pointer size (4 vs 8 bytes) changed behavior
+       * between 32-bit and 64-bit builds - fixed below. */
+      bmp_fileimg = malloc(filesize);
+
+      /* FIX: malloc() was never checked for failure - every write through
+       * bmp_fileimg afterwards (memcpy, bmp_locpointer arithmetic) would be
+       * undefined behavior (writing through a NULL pointer) if allocation
+       * failed, e.g. under memory pressure or with attacker-controlled huge
+       * dimensions. */
+      if (! bmp_fileimg)
+      {
+            return NULL;
+      }
 
 
-    /* Return the pointer of complete file buffer,
-       its content must be returned as Harbour string
-       in the corresponding HB_FUNC()
-    */
+      /* Bitmap file header */
 
-    return bmp_fileimg;
+      memcpy( &pbitmap.bmp_header.fileheader.signature,csig,2);                     /* fixed signature */
+      pbitmap.bmp_header.fileheader.filesize = filesize;                            /* Size of file in bytes */
+      pbitmap.bmp_header.fileheader.reserved = 0;
+      pbitmap.bmp_header.fileheader.fileoffset_to_pixelarray = fileoffset_to_pixelarray; /* Start position of image data in bytes */
+
+      /* Bitmap information header 3.x*/
+      pbitmap.bmp_header.bitmapinfoheader.dibheadersize = (uint32_t) sizeof(bitmapinfoheader); /* Size of this header in bytes */
+      pbitmap.bmp_header.bitmapinfoheader.width =  bmp_width;            /* Image width in pixels */
+      pbitmap.bmp_header.bitmapinfoheader.height = bmp_height;          /* Image height in pixels */
+      pbitmap.bmp_header.bitmapinfoheader.planes = (uint16_t) _planes;             /* FIX: cast to uint16_t to match the field's real type (was cast to uint32_t, silently truncated by the compiler anyway - made explicit and correct here) */
+      pbitmap.bmp_header.bitmapinfoheader.bitsperpixel = (uint16_t) bmp_bit_depth; /* Number of bits per pixel `*/
+      pbitmap.bmp_header.bitmapinfoheader.compression = _compression;              /* Compression methods used */
+      pbitmap.bmp_header.bitmapinfoheader.imagesize = (uint32_t) image_size;       /* Size of bitmap in bytes (pixelbytesize) */
+      pbitmap.bmp_header.bitmapinfoheader.ypixelpermeter = ypixelpermeter ;        /* Horizontal resolution in pixels per meter */
+      pbitmap.bmp_header.bitmapinfoheader.xpixelpermeter = xpixelpermeter ;        /* Vertical resolution in pixels per meter */
+      pbitmap.bmp_header.bitmapinfoheader.numcolorspallette = colors;              /* Number of colors in the image */
+      pbitmap.bmp_header.bitmapinfoheader.mostimpcolor = colors;                   /* Minimum number of important colors */
+
+
+      /* process image data */
+
+      /* Alloc pixel data (jagged array) */
+      pbitmap.pixel_data = (pixel**) malloc(bmp_height * sizeof(pixel*) );
+
+      if ( ! pbitmap.pixel_data)
+      {
+            free(bmp_fileimg);   /* FIX: bmp_fileimg was leaked on this error path */
+            return NULL;
+      }
+      for (i = 0; i < bmp_height; ++i)
+      {
+            pbitmap.pixel_data[i] = (pixel*) calloc(bmp_width, sizeof (pixel));
+
+            if (! pbitmap.pixel_data[i])
+            {
+                  /* FIX: original code freed the partially-built jagged array on
+                   * allocation failure but never returned, so the loop kept running
+                   * and wrote pbitmap.pixel_data[i] = ... into memory that was just
+                   * free()'d (use-after-free / heap corruption). Added 'return NULL'
+                   * and also free bmp_fileimg so nothing leaks on this path. */
+                  while (i > 0)
+                  {
+                        free( pbitmap.pixel_data[--i]);
+                  }
+                  free(pbitmap.pixel_data);
+                  free(bmp_fileimg);
+                  return NULL;
+            }
+      }
+
+      /* Alloc color palette */
+      pbitmap.palette = (color*) calloc(colors, sizeof (color));
+
+      /* FIX: check calloc() result before use - a NULL palette would cause a
+       * crash later in the 16bpp branch (pbitmap.palette->b/g/r). Also
+       * removed the follow-up:
+       *   memset(&pbitmap.palette, 0x00, sizeof(color));
+       * That line took the address of the *pointer* pbitmap.palette (a
+       * color**) and zeroed sizeof(color) == 4 bytes starting there. On a
+       * 64-bit build a pointer is 8 bytes, so this stomped on the low 4
+       * bytes of the pointer itself, corrupting it (the high 4 bytes were
+       * left as whatever calloc() returned, so the pointer no longer pointed
+       * at valid memory). On a 32-bit build a pointer is exactly 4 bytes, so
+       * this fully zeroed out the pointer, turning it into NULL and leaking
+       * the just-allocated palette block. Either way the intent - clearing
+       * the palette *contents* - was wrong; calloc() already zero-initializes
+       * the memory it returns, so no memset was ever needed here. */
+      if (! pbitmap.palette && colors > 0)
+      {
+            for (i = 0; i < bmp_height; ++i)
+                  free( pbitmap.pixel_data[i]);
+            free(pbitmap.pixel_data);
+            free(bmp_fileimg);
+            return NULL;
+      }
+
+      /* FIX: previously this copied sizeof(BMPImage3x) bytes - i.e. the
+       * on-disk header PLUS the raw bytes of the pixel_data and palette
+       * pointers - into the start of the output file buffer. Two problems:
+       *  1) Pointers have no business inside a .bmp file; the on-disk layout
+       *     only expects fileheader+bitmapinfoheader (54 bytes) followed
+       *     directly by the palette/pixel array at fileoffset_to_pixelarray.
+       *  2) sizeof(BMPImage3x) is NOT portable: it's 54 + 2*sizeof(void*),
+       *     i.e. 62 bytes on a 32-bit build (4-byte pointers) but 70 bytes
+       *     on a 64-bit build (8-byte pointers). For small palettes
+       *     (fileoffset_to_pixelarray = 54 + colors*4 can be well under 62
+       *     or 70), this memcpy wrote past the header and clobbered the
+       *     start of the palette/pixel area with garbage pointer bytes -
+       *     and clobbered a different number of bytes depending on whether
+       *     the binary was built 32-bit or 64-bit, making the corruption
+       *     inconsistent across targets. Copying only bmp_header (a packed,
+       *     fixed 54-byte struct with no pointers) is correct and identical
+       *     on every architecture. */
+      memcpy(bmp_fileimg, &pbitmap.bmp_header, sizeof(bitmapheader3x));
+
+      /*
+       *      Now until here processed:
+       *      - Fileheader
+       *      - Info header
+       *      - Pixel pointer
+       *      - Palette
+       */
+
+      /* Move pointer to end of block : start position of pixel data */
+      bmp_locpointer = (void*) ( ((unsigned char*)bmp_fileimg) + fileoffset_to_pixelarray );
+
+      /* Process initialization of  pixel data */
+
+      /* allocate buffer for bitmap pixel data */
+      bitmap_buffer = (uint8_t *) calloc(1, image_size);
+
+      /* FIX: check calloc() result before writing into it via 'buf' below. */
+      if (! bitmap_buffer)
+      {
+            for (i = 0; i < bmp_height; ++i)
+                  free( pbitmap.pixel_data[i]);
+            free(pbitmap.pixel_data);
+            free(pbitmap.palette);
+            free(bmp_fileimg);
+            return NULL;
+      }
+      /* FIX: memset() right after calloc() was redundant (calloc already
+       * zero-initializes) - removed. */
+      buf = bitmap_buffer;
+
+      /* convert pixel data into bitmap format */
+      switch (bmp_bit_depth)
+      {
+            /* Each byte of data represents 8 pixels, with the most significant
+             *       bit mapped into the leftmost pixel */
+            case 1:
+                  for (i = 0; i < bmp_height; ++i)
+                  {
+                        j = 0;
+                        while (j < bmp_width)
+                        {
+                              tmp = 0;
+                              for (bit = 7; bit >= 0 && j < bmp_width; --bit)
+                              {
+                                    tmp |= (pbitmap.pixel_data[i][j].i == 0 ? 0u : 1u) << bit;
+                                    ++j;
+                              }
+                              *buf++ = tmp;
+                        }
+                        buf += pad;
+                  }
+                  break;
+
+                  /* Each byte represents 2 pixel byte, nibble */
+
+                  case 4:
+                        for (i = 0; i < bmp_height; ++i)
+                        {
+                              for (j = 0; j < bmp_width; j += 2)
+                              {
+                                    /* write two pixels in the one byte variable tmp */
+                                    tmp = 0;
+                                    /* most significant nibble */
+                                    tmp |= pbitmap.pixel_data[i][j].i << 4;
+                                    if (j + 1 < bmp_width)   /* FIX: was 'j + 1 < bmp_height' - compared a column
+                                          * index against the row count instead of the row
+                                          * width. On images where bmp_height > bmp_width this
+                                          * read pbitmap.pixel_data[i][j + 1] out of bounds of
+                                          * that row's allocation (heap out-of-bounds read,
+                                          * same bug on 32-bit and 64-bit); on images where
+                                          * bmp_height < bmp_width it silently dropped the
+                                          * last nibble on affected rows, corrupting the
+                                          * encoded image without crashing. */
+                                          {
+                                                /* least significant nibble */
+                                                tmp |= pbitmap.pixel_data[i][j + 1].i & mask4[LO_NIBBLE];
+                                          }
+                                          /* write the byte in the image buffer */
+                                          *buf++ = tmp;
+                              }
+                              /* each row has a padding to a 4 byte alignment */
+                              buf += pad;
+                        }
+                        break;
+
+                        /* represents 1 byte pixel */
+                        case 8:
+                              for (i = 0; i < bmp_height; ++i)
+                              {
+                                    for (j = 0; j < bmp_width; ++j)
+                                    {
+                                          *buf++ = pbitmap.pixel_data[i][j].i;
+                                    }
+
+                                    /* each row has a padding to a 4 byte alignment */
+                                    buf += pad;
+                              }
+                              break;
+
+                              /* 2 bytes pixel*/
+                              case 16:
+                                    /* NOTE (not auto-fixed, needs design confirmation): this branch
+                                     * shifts each color channel by cc_null(pbitmap.palette->b/g/r),
+                                     * i.e. by the number of trailing zero bits in a *palette color
+                                     * byte*. That only makes sense if pbitmap.palette->b/g/r are meant
+                                     * to hold bit-position masks (like the unused WINNTBITFIELDSMASKS
+                                     * struct defined above: RedMask/GreenMask/BlueMask), not actual
+                                     * 0-255 color values from a BMPImage3x-style palette. As written,
+                                     * with the palette zero-initialized (or holding real color bytes),
+                                     * cc_null() will very often return 0 for all three channels, so no
+                                     * shift is applied and *px collapses to a plain (b+g+r) sum - not a
+                                     * valid 16bpp pixel encoding. Recommend replacing this with a fixed
+                                     * 5-6-5 or 5-5-5 pack (or wiring in real RedMask/GreenMask/BlueMask
+                                     * values) rather than deriving shifts from palette color bytes.
+                                     * Left behavioral logic unchanged here pending that decision, only
+                                     * added the NULL-safety fixes above so this branch doesn't dereference
+                                     * a failed allocation. */
+                                    for (i = 0; i < bmp_height; ++i)
+                                    {
+                                          for (j = 0; j < bmp_width; ++j)
+                                          {
+                                                uint16_t *px = (uint16_t*) buf;
+                                                *px =
+                                                (pbitmap.pixel_data[i][j].b << cc_null(pbitmap.palette->b)) +
+                                                (pbitmap.pixel_data[i][j].g << cc_null(pbitmap.palette->g)) +
+                                                (pbitmap.pixel_data[i][j].r << cc_null(pbitmap.palette->r));
+                                                buf += 2;
+                                          }
+                                          buf += pad;
+                                    }
+                                    break;
+
+                                    /* 3 bytes pixel, 1 byte for one color */
+                                    case 24:
+                                          for (i = 0; i < bmp_height; ++i)
+                                          {
+                                                for (j = 0; j < bmp_width; ++j)
+                                                {
+                                                      *buf++ = pbitmap.pixel_data[i][j].b;
+                                                      *buf++ = pbitmap.pixel_data[i][j].g;
+                                                      *buf++ = pbitmap.pixel_data[i][j].r;
+                                                }
+                                                /* Each row has a padding to a 4 byte alignment */
+                                                buf += pad;
+                                          }
+                                          break;
+      }
+
+
+      /* Copy the image data to the file buffer */
+      memcpy(bmp_locpointer,bitmap_buffer, image_size );
+
+      /* Free all the memory not needed */
+
+      free(bitmap_buffer);
+      /*
+       *    free(bmp_locpointer);
+       *    free(buf);
+       */
+
+      /* FIX: pbitmap.pixel_data[*], pbitmap.pixel_data and pbitmap.palette
+       * were allocated above but never freed on the success path - pbitmap
+       * is a local variable, so once this function returns, every pointer
+       * it held becomes unreachable and that memory leaks for the lifetime
+       * of the process. All temporary working buffers are freed here; only
+       * bmp_fileimg (the encoded output buffer the caller actually wants)
+       * is left allocated and returned. */
+      for (i = 0; i < bmp_height; ++i)
+      {
+            free( pbitmap.pixel_data[i]);
+      }
+      free(pbitmap.pixel_data);
+      free(pbitmap.palette);
+
+      /* Return the pointer of complete file buffer,
+       *       its content must be returned as Harbour string
+       *       in the corresponding HB_FUNC()
+       */
+
+      return bmp_fileimg;
 
 }
 
