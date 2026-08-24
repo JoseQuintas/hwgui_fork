@@ -951,85 +951,80 @@ HB_FUNC( HWG_DRAWBITMAP )
       /* DeleteObject((HBITMAP)hBitmap); */
 }
 
-
 /*
  * DrawTransparentBitmap( hDC, hBitmap, x, y [,trColor] )
  */
 HB_FUNC( HWG_DRAWTRANSPARENTBITMAP )
 {
-   HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
-   HBITMAP hBitmap = ( HBITMAP ) HB_PARHANDLE( 2 );
-   COLORREF trColor =
-         ( HB_ISNIL( 5 ) ) ? 0x00FFFFFF : ( COLORREF ) hb_parnl( 5 );
-   COLORREF crOldBack = SetBkColor( hDC, 0x00FFFFFF );
-   COLORREF crOldText = SetTextColor( hDC, 0 );
-   HBITMAP bitmapTrans;
-   HBITMAP pOldBitmapImage, pOldBitmapTrans;
-   BITMAP bitmap;
-   HDC dcImage, dcTrans;
-   int x = hb_parni( 3 );
-   int y = hb_parni( 4 );
-   int nWidthDest = ( hb_pcount(  ) >= 5 &&
-         !HB_ISNIL( 6 ) ) ? hb_parni( 6 ) : 0;
-   int nHeightDest = ( hb_pcount(  ) >= 6 &&
-         !HB_ISNIL( 7 ) ) ? hb_parni( 7 ) : 0;
+      HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
+      HBITMAP hBitmap = ( HBITMAP ) HB_PARHANDLE( 2 );
+      COLORREF trColor =
+      ( HB_ISNIL( 5 ) ) ? 0x00FFFFFF : ( COLORREF ) hb_parnl( 5 );
+      COLORREF crOldBack = SetBkColor( hDC, 0x00FFFFFF );
+      COLORREF crOldText = SetTextColor( hDC, 0 );
+      HBITMAP bitmapTrans = NULL;
+      HBITMAP pOldBitmapImage = NULL, pOldBitmapTrans = NULL;
+      BITMAP bitmap;
+      HDC dcImage, dcTrans;
+      int x = hb_parni( 3 );
+      int y = hb_parni( 4 );
+      int nWidthDest = ( hb_pcount(  ) >= 5 &&
+      !HB_ISNIL( 6 ) ) ? hb_parni( 6 ) : 0;
+      int nHeightDest = ( hb_pcount(  ) >= 6 &&
+      !HB_ISNIL( 7 ) ) ? hb_parni( 7 ) : 0;
 
-   // Create two memory dcs for the image and the mask
-   dcImage = CreateCompatibleDC( hDC );
-   dcTrans = CreateCompatibleDC( hDC );
-   // Select the image into the appropriate dc
-   pOldBitmapImage = ( HBITMAP ) SelectObject( dcImage, hBitmap );
-   GetObject( hBitmap, sizeof( BITMAP ), ( LPVOID ) & bitmap );
-   // Create the mask bitmap
-   bitmapTrans = CreateBitmap( bitmap.bmWidth, bitmap.bmHeight, 1, 1, NULL );
-   // Select the mask bitmap into the appropriate dc
-   pOldBitmapTrans = ( HBITMAP ) SelectObject( dcTrans, bitmapTrans );
-   // Build mask based on transparent colour
-   SetBkColor( dcImage, trColor );
-   if( nWidthDest && ( nWidthDest != bitmap.bmWidth ||
-               nHeightDest != bitmap.bmHeight ) )
-   {
-      /*
-         BitBlt( dcTrans, 0, 0, bitmap.bmWidth, bitmap.bmHeight, dcImage, 0, 0,
-         SRCCOPY );
-         SetStretchBltMode(  hDC, COLORONCOLOR );
-         StretchBlt( hDC, 0, 0, nWidthDest, nHeightDest, dcImage, 0, 0,
-         bitmap.bmWidth, bitmap.bmHeight, SRCINVERT );
-         StretchBlt( hDC, 0, 0, nWidthDest, nHeightDest, dcTrans, 0, 0,
-         bitmap.bmWidth, bitmap.bmHeight, SRCAND );
-         StretchBlt( hDC, 0, 0, nWidthDest, nHeightDest, dcImage, 0, 0,
-         bitmap.bmWidth, bitmap.bmHeight, SRCINVERT );
-       */
-      SetStretchBltMode( hDC, COLORONCOLOR );
-      TransparentBmp( hDC, x, y, nWidthDest, nHeightDest, dcImage,
-            bitmap.bmWidth, bitmap.bmHeight, trColor );
+      // Create two memory dcs for the image and the mask
+      dcImage = CreateCompatibleDC( hDC );
+      dcTrans = CreateCompatibleDC( hDC );
 
-   }
-   else
-   {
-      /*
-         BitBlt( dcTrans, 0, 0, bitmap.bmWidth, bitmap.bmHeight, dcImage, 0, 0,
-         SRCCOPY );
-         // Do the work - True Mask method - cool if not actual display
-         BitBlt( hDC, x, y, bitmap.bmWidth, bitmap.bmHeight, dcImage, 0, 0,
-         SRCINVERT );
-         BitBlt( hDC, x, y, bitmap.bmWidth, bitmap.bmHeight, dcTrans, 0, 0,
-         SRCAND );
-         BitBlt( hDC, x, y, bitmap.bmWidth, bitmap.bmHeight, dcImage, 0, 0,
-         SRCINVERT );
-       */
-      TransparentBmp( hDC, x, y, bitmap.bmWidth, bitmap.bmHeight, dcImage,
-            bitmap.bmWidth, bitmap.bmHeight, trColor );
-   }
-   // Restore settings
-   SelectObject( dcImage, pOldBitmapImage );
-   SelectObject( dcTrans, pOldBitmapTrans );
-   SetBkColor( hDC, crOldBack );
-   SetTextColor( hDC, crOldText );
+      // Select the image into the appropriate dc
+      pOldBitmapImage = ( HBITMAP ) SelectObject( dcImage, hBitmap );
+      GetObject( hBitmap, sizeof( BITMAP ), ( LPVOID ) & bitmap );
 
-   DeleteObject( bitmapTrans );
-   DeleteDC( dcImage );
-   DeleteDC( dcTrans );
+      // Determine dimensions for the mask bitmap based on target size
+      int maskWidth = ( nWidthDest ) ? nWidthDest : bitmap.bmWidth;
+      int maskHeight = ( nHeightDest ) ? nHeightDest : bitmap.bmHeight;
+
+      // Create the mask bitmap with proper dimensions
+      bitmapTrans = CreateBitmap( maskWidth, maskHeight, 1, 1, NULL );
+
+      // Select the mask bitmap into the appropriate dc
+      pOldBitmapTrans = ( HBITMAP ) SelectObject( dcTrans, bitmapTrans );
+
+      // Build mask based on transparent colour
+      SetBkColor( dcImage, trColor );
+      if( nWidthDest && ( nWidthDest != bitmap.bmWidth ||
+            nHeightDest != bitmap.bmHeight ) )
+      {
+            SetStretchBltMode( hDC, COLORONCOLOR );
+            TransparentBmp( hDC, x, y, nWidthDest, nHeightDest, dcImage,
+                            bitmap.bmWidth, bitmap.bmHeight, trColor );
+      }
+      else
+      {
+            TransparentBmp( hDC, x, y, bitmap.bmWidth, bitmap.bmHeight, dcImage,
+                            bitmap.bmWidth, bitmap.bmHeight, trColor );
+      }
+
+      // Restore original settings safely to avoid resource leakage
+      if( dcImage && pOldBitmapImage )
+            SelectObject( dcImage, pOldBitmapImage );
+
+      if( dcTrans && pOldBitmapTrans )
+            SelectObject( dcTrans, pOldBitmapTrans );
+
+      SetBkColor( hDC, crOldBack );
+      SetTextColor( hDC, crOldText );
+
+      // Destroy temporary GDI objects completely
+      if( bitmapTrans )
+            DeleteObject( bitmapTrans );
+
+      if( dcImage )
+            DeleteDC( dcImage );
+
+      if( dcTrans )
+            DeleteDC( dcTrans );
 }
 
 /*  SpreadBitmap( hDC, hBitmap [, nLeft, nTop, nRight, nBottom] )
