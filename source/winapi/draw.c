@@ -1979,67 +1979,80 @@ HB_FUNC( HWG_SETMAPMODE )
 
 HB_FUNC( HWG_SETWINDOWORGEX )
 {
-   HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
+      HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
 
-   SetWindowOrgEx( hDC, hb_parni( 2 ), hb_parni( 3 ), NULL );
-   hb_stornl( 0, 4 );
+      SetWindowOrgEx( hDC, hb_parni( 2 ), hb_parni( 3 ), NULL );
+
+      // Safe: Only store the value back if the 4th parameter was actually passed in PRG
+      if( hb_pcount() >= 4 )
+            hb_stornl( 0, 4 );
 }
 
 HB_FUNC( HWG_SETWINDOWEXTEX )
 {
-   HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
+      HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
 
-   SetWindowExtEx( hDC, hb_parni( 2 ), hb_parni( 3 ), NULL );
-   hb_stornl( 0, 4 );
+      SetWindowExtEx( hDC, hb_parni( 2 ), hb_parni( 3 ), NULL );
+
+      if( hb_pcount() >= 4 )
+            hb_stornl( 0, 4 );
 }
 
 HB_FUNC( HWG_SETVIEWPORTORGEX )
 {
-   HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
+      HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
 
-   SetViewportOrgEx( hDC, hb_parni( 2 ), hb_parni( 3 ), NULL );
-   hb_stornl( 0, 4 );
+      SetViewportOrgEx( hDC, hb_parni( 2 ), hb_parni( 3 ), NULL );
+
+      if( hb_pcount() >= 4 )
+            hb_stornl( 0, 4 );
 }
 
 HB_FUNC( HWG_SETVIEWPORTEXTEX )
 {
-   HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
+      HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
 
-   SetViewportExtEx( hDC, hb_parni( 2 ), hb_parni( 3 ), NULL );
-   hb_stornl( 0, 4 );
+      SetViewportExtEx( hDC, hb_parni( 2 ), hb_parni( 3 ), NULL );
+
+      if( hb_pcount() >= 4 )
+            hb_stornl( 0, 4 );
 }
 
 HB_FUNC( HWG_SETARCDIRECTION )
 {
-   HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
+      HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
 
-   hb_retni( SetArcDirection( hDC, hb_parni( 2 ) ) );
+      hb_retni( SetArcDirection( hDC, hb_parni( 2 ) ) );
 }
 
 HB_FUNC( HWG_SETROP2 )
 {
-   HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
+      HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
 
-   hb_retni( SetROP2( hDC, hb_parni( 2 ) ) );
+      hb_retni( SetROP2( hDC, hb_parni( 2 ) ) );
 }
 
 HB_FUNC( HWG_BITBLT )
 {
-   HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
-   HDC hDC1 = ( HDC ) HB_PARHANDLE( 6 );
+      HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
+      HDC hDC1 = ( HDC ) HB_PARHANDLE( 6 );
 
-   hb_retl( BitBlt( hDC, hb_parni( 2 ), hb_parni( 3 ), hb_parni( 4 ),
-               hb_parni( 5 ), hDC1, hb_parni( 7 ), hb_parni( 8 ),
-               hb_parnl( 9 ) ) );
+      hb_retl( BitBlt( hDC, hb_parni( 2 ), hb_parni( 3 ), hb_parni( 4 ),
+                       hb_parni( 5 ), hDC1, hb_parni( 7 ), hb_parni( 8 ),
+                       hb_parnl( 9 ) ) );
 }
 
 HB_FUNC( HWG_CREATECOMPATIBLEBITMAP )
 {
-   HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
-   HBITMAP hBitmap;
-   hBitmap = CreateCompatibleBitmap( hDC, hb_parni( 2 ), hb_parni( 3 ) );
+      HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
+      HBITMAP hBitmap = CreateCompatibleBitmap( hDC, hb_parni( 2 ), hb_parni( 3 ) );
 
-   HB_RETHANDLE( hBitmap );
+      // Safe handle return architecture for 64-bit Clang systems
+      #if defined(HB_LONG_PCOUNT) || defined(_WIN64)
+         hb_retptr( ( void * ) hBitmap );
+      #else
+         HB_RETHANDLE( hBitmap );
+      #endif
 }
 
 HB_FUNC( HWG_INFLATERECT )

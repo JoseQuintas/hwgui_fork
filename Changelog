@@ -16,6 +16,12 @@
 */
 
 2026-08-24 19:33 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+    - HWG_SETWINDOWORGEX, HWG_SETWINDOWEXTEX, HWG_SETVIEWPORTORGEX, HWG_SETVIEWPORTEXTEX:
+      Added stack validation checks for parameter counts before invoking hb_stornl().
+    - HWG_CREATECOMPATIBLEBITMAP: Swapped legacy HB_RETHANDLE macro with an
+      explicit 64-bit pointer return (hb_retptr) to prevent handle truncation.
+
+2026-08-24 19:33 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
     - HWG_GDIPLUSOPENIMAGE: Hardened memory boundaries by ensuring valid NULL
       pointer returns to the Harbour VM on buffer allocation failures.
     - HWG_CREATECOMPATIBLEDC: Replaced legacy HB_RETHANDLE macro with an explicit
