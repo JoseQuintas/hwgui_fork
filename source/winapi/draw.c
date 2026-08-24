@@ -1903,63 +1903,78 @@ HBITMAP GpBitmapToHBITMAP(GpBitmap* bitmap)
 
 HB_FUNC( HWG_GDIPLUSOPENIMAGE )
 {
-#if defined( __USE_GDIPLUS )
-   GpBitmap* bitmap = NULL;
-   HBITMAP hBitmap;
-   wchar_t* wcharString;
+   #if defined( __USE_GDIPLUS )
+      GpBitmap* bitmap = NULL;
+      HBITMAP hBitmap;
+      wchar_t* wcharString;
 
-   int wstrSize = MultiByteToWideChar( CP_UTF8, 0, hb_parc(1), -1, NULL, 0 );
-   if( wstrSize == 0 )
-       return;
+      int wstrSize = MultiByteToWideChar( CP_UTF8, 0, hb_parc(1), -1, NULL, 0 );
+      if( wstrSize == 0 )
+      {
+            hb_retptr( NULL );
+            return;
+      }
 
-   wcharString = (wchar_t*) malloc( sizeof(wchar_t) * wstrSize );
-   if( wcharString == NULL )
-        return;
+      wcharString = (wchar_t*) malloc( sizeof(wchar_t) * wstrSize );
+      if( wcharString == NULL )
+      {
+            hb_retptr( NULL );
+            return;
+      }
 
-   MultiByteToWideChar( CP_UTF8, 0, hb_parc(1), -1, wcharString, wstrSize );
+      MultiByteToWideChar( CP_UTF8, 0, hb_parc(1), -1, wcharString, wstrSize );
 
-   hwg_GdiplusInit();
-   GdipCreateBitmapFromFile( wcharString, &bitmap );
-   free((void*)wcharString);
+      hwg_GdiplusInit();
+      GdipCreateBitmapFromFile( wcharString, &bitmap );
+      free((void*)wcharString);
 
-   if( bitmap ) {
-      hBitmap = GpBitmapToHBITMAP( bitmap );
-      GdipDisposeImage(bitmap);
-      if( hBitmap )
-         hb_retptr( hBitmap );
-   }
-#endif
+      if( bitmap ) {
+            hBitmap = GpBitmapToHBITMAP( bitmap );
+            GdipDisposeImage(bitmap);
+            if( hBitmap )
+            {
+                  hb_retptr( hBitmap );
+                  return;
+            }
+      }
+   #endif
+   hb_retptr( NULL );
 }
 
 HB_FUNC( HWG_PATBLT )
 {
-   hb_retl( PatBlt( ( HDC ) HB_PARHANDLE( 1 ), hb_parni( 2 ), hb_parni( 3 ),
-               hb_parni( 4 ), hb_parni( 5 ), hb_parnl( 6 ) ) );
+      hb_retl( PatBlt( ( HDC ) HB_PARHANDLE( 1 ), hb_parni( 2 ), hb_parni( 3 ),
+                       hb_parni( 4 ), hb_parni( 5 ), hb_parnl( 6 ) ) );
 }
 
 HB_FUNC( HWG_SAVEDC )
 {
-   hb_retl( SaveDC( ( HDC ) HB_PARHANDLE( 1 ) ) );
+      hb_retl( SaveDC( ( HDC ) HB_PARHANDLE( 1 ) ) );
 }
 
 HB_FUNC( HWG_RESTOREDC )
 {
-   hb_retl( RestoreDC( ( HDC ) HB_PARHANDLE( 1 ), hb_parni( 2 ) ) );
+      hb_retl( RestoreDC( ( HDC ) HB_PARHANDLE( 1 ), hb_parni( 2 ) ) );
 }
 
 HB_FUNC( HWG_CREATECOMPATIBLEDC )
 {
-   HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
-   HDC hDCmem = CreateCompatibleDC( hDC );
+      HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
+      HDC hDCmem = CreateCompatibleDC( hDC );
 
-   HB_RETHANDLE( hDCmem );
+      // Safe handle return architecture for 64-bit Clang systems
+      #if defined(HB_LONG_PCOUNT) || defined(_WIN64)
+         hb_retptr( ( void * ) hDCmem );
+      #else
+         HB_RETHANDLE( hDCmem );
+      #endif
 }
 
 HB_FUNC( HWG_SETMAPMODE )
 {
-   HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
+      HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
 
-   hb_retni( SetMapMode( hDC, hb_parni( 2 ) ) );
+      hb_retni( SetMapMode( hDC, hb_parni( 2 ) ) );
 }
 
 HB_FUNC( HWG_SETWINDOWORGEX )
