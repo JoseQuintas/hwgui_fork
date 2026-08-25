@@ -112,12 +112,18 @@ FUNCTION hwg_onDestroy( oWnd )
 
    LOCAL i, nHandle := oWnd:handle
 
+   // Check if this window is still registered before attempting removal.
+   // This prevents duplicate WM_DESTROY processing on an already removed window.
+   IF Ascan( HWindow():aWindows, {|o| hwg_Isptreq( o:handle, nHandle ) } ) == 0
+      RETURN 0   // Already removed, nothing to do
+   ENDIF
+
    IF oWnd:oEmbedded != Nil
       oWnd:oEmbedded:End()
       oWnd:oEmbedded := Nil
    ENDIF
 
-   IF ( i := Ascan( HTimer():aTimers,{|o|hwg_Isptreq( o:oParent:handle,nHandle )} ) ) != 0
+   IF ( i := Ascan( HTimer():aTimers, {|o| hwg_Isptreq( o:oParent:handle, nHandle ) } ) ) != 0
       HTimer():aTimers[i]:End()
    ENDIF
 

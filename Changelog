@@ -15,6 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-25 13:41 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+   ### Fixed
+   - **hwg_onDestroy**: source\winapi\hwindow.prg
+     added a safeguard to verify if the window handle is
+     still present in `HWindow():aWindows` before attempting
+     cleanup and removal. This prevents crashes or undefined behaviour
+     caused by duplicate `WM_DESTROY` processing on a window
+     that has already been removed from the active list.
+
 2026-08-24 20:44 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
    - HWG_BMPNEWIMAGE, HWG_QRCODEZOOM_C: Fixed critical stack overflow
      vulnerabilities under Clang 64-bit by moving heavy buffer allocations
