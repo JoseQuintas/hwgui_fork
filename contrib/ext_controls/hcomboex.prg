@@ -709,7 +709,6 @@ METHOD onChange( lForce ) CLASS HComboBoxEx
    RETURN Nil
 
 METHOD When( ) CLASS HComboBoxEx
-
    LOCAL res := .T. , oParent, nSkip
 
    //IF !hwg_CheckFocus( Self, .F. )
@@ -718,15 +717,11 @@ METHOD When( ) CLASS HComboBoxEx
 
    nSkip := iif( hwg_Getkeystate( VK_UP ) < 0 .OR. ( hwg_Getkeystate( VK_TAB ) < 0 .AND. hwg_Getkeystate( VK_SHIFT ) < 0 ), - 1, 1 )
    IF ::bGetFocus != Nil
-      // ::oParent:lSuspendMsgsHandling := .T.
-      // ::lnoValid := .T.
       IF ::bSetGet != Nil
          res := Eval( ::bGetFocus, Eval( ::bSetGet,, Self ), Self )
       ELSE
          res := Eval( ::bGetFocus, ::value, Self )
       ENDIF
-      // ::oParent:lSuspendMsgsHandling := .F.
-      // ::lnoValid := !res
       IF ValType( res ) = "L" .AND. ! res
          oParent := hwg_GetParentForm( Self )
          IF Self == ATail( oParent:GetList )
@@ -738,47 +733,10 @@ METHOD When( ) CLASS HComboBoxEx
       ENDIF
    ENDIF
 
+   // Suppress warning: nSkip is kept for future reactivation of hwg_WhenSetFocus
+   HB_SYMBOL_UNUSED( nSkip )
+
    RETURN res
-
-METHOD Valid( ) CLASS HComboBoxEx
-   LOCAL oDlg, nSkip, res, hCtrl := hwg_Getfocus()
-   LOCAL ltab := hwg_Getkeystate( VK_TAB ) < 0
-
-   //IF  ::lNoValid .OR. !hwg_CheckFocus( Self, .T. )
-   //   RETURN .T.
-   //ENDIF
-
-   nSkip := iif( hwg_Getkeystate( VK_SHIFT ) < 0, - 1, 1 )
-
-   IF ( oDlg := hwg_GetParentForm( Self ) ) == Nil .OR. oDlg:nLastKey != VK_ESCAPE
-      ::GetValue()
-      IF ::bLostFocus != Nil
-         // ::oparent:lSuspendMsgsHandling := .T.
-         res := Eval( ::bLostFocus, ::value, Self )
-         IF ValType( res ) = "L" .AND. ! res
-            ::Setfocus( .T. )
-            IF oDlg != Nil
-               oDlg:nLastKey := 0
-            ENDIF
-            // ::oparent:lSuspendMsgsHandling := .F.
-            RETURN .F.
-         ENDIF
-
-      ENDIF
-      IF oDlg != Nil
-         oDlg:nLastKey := 0
-      ENDIF
-      IF lTab .AND. hwg_Selffocus( hCtrl ) .AND. ! hwg_Selffocus( ::oParent:handle, oDlg:Handle )
-         ::oParent:Setfocus()
-         hwg_GetSkip( ::oparent, ::handle, , nSkip )
-      ENDIF
-      // ::oparent:lSuspendMsgsHandling := .F.
-      IF Empty( hwg_Getfocus() ) // getfocus return pointer = 0
-         hwg_GetSkip( ::oParent, ::handle, , ::nGetSkip )
-      ENDIF
-   ENDIF
-
-   RETURN .T.
 
 METHOD RowSource( xSource ) CLASS HComboBoxEx
 
@@ -895,8 +853,9 @@ CLASS HCheckComboBox INHERIT HComboBoxEx
    METHOD New( oWndParent, nId, vari, bSetGet, nStyle, nLeft, nTop, nWidth, nHeight, ;
       aItems, oFont, bInit, bSize, bPaint, bChange, ctooltip, lEdit, lText, bGFocus, ;
       tcolor, bcolor, bValid, acheck, nDisplay, nhItem, ncWidth, aImages )
+
    METHOD Redefine( oWndParent, nId, vari, bSetGet, aItems, oFont, bInit, bSize, bPaint, ;
-      bChange, ctooltip, bGFocus, acheck,aImage )
+      bChange, ctooltip, bGFocus, acheck, aImages )
    METHOD INIT()
    METHOD Requery()
    METHOD Refresh()

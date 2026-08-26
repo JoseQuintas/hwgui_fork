@@ -433,7 +433,8 @@ METHOD onGetFocus()  CLASS HButtonX
          ENDIF
       ENDIF
    ENDIF
-
+// Suppress warning: nSkip is kept for future reactivation of hwg_WhenSetFocus
+   HB_SYMBOL_UNUSED( nSkip )
    RETURN res
 
 METHOD onLostFocus()  CLASS HButtonX
@@ -485,8 +486,11 @@ CLASS HButtonEX INHERIT HButtonX, HThemed
    METHOD onevent( msg, wParam, lParam )
    METHOD CancelHover()
    METHOD END()
+
    METHOD Redefine( oWndParent, nId, oFont, bInit, bSize, bPaint, bClick, ;
-      cTooltip, tcolor, bColor, cCaption, hBitmap, iStyle, hIcon, bGFocus, nPictureMargin )
+      cTooltip, tcolor, bColor, cCaption, hBitmap, iStyle, hIcon, bGFocus, ;
+      nPictureMargin, Transp, lnoThemes )
+
    METHOD PaintBk( hdc )
    METHOD Setcolor( tcolor, bcolor ) INLINE ::SetDefaultColor( tcolor, bcolor ) //, ::SetDefaultColor( .T. )
    METHOD SetDefaultColor( tColor, bColor, lPaint )

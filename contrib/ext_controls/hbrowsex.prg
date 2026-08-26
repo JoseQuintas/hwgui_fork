@@ -221,7 +221,7 @@ METHOD Value( xValue ) CLASS HColumnEx
 
 CLASS HBrowseEx INHERIT HControl, HThemed
 
-   DATA winclass   INIT "BROWSE"
+   DATA winclass   INIT "HBOARD"
    DATA active     INIT .T.
    DATA lChanged   INIT .F.
    DATA lDispHead  INIT .T.                    // Should I display headers ?
@@ -441,7 +441,7 @@ METHOD New( lType, oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, oFont,
    ELSE
       ::lFilter := .F.
    ENDIF
-   hwg_RegBrowse()
+   hwg_RegBoard()
    ::InitBrw( , .F. )
    ::Activate()
 
@@ -452,7 +452,7 @@ METHOD New( lType, oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, oFont,
 METHOD Activate() CLASS HBrowseEx
 
    IF ! Empty( ::oParent:handle )
-      ::handle := hwg_Createbrowse( ::oParent:handle, ::id, ;
+      ::handle := hwg_CreateBoard( ::oParent:handle, ::id, ;
          ::style, ::nLeft, ::nTop, ::nWidth, ::nHeight )
       ::Init()
    ENDIF
@@ -859,7 +859,7 @@ METHOD Redefine( lType, oWndParent, nId, oFont, bInit, bSize, bPaint, bEnter, bG
    ::bGetFocus  := bGfocus
    ::bLostFocus := bLfocus
 
-   hwg_RegBrowse()
+   hwg_RegBoard()
    ::InitBrw()
 
    RETURN Self
@@ -3394,7 +3394,8 @@ METHOD When() CLASS HBrowseEx
       res := Eval( ::bGetFocus, ::Colpos, Self )
       res := iif( ValType( res ) = "L", res, .T. )
    ENDIF
-
+   // Suppress warning: nSkip is kept for future reactivation of hwg_WhenSetFocus
+   HB_SYMBOL_UNUSED( nSkip )
    RETURN res
 
 METHOD Valid() CLASS HBrowseEx

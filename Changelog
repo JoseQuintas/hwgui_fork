@@ -15,6 +15,25 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-26 10:30 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed files into dir contrib\ext_controls
+  - **theme.c**: replaced 32-bit `hb_parnl`/`hb_retnl` with `hb_parnint`/`hb_retnint` in
+    `HWG_ONNOTIFYCUSTOMDRAW` and `HWG_BUTTONEXONSETSTYLE` to avoid truncating
+    `LPARAM`, `WPARAM` and `LRESULT` values on 64-bit builds.
+  - **theme.c**: changed `HWG_GETTHEMESYSCOLOR` from `HB_RETHANDLE` to `hb_retnint`
+    to return `COLORREF` as integer instead of an invalid handle pointer.
+  - **theme.c**: removed double release of the returned array item in
+    `HWG_PREPAREIMAGERECT` (eliminated `hb_itemRelease` after `hb_itemReturn`),
+    preventing potential memory corruption.
+  - **theme.c**: initialized all local `RECT` structures with `{0}` in functions
+    that fill them from optional array parameters (`HWG_DRAWTHEMEBACKGROUND`,
+    `HWG_DRAWTHEICON`, `HWG_PREPAREIMAGERECT`, `HWG_DRAWTHEMETEXT`,
+    `HWG_DRAWTHEMEPARENTBACKGROUND`) to avoid using uninitialized stack memory.
+  - **theme.c**: added `FPROC` macro using `HB_PTRUINT` intermediate cast to safely
+    convert function pointers to `FARPROC`, eliminating `-Wcast-function-type-mismatch`
+    warnings in Clang/GCC while preserving 64-bit pointer integrity.
+  - **draw_icon**: fixed typo in comment ("singel" -> "single").
+
 2026-08-25 23:20 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed source\winapi\misc.c
   - **HWG_SETBIT**, **HWG_SETBITBYTE**, **HWG_CHECKBIT**:
