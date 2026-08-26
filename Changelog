@@ -16,6 +16,12 @@
 */
 
 2026-08-25 21:07 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed source\winapi\misc.c
+  - **hwg_PtrToUlong**: fixed pointer truncation in 64-bit builds; replaced
+    `PtrToUlong()` + `(LONG)` cast with `HB_PTRUINT` cast, preserving full
+    pointer width and preventing invalid handles on 64-bit platforms.
+
+2026-08-25 21:07 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **hdrawn.prg / HDrawn:SetState (STATE_UNPRESS)**: fixed a phantom-object
     bug where `HDrawn():GetByState(...)` implicitly constructed a throwaway

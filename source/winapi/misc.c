@@ -834,8 +834,14 @@ HB_FUNC( HWG_GETNEXTDLGGROUPITEM )
 
 HB_FUNC( HWG_PTRTOULONG )
 {
-   hb_retnl( HB_ISPOINTER( 1 ) ? ( LONG ) PtrToUlong( hb_parptr( 1 ) ) :
-         hb_parnl( 1 ) );
+  if( HB_ISPOINTER( 1 ) )
+  {
+    hb_retnint( ( HB_MAXINT ) ( HB_PTRUINT ) hb_parptr( 1 ) );
+  }
+  else
+  {
+    hb_retnint( ( HB_MAXINT ) hb_parnint( 1 ) );
+  }
 }
 
 HB_FUNC( HWG_ISPTREQ )
