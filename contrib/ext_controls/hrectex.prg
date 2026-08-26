@@ -18,7 +18,7 @@
 CLASS HContainerEx INHERIT HControl, HScrollArea
 
    CLASS VAR winclass   INIT "STATIC"
-   DATA oPen, oBrush
+   DATA oPen
    DATA ncStyle   INIT 3
    DATA nBorder
    DATA lnoBorder INIT .T.
@@ -38,6 +38,7 @@ CLASS HContainerEx INHERIT HControl, HScrollArea
    METHOD onEvent( msg, wParam, lParam )
    METHOD Paint( lpDis )
    METHOD Visible( lVisibled ) SETGET
+   METHOD End()
 
 ENDCLASS
 
@@ -69,29 +70,16 @@ METHOD New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, ncStyle, bSiz
 
 //---------------------------------------------------------------------------
 METHOD Activate() CLASS HContainerEx
-
    IF !Empty( ::oParent:handle )
       ::handle := hwg_Createstatic( ::oParent:handle, ::id, ::style, ;
             ::nLeft, ::nTop, ::nWidth, ::nHeight )
-      IF ! ::lInit
-         hwg_Addtooltip( ::handle, ::handle, "" )
-         ::nHolder := 1
-         hwg_Setwindowobject( ::handle, Self )
-         Hwg_InitStaticProc( ::handle )
-         ::linit := .T.
-         IF Empty( ::oParent:oParent ) .AND. ::oParent:Type >= WND_DLG_RESOURCE
-            ::Create()
-            ::lCreate := .T.
-         ENDIF
-      ENDIF
       ::Init()
    ENDIF
    IF ! ::lCreate
       ::Create()
       ::lCreate := .T.
    ENDIF
-
-   RETURN NIL
+RETURN NIL
 
 METHOD Init() CLASS HContainerEx
 
@@ -194,4 +182,10 @@ METHOD Paint( lpdis ) CLASS HContainerEx
 
    RETURN 1
 
-// END NEW CLASSE
+   METHOD END() CLASS HContainerEx
+   IF ::oPen != NIL
+      ::oPen:Release()
+      ::oPen := NIL
+   ENDIF
+   RETURN ::Super:END()
+

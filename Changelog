@@ -15,6 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-26 11:00 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed contrib\ext_controls\hrectex.prg
+  - **HContainerEx**: added `End()` method to release the internal `HPen` object, preventing GDI resource leak when the control is destroyed.
+  - **HContainerEx**: simplified `Activate()` to remove duplicated initialization logic already present in `Init()`, ensuring tooltip and window object setup occur only once.
+  - **HContainerEx**: declared `End()` in the class definition for proper method resolution.
+
 2026-08-26 10:30 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed files into dir contrib\ext_controls
   - **theme.c**: replaced 32-bit `hb_parnl`/`hb_retnl` with `hb_parnint`/`hb_retnint` in
