@@ -15,6 +15,40 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-25 21:07 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **hdrawn.prg / HDrawn:SetState (STATE_UNPRESS)**: fixed a phantom-object
+    bug where `HDrawn():GetByState(...)` implicitly constructed a throwaway
+    `HDrawn` instance via `New()`, whose constructor has the side effect of
+    permanently registering a blank, position-less object into the shared
+    default board's `aDrawn` list on every button-release event. That
+    phantom (with `nLeft`/`nTop`/`nWidth`/`nHeight` all `NIL`) was then hit
+    by `GetByPos()` on the very next mouse move, causing an unhandled
+    `Number >= NIL` runtime error - fatal and silent in `/gui` builds.
+    Replaced with `::GetByState(...)`, reusing the existing, already
+    registered `Self` (the method never touches its own instance fields).
+  - **hdrawn.prg / HDrawnTT:Paint**: fixed multi-line tooltips drawing the
+    full, still-joined `::title` string on every line iteration instead of
+    the current line (`arr[i]`), causing overlapping/duplicated text.
+  - **hdrawn.prg / HDrawnRadio:SetGroupValue**: fixed `o := aDrawn[i]:xValue`
+    capturing the logical value instead of the object reference; later code
+    uses `o` as an object (`o:xValue`, `o:title`, `o:Refresh()`), causing an
+    unhandled runtime error when `SetGroupValue()` is called with an index
+    beyond the radio group's actual member count.
+  - **hdrawn.prg / HDrawn:Paint (children loop)**: fixed a skipped sibling
+    repaint when a child's `Paint()` removes itself from `::aDrawn` mid-loop
+    (e.g. `HDrawnTT` self-deleting on hide) - the fixed-bound `FOR` loop
+    didn't account for the array shrinking and shifting. Replaced with a
+    `DO WHILE` that re-checks the array length after each child paint and
+    only advances when nothing was removed; no extra allocation, same
+    front-to-back paint order (z-order unchanged).
+
+  ### Changed
+  - **hdrawn.prg / HDrawnArrow:ArrowTimerProc**: added a defensive `NIL`
+    guard for `o:oTimer`, covering a race where a queued `WM_TIMER` message
+    can still fire after `onButtonUp()`/`onMouseMove()` already called
+    `oTimer:End()` and set `oTimer := NIL`.
+
 2026-08-25 13:41 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
    ### Fixed
    - **hwg_onDestroy**: source\winapi\hwindow.prg
