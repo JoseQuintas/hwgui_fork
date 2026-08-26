@@ -108,6 +108,13 @@ METHOD onEvent( msg, wParam, lParam )  CLASS HRichEdit
 
    LOCAL nDelta
 
+   /* NOTE: contract for ::bOther - it must return a Number <= -1 to mean
+    * "not handled, continue with default processing below". Any other
+    * return value (including no explicit RETURN, which yields NIL) short-
+    * circuits this whole onEvent() - Tab handling, ESC-to-close, the
+    * position/selection tracking, everything below - so a bOther block
+    * that doesn't RETURN a negative number will silently disable all of
+    * that default behaviour. */
    IF ::bOther != Nil
       nDelta := Eval( ::bOther, Self, msg, wParam, lParam )
       IF ValType( nDelta ) != "N" .OR. nDelta > - 1
@@ -136,7 +143,14 @@ METHOD onEvent( msg, wParam, lParam )  CLASS HRichEdit
          hwg_Re_inserttext( ::handle, Chr( VK_TAB ) )
          RETURN 0
       ELSEIF wParam == 27 // ESC
-         IF hwg_Getparent( ::oParent:handle ) != Nil
+         /* FIX: was 'hwg_Getparent(...) != Nil'. If hwg_Getparent() wraps
+          * Win32 GetParent(), it returns 0 (a Number), not the Harbour
+          * NIL, when there is no parent window - so '!= Nil' would be
+          * true even with no parent, sending WM_CLOSE to handle 0 (Win32
+          * undefined behaviour for that call). Empty() safely covers both
+          * NIL and 0, without changing behaviour for the case that already
+          * worked (a real, non-zero handle). */
+         IF !Empty( hwg_Getparent( ::oParent:handle ) )
             hwg_Sendmessage( hwg_Getparent( ::oParent:handle ), WM_CLOSE, 0, 0 )
          ENDIF
       ENDIF
@@ -146,8 +160,17 @@ METHOD onEvent( msg, wParam, lParam )  CLASS HRichEdit
       ENDIF
    ELSEIF msg == WM_MOUSEWHEEL
       nDelta := hwg_Hiword( wParam )
-      nDelta := iif( nDelta > 32768, nDelta - 65535, nDelta )
-      hwg_Sendmessage( ::handle, EM_SCROLL, iif( nDelta > 0,SB_LINEUP,SB_LINEDOWN ), 0 )
+      /* FIX: off-by-one in the unsigned-to-signed 16-bit conversion - was
+       * 'nDelta > 32768 ? nDelta - 65535 : nDelta', should be
+       * 'nDelta >= 32768 ? nDelta - 65536 : nDelta' (standard two's
+       * complement conversion). Doesn't currently change observable
+       * behaviour since real wheel deltas are always multiples of 120 and
+       * only the sign of nDelta is used below, but the old formula was
+       * off by one at both the boundary (32768) and the value itself. */
+      nDelta := iif( nDelta >= 32768, nDelta - 65536, nDelta )
+      /* FIX: this hwg_Sendmessage(EM_SCROLL,...) call was duplicated
+       * verbatim (copy-paste), causing every mouse wheel notch to scroll
+       * the rich edit twice as far as intended. Removed the duplicate. */
       hwg_Sendmessage( ::handle, EM_SCROLL, iif( nDelta > 0,SB_LINEUP,SB_LINEDOWN ), 0 )
    ELSEIF msg == WM_DESTROY
       ::End()
@@ -167,7 +190,15 @@ METHOD Setcolor( tColor, bColor, lRedraw )  CLASS HRichEdit
 
    RETURN Nil
 
-METHOD ReadOnly( lreadOnly )
+METHOD ReadOnly( lreadOnly ) CLASS HRichEdit
+   /* FIX: this method was missing the 'CLASS HRichEdit' clause that every
+    * other out-of-body method implementation in this file has. Without it,
+    * the Harbour class-body compiler can't bind this implementation to the
+    * METHOD ReadOnly(...) SETGET slot declared inside CLASS HRichEdit -
+    * ::ReadOnly / ::ReadOnly := ... (which is exactly what SETGET is for)
+    * would be broken, and depending on the compiler/version this could
+    * either fail to build or silently fall back to an unrelated global
+    * function named ReadOnly. */
 
    IF lreadOnly != Nil
       IF ! Empty( hwg_Sendmessage( ::handle,  EM_SETREADONLY, iif( lReadOnly, 1, 0 ), 0 ) )
