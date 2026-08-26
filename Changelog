@@ -16,6 +16,34 @@
 */
 
 2026-08-25 21:07 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed source\winapi\hriched.prg
+  - **hriched.prg / HRichEdit:ReadOnly**: fixed the method missing the
+    `CLASS HRichEdit` clause present on every other out-of-body method in
+    the file - without it the implementation wasn't bound to the
+    `METHOD ReadOnly(...) SETGET` slot declared in the class body, breaking
+    `::ReadOnly` / `::ReadOnly := ...` (and risking a build failure or a
+    silent fallback to an unrelated global function).
+  - **hriched.prg / HRichEdit:onEvent (WM_MOUSEWHEEL)**: fixed a duplicated
+    `hwg_Sendmessage(EM_SCROLL, ...)` call that scrolled the control twice
+    as far as intended on every mouse wheel notch.
+  - **hriched.prg / HRichEdit:onEvent (ESC / WM_KEYDOWN)**: fixed
+    `hwg_Getparent(...) != Nil`, which would not detect a "no parent"
+    result of `0`, potentially sending `WM_CLOSE` to an invalid window
+    handle. Changed to `!Empty(...)`, which safely covers both `NIL` and
+    `0` without changing the already-working case.
+  - **hriched.prg / HRichEdit:onEvent (WM_MOUSEWHEEL)**: fixed an off-by-one
+    in the unsigned-to-signed 16-bit delta conversion
+    (`> 32768 ? -65535` -> `>= 32768 ? -65536`, standard two's-complement
+    conversion). No observable behavior change today (only the sign is
+    used, and real wheel deltas are multiples of 120), but the formula was
+    incorrect at both the boundary and the converted value.
+  ### Changed
+  - **hriched.prg / HRichEdit:onEvent**: documented the `::bOther` contract
+    (must return a Number <= -1 to continue with default processing) with
+    an inline comment, since any other return value silently short-circuits
+    all default key/focus/selection handling below it.
+
+2026-08-25 21:07 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **hwg_GetDrawItemInfo**: removed conditional compilation for `hDC` and
     `hwndItem`; now always uses `hb_itemPutPtr` to store pointers correctly
