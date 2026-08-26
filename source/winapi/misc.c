@@ -199,15 +199,31 @@ HB_FUNC( HWG_BITANDINVERSE )
 
 HB_FUNC( HWG_SETBIT )
 {
+  int nBit = hb_parni( 2 );
+
+  /* FIX: validate the bit position before using it as a shift amount.
+   * Shifting by a negative amount, or by an amount >= the width of the
+   * type being shifted, is undefined behaviour in C. HB_MAXINT's width
+   * is computed via sizeof() rather than hard-coded, so this stays
+   * correct regardless of how wide HB_MAXINT is on a given platform/
+   * Harbour build. Out-of-range input returns the original value
+   * unchanged instead of shifting - safe, predictable, no UB. */
+  if( nBit < 1 || nBit > ( int ) ( sizeof( HB_MAXINT ) * 8 ) )
+  {
+    hb_retnint( hb_parnint( 1 ) );
+    return;
+  }
+
   if( hb_pcount() < 3 || hb_parni( 3 ) )
-    hb_retnint( hb_parnint( 1 ) | ( ( HB_MAXINT ) 1 << ( hb_parni( 2 ) - 1 ) ) );
+    hb_retnint( hb_parnint( 1 ) | ( ( HB_MAXINT ) 1 << ( nBit - 1 ) ) );
   else
-    hb_retnint( hb_parnint( 1 ) & ~( ( HB_MAXINT ) 1 << ( hb_parni( 2 ) - 1 ) ) );
+    hb_retnint( hb_parnint( 1 ) & ~( ( HB_MAXINT ) 1 << ( nBit - 1 ) ) );
 }
 
 HB_FUNC( HWG_SETBITBYTE )
 {
   int para3;
+  int nBit;
 
   if( hb_pcount() < 3 )
   {
@@ -224,21 +240,43 @@ HB_FUNC( HWG_SETBITBYTE )
     return;
   }
 
+  /* FIX: validate the bit position - this function shifts within a
+   * plain 'int' (32-bit on every relevant target here), so valid
+   * positions are 1..32. Out of range returns the original value
+   * unchanged instead of invoking undefined behaviour on the shift. */
+  nBit = hb_parni( 2 );
+  if( nBit < 1 || nBit > ( int ) ( sizeof( int ) * 8 ) )
+  {
+    hb_retni( hb_parni( 1 ) );
+    return;
+  }
+
   if( para3 == 1 )
   {
     /* 0 to 1 */
-    hb_retni( hb_parni( 1 ) | ( 1 << ( hb_parni( 2 ) - 1 ) ) );
+    hb_retni( hb_parni( 1 ) | ( 1 << ( nBit - 1 ) ) );
   }
   else
   {
     /* 1 to 0 */
-    hb_retni( hb_parni( 1 ) & ~( 1 << ( hb_parni( 2 ) - 1 ) ) );
+    hb_retni( hb_parni( 1 ) & ~( 1 << ( nBit - 1 ) ) );
   }
 }
 
 HB_FUNC( HWG_CHECKBIT )
 {
-  hb_retl( hb_parnint( 1 ) & ( ( HB_MAXINT ) 1 << ( hb_parni( 2 ) - 1 ) ) );
+  int nBit = hb_parni( 2 );
+
+  /* FIX: same out-of-range guard as HWG_SETBIT - an invalid bit
+   * position now returns .F. instead of shifting by a negative or
+   * too-large amount. */
+  if( nBit < 1 || nBit > ( int ) ( sizeof( HB_MAXINT ) * 8 ) )
+  {
+    hb_retl( HB_FALSE );
+    return;
+  }
+
+  hb_retl( hb_parnint( 1 ) & ( ( HB_MAXINT ) 1 << ( nBit - 1 ) ) );
 }
 
 HB_FUNC( HWG_SIN )
