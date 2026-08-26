@@ -15,8 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-25 23:20 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed source\winapi\misc.c
+  - **HWG_SETBIT**, **HWG_SETBITBYTE**, **HWG_CHECKBIT**:
+    added validation of bit position before performing shift
+    operations to prevent undefined behavior and potential
+    crashes on invalid input.
+
 2026-08-25 22:50 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
-  ### Fixed
+  ### Fixed source\winapi\misc.c
   - **HWG_HIWORD**: replaced `PtrToUlong()` conversion with cast via
     `HB_PTRUINT` to avoid pointer truncation on 64-bit builds; still extracts
     the high 16 bits from the lower 32 bits as required by Windows message
