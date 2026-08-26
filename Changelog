@@ -15,7 +15,19 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2026-08-25 21:07 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+2026-08-25 22:50 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **HWG_HIWORD**: replaced `PtrToUlong()` conversion with cast via
+    `HB_PTRUINT` to avoid pointer truncation on 64-bit builds; still extracts
+    the high 16 bits from the lower 32 bits as required by Windows message
+    packing.
+  - **HWG_BITOR**, **HWG_BITAND**, **HWG_BITANDINVERSE**, **HWG_SETBIT**,
+    **HWG_CHECKBIT**: switched from 32-bit (`hb_parnl`/`hb_retnl`) to
+    platform-independent integer types (`hb_parnint`/`hb_retnint` and
+    `HB_MAXINT` shifts) to preserve full 64-bit values and prevent truncation
+    when processing larger integers on 64-bit systems.
+
+2026-08-25 22:01 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed source\winapi\hriched.prg
   - **hriched.prg / HRichEdit:ReadOnly**: fixed the method missing the
     `CLASS HRichEdit` clause present on every other out-of-body method in

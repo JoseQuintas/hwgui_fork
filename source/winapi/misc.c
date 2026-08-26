@@ -160,70 +160,85 @@ HB_FUNC( HWG_LOWORD )
 
 HB_FUNC( HWG_HIWORD )
 {
-   hb_retni( ( int ) ( ( ( HB_ISPOINTER( 1 ) ? PtrToUlong( hb_parptr( 1 ) ) :
-                              ( ULONG ) hb_parnl( 1 ) ) >> 16 ) & 0xFFFF ) );
+  /*
+   *     Extract the high-order 16 bits from a 32-bit value.
+   *     The input may be a pointer (converted to integer). To avoid
+   *     pointer truncation on 64-bit builds, use HB_PTRUINT.
+   *     However, the shift of 16 bits will effectively take bits 16..31
+   *     of the lower 32 bits, which is the standard Windows HIWORD.
+   */
+  ULONG ulValue;
+
+  if( HB_ISPOINTER( 1 ) )
+    ulValue = ( ULONG ) ( HB_PTRUINT ) hb_parptr( 1 );
+  else
+    ulValue = ( ULONG ) hb_parnint( 1 );
+
+  hb_retni( ( int ) ( ( ulValue >> 16 ) & 0xFFFF ) );
 }
 
 HB_FUNC( HWG_BITOR )
 {
-   hb_retnl( ( hb_parnl( 1 ) | hb_parnl( 2 ) ) );
+  hb_retnint( hb_parnint( 1 ) | hb_parnint( 2 ) );
 }
 
 HB_FUNC( HWG_BITOR_INT )
 {
-   hb_retni( ( hb_parni( 1 ) | hb_parni( 2 ) ) );
+  hb_retni( hb_parni( 1 ) | hb_parni( 2 ) );
 }
 
 HB_FUNC( HWG_BITAND )
 {
-   hb_retnl( hb_parnl( 1 ) & hb_parnl( 2 ) );
+  hb_retnint( hb_parnint( 1 ) & hb_parnint( 2 ) );
 }
 
 HB_FUNC( HWG_BITANDINVERSE )
 {
-   hb_retnl( hb_parnl( 1 ) & ( ~hb_parnl( 2 ) ) );
+  hb_retnint( hb_parnint( 1 ) & ( ~hb_parnint( 2 ) ) );
 }
 
 HB_FUNC( HWG_SETBIT )
 {
-   if( hb_pcount(  ) < 3 || hb_parni( 3 ) )
-      hb_retnl( hb_parnl( 1 ) | ( 1 << ( hb_parni( 2 ) - 1 ) ) );
-   else
-      hb_retnl( hb_parnl( 1 ) & ~( 1 << ( hb_parni( 2 ) - 1 ) ) );
+  if( hb_pcount() < 3 || hb_parni( 3 ) )
+    hb_retnint( hb_parnint( 1 ) | ( ( HB_MAXINT ) 1 << ( hb_parni( 2 ) - 1 ) ) );
+  else
+    hb_retnint( hb_parnint( 1 ) & ~( ( HB_MAXINT ) 1 << ( hb_parni( 2 ) - 1 ) ) );
 }
 
 HB_FUNC( HWG_SETBITBYTE )
 {
   int para3;
 
-   if ( hb_pcount() < 3 )
-    {
-      /* Return previous value */
-      hb_retni( hb_parni(1) );
-    }
+  if( hb_pcount() < 3 )
+  {
+    /* Return previous value */
+    hb_retni( hb_parni( 1 ) );
+    return;
+  }
 
-    para3 = hb_parni( 3 );
-    if ( para3 < 0 || para3 > 1 )
-    {
-      /* Return previous value */
-      hb_retni( hb_parni(1) );
-    }
+  para3 = hb_parni( 3 );
+  if( para3 < 0 || para3 > 1 )
+  {
+    /* Return previous value */
+    hb_retni( hb_parni( 1 ) );
+    return;
+  }
 
-   if ( para3 == 1 )
-   {
-   /* 0 to 1 */
-    hb_retni( hb_parni(1) | ( 1 << (hb_parni(2) - 1) ) );
-   }
-   else
-   {
-   /* 1 to 0 */
-   hb_retni( hb_parni(1) & ~( 1 << (hb_parni(2) - 1) ) );
-   }
+  if( para3 == 1 )
+  {
+    /* 0 to 1 */
+    hb_retni( hb_parni( 1 ) | ( 1 << ( hb_parni( 2 ) - 1 ) ) );
+  }
+  else
+  {
+    /* 1 to 0 */
+    hb_retni( hb_parni( 1 ) & ~( 1 << ( hb_parni( 2 ) - 1 ) ) );
+  }
 }
 
 HB_FUNC( HWG_CHECKBIT )
 {
-   hb_retl( hb_parnl( 1 ) & ( 1 << ( hb_parni( 2 ) - 1 ) ) );
+  hb_retl( hb_parnint( 1 ) & ( ( HB_MAXINT ) 1 << ( hb_parni( 2 ) - 1 ) ) );
 }
 
 HB_FUNC( HWG_SIN )
