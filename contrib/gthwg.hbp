@@ -26,6 +26,12 @@
 
 "{unix}-cflag=`pkg-config --cflags gtk+-2.0`"
 
+-cflag=-DHWG_USE_POINTER_ITEM
+
+# Uncomment these two lines to build HwGUI in Unicode mode
+-prgflag=-DUNICODE
+-cflag=-DUNICODE
+
 gthwg/gt_hwg.prg
 {unix}gthwg/gt_hwgui_l.c
 {darwin}gthwg/gt_hwgui_l.c

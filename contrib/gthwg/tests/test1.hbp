@@ -24,6 +24,8 @@
 #{linux}../../../hwguiGTK3.hbc
 #{darwin}../../../hwgui_mac_gtk3.hbc
 
+{win}-lucrt
+{win}-lgdiplus
 
 -otest1
 test1.prg

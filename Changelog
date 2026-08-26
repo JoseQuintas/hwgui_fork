@@ -15,6 +15,20 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-08-26 17:00 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **gt_hwgui_w.c**: fixed double free in `GTHWG_GETSIZE` – removed
+    `hb_itemRelease()` after `hb_itemReturn()`, which corrupted memory and
+    could cause silent crashes on exit.
+  - **gt_hwgui_w.c**: added `HB_SYMBOL_UNUSED()` for unused variables in
+    `hb_gt_hwg_Refresh` to eliminate W0033/W0003 warnings under `-w3 -es2`.
+  - **gt_hwgui_w.c**: added braces around conditional blocks in
+    `gthwg_MouseEvent`, `gthwg_KeyEvent` and `hb_gt_hwg_Info` to fix
+    `-Wmisleading-indentation` warnings from Clang/GCC and improve code
+    clarity.
+  - Adjust add lib ucrt, gdiplus on file test1.hbp
+  - Adjust add DUNICODE flags gthwg.hbp
+
 2026-08-26 11:00 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed contrib\ext_controls\hrectex.prg
   - **HContainerEx**: added `End()` method to release the internal `HPen` object, preventing GDI resource leak when the control is destroyed.
