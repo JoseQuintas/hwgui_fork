@@ -1593,49 +1593,55 @@ HB_FUNC( HWG_RELEASEDC )
 
 /*
  * hwg_GetDrawItemInfo( pDrawItemStruct )
+ * Returns an array with 9 elements describing the DRAWITEMSTRUCT.
+ * Safely handles both 32-bit and 64-bit pointers using hb_itemPutPtr.
  */
 HB_FUNC( HWG_GETDRAWITEMINFO )
 {
       DRAWITEMSTRUCT *lpdis = ( DRAWITEMSTRUCT * ) HB_PARHANDLE( 1 );
       PHB_ITEM aMetr = hb_itemArrayNew( 9 );
-      PHB_ITEM temp = hb_itemNew( NULL ); // Allocate a single item container safely
+      PHB_ITEM temp = hb_itemNew( NULL );
 
       if( lpdis )
       {
-            // Safely populate array elements using a single item container reference
-            hb_itemPutNL( temp, lpdis->itemID );
+            /* Use hb_itemPutNL for numeric fields that are 32-bit or less.
+             * itemID is UINT, but in practice fits in a LONG for most applications.
+             * We keep as is for compatibility, but cast explicitly. */
+            hb_itemPutNL( temp, ( LONG ) lpdis->itemID );
             hb_itemArrayPut( aMetr, 1, temp );
 
-            hb_itemPutNL( temp, lpdis->itemAction );
+            hb_itemPutNL( temp, ( LONG ) lpdis->itemAction );
             hb_itemArrayPut( aMetr, 2, temp );
 
-            #if defined(HB_LONG_PCOUNT) || defined(_WIN64)
+            /* Store hDC as a pointer. No need for conditional compilation.
+             * hb_itemPutPtr works correctly on 32 and 64-bit platforms,
+             * because it receives a void* and stores it as a pointer item. */
             hb_itemPutPtr( temp, ( void * ) lpdis->hDC );
-            #else
-            HB_PUTHANDLE( temp, lpdis->hDC );
-            #endif
             hb_itemArrayPut( aMetr, 3, temp );
 
-            hb_itemPutNL( temp, lpdis->rcItem.left );
+            hb_itemPutNL( temp, ( LONG ) lpdis->rcItem.left );
             hb_itemArrayPut( aMetr, 4, temp );
 
-            hb_itemPutNL( temp, lpdis->rcItem.top );
+            hb_itemPutNL( temp, ( LONG ) lpdis->rcItem.top );
             hb_itemArrayPut( aMetr, 5, temp );
 
-            hb_itemPutNL( temp, lpdis->rcItem.right );
+            hb_itemPutNL( temp, ( LONG ) lpdis->rcItem.right );
             hb_itemArrayPut( aMetr, 6, temp );
 
-            hb_itemPutNL( temp, lpdis->rcItem.bottom );
+            hb_itemPutNL( temp, ( LONG ) lpdis->rcItem.bottom );
             hb_itemArrayPut( aMetr, 7, temp );
 
+            /* hwndItem is also a pointer (HWND). Store consistently. */
             hb_itemPutPtr( temp, ( void * ) lpdis->hwndItem );
             hb_itemArrayPut( aMetr, 8, temp );
 
-            hb_itemPutNL( temp, ( LONG ) lpdis->itemState );
+            /* itemState is UINT, usually used as a bitmask.
+             * Cast to HB_MAXINT to avoid sign issues and preserve full range. */
+            hb_itemPutNInt( temp, ( HB_MAXINT ) lpdis->itemState );
             hb_itemArrayPut( aMetr, 9, temp );
       }
 
-      // Release the dynamic item container memory completely
+      /* Release the temporary item container */
       hb_itemRelease( temp );
 
       hb_itemReturn( aMetr );

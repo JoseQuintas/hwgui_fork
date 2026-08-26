@@ -16,6 +16,17 @@
 */
 
 2026-08-25 21:07 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **hwg_GetDrawItemInfo**: removed conditional compilation for `hDC` and
+    `hwndItem`; now always uses `hb_itemPutPtr` to store pointers correctly
+    on both 32-bit and 64-bit builds, avoiding potential truncation or
+    misuse of `HB_PUTHANDLE`.
+  - **hwg_GetDrawItemInfo**: changed `itemState` storage from
+    `hb_itemPutNL( (LONG) itemState )` to `hb_itemPutNInt( (HB_MAXINT)
+    itemState )`, preserving the full unsigned 32-bit range and preventing
+    negative values when the high bit is set.
+
+2026-08-25 21:07 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed source\winapi\misc.c
   - **hwg_PtrToUlong**: fixed pointer truncation in 64-bit builds; replaced
     `PtrToUlong()` + `(LONG)` cast with `HB_PTRUINT` cast, preserving full
