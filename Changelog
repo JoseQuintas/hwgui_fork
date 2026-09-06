@@ -15,6 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 20:33 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **registry.c**: fixed Unicode/ANSI string handling and compiler
+    compatibility – replaced `HB_WIN_UNICODE` with standard `UNICODE` macro,
+    fixed `hb_parstr_u16()` argument count (4 args) for Harbour 3.2.1 API,
+    added dual-path support for xHarbour (`hb_parstr_utf8()` +
+    `MultiByteToWideChar()`), added `NULL` checks after memory allocation,
+    and unified memory deallocation with `hb_xfree()`.
+  - **registry.c**: fixed buffer allocation – changed Unicode buffer
+    allocation from `length + 2` to `length + sizeof(WCHAR)` for proper
+    null-termination safety.
+
 2026-09-06 19:46 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **winreg.c**: fixed Unicode/ANSI string handling – replaced ANSI-only
