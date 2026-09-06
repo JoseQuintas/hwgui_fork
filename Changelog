@@ -15,6 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 19:17 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **hdialog.prg**: fixed nested modal dialogs losing proper owner/z-order
+    after repeated open/close cycles – `Hwg__EndDialog()` called Win32
+    `EndDialog()` but never removed the dialog from `HDialog():aModalDialogs`,
+    causing stale entries to be reused as parent for new dialogs. Now calls
+    `oDlg:DelItem()` immediately after `Hwg__EndDialog()`, matching the
+    cleanup already done in the `!lModal` branch.
+
 2026-09-06 18:38 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **window.c**: Small fix HWG_ANSITOUNICODE()

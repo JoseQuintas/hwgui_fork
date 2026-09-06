@@ -601,6 +601,24 @@ FUNCTION hwg_EndDialog( handle )
       lRes := .T.
    ELSE
       lRes := Hwg__EndDialog( hWindow )
+
+      /* Detach from ::aModalDialogs *now*. EndDialog() only schedules the
+         window's actual destruction - it only completes later, when
+         Windows unwinds its own internal DialogBox[Indirect]Param() loop.
+         Unlike the !lModal branch above, nothing here ever called
+         DelItem(), so a modal dialog stayed in ::aModalDialogs forever
+         after it closed. hwg_GetModalDlg() (used by HDialog:Activate() to
+         pick a new dialog's owner) returns Atail( ::aModalDialogs ), so
+         once stale entries pile up, a *later*, unrelated dialog can
+         inherit one of them as its parent. Combined with Windows freely
+         recycling HWND values once a window is destroyed, IsWindow() can
+         even report that stale handle as valid again (now belonging to a
+         completely different window), silently re-parenting the new
+         dialog to the wrong owner and breaking its z-order relative to
+         the dialog that actually opened it - exactly the "next dialog
+         falls behind the first one" symptom seen after repeating the
+         same open/close sequence. */
+      oDlg:DelItem()
    ENDIF
 
    RETURN lRes
