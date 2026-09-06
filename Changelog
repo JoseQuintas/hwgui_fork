@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 14:45 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Changed
+  - **wprint.c**: modernized printer functions for Windows 2000 and later –
+    removed deprecated `GetVersion()` and `GetVersionEx()` APIs, removed
+    Windows 98/ME legacy code, replaced with `GetDefaultPrinter()` API and
+    `PRINTER_INFO_4` enumeration for better compatibility with Windows 2000
+    through Windows 11; added proper `NULL` checks for memory allocations.
+
 2026-09-06 13:14 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **window.c**: fixed `HWG_ANSITOUNICODE()` buffer overflow, memory leak,
