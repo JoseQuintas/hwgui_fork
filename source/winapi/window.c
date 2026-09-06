@@ -1417,40 +1417,36 @@ HB_FUNC( HWG_ANSITOUNICODE )
       const char *pszText;
       HB_SIZE nLen, nWideLen;
       TCHAR *pResult = NULL;
-
       if( pItem == NULL || HB_IS_NIL( pItem ) )
       {
             hb_retc( "" );
             return;
       }
-
       pszText = hb_itemGetCPtr( pItem );
       nLen = hb_itemGetCLen( pItem );
-
       if( nLen == 0 )
       {
             hb_retc( "" );
             return;
       }
-
-      nWideLen = MultiByteToWideChar( CP_ACP, 0, pszText, (int)nLen, NULL, 0 );
-
+      /* s_iVM_CP tracks the codepage set via HWG_SETUTF8() (CP_ACP by
+       * default, CP_UTF8 after HWG_SETUTF8()) - use it instead of a
+       * hardcoded CP_ACP so this stays consistent with hwg_wstrget() and
+       * friends above. */
+      nWideLen = MultiByteToWideChar( s_iVM_CP, 0, pszText, (int)nLen, NULL, 0 );
       if( nWideLen == 0 )
       {
             hb_retc( "" );
             return;
       }
-
       pResult = ( TCHAR * ) hb_xgrab( ( nWideLen + 1 ) * sizeof( TCHAR ) );
       if( pResult == NULL )
       {
             hb_retc( "" );
             return;
       }
-
-      MultiByteToWideChar( CP_ACP, 0, pszText, (int)nLen, pResult, (int)nWideLen );
+      MultiByteToWideChar( s_iVM_CP, 0, pszText, (int)nLen, pResult, (int)nWideLen );
       pResult[nWideLen] = 0;
-
       HB_RETSTRLEN( pResult, nWideLen );
       hb_xfree( pResult );
 }

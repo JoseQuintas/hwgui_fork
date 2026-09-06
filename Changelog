@@ -15,6 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 18:38 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **window.c**: Small fix HWG_ANSITOUNICODE()
+    Uses the existing `s_iVM_CP` codepage(set via `HWG_SETUTF8()`) instead
+    of a fixed `CP_ACP`, so UTF-8-mode apps keep converting correctly.
+
 2026-09-06 14:45 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Changed
   - **wprint.c**: modernized printer functions for Windows 2000 and later –
