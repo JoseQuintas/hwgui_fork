@@ -15,6 +15,21 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 12:11 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **hwindow.prg**: fixed lost `bColor` parameter in `HChildWindow:New()` –
+    an extra comma before `bColor` in the call to `::Super:New()` shifted it
+    past `HWindow:New()`'s 22nd (last) formal parameter, so the argument was
+    silently discarded and the child window's background brush was never
+    set.
+  - **hwindow.prg**: fixed missing `msg` argument in the calls to
+    `hwg_onTrackScroll()` from `HChildWindow:onEvent()` and
+    `HMDIChildWindow:onEvent()` – the function is declared as
+    `hwg_onTrackScroll( oWnd, msg, wParam, lParam )`, but only 3 arguments
+    were passed, shifting `wParam`/`lParam` one position to the left and
+    breaking horizontal/vertical scroll-bar tracking (`WM_HSCROLL`/
+    `WM_VSCROLL`) on child and MDI child windows.
+
 2026-08-26 17:00 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **gt_hwgui_w.c**: fixed double free in `GTHWG_GETSIZE` – removed

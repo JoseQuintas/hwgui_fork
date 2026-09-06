@@ -510,9 +510,9 @@ METHOD onEvent( msg, wParam, lParam )  CLASS HMDIChildWindow
    ELSE
       IF msg == WM_HSCROLL .OR. msg == WM_VSCROLL
          IF ::nScrollBars != -1
-             hwg_ScrollHV( Self,msg,wParam,lParam )
+             hwg_ScrollHV( Self, msg, wParam, lParam )
          ENDIF
-         hwg_onTrackScroll( Self, wParam, lParam )
+         hwg_onTrackScroll( Self, msg, wParam, lParam )
       ENDIF
       Return ::Super:onEvent( msg, wParam, lParam )
    ENDIF
@@ -537,7 +537,7 @@ METHOD New( oIcon, clr, nStyle, x, y, width, height, cTitle, cMenu, oFont, ;
 
    ::Super:New( oIcon, clr, nStyle, x, y, width, height, cTitle, cMenu, oFont, ;
       bInit, bExit, bSize, bPaint, bGfocus, bLfocus, bOther,  ;
-      cAppName, oBmp, cHelp, nHelpId,, bColor )
+      cAppName, oBmp, cHelp, nHelpId, bColor )
    ::oParent := HWindow():GetMain()
 
    IF HB_ISOBJECT( ::oParent )
@@ -574,7 +574,7 @@ METHOD onEvent( msg, wParam, lParam )  CLASS HChildWindow
       RETURN Eval( HMainWindow():aMessages[2,i], Self, wParam, lParam )
    ELSE
       IF msg == WM_HSCROLL .OR. msg == WM_VSCROLL
-         hwg_onTrackScroll( Self, wParam, lParam )
+         hwg_onTrackScroll( Self, msg, wParam, lParam )
       ENDIF
       Return ::Super:onEvent( msg, wParam, lParam )
    ENDIF
