@@ -56,14 +56,383 @@
 #include "hbapiitm.h"
 #include "winreg.h"
 
-#if defined(__DMC__)
-__inline long PtrToLong( const void *p )
+/*=============================================================================
+ * HWG_REGOPENKEYEX()
+ * Opens a registry key
+ * 
+ * Parameters:
+ *   1 - Parent key handle (HKEY)
+ *   2 - Subkey name (string)
+ *   3 - Reserved (not used)
+ *   4 - Reserved (not used)
+ *   5 - Output: opened key handle (by reference)
+ * 
+ * Returns:
+ *   0 on success, -1 on error
+ * 
+ * Example (Harbour):
+ *   hKey := 0
+ *   IF HWG_REGOPENKEYEX( HKEY_LOCAL_MACHINE, "SOFTWARE\Microsoft", , , @hKey ) == 0
+ *      // Use hKey
+ *      HWG_REGCLOSEKEY( hKey )
+ *   ENDIF
+ *===========================================================================*/
+HB_FUNC( HWG_REGOPENKEYEX )
 {
-   return ( ( long ) p );
-}
-#endif
+   HKEY hwKey = ( HKEY ) hb_parnl( 1 );
+   void *hValue;
+   LPCTSTR lpValue = HB_PARSTR( 2, &hValue, NULL );  // TCHAR for Unicode support
+   LONG lError;
+   HKEY phwHandle;
 
-/*
+   // Attempt to open the registry key with full access
+   lError = RegOpenKeyEx( hwKey, lpValue, 0, KEY_ALL_ACCESS, &phwHandle );
+
+   if( lError == ERROR_SUCCESS )
+   {
+      // Store the opened handle in the output parameter (by reference)
+      hb_stornl( ( LONG ) phwHandle, 5 );
+      hb_retni( 0 );  // Success
+   }
+   else
+   {
+      hb_retni( -1 );  // Failure
+   }
+
+   hb_strfree( hValue );  // Free the temporary string buffer
+}
+
+/*=============================================================================
+ * HWG_REGQUERYVALUEEX()
+ * Queries a registry value
+ * 
+ * Parameters:
+ *   1 - Key handle (HKEY)
+ *   2 - Value name (string)
+ *   3 - Reserved (not used)
+ *   4 - Type (output, by reference) - REG_SZ, REG_DWORD, etc.
+ *   5 - Data (output, by reference) - actual value data
+ * 
+ * Returns:
+ *   0 on success, -1 on error
+ * 
+ * Example (Harbour):
+ *   cValue := SPACE(255)
+ *   nType := 0
+ *   IF HWG_REGQUERYVALUEEX( hKey, "Version", , @nType, @cValue ) == 0
+ *      ? "Value:", cValue
+ *      ? "Type:", nType
+ *   ENDIF
+ *===========================================================================*/
+HB_FUNC( HWG_REGQUERYVALUEEX )
+{
+   HKEY hwKey = ( HKEY ) hb_parnl( 1 );
+   LONG lError;
+   DWORD lpType = hb_parnl( 4 );
+   DWORD lpcbData = 0;
+   void *hValue;
+   LPCTSTR lpValue = HB_PARSTR( 2, &hValue, NULL );
+
+   // First call: get required buffer size
+   lError = RegQueryValueEx( hwKey, lpValue, NULL, &lpType, NULL, &lpcbData );
+
+   if( lError == ERROR_SUCCESS && lpcbData > 0 )
+   {
+      // Allocate buffer for the data (+1 for null terminator)
+      BYTE *lpData = ( BYTE * ) hb_xgrab( lpcbData + 1 );
+
+      if( lpData == NULL )  // Memory allocation failed
+      {
+         hb_strfree( hValue );
+         hb_retni( -1 );
+         return;
+      }
+
+      memset( lpData, 0, lpcbData + 1 );  // Zero-initialize buffer
+
+      // Second call: retrieve the actual data
+      lError = RegQueryValueEx( hwKey, lpValue, NULL, &lpType, lpData, &lpcbData );
+
+      if( lError == ERROR_SUCCESS )
+      {
+         // Store data as TCHAR string (supports Unicode)
+         HB_STORSTR( ( TCHAR * ) lpData, 5 );
+         hb_retni( 0 );  // Success
+      }
+      else
+      {
+         hb_retni( -1 );  // Failure
+      }
+
+      hb_xfree( lpData );  // Free allocated buffer
+   }
+   else
+   {
+      hb_retni( -1 );  // Key not found or empty
+   }
+
+   hb_strfree( hValue );
+}
+
+/*=============================================================================
+ * HWG_REGENUMKEYEX()
+ * Enumerates subkeys of a registry key
+ * 
+ * Parameters:
+ *   1 - Key handle (HKEY)
+ *   2 - Index (0-based) - which subkey to retrieve
+ *   3 - Buffer (output, by reference) - subkey name
+ *   4 - Buffer size (output, by reference) - length of name
+ *   5 - Reserved (not used)
+ *   6 - Class name (output, by reference) - optional class string
+ *   7 - Class size (output, by reference)
+ * 
+ * Returns:
+ *   ERROR_SUCCESS on success, error code on failure
+ * 
+ * Example (Harbour):
+ *   FOR i := 0 TO 10
+ *      cSubKey := SPACE(255)
+ *      nSize := 255
+ *      IF HWG_REGENUMKEYEX( hKey, i, @cSubKey, @nSize, , , ) == ERROR_SUCCESS
+ *         ? i, cSubKey, nSize
+ *      ELSE
+ *         EXIT
+ *      ENDIF
+ *   NEXT
+ *===========================================================================*/
+HB_FUNC( HWG_REGENUMKEYEX )
+{
+   FILETIME ft;
+   LONG nErr;
+   DWORD dwBuffSize;
+   DWORD dwClassSize;
+   LPTSTR pBuffer = NULL;
+   LPTSTR pClass = NULL;
+   DWORD dwMaxLen;
+
+   // First call: get required buffer sizes
+   dwBuffSize = 0;
+   dwClassSize = 0;
+   nErr = RegEnumKeyEx( ( HKEY ) hb_parnl( 1 ), hb_parnl( 2 ),
+                        NULL, &dwBuffSize, NULL, NULL, &dwClassSize, &ft );
+
+   if( nErr == ERROR_SUCCESS )
+   {
+      // Allocate buffer for subkey name (TCHAR for Unicode support)
+      dwMaxLen = dwBuffSize + 1;
+      pBuffer = ( LPTSTR ) hb_xgrab( dwMaxLen * sizeof( TCHAR ) );
+      if( pBuffer == NULL )
+      {
+         hb_retnl( ERROR_OUTOFMEMORY );
+         return;
+      }
+
+      // Allocate buffer for class name
+      dwMaxLen = dwClassSize + 1;
+      pClass = ( LPTSTR ) hb_xgrab( dwMaxLen * sizeof( TCHAR ) );
+      if( pClass == NULL )
+      {
+         hb_xfree( pBuffer );
+         hb_retnl( ERROR_OUTOFMEMORY );
+         return;
+      }
+
+      dwBuffSize = dwBuffSize + 1;
+      dwClassSize = dwClassSize + 1;
+
+      // Second call: retrieve the actual data
+      nErr = RegEnumKeyEx( ( HKEY ) hb_parnl( 1 ), hb_parnl( 2 ),
+                           pBuffer, &dwBuffSize, NULL, pClass, &dwClassSize, &ft );
+
+      if( nErr == ERROR_SUCCESS )
+      {
+         // Store results in Harbour variables (by reference)
+         HB_STORSTR( pBuffer, 3 );              // Subkey name
+         hb_stornl( ( LONG ) dwBuffSize, 4 );   // Actual length
+         HB_STORSTR( pClass, 6 );               // Class name
+         hb_stornl( ( LONG ) dwClassSize, 7 );  // Class length
+      }
+
+      hb_xfree( pBuffer );
+      hb_xfree( pClass );
+   }
+
+   hb_retnl( nErr );  // Return Windows error code
+}
+
+/*=============================================================================
+ * HWG_REGSETVALUEEX()
+ * Sets a registry value
+ * 
+ * Parameters:
+ *   1 - Key handle (HKEY)
+ *   2 - Value name (string)
+ *   3 - Reserved (not used)
+ *   4 - Type (REG_SZ, REG_DWORD, REG_BINARY, etc.)
+ *   5 - Data (string or binary data)
+ * 
+ * Returns:
+ *   ERROR_SUCCESS on success, error code on failure
+ * 
+ * Example (Harbour):
+ *   HWG_REGSETVALUEEX( hKey, "Version", , REG_SZ, "1.0" )
+ *   HWG_REGSETVALUEEX( hKey, "Count", , REG_DWORD, 123 )
+ *===========================================================================*/
+HB_FUNC( HWG_REGSETVALUEEX )
+{
+   void *hValue;
+   LPCTSTR lpValue = HB_PARSTR( 2, &hValue, NULL );
+   LONG lResult;
+   DWORD dwSize;
+
+   // Determine data size based on type
+   if( HB_ISCHAR( 5 ) )
+      dwSize = hb_parclen( 5 ) + 1;  // String: include null terminator
+   else
+      dwSize = hb_parni( 5 );         // Binary: use as-is
+
+   // Write the value to the registry
+   lResult = RegSetValueEx( ( HKEY ) hb_parnl( 1 ),
+                            lpValue, 0,
+                            hb_parnl( 4 ),                    // Type
+                            ( const BYTE * ) hb_parcx( 5 ),   // Data
+                            dwSize );
+
+   hb_retnl( lResult );
+   hb_strfree( hValue );
+}
+
+/*=============================================================================
+ * HWG_REGCREATEKEYEX()
+ * Creates a registry key
+ * 
+ * Parameters:
+ *   1 - Parent key handle (HKEY)
+ *   2 - Subkey name (string)
+ *   3 - Reserved (not used)
+ *   4 - Class name (string, optional)
+ *   5 - Options (REG_OPTION_NON_VOLATILE, etc.)
+ *   6 - Security access (KEY_ALL_ACCESS, etc.)
+ *   7 - Security attributes (pointer, optional)
+ *   8 - Output: created key handle (by reference)
+ *   9 - Output: disposition (by reference) - REG_CREATED_NEW_KEY or REG_OPENED_EXISTING_KEY
+ * 
+ * Returns:
+ *   ERROR_SUCCESS on success, error code on failure
+ * 
+ * Example (Harbour):
+ *   hNewKey := 0
+ *   nDisposition := 0
+ *   IF HWG_REGCREATEKEYEX( HKEY_CURRENT_USER, "Software\MyApp", , , , , , @hNewKey, @nDisposition ) == ERROR_SUCCESS
+ *      // Key created or opened
+ *      HWG_REGCLOSEKEY( hNewKey )
+ *   ENDIF
+ *===========================================================================*/
+HB_FUNC( HWG_REGCREATEKEYEX )
+{
+   HKEY hkResult;
+   DWORD dwDisposition;
+   LONG nErr;
+   SECURITY_ATTRIBUTES *sa = NULL;
+   void *hValue, *hClass;
+   LPCTSTR lpValue = HB_PARSTR( 2, &hValue, NULL );
+   LPTSTR lpClass = HB_PARSTR( 4, &hClass, NULL );
+
+   // SECURITY_ATTRIBUTES is passed as a pointer (if provided)
+   if( HB_ISNUM( 7 ) && hb_parnl( 7 ) != 0 )
+   {
+      sa = ( SECURITY_ATTRIBUTES * ) hb_parptr( 7 );
+   }
+
+   // Create or open the registry key
+   nErr = RegCreateKeyEx( ( HKEY ) hb_parnl( 1 ),
+                          lpValue,
+                          0,                           // Reserved
+                          lpClass,                     // Class name
+                          ( DWORD ) hb_parnl( 5 ),    // Options
+                          ( DWORD ) hb_parnl( 6 ),    // Security access
+                          sa,
+                          &hkResult,
+                          &dwDisposition );
+
+   if( nErr == ERROR_SUCCESS )
+   {
+      // Store the created key handle and disposition
+      hb_stornl( ( LONG ) hkResult, 8 );
+      hb_stornl( ( LONG ) dwDisposition, 9 );
+   }
+
+   hb_retnl( nErr );
+   hb_strfree( hValue );
+   hb_strfree( hClass );
+}
+
+/*=============================================================================
+ * HWG_REGDELETEKEY()
+ * Deletes a registry key
+ * 
+ * Parameters:
+ *   1 - Parent key handle (HKEY)
+ *   2 - Subkey name (string)
+ * 
+ * Returns:
+ *   0 on success, -1 on error
+ * 
+ * Example (Harbour):
+ *   IF HWG_REGDELETEKEY( HKEY_CURRENT_USER, "Software\MyApp" ) == 0
+ *      ? "Key deleted successfully"
+ *   ENDIF
+ *===========================================================================*/
+HB_FUNC( HWG_REGDELETEKEY )
+{
+   void *hValue;
+   LPCTSTR lpValue = HB_PARSTR( 2, &hValue, NULL );
+
+   hb_retni( RegDeleteKey( ( HKEY ) hb_parnl( 1 ),
+               lpValue ) == ERROR_SUCCESS ? 0 : -1 );
+   hb_strfree( hValue );
+}
+
+/*=============================================================================
+ * HWG_REGDELETEVALUE()
+ * Deletes a registry value
+ * 
+ * Parameters:
+ *   1 - Key handle (HKEY)
+ *   2 - Value name (string)
+ * 
+ * Returns:
+ *   0 on success, -1 on error
+ * 
+ * Example (Harbour):
+ *   IF HWG_REGDELETEVALUE( hKey, "Version" ) == 0
+ *      ? "Value deleted successfully"
+ *   ENDIF
+ *===========================================================================*/
+HB_FUNC( HWG_REGDELETEVALUE )
+{
+   void *hValue;
+   LPCTSTR lpValue = HB_PARSTR( 2, &hValue, NULL );
+
+   hb_retni( RegDeleteValue( ( HKEY ) hb_parnl( 1 ),
+               lpValue ) == ERROR_SUCCESS ? 0 : -1 );
+   hb_strfree( hValue );
+}
+
+/*=============================================================================
+ * HWG_REGCLOSEKEY()
+ * Closes a registry key handle
+ * 
+ * Parameters:
+ *   1 - Key handle (HKEY)
+ * 
+ * Returns:
+ *   ERROR_SUCCESS on success, -1 on error
+ * 
+ * Example (Harbour):
+ *   HWG_REGCLOSEKEY( hKey )
+ *===========================================================================*/
 HB_FUNC( HWG_REGCLOSEKEY )
 {
    HKEY hwHandle = ( HKEY ) hb_parnl( 1 );
@@ -76,179 +445,4 @@ HB_FUNC( HWG_REGCLOSEKEY )
    {
       hb_retnl( -1 );
    }
-}
-*/
-
-HB_FUNC( HWG_REGOPENKEYEX )
-{
-   HKEY hwKey = ( ( HKEY ) hb_parnl( 1 ) );
-   void * hValue;
-   LPCTSTR lpValue = HB_PARSTRDEF( 2, &hValue, NULL );
-   LONG lError;
-   HKEY phwHandle;
-
-   lError = RegOpenKeyEx( ( HKEY ) hwKey, lpValue, 0, KEY_ALL_ACCESS,
-                          &phwHandle );
-   if( lError > 0 )
-   {
-      hb_retni( -1 );
-   }
-   else
-   {
-      hb_stornl( PtrToLong( phwHandle ), 5 );
-      hb_retni( 0 );
-   }
-   hb_strfree( hValue );
-}
-
-HB_FUNC( HWG_REGQUERYVALUEEX )
-{
-   HKEY hwKey = ( ( HKEY ) hb_parnl( 1 ) );
-   LONG lError;
-   DWORD lpType = hb_parnl( 4 );
-   DWORD lpcbData = 0;
-   void * hValue;
-   LPCTSTR lpValue = HB_PARSTRDEF( 2, &hValue, NULL );
-
-   lError = RegQueryValueEx( hwKey, lpValue, NULL, &lpType, NULL, &lpcbData );
-   if( lError == ERROR_SUCCESS )
-   {
-      BYTE *lpData = ( BYTE * )
-                     memset( hb_xgrab( lpcbData + 1 ), 0, lpcbData + 1 );
-      lError = RegQueryValueEx( hwKey, lpValue, NULL, &lpType,
-                                lpData, &lpcbData );
-      if( lError > 0 )
-      {
-         hb_retni( -1 );
-      }
-      else
-      {
-         hb_storc( ( char * ) lpData, 5 );
-         hb_retni( 0 );
-      }
-
-      hb_xfree( lpData );
-   }
-   hb_strfree( hValue );
-}
-
-
-HB_FUNC( HWG_REGENUMKEYEX )
-{
-   FILETIME ft;
-   long nErr;
-   TCHAR Buffer[255];
-   DWORD dwBuffSize = 255;
-   TCHAR Class[255];
-   DWORD dwClass = 255;
-
-   nErr = RegEnumKeyEx( ( HKEY ) hb_parnl( 1 ), hb_parnl( 2 ), Buffer,
-                        &dwBuffSize, NULL, Class, &dwClass, &ft );
-
-   if( nErr == ERROR_SUCCESS )
-   {
-      HB_STORSTR( Buffer, 3 );
-      hb_stornl( ( long ) dwBuffSize, 4 );
-      HB_STORSTR( Class, 6 );
-      hb_stornl( ( long ) dwClass, 7 );
-   }
-   hb_retnl( nErr );
-}
-
-
-HB_FUNC( HWG_REGSETVALUEEX )
-{
-   void * hValue;
-
-   hb_retnl( RegSetValueEx( ( HKEY ) hb_parnl( 1 ),
-                            HB_PARSTRDEF( 2, &hValue, NULL ), 0,
-                            hb_parnl( 4 ), ( const BYTE * ) hb_parcx( 5 ),
-                            hb_parclen( 5 ) + 1 ) );
-   hb_strfree( hValue );
-}
-
-/*
-HB_FUNC( HWG_REGCREATEKEY )
-{
-   HKEY hKey;
-   LONG nErr;
-   void * hValue;
-
-   nErr = RegCreateKey( ( HKEY ) hb_parnl( 1 ),
-                        HB_PARSTRDEF( 2, &hValue, NULL ), &hKey );
-   if( nErr == ERROR_SUCCESS )
-   {
-      hb_stornl( PtrToLong( hKey ), 3 );
-   }
-   hb_retnl( nErr );
-   hb_strfree( hValue );
-}
-*/
-
-//-------------------------------------------------------
-/*
-LONG RegCreateKeyEx(
-  HKEY hKey,                // handle to an open key
-  LPCTSTR lpSubKey,         // address of subkey name
-  DWORD Reserved,           // reserved
-  LPTSTR lpClass,           // address of class string
-  DWORD dwOptions,          // special options flag
-  REGSAM samDesired,        // desired security access
-  LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-                            // address of key security structure
-  PHKEY phkResult,          // address of buffer for opened handle
-  LPDWORD lpdwDisposition   // address of disposition value buffer
-);
-
-*/
-
-HB_FUNC( HWG_REGCREATEKEYEX )
-{
-   HKEY hkResult;
-   DWORD dwDisposition;
-   LONG nErr;
-   SECURITY_ATTRIBUTES *sa = NULL;
-   void * hValue, * hClass;
-
-   if( HB_ISCHAR( 7 ) )
-      sa = ( SECURITY_ATTRIBUTES * ) hb_parc( 7 );
-
-   nErr = RegCreateKeyEx( ( HKEY ) hb_parnl( 1 ),
-                          HB_PARSTRDEF( 2, &hValue, NULL ),
-                          ( DWORD ) 0,
-                          ( LPTSTR ) HB_PARSTRDEF( 4, &hClass, NULL ),
-                          ( DWORD ) hb_parnl( 5 ),
-                          ( DWORD ) hb_parnl( 6 ),
-                          sa, &hkResult, &dwDisposition );
-
-   if( nErr == ERROR_SUCCESS )
-   {
-      hb_stornl( ( LONG ) hkResult, 8 );
-      hb_stornl( ( LONG ) dwDisposition, 9 );
-   }
-   hb_retnl( nErr );
-   hb_strfree( hValue );
-   hb_strfree( hClass );
-}
-
-
-HB_FUNC( HWG_REGDELETEKEY )
-{
-   void * hValue;
-
-   hb_retni( RegDeleteKey( ( HKEY ) hb_parnl( 1 ),
-               HB_PARSTRDEF( 2, &hValue, NULL ) ) == ERROR_SUCCESS ? 0 : -1 );
-   hb_strfree( hValue );
-}
-
-//  For strange reasons this function is not working properly
-//  May be I am missing something. Pritpal Bedi.
-
-HB_FUNC( HWG_REGDELETEVALUE )
-{
-   void * hValue;
-
-   hb_retni( RegDeleteValue( ( HKEY ) hb_parnl( 1 ),
-               HB_PARSTRDEF( 2, &hValue, NULL ) ) == ERROR_SUCCESS ? 0 : -1 );
-   hb_strfree( hValue );
 }

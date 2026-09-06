@@ -15,6 +15,25 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 19:46 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **winreg.c**: fixed Unicode/ANSI string handling – replaced ANSI-only
+    `HB_PARSTRDEF()` with `HB_PARSTR()` for proper TCHAR/Unicode support,
+    replaced `hb_storc()` with `HB_STORSTR()` for correct string return,
+    and added dynamic buffer allocation in `HWG_REGENUMKEYEX()` to eliminate
+    fixed 255-character buffer overflow risk.
+  - **winreg.c**: fixed memory allocation safety – added `NULL` checks after
+    `hb_xgrab()` calls in `HWG_REGQUERYVALUEEX()` and `HWG_REGENUMKEYEX()`
+    to prevent crashes when memory allocation fails.
+  - **winreg.c**: fixed `SECURITY_ATTRIBUTES` pointer handling – replaced
+    incorrect `hb_parc()` cast with proper `hb_parptr()` for security
+    attributes parameter in `HWG_REGCREATEKEYEX()`.
+  - **winreg.c**: fixed 64-bit pointer truncation – removed obsolete
+    `PtrToLong()` macro for Digital Mars C and ensured handles are stored
+    correctly.
+  - **winreg.c**: removed duplicate commented `HWG_REGCLOSEKEY()` function
+    (already exists in `registry.c` with proper `HB_PARHANDLE()` usage).
+
 2026-09-06 19:17 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **hdialog.prg**: fixed nested modal dialogs losing proper owner/z-order
