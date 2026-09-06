@@ -1406,16 +1406,53 @@ HB_FUNC( HWG_FLASHWINDOW )
    FlashWindow( hWnd, itrue );
 }
 
+/*
+ * HWG_ANSITOUNICODE()
+ * Converts ANSI string to Unicode (UTF-16)
+ * Works on both Harbour and xHarbour
+ */
 HB_FUNC( HWG_ANSITOUNICODE )
 {
-   void *hText = ( TCHAR * ) hb_xgrab( ( 1024 + 1 ) * sizeof( TCHAR ) );
-#if !defined(__XHARBOUR__)
-   hb_parstr_u16( 1, HB_CDP_ENDIAN_NATIVE, &hText, NULL );
-#else
-   hwg_wstrget( hb_param( 1, HB_IT_ANY ), &hText, NULL );
-#endif
-   HB_RETSTRLEN( ( TCHAR * )hText, 1024 );
-   hb_strfree( hText );
+      PHB_ITEM pItem = hb_param( 1, HB_IT_STRING );
+      const char *pszText;
+      HB_SIZE nLen, nWideLen;
+      TCHAR *pResult = NULL;
+
+      if( pItem == NULL || HB_IS_NIL( pItem ) )
+      {
+            hb_retc( "" );
+            return;
+      }
+
+      pszText = hb_itemGetCPtr( pItem );
+      nLen = hb_itemGetCLen( pItem );
+
+      if( nLen == 0 )
+      {
+            hb_retc( "" );
+            return;
+      }
+
+      nWideLen = MultiByteToWideChar( CP_ACP, 0, pszText, (int)nLen, NULL, 0 );
+
+      if( nWideLen == 0 )
+      {
+            hb_retc( "" );
+            return;
+      }
+
+      pResult = ( TCHAR * ) hb_xgrab( ( nWideLen + 1 ) * sizeof( TCHAR ) );
+      if( pResult == NULL )
+      {
+            hb_retc( "" );
+            return;
+      }
+
+      MultiByteToWideChar( CP_ACP, 0, pszText, (int)nLen, pResult, (int)nWideLen );
+      pResult[nWideLen] = 0;
+
+      HB_RETSTRLEN( pResult, nWideLen );
+      hb_xfree( pResult );
 }
 
 HB_FUNC( HWG_CLEARKEYBOARD )

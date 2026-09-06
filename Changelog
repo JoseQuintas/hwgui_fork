@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 13:14 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **window.c**: fixed `HWG_ANSITOUNICODE()` buffer overflow, memory leak,
+    incorrect return length, and missing `NULL` checks – replaced non-portable
+    Harbour-specific API with Windows `MultiByteToWideChar()` for compatibility
+    with both Harbour and xHarbour, and changed to dynamic allocation based on
+    actual input length.
+    Note: This function is only used in `hcomboex.prg` and `hctrlex.prg`
+    (ext_controls contrib).
+
 2026-09-06 12:11 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **hwindow.prg**: fixed lost `bColor` parameter in `HChildWindow:New()` –
@@ -262,12 +272,6 @@
      Separated OLE_HANDLE extraction into a native 32-bit container before
      performing safe uintptr_t casting to HBITMAP/HICON/HCURSOR. Moved
      GlobalFree memory operations down to preserve stream safety thresholds.
-
-2026-08-24 16:53 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
-    - HWG_OPENIMAGE: Fixed a severe 64-bit pointer truncation and crash bug.
-      Separated OLE_HANDLE extraction into a native 32-bit container before
-      performing safe uintptr_t casting to HBITMAP/HICON/HCURSOR. Moved
-      GlobalFree memory operations down to preserve stream safety thresholds.
 
 2026-08-24 16:46 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
     - HWG_GETDRAWITEMINFO: Fixed a critical Harbour VM memory leak by refactoring
