@@ -15,6 +15,31 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-07 15:18 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **c_activex.c**: comprehensive refactoring for modern compiler
+    compatibility, Unicode/ANSI support, and memory safety.
+  - Replaced legacy `hb_parc()` calls with `HB_PARSTR()` macro and added
+    `TEXT()` around string literals in `HWG_CREATEACTIVEX` to ensure
+    proper TCHAR handling.
+  - Fixed critical memory leaks in the event sink: `PHB_ITEM` objects
+    (`pEvents`, `pEventsExec`) are now properly released in `Release()`;
+    argument items created in `Invoke()` are freed after Harbour call.
+  - Replaced `GlobalAlloc`/`GlobalFree` with `hb_xgrab`/`hb_xfree` for
+    consistent memory management across 32/64-bit builds.
+  - Added error checking for `AtlAxGetControl` in `HWG_ATLAXGETDISP` to
+    prevent null pointer dereference; replaced `hb_stackReturnItem()`
+    with proper item creation using `hb_itemNew()`/`hb_itemReturn()`.
+  - Removed dependency on `hb_itemPushList()` – implemented manual
+    argument pushing with `hb_vmPush()`; now uses standard VARIANT
+    macros (`V_VT`, `V_I2REF`, etc.) with correct pointer dereferencing
+    for by-reference parameters.
+  - Eliminated legacy `__XHARBOUR__` conditional blocks and removed
+    unused includes (`hashapi.h`); initialized all variables to suppress
+    warnings.
+  - Now compiles cleanly with `-W3 -es2` on MSVC, GCC, and Clang, for
+    both 32/64-bit architectures and ANSI/Unicode builds.
+
 2026-09-07 14:35 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **gt_hwg.prg**: fixed compiler warnings by initializing variables
