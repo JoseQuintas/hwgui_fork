@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 02:56 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **resource.c**: fixed `HWG_FINDRESOURCE()` to support both numeric and
+    string resource IDs/types – previously only numeric IDs were handled
+    due to incorrect `IS_INTRESOURCE()` usage.
+  - **resource.c**: fixed `HWG_LOADRESOURCE()` to return the module handle
+    on success instead of returning nothing.
+  - **resource.c**: removed unnecessary `#include <prsht.h>` (property sheet
+    header not needed for resource operations).
+
 2026-09-06 02:41 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **pager.c**: fixed `HWG_PAGERGETBUTTONSTATE()` parameter handling –
