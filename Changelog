@@ -15,6 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 02:07 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **menu_c.c**: fixed `HWG_GETMENUCAPTION()` buffer handling – changed to
+    call `GetMenuItemInfo()` twice (first to get required size, second to
+    retrieve data) instead of guessing buffer size.
+  - **menu_c.c**: fixed GDI resource leak in `HWG_SETMENUBACKCOLOR()` – added
+    `DeleteObject()` to destroy the brush created with `CreateSolidBrush()`.
+  - **menu_c.c**: removed obsolete `ChangeMenu()` function (16-bit Windows
+    API, replaced by `ModifyMenu()`).
+  - **menu_c.c**: removed obsolete compiler support for Digital Mars C
+    (`__DMC__`).
+
 2026-09-06 01:59 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **media_c.c**: fixed `HWG_MCISENDCOMMAND()` parameter handling – replaced
