@@ -15,6 +15,17 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 02:41 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **nice.c**: fixed 64-bit compatibility – replaced `GetWindowLong()`
+    with `GetWindowLongPtr()` in `HWG_GETWINDOWLONG()`.
+  - **nice.c**: fixed potential crash when `GradientFill` is not available –
+    added `NULL` checks for `s_pGradientfill` in `Draw_Gradient()` and
+    `Gradient()` functions.
+  - **nice.c**: removed obsolete compiler support for Watcom C (`__WATCOMC__`)
+    and Digital Mars C (`__DMC__`) – `GRADIENT_RECT` and `TRIVERTEX`
+    definitions are already provided by modern Windows headers.
+
 2026-09-06 02:32 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **misc.c**: fixed Unicode/ANSI string handling in clipboard, ShellAbout,
