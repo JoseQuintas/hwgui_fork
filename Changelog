@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 23:25 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **cxshade.c**: fixed `HWG_SHADE_SET()` parameter mapping – rectangle
+    coordinates are parameters 8-11, not 7-10 (parameter 7 is `color`).
+  - **cxshade.c**: added `srand()` initialization with `time()` in
+    `cxshade_New()` to properly seed the random number generator for shade
+    effects; added missing headers `<stdlib.h>` and `<time.h>`.
+
 2026-09-06 23:11 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **control.c**: fixed Unicode/ANSI string handling in time/date functions
