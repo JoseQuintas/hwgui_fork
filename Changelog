@@ -15,6 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 00:30 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **draw.c**: fixed Unicode/ANSI string handling in `HWG_OPENIMAGE()`
+    and `HWG_GDIPLUSOPENIMAGE()` – replaced `hb_parc()` with `HB_PARSTR()`
+    for proper TCHAR/Unicode support; added `#ifdef UNICODE` handling for
+    file name conversion in `HWG_OPENIMAGE()`.
+  - **draw.c**: removed obsolete compiler support for Digital Mars C
+    (`__DMC__`) and Borland C++ 5.5 (`__BORLANDC__`); removed unnecessary
+    `HB_LONG_PCOUNT` conditional for 64-bit pointer returns.
+  - **draw.c**: removed `#include "missing.h"` header (no longer needed
+    with modern compilers).
+
 2026-09-06 23:51 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **dialog.c**: fixed `HWG_CREATEDLGTEMPLATE()` parameter type – changed
