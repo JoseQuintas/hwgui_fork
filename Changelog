@@ -15,6 +15,23 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 02:32 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **misc.c**: fixed Unicode/ANSI string handling in clipboard, ShellAbout,
+    and debug functions – replaced `HB_PARSTRDEF()` and `hb_parc()` with
+    `HB_PARSTR()` for proper TCHAR/Unicode support.
+  - **misc.c**: fixed `HWG_EDIT1UPDATECTRL()` and `HWG_BUTTON1GETSCREENCLIENT()`
+    crash – replaced uninitialized `RECT*` pointer with a stack-allocated
+    `RECT` variable.
+  - **misc.c**: fixed GDI resource leak in `HWG_HEDITEX_CTLCOLOR()` – added
+    check to avoid deleting stock brushes.
+  - **misc.c**: modernized version detection functions (`HWG_ISWIN7`,
+    `HWG_ISWIN10`, `HWG_GETWINMAJORVERS`, `HWG_GETWINMINORVERS`) – replaced
+    deprecated `GetVersionEx()` with `VersionHelpers` API.
+  - **misc.c**: replaced obsolete `WinExec()` with `CreateProcess()` in
+    `HWG_WINEXEC()` and `HWG_RUNAPP()` for better security and 64-bit
+    compatibility.
+
 2026-09-06 02:19 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **message.c**: fixed Unicode/ANSI string handling in message box functions –

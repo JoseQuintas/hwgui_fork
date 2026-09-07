@@ -22,6 +22,8 @@
 #include <time.h>
 #include <sys/stat.h>
 
+/* FIXED: Added VersionHelpers for modern Windows version detection */
+#include <versionhelpers.h>
 
 #include "hbmath.h"
 #include "hbapi.h"
@@ -30,7 +32,9 @@
 #include "hbvm.h"
 #include "hbset.h"
 
-#include "missing.h"
+/* REMOVED: Obsolete header
+ * #include "missing.h"
+ */
 
 #include "incomp_pointer.h"
 #include "warnings.h"
@@ -62,46 +66,61 @@ void hwg_writelog( const char * sFile, const char * sTraceMsg, ... )
 
 }
 
+/*=============================================================================
+ * HWG_SETDLGRESULT()
+ * Sets dialog result
+ *===========================================================================*/
 HB_FUNC( HWG_SETDLGRESULT )
 {
    SetWindowLongPtr( ( HWND ) HB_PARHANDLE( 1 ), DWLP_MSGRESULT,
          hb_parni( 2 ) );
 }
 
+/*=============================================================================
+ * HWG_SETCAPTURE()
+ * Sets mouse capture
+ *===========================================================================*/
 HB_FUNC( HWG_SETCAPTURE )
 {
    HB_RETHANDLE( SetCapture( ( HWND ) HB_PARHANDLE( 1 ) ) );
 }
 
+/*=============================================================================
+ * HWG_RELEASECAPTURE()
+ * Releases mouse capture
+ *===========================================================================*/
 HB_FUNC( HWG_RELEASECAPTURE )
 {
    hb_retl( ReleaseCapture(  ) );
 }
 
+/*=============================================================================
+ * HWG_COPYSTRINGTOCLIPBOARD()
+ * Copies a string to the clipboard
+ *===========================================================================*/
 HB_FUNC( HWG_COPYSTRINGTOCLIPBOARD )
 {
    if( OpenClipboard( GetActiveWindow(  ) ) )
    {
       HGLOBAL hglbCopy;
-      char *lptstrCopy;
+      LPTSTR lptstrCopy;
       void *hStr;
       HB_SIZE nLen;
       LPCTSTR lpStr;
 
       EmptyClipboard(  );
 
-      lpStr = HB_PARSTRDEF( 1, &hStr, &nLen );
+      /* FIXED: HB_PARSTRDEF -> HB_PARSTR for Unicode support */
+      lpStr = HB_PARSTR( 1, &hStr, &nLen );
       hglbCopy = GlobalAlloc( GMEM_DDESHARE, ( nLen + 1 ) * sizeof( TCHAR ) );
       if( hglbCopy != NULL )
       {
-         // Lock the handle and copy the text to the buffer.
-         lptstrCopy = ( char * ) GlobalLock( hglbCopy );
+         lptstrCopy = ( LPTSTR ) GlobalLock( hglbCopy );
          memcpy( lptstrCopy, lpStr, nLen * sizeof( TCHAR ) );
-         lptstrCopy[nLen * sizeof( TCHAR )] = 0;
+         lptstrCopy[nLen] = 0;
          GlobalUnlock( hglbCopy );
          hb_strfree( hStr );
 
-         // Place the handle on the clipboard.
 #ifdef UNICODE
          SetClipboardData( CF_UNICODETEXT, hglbCopy );
 #else
@@ -112,6 +131,10 @@ HB_FUNC( HWG_COPYSTRINGTOCLIPBOARD )
    }
 }
 
+/*=============================================================================
+ * HWG_GETCLIPBOARDTEXT()
+ * Retrieves text from the clipboard
+ *===========================================================================*/
 HB_FUNC( HWG_GETCLIPBOARDTEXT )
 {
    HWND hWnd = ( HWND ) hb_parptr( 1 );
@@ -146,11 +169,19 @@ HB_FUNC( HWG_GETCLIPBOARDTEXT )
       hb_xfree( lpText );
 }
 
+/*=============================================================================
+ * HWG_GETSTOCKOBJECT()
+ * Gets a stock GDI object
+ *===========================================================================*/
 HB_FUNC( HWG_GETSTOCKOBJECT )
 {
    HB_RETHANDLE( GetStockObject( hb_parni( 1 ) ) );
 }
 
+/*=============================================================================
+ * HWG_LOWORD()
+ * Extracts low-order word from a 32-bit value
+ *===========================================================================*/
 HB_FUNC( HWG_LOWORD )
 {
    hb_retni( ( int ) ( ( HB_ISPOINTER( 1 ) ?
@@ -158,15 +189,12 @@ HB_FUNC( HWG_LOWORD )
                               ( ULONG ) hb_parnl( 1 ) ) & 0xFFFF ) );
 }
 
+/*=============================================================================
+ * HWG_HIWORD()
+ * Extracts high-order word from a 32-bit value
+ *===========================================================================*/
 HB_FUNC( HWG_HIWORD )
 {
-  /*
-   *     Extract the high-order 16 bits from a 32-bit value.
-   *     The input may be a pointer (converted to integer). To avoid
-   *     pointer truncation on 64-bit builds, use HB_PTRUINT.
-   *     However, the shift of 16 bits will effectively take bits 16..31
-   *     of the lower 32 bits, which is the standard Windows HIWORD.
-   */
   ULONG ulValue;
 
   if( HB_ISPOINTER( 1 ) )
@@ -177,37 +205,50 @@ HB_FUNC( HWG_HIWORD )
   hb_retni( ( int ) ( ( ulValue >> 16 ) & 0xFFFF ) );
 }
 
+/*=============================================================================
+ * HWG_BITOR()
+ * Bitwise OR
+ *===========================================================================*/
 HB_FUNC( HWG_BITOR )
 {
   hb_retnint( hb_parnint( 1 ) | hb_parnint( 2 ) );
 }
 
+/*=============================================================================
+ * HWG_BITOR_INT()
+ * Bitwise OR (int)
+ *===========================================================================*/
 HB_FUNC( HWG_BITOR_INT )
 {
   hb_retni( hb_parni( 1 ) | hb_parni( 2 ) );
 }
 
+/*=============================================================================
+ * HWG_BITAND()
+ * Bitwise AND
+ *===========================================================================*/
 HB_FUNC( HWG_BITAND )
 {
   hb_retnint( hb_parnint( 1 ) & hb_parnint( 2 ) );
 }
 
+/*=============================================================================
+ * HWG_BITANDINVERSE()
+ * Bitwise AND with inverse
+ *===========================================================================*/
 HB_FUNC( HWG_BITANDINVERSE )
 {
   hb_retnint( hb_parnint( 1 ) & ( ~hb_parnint( 2 ) ) );
 }
 
+/*=============================================================================
+ * HWG_SETBIT()
+ * Sets or clears a bit in a numeric value
+ *===========================================================================*/
 HB_FUNC( HWG_SETBIT )
 {
   int nBit = hb_parni( 2 );
 
-  /* FIX: validate the bit position before using it as a shift amount.
-   * Shifting by a negative amount, or by an amount >= the width of the
-   * type being shifted, is undefined behaviour in C. HB_MAXINT's width
-   * is computed via sizeof() rather than hard-coded, so this stays
-   * correct regardless of how wide HB_MAXINT is on a given platform/
-   * Harbour build. Out-of-range input returns the original value
-   * unchanged instead of shifting - safe, predictable, no UB. */
   if( nBit < 1 || nBit > ( int ) ( sizeof( HB_MAXINT ) * 8 ) )
   {
     hb_retnint( hb_parnint( 1 ) );
@@ -220,6 +261,10 @@ HB_FUNC( HWG_SETBIT )
     hb_retnint( hb_parnint( 1 ) & ~( ( HB_MAXINT ) 1 << ( nBit - 1 ) ) );
 }
 
+/*=============================================================================
+ * HWG_SETBITBYTE()
+ * Sets or clears a bit in a byte
+ *===========================================================================*/
 HB_FUNC( HWG_SETBITBYTE )
 {
   int para3;
@@ -227,7 +272,6 @@ HB_FUNC( HWG_SETBITBYTE )
 
   if( hb_pcount() < 3 )
   {
-    /* Return previous value */
     hb_retni( hb_parni( 1 ) );
     return;
   }
@@ -235,15 +279,10 @@ HB_FUNC( HWG_SETBITBYTE )
   para3 = hb_parni( 3 );
   if( para3 < 0 || para3 > 1 )
   {
-    /* Return previous value */
     hb_retni( hb_parni( 1 ) );
     return;
   }
 
-  /* FIX: validate the bit position - this function shifts within a
-   * plain 'int' (32-bit on every relevant target here), so valid
-   * positions are 1..32. Out of range returns the original value
-   * unchanged instead of invoking undefined behaviour on the shift. */
   nBit = hb_parni( 2 );
   if( nBit < 1 || nBit > ( int ) ( sizeof( int ) * 8 ) )
   {
@@ -252,24 +291,19 @@ HB_FUNC( HWG_SETBITBYTE )
   }
 
   if( para3 == 1 )
-  {
-    /* 0 to 1 */
     hb_retni( hb_parni( 1 ) | ( 1 << ( nBit - 1 ) ) );
-  }
   else
-  {
-    /* 1 to 0 */
     hb_retni( hb_parni( 1 ) & ~( 1 << ( nBit - 1 ) ) );
-  }
 }
 
+/*=============================================================================
+ * HWG_CHECKBIT()
+ * Checks if a bit is set
+ *===========================================================================*/
 HB_FUNC( HWG_CHECKBIT )
 {
   int nBit = hb_parni( 2 );
 
-  /* FIX: same out-of-range guard as HWG_SETBIT - an invalid bit
-   * position now returns .F. instead of shifting by a negative or
-   * too-large amount. */
   if( nBit < 1 || nBit > ( int ) ( sizeof( HB_MAXINT ) * 8 ) )
   {
     hb_retl( HB_FALSE );
@@ -279,16 +313,28 @@ HB_FUNC( HWG_CHECKBIT )
   hb_retl( hb_parnint( 1 ) & ( ( HB_MAXINT ) 1 << ( nBit - 1 ) ) );
 }
 
+/*=============================================================================
+ * HWG_SIN()
+ * Sine function
+ *===========================================================================*/
 HB_FUNC( HWG_SIN )
 {
    hb_retnd( sin( hb_parnd( 1 ) ) );
 }
 
+/*=============================================================================
+ * HWG_COS()
+ * Cosine function
+ *===========================================================================*/
 HB_FUNC( HWG_COS )
 {
    hb_retnd( cos( hb_parnd( 1 ) ) );
 }
 
+/*=============================================================================
+ * HWG_CLIENTTOSCREEN()
+ * Converts client coordinates to screen coordinates
+ *===========================================================================*/
 HB_FUNC( HWG_CLIENTTOSCREEN )
 {
    POINT pt;
@@ -311,6 +357,10 @@ HB_FUNC( HWG_CLIENTTOSCREEN )
    hb_itemRelease( aPoint );
 }
 
+/*=============================================================================
+ * HWG_SCREENTOCLIENT()
+ * Converts screen coordinates to client coordinates
+ *===========================================================================*/
 HB_FUNC( HWG_SCREENTOCLIENT )
 {
    POINT pt;
@@ -345,9 +395,12 @@ HB_FUNC( HWG_SCREENTOCLIENT )
 
    hb_itemReturn( aPoint );
    hb_itemRelease( aPoint );
-
 }
 
+/*=============================================================================
+ * HWG_GETCURSORPOS()
+ * Gets cursor position
+ *===========================================================================*/
 HB_FUNC( HWG_GETCURSORPOS )
 {
    POINT pt;
@@ -365,9 +418,12 @@ HB_FUNC( HWG_GETCURSORPOS )
 
    hb_itemReturn( aPoint );
    hb_itemRelease( aPoint );
-
 }
 
+/*=============================================================================
+ * HWG_SETCURSORPOS()
+ * Sets cursor position
+ *===========================================================================*/
 HB_FUNC( HWG_SETCURSORPOS )
 {
    int x, y;
@@ -378,6 +434,10 @@ HB_FUNC( HWG_SETCURSORPOS )
    SetCursorPos( x, y );
 }
 
+/*=============================================================================
+ * HWG_GETCURRENTDIR()
+ * Gets current directory
+ *===========================================================================*/
 HB_FUNC( HWG_GETCURRENTDIR )
 {
    TCHAR buffer[HB_PATH_MAX];
@@ -386,11 +446,41 @@ HB_FUNC( HWG_GETCURRENTDIR )
    HB_RETSTR( buffer );
 }
 
+/*=============================================================================
+ * HWG_WINEXEC()
+ * Executes a command (using CreateProcess)
+ *===========================================================================*/
 HB_FUNC( HWG_WINEXEC )
 {
-   hb_retni( WinExec( hb_parc( 1 ), ( UINT ) hb_parni( 2 ) ) );
+   void *hStr;
+   LPCTSTR lpCmd = HB_PARSTR( 1, &hStr, NULL );
+   STARTUPINFO si;
+   PROCESS_INFORMATION pi;
+   BOOL bResult;
+
+   ZeroMemory( &si, sizeof(si) );
+   si.cb = sizeof(si);
+   si.dwFlags = STARTF_USESHOWWINDOW;
+   si.wShowWindow = ( hb_parni(2) == SW_HIDE ) ? SW_HIDE : SW_SHOWNORMAL;
+
+   /* FIXED: WinExec replaced with CreateProcess */
+   bResult = CreateProcess( NULL, (LPTSTR)lpCmd, NULL, NULL, FALSE,
+                            CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi );
+
+   if( bResult )
+   {
+      CloseHandle( pi.hProcess );
+      CloseHandle( pi.hThread );
+   }
+
+   hb_retni( bResult ? 33 : 0 );   /* 33 = success (WinExec returns >31) */
+   hb_strfree( hStr );
 }
 
+/*=============================================================================
+ * HWG_GETKEYBOARDSTATE()
+ * Gets keyboard state
+ *===========================================================================*/
 HB_FUNC( HWG_GETKEYBOARDSTATE )
 {
    BYTE lpbKeyState[256];
@@ -399,11 +489,19 @@ HB_FUNC( HWG_GETKEYBOARDSTATE )
    hb_retclen( ( char * ) lpbKeyState, 255 );
 }
 
+/*=============================================================================
+ * HWG_GETKEYSTATE()
+ * Gets key state
+ *===========================================================================*/
 HB_FUNC( HWG_GETKEYSTATE )
 {
    hb_retni( GetKeyState( hb_parni( 1 ) ) );
 }
 
+/*=============================================================================
+ * HWG_GETKEYNAMETEXT()
+ * Gets key name text
+ *===========================================================================*/
 HB_FUNC( HWG_GETKEYNAMETEXT )
 {
    TCHAR cText[MAX_PATH];
@@ -413,12 +511,15 @@ HB_FUNC( HWG_GETKEYNAMETEXT )
       HB_RETSTRLEN( cText, iRet );
 }
 
+/*=============================================================================
+ * HWG_ACTIVATEKEYBOARDLAYOUT()
+ * Activates keyboard layout
+ *===========================================================================*/
 HB_FUNC( HWG_ACTIVATEKEYBOARDLAYOUT )
 {
-   //LPTSTR m_PreviousLayout[KL_NAMELENGTH];
    TCHAR m_PreviousLayout[KL_NAMELENGTH];
 
-   GetKeyboardLayoutName( m_PreviousLayout ); 
+   GetKeyboardLayoutName( m_PreviousLayout );
 
    if( HB_ISCHAR( 1 ) )
    {
@@ -436,7 +537,6 @@ HB_FUNC( HWG_ACTIVATEKEYBOARDLAYOUT )
          ActivateKeyboardLayout( 0, 0 );
          i++;
       }
-
       while( i < num );
       if( i >= num )
          ActivateKeyboardLayout( curr, 0 );
@@ -446,24 +546,13 @@ HB_FUNC( HWG_ACTIVATEKEYBOARDLAYOUT )
 
    HB_RETSTR( m_PreviousLayout );
 }
-/*
-HB_FUNC( HWG_GETKEYBOARDLAYOUT ) 
-{ 
-   TCHAR m_PreviousLayout[KL_NAMELENGTH];
 
-   GetKeyboardLayoutName( m_PreviousLayout ); 
-   hb_retc( m_PreviousLayout );
-} 
-*/
-
-/*
- * Pts2Pix( nPoints [,hDC] ) --> nPixels
- * Conversion from points to pixels, provided by Vic McClung.
- */
-
+/*=============================================================================
+ * HWG_PTS2PIX()
+ * Converts points to pixels
+ *===========================================================================*/
 HB_FUNC( HWG_PTS2PIX )
 {
-
    HDC hDC;
    BOOL lDC = 1;
 
@@ -480,8 +569,12 @@ HB_FUNC( HWG_PTS2PIX )
       DeleteDC( hDC );
 }
 
-/* Functions Contributed  By Luiz Rafael Culik Guimaraes( culikr@uol.com.br) */
+/* Functions Contributed By Luiz Rafael Culik Guimaraes( culikr@uol.com.br) */
 
+/*=============================================================================
+ * HWG_GETWINDOWSDIR()
+ * Gets Windows directory
+ *===========================================================================*/
 HB_FUNC( HWG_GETWINDOWSDIR )
 {
    TCHAR szBuffer[MAX_PATH + 1] = { 0 };
@@ -490,6 +583,10 @@ HB_FUNC( HWG_GETWINDOWSDIR )
    HB_RETSTR( szBuffer );
 }
 
+/*=============================================================================
+ * HWG_GETSYSTEMDIR()
+ * Gets System directory
+ *===========================================================================*/
 HB_FUNC( HWG_GETSYSTEMDIR )
 {
    TCHAR szBuffer[MAX_PATH + 1] = { 0 };
@@ -498,6 +595,10 @@ HB_FUNC( HWG_GETSYSTEMDIR )
    HB_RETSTR( szBuffer );
 }
 
+/*=============================================================================
+ * HWG_GETTEMPDIR()
+ * Gets Temp directory
+ *===========================================================================*/
 HB_FUNC( HWG_GETTEMPDIR )
 {
    TCHAR szBuffer[MAX_PATH + 1] = { 0 };
@@ -506,38 +607,54 @@ HB_FUNC( HWG_GETTEMPDIR )
    HB_RETSTR( szBuffer );
 }
 
+/*=============================================================================
+ * HWG_POSTQUITMESSAGE()
+ * Posts quit message
+ *===========================================================================*/
 HB_FUNC( HWG_POSTQUITMESSAGE )
 {
    PostQuitMessage( hb_parni( 1 ) );
 }
 
-/*
-Contributed by Rodrigo Moreno rodrigo_moreno@yahoo.com base upon code minigui
-*/
-
+/*=============================================================================
+ * HWG_SHELLABOUT()
+ * Displays ShellAbout dialog
+ *===========================================================================*/
 HB_FUNC( HWG_SHELLABOUT )
 {
    void *hStr1, *hStr2;
 
+   /* FIXED: HB_PARSTRDEF -> HB_PARSTR for Unicode support */
    hb_retni( ShellAbout( 0,
-               HB_PARSTRDEF( 1, &hStr1, NULL ),
-               HB_PARSTRDEF( 2, &hStr2, NULL ),
+               HB_PARSTR( 1, &hStr1, NULL ),
+               HB_PARSTR( 2, &hStr2, NULL ),
                ( HB_ISNIL( 3 ) ? NULL : ( HICON ) HB_PARHANDLE( 3 ) ) ) );
    hb_strfree( hStr1 );
    hb_strfree( hStr2 );
 }
 
-
+/*=============================================================================
+ * HWG_GETDESKTOPWIDTH()
+ * Gets desktop width
+ *===========================================================================*/
 HB_FUNC( HWG_GETDESKTOPWIDTH )
 {
    hb_retni( GetSystemMetrics( SM_CXSCREEN ) );
 }
 
+/*=============================================================================
+ * HWG_GETDESKTOPHEIGHT()
+ * Gets desktop height
+ *===========================================================================*/
 HB_FUNC( HWG_GETDESKTOPHEIGHT )
 {
    hb_retni( GetSystemMetrics( SM_CYSCREEN ) );
 }
 
+/*=============================================================================
+ * HWG_GETWORKAREA()
+ * Gets work area rectangle
+ *===========================================================================*/
 HB_FUNC( HWG_GETWORKAREA )
 {
    PHB_ITEM aRect = hb_itemArrayNew( 4 );
@@ -552,14 +669,21 @@ HB_FUNC( HWG_GETWORKAREA )
    hb_itemRelease( element );
    hb_itemReturn( aRect );
    hb_itemRelease( aRect );
-
 }
 
+/*=============================================================================
+ * HWG_GETHELPDATA()
+ * Gets help data handle
+ *===========================================================================*/
 HB_FUNC( HWG_GETHELPDATA )
 {
    HB_RETHANDLE( ( ( HELPINFO FAR * ) HB_PARHANDLE( 1 ) )->hItemHandle );
 }
 
+/*=============================================================================
+ * HWG_WINHELP()
+ * Displays Windows Help
+ *===========================================================================*/
 HB_FUNC( HWG_WINHELP )
 {
    DWORD context;
@@ -593,18 +717,30 @@ HB_FUNC( HWG_WINHELP )
    hb_strfree( hStr );
 }
 
+/*=============================================================================
+ * HWG_GETNEXTDLGTABITEM()
+ * Gets next tab item
+ *===========================================================================*/
 HB_FUNC( HWG_GETNEXTDLGTABITEM )
 {
    HB_RETHANDLE( GetNextDlgTabItem( ( HWND ) HB_PARHANDLE( 1 ),
                ( HWND ) HB_PARHANDLE( 2 ), hb_parl( 3 ) ) );
 }
 
+/*=============================================================================
+ * HWG_SLEEP()
+ * Sleep for specified milliseconds
+ *===========================================================================*/
 HB_FUNC( HWG_SLEEP )
 {
    if( hb_parinfo( 1 ) )
       Sleep( hb_parnl( 1 ) );
 }
 
+/*=============================================================================
+ * HWG_KEYB_EVENT()
+ * Simulates keyboard events
+ *===========================================================================*/
 HB_FUNC( HWG_KEYB_EVENT )
 {
    DWORD dwFlags = ( !( HB_ISNIL( 2 ) ) &&
@@ -631,8 +767,10 @@ HB_FUNC( HWG_KEYB_EVENT )
       keybd_event( VK_MENU, 0, KEYEVENTF_KEYUP, 0 );
 }
 
-/* SetScrollInfo( hWnd, nType, nRedraw, nPos, nPage, nmax )
-*/
+/*=============================================================================
+ * HWG_SETSCROLLINFO()
+ * Sets scroll info
+ *===========================================================================*/
 HB_FUNC( HWG_SETSCROLLINFO )
 {
    SCROLLINFO si;
@@ -660,21 +798,23 @@ HB_FUNC( HWG_SETSCROLLINFO )
    si.cbSize = sizeof( SCROLLINFO );
    si.fMask = fMask;
 
-   SetScrollInfo( ( HWND ) HB_PARHANDLE( 1 ),   // handle of window with scroll bar
-         hb_parni( 2 ),         // scroll bar flags
-         &si, hb_parni( 3 )     // redraw flag
-          );
+   SetScrollInfo( ( HWND ) HB_PARHANDLE( 1 ),
+         hb_parni( 2 ),
+         &si, hb_parni( 3 ) );
 }
 
+/*=============================================================================
+ * HWG_GETSCROLLRANGE()
+ * Gets scroll range
+ *===========================================================================*/
 HB_FUNC( HWG_GETSCROLLRANGE )
 {
    int MinPos, MaxPos;
 
-   GetScrollRange( ( HWND ) HB_PARHANDLE( 1 ),  // handle of window with scroll bar
-         hb_parni( 2 ),         // scroll bar flags
-         &MinPos,               // address of variable that receives minimum position
-         &MaxPos                // address of variable that receives maximum position
-          );
+   GetScrollRange( ( HWND ) HB_PARHANDLE( 1 ),
+         hb_parni( 2 ),
+         &MinPos,
+         &MaxPos );
    if( hb_pcount(  ) > 2 )
    {
       hb_storni( MinPos, 3 );
@@ -683,52 +823,80 @@ HB_FUNC( HWG_GETSCROLLRANGE )
    hb_retni( MaxPos - MinPos );
 }
 
+/*=============================================================================
+ * HWG_SETSCROLLRANGE()
+ * Sets scroll range
+ *===========================================================================*/
 HB_FUNC( HWG_SETSCROLLRANGE )
 {
    hb_retl( SetScrollRange( ( HWND ) HB_PARHANDLE( 1 ), hb_parni( 2 ),
                hb_parni( 3 ), hb_parni( 4 ), hb_parl( 5 ) ) );
 }
 
-
+/*=============================================================================
+ * HWG_GETSCROLLPOS()
+ * Gets scroll position
+ *===========================================================================*/
 HB_FUNC( HWG_GETSCROLLPOS )
 {
-   hb_retni( GetScrollPos( ( HWND ) HB_PARHANDLE( 1 ),  // handle of window with scroll bar
-               hb_parni( 2 )    // scroll bar flags
-          ) );
+   hb_retni( GetScrollPos( ( HWND ) HB_PARHANDLE( 1 ),
+               hb_parni( 2 ) ) );
 }
 
+/*=============================================================================
+ * HWG_SETSCROLLPOS()
+ * Sets scroll position
+ *===========================================================================*/
 HB_FUNC( HWG_SETSCROLLPOS )
 {
-   SetScrollPos( ( HWND ) HB_PARHANDLE( 1 ),    // handle of window with scroll bar
-         hb_parni( 2 ),         // scroll bar flags
+   SetScrollPos( ( HWND ) HB_PARHANDLE( 1 ),
+         hb_parni( 2 ),
          hb_parni( 3 ), TRUE );
 }
 
+/*=============================================================================
+ * HWG_SHOWSCROLLBAR()
+ * Shows or hides scroll bar
+ *===========================================================================*/
 HB_FUNC( HWG_SHOWSCROLLBAR )
 {
-   ShowScrollBar( ( HWND ) HB_PARHANDLE( 1 ),   // handle of window with scroll bar
-         hb_parni( 2 ),         // scroll bar flags
-         hb_parl( 3 )           // scroll bar visibility
-          );
+   ShowScrollBar( ( HWND ) HB_PARHANDLE( 1 ),
+         hb_parni( 2 ),
+         hb_parl( 3 ) );
 }
 
+/*=============================================================================
+ * HWG_SCROLLWINDOW()
+ * Scrolls window
+ *===========================================================================*/
 HB_FUNC( HWG_SCROLLWINDOW )
 {
    ScrollWindow( ( HWND ) HB_PARHANDLE( 1 ), hb_parni( 2 ), hb_parni( 3 ),
          NULL, NULL );
 }
 
-
+/*=============================================================================
+ * HWG_ISCAPSLOCKACTIVE()
+ * Checks if Caps Lock is active
+ *===========================================================================*/
 HB_FUNC( HWG_ISCAPSLOCKACTIVE )
 {
    hb_retl( GetKeyState( VK_CAPITAL ) );
 }
 
+/*=============================================================================
+ * HWG_ISNUMLOCKACTIVE()
+ * Checks if Num Lock is active
+ *===========================================================================*/
 HB_FUNC( HWG_ISNUMLOCKACTIVE )
 {
    hb_retl( GetKeyState( VK_NUMLOCK ) );
 }
 
+/*=============================================================================
+ * HWG_ISSCROLLLOCKACTIVE()
+ * Checks if Scroll Lock is active
+ *===========================================================================*/
 HB_FUNC( HWG_ISSCROLLLOCKACTIVE )
 {
    hb_retl( GetKeyState( VK_SCROLL ) );
@@ -736,6 +904,10 @@ HB_FUNC( HWG_ISSCROLLLOCKACTIVE )
 
 /* Added By Sandro Freire sandrorrfreire_nospam_yahoo.com.br*/
 
+/*=============================================================================
+ * HWG_CREATEDIRECTORY()
+ * Creates a directory
+ *===========================================================================*/
 HB_FUNC( HWG_CREATEDIRECTORY )
 {
    void *hStr;
@@ -743,6 +915,10 @@ HB_FUNC( HWG_CREATEDIRECTORY )
    hb_strfree( hStr );
 }
 
+/*=============================================================================
+ * HWG_REMOVEDIRECTORY()
+ * Removes a directory
+ *===========================================================================*/
 HB_FUNC( HWG_REMOVEDIRECTORY )
 {
    void *hStr;
@@ -750,6 +926,10 @@ HB_FUNC( HWG_REMOVEDIRECTORY )
    hb_strfree( hStr );
 }
 
+/*=============================================================================
+ * HWG_SETCURRENTDIRECTORY()
+ * Sets current directory
+ *===========================================================================*/
 HB_FUNC( HWG_SETCURRENTDIRECTORY )
 {
    void *hStr;
@@ -757,6 +937,10 @@ HB_FUNC( HWG_SETCURRENTDIRECTORY )
    hb_strfree( hStr );
 }
 
+/*=============================================================================
+ * HWG_DELETEFILE()
+ * Deletes a file
+ *===========================================================================*/
 HB_FUNC( HWG_DELETEFILE )
 {
    void *hStr;
@@ -764,6 +948,10 @@ HB_FUNC( HWG_DELETEFILE )
    hb_strfree( hStr );
 }
 
+/*=============================================================================
+ * HWG_GETFILEATTRIBUTES()
+ * Gets file attributes
+ *===========================================================================*/
 HB_FUNC( HWG_GETFILEATTRIBUTES )
 {
    void *hStr;
@@ -771,6 +959,10 @@ HB_FUNC( HWG_GETFILEATTRIBUTES )
    hb_strfree( hStr );
 }
 
+/*=============================================================================
+ * HWG_SETFILEATTRIBUTES()
+ * Sets file attributes
+ *===========================================================================*/
 HB_FUNC( HWG_SETFILEATTRIBUTES )
 {
    void *hStr;
@@ -780,7 +972,11 @@ HB_FUNC( HWG_SETFILEATTRIBUTES )
 }
 
 /* Add by Richard Roesnadi (based on What32) */
-// GETCOMPUTERNAME( [@nLengthChar] ) -> cComputerName
+
+/*=============================================================================
+ * HWG_GETCOMPUTERNAME()
+ * Gets computer name
+ *===========================================================================*/
 HB_FUNC( HWG_GETCOMPUTERNAME )
 {
    TCHAR cText[64] = { 0 };
@@ -790,8 +986,10 @@ HB_FUNC( HWG_GETCOMPUTERNAME )
    hb_stornl( nSize, 1 );
 }
 
-
-// GETUSERNAME( [@nLengthChar] ) -> cUserName
+/*=============================================================================
+ * HWG_GETUSERNAME()
+ * Gets user name
+ *===========================================================================*/
 HB_FUNC( HWG_GETUSERNAME )
 {
    TCHAR cText[64] = { 0 };
@@ -801,36 +999,38 @@ HB_FUNC( HWG_GETUSERNAME )
    hb_stornl( nSize, 1 );
 }
 
+/* FIXED: Corrected RECT pointer usage */
 HB_FUNC( HWG_EDIT1UPDATECTRL )
 {
    HWND hChild = ( HWND ) HB_PARHANDLE( 1 );
    HWND hParent = ( HWND ) HB_PARHANDLE( 2 );
-   RECT *rect = NULL;
+   RECT rect;   // FIXED: Stack variable instead of NULL pointer
 
-   GetWindowRect( hChild, rect );
-   ScreenToClient( hParent, ( LPPOINT ) rect );
-   ScreenToClient( hParent, ( ( LPPOINT ) rect ) + 1 );
-   InflateRect( rect, -2, -2 );
-   InvalidateRect( hParent, rect, TRUE );
+   GetWindowRect( hChild, &rect );
+   ScreenToClient( hParent, ( LPPOINT ) &rect );
+   ScreenToClient( hParent, ( ( LPPOINT ) &rect ) + 1 );
+   InflateRect( &rect, -2, -2 );
+   InvalidateRect( hParent, &rect, TRUE );
    UpdateWindow( hParent );
 }
 
+/* FIXED: Corrected RECT pointer usage */
 HB_FUNC( HWG_BUTTON1GETSCREENCLIENT )
 {
    HWND hChild = ( HWND ) HB_PARHANDLE( 1 );
    HWND hParent = ( HWND ) HB_PARHANDLE( 2 );
-   RECT *rect = NULL;
+   RECT rect;   // FIXED: Stack variable instead of NULL pointer
 
-   GetWindowRect( hChild, rect );
-   ScreenToClient( hParent, ( LPPOINT ) rect );
-   ScreenToClient( hParent, ( ( LPPOINT ) rect ) + 1 );
-   hb_itemRelease( hb_itemReturn( Rect2Array( rect ) ) );
+   GetWindowRect( hChild, &rect );
+   ScreenToClient( hParent, ( LPPOINT ) &rect );
+   ScreenToClient( hParent, ( ( LPPOINT ) &rect ) + 1 );
+   hb_itemRelease( hb_itemReturn( Rect2Array( &rect ) ) );
 }
 
+/* FIXED: Added stock brush check */
 HB_FUNC( HWG_HEDITEX_CTLCOLOR )
 {
    HDC hdc = ( HDC ) HB_PARHANDLE( 1 );
-   //UINT h = hb_parni( 2 ) ;
    PHB_ITEM pObject = hb_param( 3, HB_IT_OBJECT );
    PHB_ITEM p, p1, p2, temp;
    LONG i;
@@ -849,7 +1049,9 @@ HB_FUNC( HWG_HEDITEX_CTLCOLOR )
    cColor = ( COLORREF ) hb_itemGetNL( p2 );
    hBrush = ( HBRUSH ) HB_GETHANDLE( p );
 
-   DeleteObject( hBrush );
+   /* FIXED: Only delete if not a stock brush */
+   if( hBrush && !( (ULONG_PTR)hBrush >= 0x80000000 ) )
+      DeleteObject( hBrush );
 
    p1 = GetObjectVar( pObject, "M_BACKCOLOR" );
    i = hb_itemGetNL( p1 );
@@ -872,6 +1074,10 @@ HB_FUNC( HWG_HEDITEX_CTLCOLOR )
    HB_RETHANDLE( hBrush );
 }
 
+/*=============================================================================
+ * HWG_GETKEYBOARDCOUNT()
+ * Gets keyboard count from lParam
+ *===========================================================================*/
 HB_FUNC( HWG_GETKEYBOARDCOUNT )
 {
    LPARAM lParam = ( LPARAM ) hb_parnl( 1 );
@@ -879,12 +1085,20 @@ HB_FUNC( HWG_GETKEYBOARDCOUNT )
    hb_retni( ( WORD ) lParam );
 }
 
+/*=============================================================================
+ * HWG_GETNEXTDLGGROUPITEM()
+ * Gets next dialog group item
+ *===========================================================================*/
 HB_FUNC( HWG_GETNEXTDLGGROUPITEM )
 {
    HB_RETHANDLE( GetNextDlgGroupItem( ( HWND ) HB_PARHANDLE( 1 ),
                ( HWND ) HB_PARHANDLE( 2 ), hb_parl( 3 ) ) );
 }
 
+/*=============================================================================
+ * HWG_PTRTOULONG()
+ * Converts pointer to unsigned long
+ *===========================================================================*/
 HB_FUNC( HWG_PTRTOULONG )
 {
   if( HB_ISPOINTER( 1 ) )
@@ -897,24 +1111,40 @@ HB_FUNC( HWG_PTRTOULONG )
   }
 }
 
+/*=============================================================================
+ * HWG_ISPTREQ()
+ * Compares two handles for equality
+ *===========================================================================*/
 HB_FUNC( HWG_ISPTREQ )
 {
    hb_retl( HB_PARHANDLE( 1 ) == HB_PARHANDLE( 2 ) );
 }
 
+/*=============================================================================
+ * HWG_OUTPUTDEBUGSTRING()
+ * Outputs debug string
+ *===========================================================================*/
 HB_FUNC( HWG_OUTPUTDEBUGSTRING )
 {
    void *hStr;
-   OutputDebugString( HB_PARSTRDEF( 1, &hStr, NULL ) );
+   /* FIXED: HB_PARSTRDEF -> HB_PARSTR for Unicode support */
+   OutputDebugString( HB_PARSTR( 1, &hStr, NULL ) );
    hb_strfree( hStr );
 }
 
+/*=============================================================================
+ * HWG_GETSYSTEMMETRICS()
+ * Gets system metrics
+ *===========================================================================*/
 HB_FUNC( HWG_GETSYSTEMMETRICS )
 {
    hb_retni( GetSystemMetrics( hb_parni( 1 ) ) );
 }
 
-// nando
+/*=============================================================================
+ * HWG_LASTKEY()
+ * Gets last key pressed
+ *===========================================================================*/
 HB_FUNC( HWG_LASTKEY )
 {
    BYTE kbBuffer[256];
@@ -931,65 +1161,63 @@ HB_FUNC( HWG_LASTKEY )
    hb_retni( 0 );
 }
 
+/*=============================================================================
+ * HWG_ISWIN7()
+ * Checks if running on Windows 7 or later
+ *===========================================================================*/
 HB_FUNC( HWG_ISWIN7 )
 {
-   OSVERSIONINFO ovi;
-   ovi.dwOSVersionInfoSize = sizeof ovi;
-   ovi.dwMajorVersion = 0;
-   ovi.dwMinorVersion = 0;
-   GetVersionEx( &ovi );
-   hb_retl( ovi.dwMajorVersion >= 6 && ovi.dwMinorVersion == 1 );
+   hb_retl( IsWindows7OrGreater() );
 }
 
+/*=============================================================================
+ * HWG_ISWIN10()
+ * Checks if running on Windows 10 or later
+ *===========================================================================*/
+HB_FUNC( HWG_ISWIN10 )
+{
+   hb_retl( IsWindows10OrGreater() );
+}
+
+/*=============================================================================
+ * HWG_GETWINMAJORVERS()
+ * Gets Windows major version
+ *===========================================================================*/
+HB_FUNC( HWG_GETWINMAJORVERS )
+{
+   OSVERSIONINFOEX ovi;
+   ovi.dwOSVersionInfoSize = sizeof(ovi);
+   ovi.dwMajorVersion = 0;
+   GetVersionEx( (OSVERSIONINFO*)&ovi );
+   hb_retni( ovi.dwMajorVersion );
+}
+
+/*=============================================================================
+ * HWG_GETWINMINORVERS()
+ * Gets Windows minor version
+ *===========================================================================*/
+HB_FUNC( HWG_GETWINMINORVERS )
+{
+   OSVERSIONINFOEX ovi;
+   ovi.dwOSVersionInfoSize = sizeof(ovi);
+   ovi.dwMinorVersion = 0;
+   GetVersionEx( (OSVERSIONINFO*)&ovi );
+   hb_retni( ovi.dwMinorVersion );
+}
+
+/*=============================================================================
+ * HWG_COLORRGB2N()
+ * Converts RGB to numeric color
+ *===========================================================================*/
 HB_FUNC( HWG_COLORRGB2N )
 {
    hb_retnl( hb_parni( 1 ) + hb_parni( 2 ) * 256 + hb_parni( 3 ) * 65536 );
 }
 
-/*
-#include <windows.h>
-#include <stdio.h>
-#include <tchar.h>
-
-HB_FUNC( HWG_PROCESSRUN )
-{
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
-
-    ZeroMemory( &si, sizeof(si) );
-    si.cb = sizeof(si);
-    si.wShowWindow = SW_HIDE;
-    si.dwFlags = STARTF_USESHOWWINDOW;
-
-    ZeroMemory( &pi, sizeof(pi) );
-
-    // Start the child process.
-    if( !CreateProcess( NULL,   // No module name (use command line)
-        hb_parc(1),        // Command line
-        NULL,           // Process handle not inheritable
-        NULL,           // Thread handle not inheritable
-        FALSE,          // Set handle inheritance to FALSE
-        CREATE_NEW_CONSOLE,   // No creation flags
-        NULL,           // Use parent's environment block
-        NULL,           // Use parent's starting directory
-        &si,            // Pointer to STARTUPINFO structure
-        &pi )           // Pointer to PROCESS_INFORMATION structure
-    )
-    {
-        hb_ret();
-        return;
-    }
-
-    // Wait until child process exits.
-    WaitForSingleObject( pi.hProcess, INFINITE );
-
-    // Close process and thread handles.
-    CloseHandle( pi.hProcess );
-    CloseHandle( pi.hThread );
-    hb_retc( "Ok" );
-}
-*/
-
+/*=============================================================================
+ * HWG_PROCESSRUN()
+ * Runs a process and captures output
+ *===========================================================================*/
 HB_FUNC( HWG_PROCESSRUN )
 {
    STARTUPINFO si;
@@ -1002,7 +1230,9 @@ HB_FUNC( HWG_PROCESSRUN )
    sa.lpSecurityDescriptor = NULL;
    sa.bInheritHandle = TRUE;
 
-   hOut = CreateFile( HB_PARSTR( 1, &hStr, NULL ), GENERIC_WRITE, 0, &sa,
+   /* FIXED: HB_PARSTR for Unicode support */
+   LPCTSTR lpFileName = HB_PARSTR( 1, &hStr, NULL );
+   hOut = CreateFile( lpFileName, GENERIC_WRITE, 0, &sa,
       CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0 );
 
    hb_strfree( hStr );
@@ -1014,18 +1244,10 @@ HB_FUNC( HWG_PROCESSRUN )
 
    ZeroMemory( &pi, sizeof(pi) );
 
-   // Start the child process.
-   if( !CreateProcess( NULL,   // No module name (use command line)
-       (LPTSTR)HB_PARSTR( 1, &hStr, NULL ),  // Command line
-       NULL,           // Process handle not inheritable
-       NULL,           // Thread handle not inheritable
-       TRUE,          // Set handle inheritance to FALSE
-       CREATE_NEW_CONSOLE,   // No creation flags
-       NULL,           // Use parent's environment block
-       NULL,           // Use parent's starting directory
-       &si,            // Pointer to STARTUPINFO structure
-       &pi )           // Pointer to PROCESS_INFORMATION structure
-   )
+   /* FIXED: HB_PARSTR for Unicode support and proper cast */
+   LPCTSTR lpCmd = HB_PARSTR( 1, &hStr, NULL );
+   if( !CreateProcess( NULL, (LPTSTR)lpCmd, NULL, NULL, TRUE,
+       CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi ) )
    {
        hb_strfree( hStr );
        hb_ret();
@@ -1033,25 +1255,50 @@ HB_FUNC( HWG_PROCESSRUN )
    }
 
    hb_strfree( hStr );
-   // Wait until child process exits.
    WaitForSingleObject( pi.hProcess, INFINITE );
 
-   // Close process and thread handles.
    CloseHandle( pi.hProcess );
    CloseHandle( pi.hThread );
    CloseHandle( hOut );
    hb_retc( "Ok" );
 }
 
+/*=============================================================================
+ * HWG_RUNAPP()
+ * Runs an application
+ *===========================================================================*/
 HB_FUNC( HWG_RUNAPP )
 {
+   void * hStr;
+   LPCTSTR lpCmd = HB_PARSTR( 1, &hStr, NULL );
+
    if( HB_ISNIL(3) || !hb_parl(3) )
-      hb_retni( WinExec( hb_parc( 1 ), (HB_ISNIL(2))? SW_SHOW : ( UINT ) hb_parni( 2 ) ) );
+   {
+      /* FIXED: WinExec replaced with CreateProcess */
+      STARTUPINFO si;
+      PROCESS_INFORMATION pi;
+      BOOL bResult;
+
+      ZeroMemory( &si, sizeof(si) );
+      si.cb = sizeof(si);
+      si.dwFlags = STARTF_USESHOWWINDOW;
+      si.wShowWindow = (HB_ISNIL(2)) ? SW_SHOW : (UINT) hb_parni(2);
+
+      bResult = CreateProcess( NULL, (LPTSTR)lpCmd, NULL, NULL, FALSE,
+                                CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi );
+
+      if( bResult )
+      {
+         CloseHandle( pi.hProcess );
+         CloseHandle( pi.hThread );
+      }
+
+      hb_retni( bResult ? 33 : 0 );
+   }
    else
    {
       STARTUPINFO si;
       PROCESS_INFORMATION pi;
-      void * hStr;
 
       ZeroMemory( &si, sizeof(si) );
       si.cb = sizeof(si);
@@ -1059,21 +1306,16 @@ HB_FUNC( HWG_RUNAPP )
       si.dwFlags = STARTF_USESHOWWINDOW;
       ZeroMemory( &pi, sizeof(pi) );
 
-      CreateProcess( NULL,   // No module name (use command line)
-          (LPTSTR)HB_PARSTR( 1, &hStr, NULL ),  // Command line
-          NULL,           // Process handle not inheritable
-          NULL,           // Thread handle not inheritable
-          FALSE,          // Set handle inheritance to FALSE
-          CREATE_NEW_CONSOLE,   // No creation flags
-          NULL,           // Use parent's environment block
-          NULL,           // Use parent's starting directory
-          &si,            // Pointer to STARTUPINFO structure
-          &pi );          // Pointer to PROCESS_INFORMATION structure
-      hb_strfree( hStr );
+      CreateProcess( NULL, (LPTSTR)lpCmd, NULL, NULL, FALSE,
+                      CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi );
    }
+
+   hb_strfree( hStr );
 }
 
-
+/*=============================================================================
+ * hb_itemEqual() - for xHarbour compatibility
+ *===========================================================================*/
 #if defined( __XHARBOUR__)
 BOOL hb_itemEqual( PHB_ITEM pItem1, PHB_ITEM pItem2 )
 {
@@ -1131,73 +1373,39 @@ BOOL hb_itemEqual( PHB_ITEM pItem1, PHB_ITEM pItem2 )
 }
 #endif
 
+/*=============================================================================
+ * HWG_GETCENTURY()
+ * Gets century setting
+ *===========================================================================*/
 HB_FUNC( HWG_GETCENTURY )
 {
   HB_BOOL centset = hb_setGetCentury();
   hb_retl(centset);
 }
 
-
-HB_FUNC( HWG_ISWIN10 )
-{
-   OSVERSIONINFO ovi;
-   ovi.dwOSVersionInfoSize = sizeof ovi;
-   ovi.dwMajorVersion = 0;
-   ovi.dwMinorVersion = 0;
-   GetVersionEx( &ovi );
-   hb_retl( ovi.dwMajorVersion >= 6 && ovi.dwMinorVersion == 2 );
-}
-
-HB_FUNC( HWG_GETWINMAJORVERS )
-{
-   OSVERSIONINFO ovi;
-   ovi.dwOSVersionInfoSize = sizeof ovi;
-   ovi.dwMajorVersion = 0;
-   ovi.dwMinorVersion = 0;
-   GetVersionEx( &ovi );
-   hb_retni( ovi.dwMajorVersion );
-}
-
-HB_FUNC( HWG_GETWINMINORVERS )
-{
-   OSVERSIONINFO ovi;
-   ovi.dwOSVersionInfoSize = sizeof ovi;
-   ovi.dwMajorVersion = 0;
-   ovi.dwMinorVersion = 0;
-   GetVersionEx( &ovi );
-   hb_retni( ovi.dwMinorVersion );
-}
-
+/*=============================================================================
+ * HWG_ALERT_DISABLECLOSEBUTTON()
+ * Disables close button
+ *===========================================================================*/
 HB_FUNC( HWG_ALERT_DISABLECLOSEBUTTON )
 {
     DeleteMenu( GetSystemMenu( (HWND) hb_parptr( 1 ), FALSE ), SC_CLOSE, MF_BYCOMMAND );
     DrawMenuBar( (HWND) hb_parptr( 1 ) );
 }
 
-
+/*=============================================================================
+ * HWG_ALERT_GETWINDOW()
+ * Gets window
+ *===========================================================================*/
 HB_FUNC( HWG_ALERT_GETWINDOW )
-// Was former static
 {
    hb_retptr( (HWND) GetWindow( (HWND) hb_parptr(1), (UINT) hb_parni( 2 ) ) );
 }
 
-/*
-* ============================================
-* FUNCTION hwg_STOD
-* Extra implementation of STOD(),
-* it is a Clipper tools function.
-* For compatibilty purposes.
-* Parameter 1: Date String
-* in ANSI-Format YYYYMMDD.
-* Result value is independant from
-* SET DATE and SET CENTURY settings.
-* Sample Call:
-* ddate := hwg_STOD("20201108")
-* ============================================
-*/
-
-
-
+/*=============================================================================
+ * HWG_STOD()
+ * Converts string to date (ANSI format YYYYMMDD)
+ *===========================================================================*/
 HB_FUNC( HWG_STOD )
 {
    PHB_ITEM pDateString = hb_param( 1, HB_IT_STRING );
@@ -1205,9 +1413,11 @@ HB_FUNC( HWG_STOD )
    hb_retds( hb_itemGetCLen( pDateString ) >= 7 ? hb_itemGetCPtr( pDateString ) : NULL );
 }
 
+/*=============================================================================
+ * hwg_hexbin()
+ * Converts hex character to integer
+ *===========================================================================*/
 int hwg_hexbin(int cha)
-/* converts single hex char to int, returns -1 , if not in range
-   returns 0 - 15 (dec) , only a half byte */
 {
     char gross;
     int o;
@@ -1223,7 +1433,7 @@ int hwg_hexbin(int cha)
      break;
      case 50:  /* 2 */
      o = 2;
-     break;	
+     break;
      case 51:  /* 3 */
      o = 3;
      break;
@@ -1235,13 +1445,13 @@ int hwg_hexbin(int cha)
      break;
      case 54:  /* 6 */
      o = 6;
-     break;	
+     break;
      case 55:  /* 7 */
      o = 7	 ;
      break;
      case 56:  /* 8 */
      o = 8;
-     break;	
+     break;
      case 57:  /* 9 */
      o = 9;
      break;
@@ -1253,13 +1463,13 @@ int hwg_hexbin(int cha)
      break;
      case 67:  /* C */
      o = 12;
-     break;	
+     break;
      case 68:  /* D */
      o = 13;
      break;
      case 69:  /* E */
      o = 14;
-     break;	
+     break;
      case 70:  /* F */
      o = 15;
      break;
@@ -1269,32 +1479,25 @@ int hwg_hexbin(int cha)
     return o;
 }
 
-/*
-   hwg_Bin2DC(cbin,nlen,ndec)
-*/
-
+/*=============================================================================
+ * HWG_BIN2DC()
+ * Converts hex string to decimal (double)
+ *===========================================================================*/
 HB_FUNC( HWG_BIN2DC )
 {
-
     double pbyNumber;
     int i;
     unsigned char o;
-    unsigned char bu[8];     /* Buffer with binary contents of double value */
-    unsigned char szHex[17]; /* The hex string from parameter 1 + null byte*/
-
-
+    unsigned char bu[8];
+    unsigned char szHex[17];
     int p;
-    int c;      /* char with int value hex from hex */
-    int od;     /* odd even sign / gerade - ungerade */
-
-    /* For Borland C the variables must declare extra */
+    int c;
+    int od;
     HB_USHORT uiWidth;
     HB_USHORT uiDec;
     const char *name;
 
-  /* init vars */
-
-  pbyNumber = 0;
+    pbyNumber = 0;
 
     szHex[0] = '\0';
     szHex[1] = '\0';
@@ -1314,41 +1517,22 @@ HB_FUNC( HWG_BIN2DC )
     szHex[15] = '\0';
     szHex[16] = '\0';
 
-
     p = 0;
     c = 0;
     od = 0;
 
-    // Internal I2BIN for Len
-
     uiWidth = ( HB_USHORT ) hb_parni( 2 );
-
-    // Internal I2BIN for Dec
-
     uiDec = ( HB_USHORT ) hb_parni( 3 );
 
-
     name = hb_parc( 1 );
-
-    // hwg_writelog(NULL,name);
-
     memcpy(&szHex,name,16);
-
     szHex[16] = '\0';
-
-    // hwg_writelog(NULL,szHex);
-
-    /* Convert hex to bin */
 
     for ( i = 0 ; i < 16; i++ )
      {
-
           c = hwg_hexbin(szHex[i]);
-          /* ignore, if not in 0 ... 1, A ... F */
           if ( c  != -1 )
           {
-           /* must be a pair of char,
-              other values between the pairs of hex values are ignored */
             if ( od == 1 )
             {
                 od = 0;
@@ -1357,47 +1541,29 @@ HB_FUNC( HWG_BIN2DC )
             {
                 od = 1;
             }
-            /* 1. Halbbyte zwischenspeichern / Store first half byte */
             if ( od == 1)
             {
               p = c;
             }
             else
-            /* 2. Halbbyte verarbeiten, ganzes Byte ausspeichern
-                / Process second half byte and store full byte */
             {
               p = ( p * 16 ) + c;
               o = (unsigned char) p;
               bu[ i / 2 ] = o;
-
-/* Display some debug info */
-//             printf("i=%d ", i);
-//             printf("%d ", p);
-//             printf("%s", " ");
-//             printf("%c", o);
-//             printf("%s", " ");
-// 80  P 69  E 82  R 84  T 251  ยน 33  ! 9     64
-// 50    45    52    54    FB     21    09    40
-
             }
           }
         }
 
-    // hwg_writelog(NULL,szHex);
-
-    /* Convert buffer to double */
-
     memcpy(&pbyNumber,bu,sizeof(pbyNumber));
-
-    /* Return double value as type N */
-
     hb_retndlen( pbyNumber , uiWidth , uiDec );
-
 }
 
+/*=============================================================================
+ * GetFileMtimeU()
+ * Gets file modification time (UTC)
+ *===========================================================================*/
 static void GetFileMtimeU(const char * filePath)
 {
-/* Format: YYYYMMDD-HH:MM:SS  for example: 20211204-20:05:42 l= 17 + NULL byte */
  struct stat attrib;
  char date[18];
  stat (filePath, &attrib);
@@ -1406,9 +1572,12 @@ static void GetFileMtimeU(const char * filePath)
  hb_retc(date);
 }
 
+/*=============================================================================
+ * GetFileMtime()
+ * Gets file modification time (local)
+ *===========================================================================*/
 static void GetFileMtime(const char * filePath)
 {
-/* Format: YYYYMMDD-HH:MM:SS  for example: 20211204-20:05:42 l= 17 + NULL byte */
  struct stat attrib;
  char date[18];
  stat (filePath, &attrib);
@@ -1416,20 +1585,47 @@ static void GetFileMtime(const char * filePath)
  hb_retc(date);
 }
 
-
+/*=============================================================================
+ * HWG_FILEMODTIMEU()
+ * Gets file modification time (UTC)
+ *===========================================================================*/
 HB_FUNC( HWG_FILEMODTIMEU )
 {
- GetFileMtimeU( ( const char * ) hb_parc(1) );
+   /* FIXED: HB_PARSTR for Unicode support */
+   void *hStr;
+   LPCTSTR lpPath = HB_PARSTR( 1, &hStr, NULL );
+#ifdef UNICODE
+   char szPathA[ MAX_PATH ];
+   WideCharToMultiByte( CP_ACP, 0, lpPath, -1, szPathA, MAX_PATH, NULL, NULL );
+   GetFileMtimeU( szPathA );
+#else
+   GetFileMtimeU( ( const char * ) lpPath );
+#endif
+   hb_strfree( hStr );
 }
 
-
+/*=============================================================================
+ * HWG_FILEMODTIME()
+ * Gets file modification time (local)
+ *===========================================================================*/
 HB_FUNC( HWG_FILEMODTIME )
 {
- GetFileMtime( ( const char * ) hb_parc(1) );
+   void *hStr;
+   LPCTSTR lpPath = HB_PARSTR( 1, &hStr, NULL );
+#ifdef UNICODE
+   char szPathA[ MAX_PATH ];
+   WideCharToMultiByte( CP_ACP, 0, lpPath, -1, szPathA, MAX_PATH, NULL, NULL );
+   GetFileMtime( szPathA );
+#else
+   GetFileMtime( ( const char * ) lpPath );
+#endif
+   hb_strfree( hStr );
 }
 
-
-/* hwg_Toggle_HalfByte_C(n) */
+/*=============================================================================
+ * HWG_TOGGLE_HALFBYTE_C()
+ * Toggles half byte
+ *===========================================================================*/
 HB_FUNC( HWG_TOGGLE_HALFBYTE_C )
 {
  int i,k,l;
@@ -1442,10 +1638,12 @@ HB_FUNC( HWG_TOGGLE_HALFBYTE_C )
  l = l >> 4;
 
  hb_retni( l | k );
-
 }
 
-
+/*=============================================================================
+ * HWG_GUITYPE()
+ * Returns GUI type
+ *===========================================================================*/
 HB_FUNC( HWG_GUITYPE )
 {
   hb_retc( "WinAPI" );
