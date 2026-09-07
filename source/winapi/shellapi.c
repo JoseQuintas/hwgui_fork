@@ -21,58 +21,70 @@
 
 #ifndef BIF_USENEWUI
 #ifndef BIF_NEWDIALOGSTYLE
-#define BIF_NEWDIALOGSTYLE     0x0040   // Use the new dialog layout with the ability to resize
+#define BIF_NEWDIALOGSTYLE     0x0040
 #endif
 #define BIF_USENEWUI           (BIF_NEWDIALOGSTYLE | BIF_EDITBOX)
 #endif
 #ifndef BIF_EDITBOX
-#define BIF_EDITBOX            0x0010   // Add an editbox to the dialog
+#define BIF_EDITBOX            0x0010
 #endif
 
-static int ( CALLBACK BrowseCallbackProc ) ( HWND hwnd, UINT uMsg,
+/*=============================================================================
+ * BrowseCallbackProc()
+ * Callback for SHBrowseForFolder
+ *===========================================================================*/
+static int CALLBACK BrowseCallbackProc( HWND hwnd, UINT uMsg,
       LPARAM lParam, LPARAM lpData )
 {
-   // If the BFFM_INITIALIZED message is received
-   // set the path to the start path.
-   lParam = TRUE;
+      HB_SYMBOL_UNUSED(lParam);
+
    switch ( uMsg )
    {
       case BFFM_INITIALIZED:
       {
          if( lpData != ( LPARAM ) NULL )
          {
-            SendMessage( hwnd, BFFM_SETSELECTION, lParam, lpData );
+            SendMessage( hwnd, BFFM_SETSELECTION, (WPARAM)TRUE, lpData );
          }
       }
+      break;
    }
-   return 0;                    // The function should always return 0.
+   return 0;
 }
 
-/*
- *  SelectFolder( cTitle )
- */
-
+/*=============================================================================
+ * HWG_SELECTFOLDER()
+ * Displays a folder selection dialog
+ * 
+ * Parameters:
+ *   1 - Dialog title (string)
+ *   2 - Initial folder path (string, optional)
+ * 
+ * Returns:
+ *   Selected folder path as string, or empty on cancel
+ *===========================================================================*/
 HB_FUNC( HWG_SELECTFOLDER )
 {
    BROWSEINFO bi;
    TCHAR lpBuffer[MAX_PATH];
    LPCTSTR lpResult = NULL;
-   LPITEMIDLIST pidlBrowse;     // PIDL selected by user 
+   LPITEMIDLIST pidlBrowse;
    void *hTitle;
    void *hFolderName;
    LPCTSTR lpFolderName;
 
    lpFolderName = HB_PARSTR( 2, &hFolderName, NULL );
-   bi.hwndOwner = GetActiveWindow(  );
+
+   bi.hwndOwner = GetActiveWindow();
    bi.pidlRoot = NULL;
    bi.pszDisplayName = lpBuffer;
-   bi.lpszTitle = HB_PARSTRDEF( 1, &hTitle, NULL );
+   /* FIXED: HB_PARSTRDEF -> HB_PARSTR for Unicode support */
+   bi.lpszTitle = HB_PARSTR( 1, &hTitle, NULL );
    bi.ulFlags = BIF_USENEWUI | BIF_NEWDIALOGSTYLE;
-   bi.lpfn = BrowseCallbackProc;        // = NULL;
+   bi.lpfn = BrowseCallbackProc;
    bi.lParam = lpFolderName ? ( LPARAM ) lpFolderName : 0;
    bi.iImage = 0;
 
-   // Browse for a folder and return its PIDL. 
    pidlBrowse = SHBrowseForFolder( &bi );
    if( pidlBrowse != NULL )
    {
@@ -80,15 +92,22 @@ HB_FUNC( HWG_SELECTFOLDER )
          lpResult = lpBuffer;
       CoTaskMemFree( pidlBrowse );
    }
+
    HB_RETSTR( lpResult );
    hb_strfree( hTitle );
    hb_strfree( hFolderName );
 }
 
-/*
- *  ShellNotifyIcon( lAdd, hWnd, hIcon, cTooltip )
- */
-
+/*=============================================================================
+ * HWG_SHELLNOTIFYICON()
+ * Adds or removes an icon from the system tray
+ * 
+ * Parameters:
+ *   1 - Add (TRUE) or Remove (FALSE)
+ *   2 - Window handle (HWND)
+ *   3 - Icon handle (HICON)
+ *   4 - Tooltip text (string)
+ *===========================================================================*/
 HB_FUNC( HWG_SHELLNOTIFYICON )
 {
    NOTIFYICONDATA tnid;
@@ -101,8 +120,18 @@ HB_FUNC( HWG_SHELLNOTIFYICON )
    tnid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
    tnid.uCallbackMessage = WM_NOTIFYICON;
    tnid.hIcon = ( HICON ) HB_PARHANDLE( 3 );
-   HB_ITEMCOPYSTR( hb_param( 4, HB_IT_ANY ), tnid.szTip,
-         HB_SIZEOFARRAY( tnid.szTip ) );
+
+   /* FIXED: Only copy tooltip if parameter is a string */
+   if( HB_ISCHAR( 4 ) )
+   {
+      HB_ITEMCOPYSTR( hb_param( 4, HB_IT_ANY ), tnid.szTip,
+            HB_SIZEOFARRAY( tnid.szTip ) );
+   }
+   else
+   {
+      tnid.szTip[0] = 0;
+      tnid.uFlags &= ~NIF_TIP;
+   }
 
    if( ( BOOL ) hb_parl( 1 ) )
       Shell_NotifyIcon( NIM_ADD, &tnid );
@@ -110,10 +139,15 @@ HB_FUNC( HWG_SHELLNOTIFYICON )
       Shell_NotifyIcon( NIM_DELETE, &tnid );
 }
 
-/*
-  *  ShellModifyIcon( hWnd, hIcon, cTooltip )
-  */
-
+/*=============================================================================
+ * HWG_SHELLMODIFYICON()
+ * Modifies an existing system tray icon
+ * 
+ * Parameters:
+ *   1 - Window handle (HWND)
+ *   2 - Icon handle (HICON, optional)
+ *   3 - Tooltip text (string, optional)
+ *===========================================================================*/
 HB_FUNC( HWG_SHELLMODIFYICON )
 {
    NOTIFYICONDATA tnid;
@@ -123,23 +157,38 @@ HB_FUNC( HWG_SHELLMODIFYICON )
    tnid.cbSize = sizeof( NOTIFYICONDATA );
    tnid.hWnd = ( HWND ) HB_PARHANDLE( 1 );
    tnid.uID = ID_NOTIFYICON;
+   tnid.uFlags = 0;
+
    if( HB_ISNUM( 2 ) || HB_ISPOINTER( 2 ) )
    {
       tnid.uFlags |= NIF_ICON;
       tnid.hIcon = ( HICON ) HB_PARHANDLE( 2 );
    }
-   if( HB_ITEMCOPYSTR( hb_param( 3, HB_IT_ANY ),
-               tnid.szTip, HB_SIZEOFARRAY( tnid.szTip ) ) > 0 )
+
+   if( HB_ISCHAR( 3 ) )
    {
       tnid.uFlags |= NIF_TIP;
+      HB_ITEMCOPYSTR( hb_param( 3, HB_IT_ANY ),
+            tnid.szTip, HB_SIZEOFARRAY( tnid.szTip ) );
    }
 
    Shell_NotifyIcon( NIM_MODIFY, &tnid );
 }
 
-/*
- * ShellExecute( cFile, cOperation, cParams, cDir, nFlag )
- */
+/*=============================================================================
+ * HWG_SHELLEXECUTE()
+ * Executes a file or command using ShellExecute
+ * 
+ * Parameters:
+ *   1 - File or document to open (string)
+ *   2 - Operation (e.g., "open", "print") (string, optional)
+ *   3 - Parameters (string, optional)
+ *   4 - Working directory (string, optional)
+ *   5 - Window show flag (int, optional)
+ * 
+ * Returns:
+ *   ShellExecute result (int) - >32 on success, error code on failure
+ *===========================================================================*/
 HB_FUNC( HWG_SHELLEXECUTE )
 {
 #if defined( HB_OS_WIN_CE )
@@ -150,16 +199,20 @@ HB_FUNC( HWG_SHELLEXECUTE )
    void *hParameters;
    void *hDirectory;
    LPCTSTR lpDirectory;
+   HINSTANCE hResult;
 
    lpDirectory = HB_PARSTR( 4, &hDirectory, NULL );
-   if( lpDirectory == NULL )
-      lpDirectory = TEXT( "C:\\" );
 
-   HB_RETHANDLE( ShellExecute( GetActiveWindow(  ),
-               HB_PARSTRDEF( 2, &hOperation, NULL ),
+   /* FIXED: HB_PARSTRDEF -> HB_PARSTR for Unicode support */
+   hResult = ShellExecute( GetActiveWindow(),
+               HB_PARSTR( 2, &hOperation, NULL ),
                HB_PARSTR( 1, &hFile, NULL ),
                HB_PARSTR( 3, &hParameters, NULL ),
-               lpDirectory, HB_ISNUM( 5 ) ? hb_parni( 5 ) : SW_SHOWNORMAL ) );
+               lpDirectory,
+               HB_ISNUM( 5 ) ? hb_parni( 5 ) : SW_SHOWNORMAL );
+
+   /* FIXED: Return as integer (ShellExecute returns HINSTANCE as value) */
+   hb_retnint( ( HB_MAXINT ) hResult );
 
    hb_strfree( hOperation );
    hb_strfree( hFile );
@@ -167,5 +220,3 @@ HB_FUNC( HWG_SHELLEXECUTE )
    hb_strfree( hDirectory );
 #endif
 }
-
-/* ======================== EOF of shellapi.c ========================= */

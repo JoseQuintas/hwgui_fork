@@ -15,6 +15,17 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 03:11 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **shellapi.c**: fixed Unicode/ANSI string handling – replaced
+    `HB_PARSTRDEF()` with `HB_PARSTR()` in `HWG_SELECTFOLDER()` and
+    `HWG_SHELLEXECUTE()` for proper TCHAR/Unicode support.
+  - **shellapi.c**: fixed `HWG_SHELLEXECUTE()` return value – changed from
+    `HB_RETHANDLE()` to `hb_retnint()` because `ShellExecute` returns an
+    integer status, not a window handle.
+  - **shellapi.c**: added safety check in `HWG_SHELLNOTIFYICON()` to only
+    copy tooltip text if the parameter is a valid string.
+
 2026-09-06 03:01 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **richedit.c**: fixed `HWG_RE_SETCHARFORMAT()` superscript/subscript
