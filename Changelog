@@ -15,6 +15,20 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 03:28 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **window.c**: fixed 64-bit compatibility – replaced `GetWindowLong()` and
+    `SetWindowLong()` with `GetWindowLongPtr()` and `SetWindowLongPtr()` in
+    `HWG_WINDOWSETRESIZE()`.
+  - **window.c**: fixed GDI resource leak in `GetFontDialogUnits()` – removed
+    `DeleteObject()` call on stock font (ANSI_VAR_FONT) which should not be
+    deleted.
+  - **window.c**: removed obsolete compiler support – eliminated `__DMC__`
+    (Digital Mars C) conditional code and MSVC 6.0 workarounds for
+    `CreateMDIWindow()`.
+  - **window.c**: replaced Portuguese comments with English comments for
+    better maintainability.
+
 2026-09-06 03:11 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **shellapi.c**: fixed Unicode/ANSI string handling – replaced

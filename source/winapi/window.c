@@ -11,9 +11,12 @@
 #define OEMRESOURCE
 #include "hwingui.h"
 #include <commctrl.h>
-#if defined(__DMC__)
-#include "missing.h"
-#endif
+
+/* REMOVED: Obsolete compiler support
+ * #if defined(__DMC__)
+ * #include "missing.h"
+ * #endif
+ */
 
 #include "hbapifs.h"
 #include "hbapiitm.h"
@@ -497,47 +500,41 @@ HB_FUNC( HWG_ACTIVATEMDIWINDOW )
                     nStatusWindowID, bStatusWrite }
     aActions = { { nMenuItemID, bAction }, ... }
 */
-
 HB_FUNC( HWG_CREATEMDICHILDWINDOW )
 {
-   HWND hWnd = NULL;
-   PHB_ITEM pObj = hb_param( 1, HB_IT_OBJECT );
-   DWORD style = ( DWORD ) hb_itemGetNL( GetObjectVar( pObj, "STYLE" ) );
-   int y = ( int ) hb_itemGetNL( GetObjectVar( pObj, "NTOP" ) );
-   int x = ( int ) hb_itemGetNL( GetObjectVar( pObj, "NLEFT" ) );
-   int width = ( int ) hb_itemGetNL( GetObjectVar( pObj, "NWIDTH" ) );
-   int height = ( int ) hb_itemGetNL( GetObjectVar( pObj, "NHEIGHT" ) );
-   void *hTitle;
-   LPCTSTR lpTitle =
-         HB_ITEMGETSTR( GetObjectVar( pObj, "TITLE" ), &hTitle, NULL );
+      HWND hWnd = NULL;
+      PHB_ITEM pObj = hb_param( 1, HB_IT_OBJECT );
+      DWORD style = ( DWORD ) hb_itemGetNL( GetObjectVar( pObj, "STYLE" ) );
+      int y = ( int ) hb_itemGetNL( GetObjectVar( pObj, "NTOP" ) );
+      int x = ( int ) hb_itemGetNL( GetObjectVar( pObj, "NLEFT" ) );
+      int width = ( int ) hb_itemGetNL( GetObjectVar( pObj, "NWIDTH" ) );
+      int height = ( int ) hb_itemGetNL( GetObjectVar( pObj, "NHEIGHT" ) );
+      void *hTitle;
+      LPCTSTR lpTitle = HB_ITEMGETSTR( GetObjectVar( pObj, "TITLE" ), &hTitle, NULL );
 
-   if( !style )
-      style = WS_VISIBLE | WS_CHILD | WS_OVERLAPPEDWINDOW | ( int ) hb_parnl( 2 );   //WS_VISIBLE | WS_MAXIMIZE;
-   else
-      style = style | ( int ) hb_parnl( 2 );
+      if( !style )
+            style = WS_VISIBLE | WS_CHILD | WS_OVERLAPPEDWINDOW | ( int ) hb_parnl( 2 );
+      else
+            style = style | ( int ) hb_parnl( 2 );
 
-   if( aWindows[0] )
-   {
-      hWnd = CreateMDIWindow(
-#if (((defined(_MSC_VER)&&(_MSC_VER<=1200))||defined(__DMC__))&&!defined(__XCC__)&&!defined(__POCC__))
-            ( LPSTR ) s_szChild,        // pointer to registered child class name
-            ( LPSTR ) lpTitle,  // pointer to window name
-#else
-            s_szChild,          // pointer to registered child class name
-            lpTitle,            // pointer to window name
-#endif
-            style,              // window style
-            x,                  // horizontal position of window
-            y,                  // vertical position of window
-            width,              // width of window
-            height,             // height of window
-            ( HWND ) aWindows[1],       // handle to parent window (MDI client)
+      if( aWindows[0] )
+      {
+            /* FIXED: Removed obsolete MSVC6/DMC conditional - use LPCTSTR directly */
+            hWnd = CreateMDIWindow(
+                  s_szChild,          // pointer to registered child class name
+                  lpTitle,            // pointer to window name
+                  style,              // window style
+                  x,                  // horizontal position of window
+                  y,                  // vertical position of window
+                  width,              // width of window
+                  height,             // height of window
+                  ( HWND ) aWindows[1],       // handle to parent window (MDI client)
             GetModuleHandle( NULL ),    // handle to application instance
-            ( LPARAM ) & pObj   // application-defined value
-             );
-   }
-   HB_RETHANDLE( hWnd );
-   hb_strfree( hTitle );
+                                   ( LPARAM ) & pObj   // application-defined value
+            );
+      }
+      HB_RETHANDLE( hWnd );
+      hb_strfree( hTitle );
 }
 
 HB_FUNC( HWG_SENDMESSAGE )
@@ -752,10 +749,11 @@ HB_FUNC( HWG_RESETWINDOWPOS )
          rc.right - rc.left + 1, rc.bottom - rc.top, 0 );
 }
 
-/*
-   s_MainWndProc alteradas na HWGUI. Agora as funcoes em hWindow.prg
-   retornam 0 para indicar que deve ser usado o processamento default.
-*/
+/*=============================================================================
+ * s_MainWndProc()
+ * Window procedure for main application window
+ * Returns -1 to use default processing, otherwise returns the result
+ *===========================================================================*/
 static LRESULT CALLBACK s_MainWndProc( HWND hWnd, UINT message,
       WPARAM wParam, LPARAM lParam )
 {
@@ -1309,35 +1307,30 @@ HB_FUNC( HWG_UPDATEWINDOW )
 
 LONG GetFontDialogUnits( HWND h, HFONT f )
 {
-   HFONT hFont;
-   HFONT hFontOld;
-   LONG avgWidth;
-   HDC hDc;
-   LPCTSTR tmp =
-         TEXT( "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" );
-   SIZE sz;
+      HFONT hFont;
+      HFONT hFontOld;
+      LONG avgWidth;
+      HDC hDc;
+      LPCTSTR tmp = TEXT( "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" );
+      SIZE sz;
 
-   HB_SYMBOL_UNUSED( f );
+      HB_SYMBOL_UNUSED( f );
 
-   //get the hdc to the main window
-   hDc = GetDC( h );
+      hDc = GetDC( h );
 
-   //with the current font attributes, select the font
-   //hFont = f;//GetStockObject(ANSI_VAR_FONT)   ;
-   hFont = ( HFONT ) GetStockObject( ANSI_VAR_FONT );
-   hFontOld = ( HFONT ) SelectObject( hDc, hFont );
+      /* FIXED: hFont is a stock font - do NOT delete it */
+      hFont = ( HFONT ) GetStockObject( ANSI_VAR_FONT );
+      hFontOld = ( HFONT ) SelectObject( hDc, hFont );
 
-   //get its length, then calculate the average character width
+      GetTextExtentPoint32( hDc, tmp, 52, &sz );
+      avgWidth = ( sz.cx / 52 );
 
-   GetTextExtentPoint32( hDc, tmp, 52, &sz );
-   avgWidth = ( sz.cx / 52 );
+      SelectObject( hDc, hFontOld );
+      /* REMOVED: DeleteObject( hFont ); - stock font, do not delete */
 
-   //re-select the previous font & delete the hDc
-   SelectObject( hDc, hFontOld );
-   DeleteObject( hFont );
-   ReleaseDC( h, hDc );
+      ReleaseDC( h, hDc );
 
-   return avgWidth;
+      return avgWidth;
 }
 
 HB_FUNC( HWG_GETFONTDIALOGUNITS )
@@ -1478,15 +1471,15 @@ HB_FUNC( HWG_GETBACKBRUSH )
 
 HB_FUNC( HWG_WINDOWSETRESIZE )
 {
-   HWND handle = ( HWND ) HB_PARHANDLE( 1 );
-   int iResizeable = (HB_ISNIL(2))? 0 : hb_parl(2);
+      HWND handle = ( HWND ) HB_PARHANDLE( 1 );
+      int iResizeable = (HB_ISNIL(2))? 0 : hb_parl(2);
 
-   if( iResizeable )
-      SetWindowLong( handle, GWL_STYLE, GetWindowLong( handle, GWL_STYLE ) |
-         (WS_SIZEBOX | WS_MAXIMIZEBOX) );
-   else
-      SetWindowLong( handle, GWL_STYLE, GetWindowLong( handle, GWL_STYLE ) &~
-         (WS_SIZEBOX | WS_MAXIMIZEBOX) );
+      if( iResizeable )
+            SetWindowLongPtr( handle, GWL_STYLE, GetWindowLongPtr( handle, GWL_STYLE ) |
+            (WS_SIZEBOX | WS_MAXIMIZEBOX) );
+      else
+            SetWindowLongPtr( handle, GWL_STYLE, GetWindowLongPtr( handle, GWL_STYLE ) &~
+            (WS_SIZEBOX | WS_MAXIMIZEBOX) );
 }
 
 LRESULT CALLBACK KeybHook( int code, WPARAM wp, LPARAM lp )
