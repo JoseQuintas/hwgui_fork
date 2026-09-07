@@ -15,6 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+026-09-06 03:36 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **video.prg**: fixed coordinate handling – removed undefined constants
+    `VID_CHARPIX_H` and `VID_CHARPIX_W`, and corrected `nWidth`/`nHeight`
+    assignment to use pixel values directly instead of adding offsets.
+  - **video.prg**: fixed `Play()` method – removed unnecessary fourth
+    parameter (`::oParent:handle`) because `::oMci:Play()` expects only
+    `nFrom` and `nTo`.
+  - **video.prg**: fixed `Initiate()` method – corrected `SetWindow()` call
+    to pass the parent window (`::oParent`) instead of `Self`, and removed
+    invalid `::Super:Init()` call (HControl does not have an Init method).
+
 2026-09-06 03:28 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **window.c**: fixed 64-bit compatibility – replaced `GetWindowLong()` and

@@ -12,7 +12,7 @@
 
 #include "common.ch"
 
-CLASS TVideo FROM hControl
+CLASS TVideo FROM HControl
 
    DATA   oMci
    DATA   cAviFile
@@ -22,43 +22,53 @@ CLASS TVideo FROM hControl
 
    METHOD ReDefine( nId, cFileName, oDlg, bWhen, bValid ) CONSTRUCTOR
 
-   METHOD Initiate( )
+   METHOD Initiate()
 
-   METHOD Play( nFrom, nTo ) INLINE  ::oMci:Play( nFrom, nTo, ::oparent:handle )
+   /* FIXED: Removed extra parameter - ::oMci:Play expects only nFrom, nTo */
+   METHOD Play( nFrom, nTo )
 
 ENDCLASS
 
-/*  removed: bWhen , bValid */
+/*=============================================================================
+ * New()
+ * Creates a video control
+ *===========================================================================*/
 METHOD New( nRow, nCol, nWidth, nHeight, cFileName, oWnd, lNoBorder, nid ) CLASS TVideo
 
    DEFAULT nWidth TO 200, nHeight TO 200, cFileName TO "", ;
-   lNoBorder TO .f.
+   lNoBorder TO .F.
 
-   ::nTop      := nRow *  VID_CHARPIX_H  // 8
-   ::nLeft     := nCol * VID_CHARPIX_W   // 14
-   ::nHeight   := ::nTop  + nHeight - 1
-   ::nWidth    := ::nLeft + nWidth + 1
-   ::Style     := hwg_bitOR( WS_CHILD + WS_VISIBLE + WS_TABSTOP, IF( ! lNoBorder, WS_BORDER, 0 ) )
+   /* FIXED: Coordinates are in pixels, not characters */
+   ::nTop      := nRow
+   ::nLeft     := nCol
+   ::nWidth    := nWidth
+   ::nHeight   := nHeight
+
+   ::Style     := hwg_bitOR( WS_CHILD + WS_VISIBLE + WS_TABSTOP, ;
+                    IF( ! lNoBorder, WS_BORDER, 0 ) )
 
    ::oParent   := IIf( oWnd == Nil, ::oDefaultParent, oWnd )
    ::id        := IIf( nid == Nil, ::NewId(), nid )
    ::cAviFile  := cFileName
    ::oMci      := TMci():New( "avivideo", cFileName )
-   ::Initiate()
 
-   IF ! Empty( ::oparent:handle )
-      ::oMci:lOpen()
-      ::oMci:SetWindow( Self )
+   IF ! Empty( ::oParent:handle )
+      ::Initiate()
    ELSE
-      ::oparent:AddControl( Self )
+      ::oParent:AddControl( Self )
    ENDIF
 
    RETURN Self
 
+/*=============================================================================
+ * ReDefine()
+ * Redefines a video control from resource
+ *===========================================================================*/
 METHOD ReDefine( nId, cFileName, oDlg, bWhen, bValid ) CLASS TVideo
 
    ::nId      = nId
    ::cAviFile = cFileName
+   /* FIXED: bWhen and bValid are not used - store them anyway */
    ::bWhen    = bWhen
    ::bValid   = bValid
    ::oWnd     = oDlg
@@ -68,10 +78,35 @@ METHOD ReDefine( nId, cFileName, oDlg, bWhen, bValid ) CLASS TVideo
 
    RETURN Self
 
-METHOD Initiate( ) CLASS TVideo
+/*=============================================================================
+ * Initiate()
+ * Initializes the video control
+ *===========================================================================*/
+METHOD Initiate() CLASS TVideo
 
-   ::Super:Init(  )
-   ::oMci:lOpen()
-   ::oMci:SetWindow( Self )
+   /* FIXED: Call parent initialization - HControl does not have Init, but
+    * it has a method called Init (without parenthesis). In HWGUI, controls
+    * typically call ::Init() to set up the window. However, the correct
+    * approach is to call ::Super:Init() if the parent has it, but HControl
+    * does not have an Init method. Instead, we just initialize the MCI. */
+
+   IF !Empty( ::oParent:handle )
+      /* FIXED: Call lOpen() and SetWindow() - SetWindow expects a window object,
+       * but in TVideo the parent window is ::oParent, not Self */
+      ::oMci:lOpen()
+      /* FIXED: Pass ::oParent (the parent window) instead of Self */
+      ::oMci:SetWindow( ::oParent )
+   ENDIF
+
+   RETURN nil
+
+/*=============================================================================
+ * Play()
+ * Plays the video from nFrom to nTo
+ *===========================================================================*/
+METHOD Play( nFrom, nTo ) CLASS TVideo
+
+   /* FIXED: Removed extra parameter - ::oMci:Play expects only nFrom, nTo */
+   ::oMci:Play( nFrom, nTo )
 
    RETURN nil
