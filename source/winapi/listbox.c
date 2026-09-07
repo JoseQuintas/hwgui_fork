@@ -11,50 +11,106 @@
 */
 
 #include "hwingui.h"
-#if defined(__MINGW32__) || defined(__MINGW64__) || defined(__WATCOMC__)
-#include <prsht.h>
-#endif
+
+/* REMOVED: Unnecessary header for listbox operations
+ * #if defined(__MINGW32__) || defined(__MINGW64__) || defined(__WATCOMC__)
+ * #include <prsht.h>
+ * #endif
+ */
+
 #include "hbapiitm.h"
 #include "hbvm.h"
 #include "hbstack.h"
 
+/*=============================================================================
+ * HWG_LISTBOXADDSTRING()
+ * Adds a string to a listbox
+ * 
+ * Parameters:
+ *   1 - Listbox handle (HWND)
+ *   2 - String to add
+ * 
+ * Returns:
+ *   Index of the new item, or LB_ERR on error
+ *===========================================================================*/
 HB_FUNC( HWG_LISTBOXADDSTRING )
 {
-   void * hString;
+   void *hString;
+   LRESULT lResult;
 
-   SendMessage( ( HWND ) HB_PARHANDLE( 1 ), LB_ADDSTRING, 0,
-                ( LPARAM ) HB_PARSTR( 2, &hString, NULL ) );
+   lResult = SendMessage( ( HWND ) HB_PARHANDLE( 1 ), LB_ADDSTRING, 0,
+                          ( LPARAM ) HB_PARSTR( 2, &hString, NULL ) );
    hb_strfree( hString );
+   hb_retnl( ( LONG ) lResult );
 }
 
+/*=============================================================================
+ * HWG_LISTBOXSETSTRING()
+ * Sets the current selection in a listbox
+ * 
+ * Parameters:
+ *   1 - Listbox handle (HWND)
+ *   2 - Index (1-based) of item to select
+ *===========================================================================*/
 HB_FUNC( HWG_LISTBOXSETSTRING )
 {
    SendMessage( ( HWND ) HB_PARHANDLE( 1 ), LB_SETCURSEL,
-         ( WPARAM ) hb_parni( 2 ) - 1, 0 );
+                ( WPARAM ) hb_parni( 2 ) - 1, 0 );
 }
 
-/*
-   CreateListbox( hParentWIndow, nListboxID, nStyle, x, y, nWidth, nHeight)
-*/
+/*=============================================================================
+ * HWG_CREATELISTBOX()
+ * Creates a listbox control
+ * 
+ * Parameters:
+ *   1 - Parent window handle (HWND)
+ *   2 - Control ID
+ *   3 - Style flags
+ *   4-7 - Position and size (x, y, width, height)
+ * 
+ * Returns:
+ *   Handle to the listbox control, or NULL on error
+ *===========================================================================*/
 HB_FUNC( HWG_CREATELISTBOX )
 {
-   HWND hListbox = CreateWindow( TEXT( "LISTBOX" ),     /* predefined class  */
-         TEXT( "" ),                    /*   */
-         WS_CHILD | WS_VISIBLE | hb_parnl( 3 ), /* style  */
-         hb_parni( 4 ), hb_parni( 5 ),  /* x, y       */
-         hb_parni( 6 ), hb_parni( 7 ),  /* nWidth, nHeight */
-         ( HWND ) HB_PARHANDLE( 1 ),    /* parent window    */
-         ( HMENU )(UINT_PTR) hb_parni( 2 ),       /* listbox ID      */
+   HWND hListbox = CreateWindow( TEXT( "LISTBOX" ),
+         TEXT( "" ),
+         WS_CHILD | WS_VISIBLE | hb_parnl( 3 ),
+         hb_parni( 4 ), hb_parni( 5 ),
+         hb_parni( 6 ), hb_parni( 7 ),
+         ( HWND ) HB_PARHANDLE( 1 ),
+         ( HMENU )(UINT_PTR) hb_parni( 2 ),
          GetModuleHandle( NULL ),
          NULL );
+
+   /* FIXED: Check if creation succeeded */
+   if( !hListbox )
+   {
+      HB_RETHANDLE( NULL );
+      return;
+   }
 
    HB_RETHANDLE( hListbox );
 }
 
+/*=============================================================================
+ * HWG_LISTBOXDELETESTRING()
+ * Deletes an item from a listbox
+ * 
+ * Parameters:
+ *   1 - Listbox handle (HWND)
+ *   2 - Index (1-based) of item to delete
+ * 
+ * Returns:
+ *   Count of remaining items, or LB_ERR on error
+ *===========================================================================*/
 HB_FUNC( HWG_LISTBOXDELETESTRING )
 {
-   SendMessage( ( HWND ) HB_PARHANDLE( 1 ), LB_DELETESTRING, 0, ( LPARAM ) 0 );
+   LRESULT lResult;
+
+   lResult = SendMessage( ( HWND ) HB_PARHANDLE( 1 ), LB_DELETESTRING,
+                          ( WPARAM ) hb_parni( 2 ) - 1, 0 );
+   hb_retnl( ( LONG ) lResult );
 }
 
 /* ============================ EOF of listbox.c =============================== */
-

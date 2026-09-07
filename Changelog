@@ -15,6 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 01:46 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **listbox.c**: fixed `HWG_LISTBOXDELETESTRING()` to accept an item index
+    parameter – previously always deleted the first item (index 0) regardless
+    of the intended selection.
+  - **listbox.c**: added return value to `HWG_LISTBOXADDSTRING()` – now
+    returns the index of the inserted item or LB_ERR on error.
+  - **listbox.c**: added `NULL` check after `CreateWindow()` in
+    `HWG_CREATELISTBOX()` to prevent returning an invalid handle.
+  - **listbox.c**: removed unnecessary `#include <prsht.h>` (property sheet
+    header not needed for listbox operations).
+
 2026-09-06 01:36 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **grid.c**: fixed Unicode/ANSI string handling – replaced
