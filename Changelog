@@ -17,6 +17,17 @@
 
 2026-09-06 02:41 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
+  - **pager.c**: fixed `HWG_PAGERGETBUTTONSTATE()` parameter handling –
+    corrected to read the button index from the second parameter (`hb_parni(2)`)
+    instead of incorrectly reading the window handle again.
+  - **pager.c**: simplified conditional compilation – removed obsolete
+    `#ifndef __GNUC__` fallbacks and use standard `Pager_*` macros directly
+    (available in modern MinGW-w64 and MSVC headers).
+  - **pager.c**: removed obsolete compiler support for Digital Mars C
+    (`__DMC__`) and Watcom C (`__WATCOMC__`).
+
+2026-09-06 02:41 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
   - **nice.c**: fixed 64-bit compatibility – replaced `GetWindowLong()`
     with `GetWindowLongPtr()` in `HWG_GETWINDOWLONG()`.
   - **nice.c**: fixed potential crash when `GradientFill` is not available –

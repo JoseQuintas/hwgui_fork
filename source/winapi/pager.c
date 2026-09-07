@@ -1,155 +1,172 @@
 /*
  * $Id$
+ *
+ * HWGUI - Harbour Win32 GUI library source code:
+ * C level pager control functions
+ *
+ * Pager control (PagerCtrl) is used to scroll a child window
+ * that is larger than the visible area.
 */
 
 #include "hwingui.h"
 #include <commctrl.h>
 
-#if ( defined(__DMC__) || defined(__WATCOMC__) )
-#include "missing.h"
-#endif
+/* REMOVED: Obsolete compiler support
+ * #if ( defined(__DMC__) || defined(__WATCOMC__) )
+ * #include "missing.h"
+ * #endif
+ */
 
+/*=============================================================================
+ * HWG_PAGERSETCHILD()
+ * Sets the child window for the pager control
+ *===========================================================================*/
 HB_FUNC( HWG_PAGERSETCHILD )
 {
    HWND m_hWnd = ( HWND ) HB_PARHANDLE( 1 );
    HWND hWnd = ( HWND ) HB_PARHANDLE( 2 );
 
-#ifndef __GNUC__
    Pager_SetChild( m_hWnd, hWnd );
-#else
-   SendMessage( m_hWnd, PGM_SETCHILD, 0, ( LPARAM ) hWnd );
-#endif
 }
 
+/*=============================================================================
+ * HWG_PAGERRECALCSIZE()
+ * Recalculates the pager control size
+ *===========================================================================*/
 HB_FUNC( HWG_PAGERRECALCSIZE )
 {
    HWND m_hWnd = ( HWND ) HB_PARHANDLE( 1 );
 
-#ifndef __GNUC__
    Pager_RecalcSize( m_hWnd );
-#else
-   SendMessage( m_hWnd, PGM_RECALCSIZE, 0, 0 );
-#endif
 }
 
+/*=============================================================================
+ * HWG_PAGERFORWARDMOUSE()
+ * Forwards mouse messages to the pager control
+ *===========================================================================*/
 HB_FUNC( HWG_PAGERFORWARDMOUSE )
 {
    HWND m_hWnd = ( HWND ) HB_PARHANDLE( 1 );
    BOOL bForward = hb_parl( 2 );
 
-#ifndef __GNUC__
    Pager_ForwardMouse( m_hWnd, bForward );
-#else
-   SendMessage( m_hWnd, PGM_FORWARDMOUSE, ( WPARAM ) ( bForward ), 0 );
-#endif
 }
 
+/*=============================================================================
+ * HWG_PAGERSETBKCOLOR()
+ * Sets the background color of the pager control
+ *===========================================================================*/
 HB_FUNC( HWG_PAGERSETBKCOLOR )
 {
    HWND m_hWnd = ( HWND ) HB_PARHANDLE( 1 );
    COLORREF clr = ( COLORREF ) hb_parnl( 2 );
 
-#ifndef __GNUC__
    hb_retnl( ( LONG ) Pager_SetBkColor( m_hWnd, clr ) );
-#else
-   hb_retnl( ( LONG ) SendMessage( ( m_hWnd ), PGM_SETBKCOLOR, 0,
-               ( LPARAM ) clr ) );
-#endif
 }
 
+/*=============================================================================
+ * HWG_PAGERGETBKCOLOR()
+ * Gets the background color of the pager control
+ *===========================================================================*/
 HB_FUNC( HWG_PAGERGETBKCOLOR )
 {
    HWND m_hWnd = ( HWND ) HB_PARHANDLE( 1 );
 
-#ifndef __GNUC__
    hb_retnl( ( LONG ) Pager_GetBkColor( m_hWnd ) );
-#else
-   hb_retnl( ( LONG ) SendMessage( m_hWnd, PGM_GETBKCOLOR, 0, 0 ) );
-#endif
 }
 
+/*=============================================================================
+ * HWG_PAGERSETBORDER()
+ * Sets the border size of the pager control
+ *===========================================================================*/
 HB_FUNC( HWG_PAGERSETBORDER )
 {
    HWND m_hWnd = ( HWND ) HB_PARHANDLE( 1 );
    int iBorder = hb_parni( 2 );
 
-#ifndef __GNUC__
    hb_retni( Pager_SetBorder( m_hWnd, iBorder ) );
-#else
-   hb_retni( SendMessage( m_hWnd, PGM_SETBORDER, 0, ( LPARAM ) iBorder ) );
-#endif
 }
 
+/*=============================================================================
+ * HWG_PAGERGETBORDER()
+ * Gets the border size of the pager control
+ *===========================================================================*/
 HB_FUNC( HWG_PAGERGETBORDER )
 {
    HWND m_hWnd = ( HWND ) HB_PARHANDLE( 1 );
 
-#ifndef __GNUC__
    hb_retni( Pager_GetBorder( m_hWnd ) );
-#else
-   hb_retni( SendMessage( m_hWnd, PGM_GETBORDER, 0, 0 ) );
-#endif
 }
 
+/*=============================================================================
+ * HWG_PAGERSETPOS()
+ * Sets the scroll position of the pager control
+ *===========================================================================*/
 HB_FUNC( HWG_PAGERSETPOS )
 {
    HWND m_hWnd = ( HWND ) HB_PARHANDLE( 1 );
    int iPos = hb_parni( 2 );
 
-#ifndef __GNUC__
    hb_retni( Pager_SetPos( m_hWnd, iPos ) );
-#else
-   hb_retni( SendMessage( m_hWnd, PGM_SETPOS, 0, ( LPARAM ) iPos ) );
-#endif
 }
 
+/*=============================================================================
+ * HWG_PAGERGETPOS()
+ * Gets the scroll position of the pager control
+ *===========================================================================*/
 HB_FUNC( HWG_PAGERGETPOS )
 {
    HWND m_hWnd = ( HWND ) HB_PARHANDLE( 1 );
 
-#ifndef __GNUC__
    hb_retni( Pager_GetPos( m_hWnd ) );
-#else
-   hb_retni( SendMessage( m_hWnd, PGM_GETPOS, 0, 0 ) );
-#endif
 }
 
+/*=============================================================================
+ * HWG_PAGERSETBUTTONSIZE()
+ * Sets the button size of the pager control
+ *===========================================================================*/
 HB_FUNC( HWG_PAGERSETBUTTONSIZE )
 {
    HWND m_hWnd = ( HWND ) HB_PARHANDLE( 1 );
    int iSize = hb_parni( 2 );
 
-#ifndef __GNUC__
    hb_retni( Pager_SetButtonSize( m_hWnd, iSize ) );
-#else
-   hb_retni( SendMessage( m_hWnd, PGM_SETBUTTONSIZE, 0, ( LPARAM ) iSize ) );
-#endif
 }
 
+/*=============================================================================
+ * HWG_PAGERGETBUTTONSIZE()
+ * Gets the button size of the pager control
+ *===========================================================================*/
 HB_FUNC( HWG_PAGERGETBUTTONSIZE )
 {
    HWND m_hWnd = ( HWND ) HB_PARHANDLE( 1 );
 
-#ifndef __GNUC__
    hb_retni( Pager_GetButtonSize( m_hWnd ) );
-#else
-   hb_retni( SendMessage( m_hWnd, PGM_GETBUTTONSIZE, 0, 0 ) );
-#endif
 }
 
+/*=============================================================================
+ * HWG_PAGERGETBUTTONSTATE()
+ * Gets the state of a pager button
+ * 
+ * Parameters:
+ *   1 - Pager control handle (HWND)
+ *   2 - Button index (0 = left/up, 1 = right/down)
+ * 
+ * Returns:
+ *   Button state (PGF_INVISIBLE, PGF_NORMAL, PGF_GRAYED, PGF_DEPRESSED, PGF_HOT)
+ *===========================================================================*/
 HB_FUNC( HWG_PAGERGETBUTTONSTATE )
 {
    HWND m_hWnd = ( HWND ) HB_PARHANDLE( 1 );
-   int iButton = hb_parni( 1 );
+   int iButton = hb_parni( 2 );   /* FIXED: Use second parameter for button index */
 
-#ifndef __GNUC__
-   hb_retnl( Pager_GetButtonState( m_hWnd, iButton ) );
-#else
-   hb_retnl( ( LONG ) SendMessage( m_hWnd, PGM_GETBUTTONSTATE, 0,
-               ( LPARAM ) iButton ) );
-#endif
+   hb_retnl( ( LONG ) Pager_GetButtonState( m_hWnd, iButton ) );
 }
 
+/*=============================================================================
+ * HWG_PAGERONPAGERCALCSIZE()
+ * Handles PGN_CALCSIZE notification
+ *===========================================================================*/
 HB_FUNC( HWG_PAGERONPAGERCALCSIZE )
 {
    LPNMPGCALCSIZE pNMPGCalcSize = ( LPNMPGCALCSIZE ) HB_PARHANDLE( 1 );
@@ -172,6 +189,10 @@ HB_FUNC( HWG_PAGERONPAGERCALCSIZE )
    hb_retnl( 0 );
 }
 
+/*=============================================================================
+ * HWG_PAGERONPAGERSCROLL()
+ * Handles PGN_SCROLL notification
+ *===========================================================================*/
 HB_FUNC( HWG_PAGERONPAGERSCROLL )
 {
    LPNMPGSCROLL pNMPGScroll = ( LPNMPGSCROLL ) HB_PARHANDLE( 1 );
@@ -183,7 +204,6 @@ HB_FUNC( HWG_PAGERONPAGERSCROLL )
       case PGF_SCROLLUP:
       case PGF_SCROLLDOWN:
          pNMPGScroll->iScroll = 20;
-
          break;
    }
 
