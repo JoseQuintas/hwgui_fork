@@ -12,113 +12,121 @@
 #include <commctrl.h>
 #include <richedit.h>
 
+/*=============================================================================
+ * s_msgbox()
+ * Internal function: displays a message box
+ *===========================================================================*/
 static int s_msgbox( UINT uType )
 {
    void *hText, *hTitle;
    int iResult;
 
-   iResult = MessageBox( GetActiveWindow(  ),
+   /* FIXED: HB_PARSTRDEF -> HB_PARSTR for Unicode support */
+   iResult = MessageBox( GetActiveWindow(),
          HB_PARSTR( 1, &hText, NULL ),
-         HB_PARSTRDEF( 2, &hTitle, NULL ), uType );
+         HB_PARSTR( 2, &hTitle, NULL ), uType );
    hb_strfree( hText );
    hb_strfree( hTitle );
 
    return iResult;
 }
 
+/*=============================================================================
+ * HWG_MSGINFO()
+ * Displays an information message box
+ *===========================================================================*/
 HB_FUNC( HWG_MSGINFO )
 {
    s_msgbox( MB_OK | MB_ICONINFORMATION );
 }
 
+/*=============================================================================
+ * HWG_MSGSTOP()
+ * Displays a stop/error message box
+ *===========================================================================*/
 HB_FUNC( HWG_MSGSTOP )
 {
    s_msgbox( MB_OK | MB_ICONSTOP );
 }
 
+/*=============================================================================
+ * HWG_MSGOKCANCEL()
+ * Displays an OK/Cancel message box
+ *===========================================================================*/
 HB_FUNC( HWG_MSGOKCANCEL )
 {
    hb_retni( s_msgbox( MB_OKCANCEL | MB_ICONQUESTION ) );
 }
 
+/*=============================================================================
+ * HWG_MSGYESNO()
+ * Displays a Yes/No message box
+ *===========================================================================*/
 HB_FUNC( HWG_MSGYESNO )
 {
    hb_retl( s_msgbox( MB_YESNO | MB_ICONQUESTION ) == IDYES );
 }
 
+/*=============================================================================
+ * HWG_MSGNOYES()
+ * Displays a No/Yes message box (default button = No)
+ *===========================================================================*/
 HB_FUNC( HWG_MSGNOYES )
 {
    hb_retl( s_msgbox( MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2 ) == IDYES );
 }
 
+/*=============================================================================
+ * HWG_MSGYESNOCANCEL()
+ * Displays a Yes/No/Cancel message box
+ * Returns: 1=Yes, 2=No, 0=Cancel
+ *===========================================================================*/
 HB_FUNC( HWG_MSGYESNOCANCEL )
 {
    int iResult = s_msgbox( MB_YESNOCANCEL | MB_ICONQUESTION );
-   hb_retni( (iResult==6)? 1 : ( (iResult==7)? 2 : 0 ) );
+   hb_retni( (iResult == 6) ? 1 : ( (iResult == 7) ? 2 : 0 ) );
 }
 
+/*=============================================================================
+ * HWG_MSGEXCLAMATION()
+ * Displays an exclamation message box
+ *===========================================================================*/
 HB_FUNC( HWG_MSGEXCLAMATION )
 {
    s_msgbox( MB_ICONEXCLAMATION | MB_OK | MB_SYSTEMMODAL );
 }
 
+/*=============================================================================
+ * HWG_MSGRETRYCANCEL()
+ * Displays a Retry/Cancel message box
+ *===========================================================================*/
 HB_FUNC( HWG_MSGRETRYCANCEL )
 {
-   hb_retni( s_msgbox( MB_RETRYCANCEL | MB_ICONQUESTION | MB_ICONQUESTION ) );
+   hb_retni( s_msgbox( MB_RETRYCANCEL | MB_ICONQUESTION ) );
 }
 
+/*=============================================================================
+ * HWG_MSGBEEP()
+ * Plays a system beep
+ *===========================================================================*/
 HB_FUNC( HWG_MSGBEEP )
 {
-   MessageBeep( ( hb_pcount(  ) ==
-               0 ) ? ( LONG ) 0xFFFFFFFF : hb_parnl( 1 ) );
+   MessageBeep( ( hb_pcount() == 0 ) ? (UINT)-1 : (UINT) hb_parnl( 1 ) );
 }
 
-/*
- Function hwg_MsgTemp()
- (Not for HWGUI applications, only for debugging)
- 
- This function displays some compiler constants
- in a Messagebox "DialogBaseUnits".
- 
- Table: Constants and header file with declaration (MinGW), default value and remarks:
-
-  CP_ACP                   winnls.h     0
-  WS_OVERLAPPEDWINDOW      winuser.h    0xcf0000
-  NM_FIRST                 commctrl.h   0
-  
-  The function MultiByteToWideChar(UINT,DWORD,LPCSTR,int,LPWSTR,int)
-  converts LPCSTR to LPWSTR strings.
-  
-  
-*/
-
+/*=============================================================================
+ * HWG_MSGTEMP()
+ * Debug function: displays some system constants
+ *===========================================================================*/
 HB_FUNC( HWG_MSGTEMP )
 {
-   char cres[60];
-   LPCTSTR msg;
+   TCHAR cres[128];
 
-#if __HARBOUR__ - 0 >= 0x010100
-   hb_snprintf( cres, sizeof( cres ),
-         "WS_OVERLAPPEDWINDOW: %lx NM_FIRST: %d ",
+   /* FIXED: Use wsprintf for wide strings in Unicode builds */
+   wsprintf( cres, TEXT( "WS_OVERLAPPEDWINDOW: %lx NM_FIRST: %d " ),
          ( LONG ) WS_OVERLAPPEDWINDOW, NM_FIRST );
-#else
-   sprintf( cres, "WS_OVERLAPPEDWINDOW: %lx NM_FIRST: %d ",
-         ( LONG ) WS_OVERLAPPEDWINDOW, NM_FIRST );
-#endif
-   {
-#ifdef UNICODE
-      TCHAR wcres[60];
-      MultiByteToWideChar( CP_ACP, 0, cres, -1, wcres,
-            HB_SIZEOFARRAY( wcres ) );
-      msg = wcres;
-#else
-      msg = cres;
-#endif
-      hb_retni( MessageBox( GetActiveWindow(  ), msg,
-                  TEXT( "DialogBaseUnits" ),
-                  MB_OKCANCEL | MB_ICONQUESTION ) );
-   }
+
+   hb_retni( MessageBox( GetActiveWindow(), cres,
+               TEXT( "DialogBaseUnits" ),
+               MB_OKCANCEL | MB_ICONQUESTION ) );
 }
-
-/* ===================== EOF of message.c ==================== */
-

@@ -15,6 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 02:19 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **message.c**: fixed Unicode/ANSI string handling in message box functions –
+    replaced ANSI-only `HB_PARSTRDEF()` with `HB_PARSTR()` for proper
+    TCHAR/Unicode support in `s_msgbox()`.
+  - **message.c**: fixed debug function `HWG_MSGTEMP()` Unicode compilation
+    errors – replaced unsafe `sprintf()` with `wsprintf()` for wide-string
+    formatting; increased buffer size from 60 to 128 `TCHAR`s; removed
+    obsolete Harbour version check and unnecessary manual Unicode conversion.
+  - **message.c**: fixed `MessageBeep()` default parameter – changed from
+    `0xFFFFFFFF` to `(UINT)-1` for better 64-bit compatibility.
+
 2026-09-06 02:07 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **menu_c.c**: fixed `HWG_GETMENUCAPTION()` buffer handling – changed to
