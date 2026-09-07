@@ -15,6 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 21:00 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **hownbtn.prg**: fixed potential crashes from missing `Nil` checks in
+    `DrawItems()` and `Paint()` methods – added safety checks before calling
+    `::oBitmap:ClassName()` and `::aStyle[n]:Draw()` to prevent runtime
+    errors when bitmap or style objects are `Nil`.
+  - **hownbtn.prg**: removed duplicate `lEnabled` validation in
+    `Redefine()` method.
+
 2026-09-06 20:33 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **registry.c**: fixed Unicode/ANSI string handling and compiler

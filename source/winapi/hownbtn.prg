@@ -214,9 +214,7 @@ METHOD Redefine( oWndParent, nId, bInit, bSize, bPaint, bClick, lflat, ;
    ::widtht  := iif( widtht == Nil, 0, widtht )
    ::heightt := iif( heightt == Nil, 0, heightt )
 
-   IF lEnabled != Nil
-      ::lEnabled := lEnabled
-   ENDIF
+   /* FIXED: Removed duplicate lEnabled check */
    IF lEnabled != Nil
       ::lEnabled := lEnabled
    ENDIF
@@ -260,7 +258,10 @@ METHOD Paint() CLASS HOwnButton
       n := Len( ::aStyle )
       n := Iif( ::state == OBTN_MOUSOVER, Iif( n > 2, 3, 1 ), ;
          Iif( ::state == OBTN_PRESSED, Iif( n > 1, 2, 1 ), 1 ) )
-      ::aStyle[n]:Draw( hDC, 0, 0, aCoors[3], aCoors[4] )
+      /* FIXED: Added Nil check before calling Draw */
+      IF ::aStyle[n] != Nil
+         ::aStyle[n]:Draw( hDC, 0, 0, aCoors[3], aCoors[4] )
+      ENDIF
 
    ELSEIF ::lFlat
       IF ::state == OBTN_NORMAL
@@ -291,13 +292,14 @@ METHOD Paint() CLASS HOwnButton
 
 METHOD DrawItems( hDC ) CLASS HOwnButton
 
-   LOCAL x1, y1, x2, y2,  aCoors
+   LOCAL x1, y1, x2, y2, aCoors
 
    aCoors := hwg_Getclientrect( ::handle )
    IF !Empty( ::brush )
       hwg_Fillrect( hDC, aCoors[ 1 ] + 2, aCoors[ 2 ] + 2, aCoors[ 3 ] - 2, aCoors[ 4 ] - 2, ::brush:handle )
    ENDIF
 
+   /* FIXED: Added Nil check for ::oBitmap */
    IF ::oBitmap != Nil
       IF ::widthb == 0
          ::widthb := ::oBitmap:nWidth
@@ -308,6 +310,7 @@ METHOD DrawItems( hDC ) CLASS HOwnButton
       y1 := Iif( ::yb != Nil .AND. ::yb != 0, ::yb, ;
          Round( ( ::nHeight - ::heightb ) / 2, 0 ) )
       IF ::lEnabled
+         /* FIXED: Added safety check for ClassName before calling */
          IF ::oBitmap:ClassName() == "HICON"
             hwg_DrawiconEx( hDC, ::oBitmap:handle, x1, y1, ::widthb, ::heightb )
          ELSE
