@@ -18,69 +18,30 @@
 #else
         #include <io.h>
 #endif
-// #include <io.h>
 #endif
 #include <stdio.h>
 #include "hbapi.h"
 #include "hbapiitm.h"
 #include "hbapicdp.h"
+#include "hbapifs.h"
 
 #if defined( _MSC_VER )
 #include <direct.h>
 #endif
 
 #include "warnings.h"
-
 #include "hb_missing.h"
 
-#if (defined(_MSC_VER)&&(_MSC_VER>=1400))
-   #define sscanf sscanf_s
-#endif
-
-
-/*-
- * Copyright (c) 2008 - 2010 CAS Dev Team
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 4. Neither the name of the CAS Dev. Team nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- */
- 
-/* =========== Prototypes ============= */
-
-int hb_setGetDecimals();
-
-/* ========= End of prototypes ======== */ 
+/*=============================================================================
+ * Unicode case-mapping tables (UTF-8)
+ *===========================================================================*/
 
 typedef struct UCSTransMap
 {
-   /** Source character                  */
    unsigned int sc;
-   /** Destination character             */
    unsigned int dc;
 } UCSTransMap;
 
-/* Uppercase code point, Lowercase code point */
 static UCSTransMap mUCSU2L[] = {
    {0x0041, 0x0061}, {0x0042, 0x0062}, {0x0043, 0x0063}, {0x0044, 0x0064},
    {0x0045, 0x0065}, {0x0046, 0x0066}, {0x0047, 0x0067}, {0x0048, 0x0068},
@@ -252,7 +213,6 @@ static UCSTransMap mUCSU2L[] = {
    {0xFF3A, 0xFF5A}
 };
 
-/* Lowercase code point, Uppercase code point */
 static UCSTransMap mUCSL2U[] = {
    {0x0061, 0x0041}, {0x0062, 0x0042}, {0x0063, 0x0043}, {0x0064, 0x0044},
    {0x0065, 0x0045}, {0x0066, 0x0046}, {0x0067, 0x0047}, {0x0068, 0x0048},
@@ -423,185 +383,125 @@ static UCSTransMap mUCSL2U[] = {
    {0xFF59, 0xFF39}, {0xFF5A, 0xFF3A}
 };
 
-/*
- * Convert an upper-case letter to the corresponding lower-case letter.
- */
+/*=============================================================================
+ * Unicode helpers
+ *===========================================================================*/
 static unsigned int wlc( unsigned int iChar )
 {
-   /* Number of elements */
    int iLBound = 0;
    int iRBound = sizeof( mUCSU2L ) / sizeof( UCSTransMap ) - 1;
    unsigned int iUC;
    int iPos;
 
-   /* Binary search */
    for( ;; )
    {
-      /* Calculate new position */
       iPos = ( iRBound + iLBound ) >> 1;
       iUC = mUCSU2L[iPos].sc;
 
-      /* Search in left half */
       if( iUC > iChar )
-      {
          iRBound = iPos;
-      }
-      /* Search in right half */
       else if( iUC < iChar )
-      {
          iLBound = iPos;
-      }
-      /* Found symbol */
       else
-      {
          return mUCSU2L[iPos].dc;
-      }
 
-      /* Nothing found */
       if( iRBound - iLBound <= 1 )
       {
          if( iChar == mUCSU2L[iRBound].sc )
-         {
             return mUCSU2L[iRBound].dc;
-         }
          if( iChar == mUCSU2L[iLBound].sc )
-         {
             return mUCSU2L[iLBound].dc;
-         }
-
          return iChar;
       }
    }
 }
 
-/*
- * Convert an lower-case letter to the corresponding upper-case letter.
- */
 static unsigned int wuc( unsigned int iChar )
 {
-   /* Number of elements */
    int iLBound = 0;
    int iRBound = sizeof( mUCSL2U ) / sizeof( UCSTransMap ) - 1;
    unsigned int iUC;
    int iPos;
 
-   /* Binary search */
    for( ;; )
    {
-      /* Calculate new position */
       iPos = ( iRBound + iLBound ) >> 1;
       iUC = mUCSL2U[iPos].sc;
 
-      /* Search in left half */
       if( iUC > iChar )
-      {
          iRBound = iPos;
-      }
-      /* Search in right half */
       else if( iUC < iChar )
-      {
          iLBound = iPos;
-      }
-      /* Found symbol */
       else
-      {
          return mUCSL2U[iPos].dc;
-      }
 
-      /* Nothing found */
       if( iRBound - iLBound <= 1 )
       {
          if( iChar == mUCSL2U[iRBound].sc )
-         {
             return mUCSL2U[iRBound].dc;
-         }
          if( iChar == mUCSL2U[iLBound].sc )
-         {
             return mUCSL2U[iLBound].dc;
-         }
-
          return iChar;
       }
    }
-
 }
 
 typedef unsigned int ( ( *CaseFn ) ( unsigned int ) );
 
-/*
- * Convert UTF8 character to wide
- */
 static int wtoutf8( unsigned int iUCS, char *sUTF8 )
 {
    int iPos;
    int iCharLength;
    unsigned char sUTF8Prefix;
 
-   /* ASCII characters. */
    if( ( iUCS & ~0x0000007F ) == 0 )
    {
-      /* Modified UTF-8, special case */
       if( iUCS == 0 )
       {
          sUTF8[0] = 0xC0;
          sUTF8[1] = 0x80;
          return 2;
       }
-
       sUTF8[0] = ( char ) iUCS;
       return 1;
    }
    if( ( iUCS & ~0x000007FF ) == 0 )
    {
-      sUTF8Prefix = 0xC0;       // 11000000b
+      sUTF8Prefix = 0xC0;
       iCharLength = 2;
    }
    else if( ( iUCS & ~0x0000FFFF ) == 0 )
    {
-      sUTF8Prefix = 0xE0;       // 11100000b
+      sUTF8Prefix = 0xE0;
       iCharLength = 3;
    }
    else if( ( iUCS & ~0x001FFFFF ) == 0 )
    {
-      sUTF8Prefix = 0xF0;       // 11110000b
+      sUTF8Prefix = 0xF0;
       iCharLength = 4;
    }
    else if( ( iUCS & ~0x03FFFFFF ) == 0 )
    {
-      sUTF8Prefix = 0xF8;       // 11111000b
+      sUTF8Prefix = 0xF8;
       iCharLength = 5;
    }
    else if( ( iUCS & ~0x7FFFFFFF ) == 0 )
    {
-      sUTF8Prefix = 0xFC;       // 11111100b
+      sUTF8Prefix = 0xFC;
       iCharLength = 6;
    }
-   /* Incorrect multibyte character */
    else
-   {
       return -1;
-   }
 
-   /*
-    * Convert UCS character to UTF8. Split value in 6-bit chunks and
-    * move to UTF8 string
-    */
    for( iPos = iCharLength - 1; iPos > 0; --iPos )
    {
       sUTF8[iPos] = ( iUCS & 0x0000003F ) | 0x80;
       iUCS >>= 6;
    }
-
-   /* UTF8 prefix, special case */
    sUTF8[0] = ( iUCS & 0x000000FF ) | sUTF8Prefix;
-
-/* Return size of UTF8 character */
    return iCharLength;
 }
 
-/*
- * Convert character to UTF8
- */
 static int utf8tow( const char *sUTF8, int iUTF8Length, unsigned int *iUCSResult )
 {
    unsigned int iUCS;
@@ -610,107 +510,74 @@ static int utf8tow( const char *sUTF8, int iUTF8Length, unsigned int *iUCSResult
    unsigned char ucPrefix;
    unsigned int uBoundary;
 
-   /* Incorrect multibyte sequence */
    if( iUTF8Length == 0 || sUTF8 == NULL )
-   {
       return -1;
-   }
 
-   /*
-      Determine size of UTF8 character & check "shortest form" of char
-    */
    ucPrefix = ( unsigned char ) ( *sUTF8 );
 
-   /* 10000000b  & 00000000b */
    if( ( ucPrefix & 0x80 ) == 0 )
    {
       ucPrefix = 0x7F;
       iCharLength = 1;
       uBoundary = 0;
    }
-   /* 11100000b & 11000000b */
    else if( ( ucPrefix & 0xE0 ) == 0xC0 )
    {
       ucPrefix = 0x1F;
       iCharLength = 2;
       uBoundary = 0x80;
    }
-   /* 11110000b & 11100000b */
    else if( ( ucPrefix & 0xF0 ) == 0xE0 )
    {
       ucPrefix = 0x0F;
       iCharLength = 3;
       uBoundary = 0x00000800;
    }
-   /* 11111000b & 11110000b */
    else if( ( ucPrefix & 0xF8 ) == 0xF0 )
    {
       ucPrefix = 0x07;
       iCharLength = 4;
       uBoundary = 0x00010000;
    }
-   /* 11111100b & 11111000b */
    else if( ( ucPrefix & 0xFC ) == 0xF8 )
    {
       ucPrefix = 0x03;
       iCharLength = 5;
       uBoundary = 0x00200000;
    }
-   /* 11111110b & 11111100b */
    else if( ( ucPrefix & 0xFE ) == 0xFC )
    {
       ucPrefix = 0x01;
       iCharLength = 6;
       uBoundary = 0x04000000;
    }
-   /* Invalid UTF8 sequence */
    else
-   {
       return -1;
-   }
 
-   /* Invalid UTF8 sequence */
    if( iUTF8Length < iCharLength )
-   {
       return -1;
-   }
 
-   /* Special case for first character */
    iUCS = ( unsigned char ) ( *sUTF8 ) & ucPrefix;
    ++sUTF8;
    for( iPos = 1; iPos < iCharLength; ++iPos )
    {
-      /* Incorect characters in middle of string */
       if( ( ( *sUTF8 ) & 0xC0 ) != 0x80 )
-      {
          return -1;
-      }
-
-      /* Join value from 6-bit chunks */
       iUCS <<= 6;
       iUCS |= ( *sUTF8 ) & 0x3F;
       ++sUTF8;
    }
 
-   /* Check boundary */
    if( iUCS < uBoundary )
    {
-      /* Modified UTF-8, special case */
       if( !( iUCS == 0 && uBoundary == 0x80 ) )
-      {
-         /* Not a "shortest form" of char */
          return -1;
-      }
    }
 
    *iUCSResult = iUCS;
-
    return iCharLength;
 }
 
-/*
- * Make a UTF8 string upper or lowercase
- */
 static int changeutf8case( const char *szSrc, int iSrcLen, char **szDst,
       int *iDstLen, CaseFn pCaseFn )
 {
@@ -719,14 +586,11 @@ static int changeutf8case( const char *szSrc, int iSrcLen, char **szDst,
    int iRealDstLen = 0;
    int iProcessedSrc;
    int iProcessedDst;
-   //int iChars = 0;
 
    for( ;; )
    {
       unsigned int iUCS = 0;
-      /* Convert symbol from UTF8 to UCS */
       iProcessedSrc = utf8tow( szSrc, iSrcLen, &iUCS );
-      /* Incorrect input character */
       if( iProcessedSrc == -1 )
       {
          free( szTMPDst );
@@ -736,36 +600,27 @@ static int changeutf8case( const char *szSrc, int iSrcLen, char **szDst,
       szSrc += iProcessedSrc;
       iSrcLen -= iProcessedSrc;
 
-      /* Modifies UTF-8. Special case for end-of-string */
       if( iSrcLen == 0 && iUCS == 0 )
       {
          szTMPDst[iRealDstLen] = 0;
          break;
       }
 
-      /* Change case */
       iUCS = ( ( *pCaseFn ) ( iUCS ) );
 
-      /* Convert symbol from UCS to UTF8 */
       iProcessedDst = wtoutf8( iUCS, szTMPDst + iRealDstLen );
-      /* Incorrect lowercase character; I hope, this should NEVER happened */
       if( iProcessedDst == -1 )
       {
          free( szTMPDst );
          return -2;
       }
-      /* Store processed size */
       iRealDstLen += iProcessedDst;
 
-      /* Check free memory in destination buffer */
       if( iRealDstLen + 6 > iAllocated )
       {
          char *szReallocated;
-
-         /* Reallocate buffer to 1.5 sizes of original */
          iAllocated = iAllocated + iAllocated / 2;
          szReallocated = (char*) realloc( szTMPDst, iAllocated * sizeof( char ) );
-         /* Cannot reallocate memory */
          if( szReallocated == NULL )
          {
             free( szTMPDst );
@@ -774,38 +629,29 @@ static int changeutf8case( const char *szSrc, int iSrcLen, char **szDst,
          szTMPDst = szReallocated;
       }
 
-      /* Exit condition */
       if( iSrcLen == 0 )
-      {
          break;
-      }
-
-
-      //++iChars;
    }
 
-   //*iDstLen = iChars;
    *iDstLen = iRealDstLen;
    *szDst = szTMPDst;
    return 0;
 }
 
-/*
- * Make a UTF8 string lowercase
- */
 static int utf8lcstr( const char *szSrc, int iSrcLen, char **szDst, int *iDstLen )
 {
    return changeutf8case( szSrc, iSrcLen, szDst, iDstLen, wlc );
 }
 
-/*
- * Make a UTF8 string uppercase
- */
 static int utf8ucstr( const char *szSrc, int iSrcLen, char **szDst, int *iDstLen )
 {
    return changeutf8case( szSrc, iSrcLen, szDst, iDstLen, wuc );
 }
 
+/*=============================================================================
+ * EDI_UTF8_LOWER()
+ * Convert UTF-8 string to lowercase
+ *===========================================================================*/
 HB_FUNC( EDI_UTF8_LOWER )
 {
    const char * szSrc = hb_parc(1);
@@ -820,6 +666,10 @@ HB_FUNC( EDI_UTF8_LOWER )
    free( szDst );
 }
 
+/*=============================================================================
+ * EDI_UTF8_UPPER()
+ * Convert UTF-8 string to uppercase
+ *===========================================================================*/
 HB_FUNC( EDI_UTF8_UPPER )
 {
    const char * szSrc = hb_parc(1);
@@ -834,18 +684,27 @@ HB_FUNC( EDI_UTF8_UPPER )
    free( szDst );
 }
 
+/*=============================================================================
+ * HWG_REDIRON()
+ * Redirect stdout/stderr to a file
+ *===========================================================================*/
 HB_FUNC( HWG_REDIRON )
 {
    int istd = ( HB_ISNIL( 1 ) ) ? 1 : hb_parni( 1 );
    int fd;
-
+   void *hFile;
 
    fflush( ( istd == 1 ) ? stdout : stderr );
    fd = dup( fileno( ( istd == 1 ) ? stdout : stderr ) );
-   freopen( hb_parc( 2 ), "w", ( istd == 1 ) ? stdout : stderr );
+   freopen( HB_PARSTR( 2, &hFile, NULL ), "w", ( istd == 1 ) ? stdout : stderr );
+   hb_strfree( hFile );
    hb_retni( fd );
 }
 
+/*=============================================================================
+ * HWG_REDIROFF()
+ * Restore stdout/stderr
+ *===========================================================================*/
 HB_FUNC( HWG_REDIROFF )
 {
 #if !defined(_MSC_VER)
@@ -869,12 +728,12 @@ HB_FUNC( HWG_REDIROFF )
 #endif
 }
 
-#define BUFSIZE  16384
-
+/*=============================================================================
+ * HWG_RUNCONSOLEAPP() - UNIX version
+ *===========================================================================*/
 #if defined( HB_OS_UNIX )
 HB_FUNC( HWG_RUNCONSOLEAPP )
 {
-   /* Ensure that output of command does interfere with stdout */
    fflush( stdin );
    FILE *cmd_file = ( FILE * ) popen( hb_parc( 1 ), "r" );
    FILE *hOut;
@@ -889,7 +748,9 @@ HB_FUNC( HWG_RUNCONSOLEAPP )
 
    if( !HB_ISNIL( 2 ) )
    {
-      hOut = fopen( hb_parc( 2 ), "w" );
+      void *hOutFile;
+      hOut = fopen( HB_PARSTR( 2, &hOutFile, NULL ), "w" );
+      hb_strfree( hOutFile );
       iOutExist = 1;
    }
    else if( HB_ISBYREF( 3 ) )
@@ -926,194 +787,166 @@ HB_FUNC( HWG_RUNCONSOLEAPP )
 
    hb_retni( iExitCode );
 }
-
-
 #else
-/* ==== WinAPI ==== */
+/*=============================================================================
+ * HWG_RUNCONSOLEAPP() - Windows version
+ *===========================================================================*/
 #define CMDLENGTH  4096
+#define BUFSIZE  16384
 
-/* hwg_RunConsoleApp( cCommand [, cOutFile] [,lshow] ) */
 HB_FUNC( HWG_RUNCONSOLEAPP )
 {
-   SECURITY_ATTRIBUTES sa;
-   HANDLE g_hChildStd_OUT_Rd = NULL;
-   HANDLE g_hChildStd_OUT_Wr = NULL;
-   PROCESS_INFORMATION pi;
-   STARTUPINFO si;
-   BOOL bSuccess;
-   int iOutExist = 0, read_all = 0, iOutFirst = 1;
-   DWORD dwRead, dwWritten, dwExitCode;
-   CHAR chBuf[BUFSIZE], *pOut;
-   int bshow;
+  SECURITY_ATTRIBUTES sa;
+  HANDLE g_hChildStd_OUT_Rd = NULL;
+  HANDLE g_hChildStd_OUT_Wr = NULL;
+  PROCESS_INFORMATION pi;
+  STARTUPINFO si;
+  BOOL bSuccess;
+  int iOutExist = 0, read_all = 0, iOutFirst = 1;
+  DWORD dwRead, dwWritten, dwExitCode;
+  CHAR chBuf[BUFSIZE], *pOut;
+  int bshow;
+  HANDLE hOut = NULL;
 
-   HANDLE hOut = NULL;
-#ifdef UNICODE
-   TCHAR wc1[CMDLENGTH], wc2[CMDLENGTH];
-#endif
+  sa.nLength = sizeof( SECURITY_ATTRIBUTES );
+  sa.bInheritHandle = TRUE;
+  sa.lpSecurityDescriptor = NULL;
 
-   sa.nLength = sizeof( SECURITY_ATTRIBUTES );
-   sa.bInheritHandle = TRUE;
-   sa.lpSecurityDescriptor = NULL;
+  if( !CreatePipe( &g_hChildStd_OUT_Rd, &g_hChildStd_OUT_Wr, &sa, 32768 ) )
+  {
+    hb_retni( 1 );
+    return;
+  }
 
-   // Create a pipe for the child process's STDOUT.
-   if( !CreatePipe( &g_hChildStd_OUT_Rd, &g_hChildStd_OUT_Wr, &sa, 32768 ) )
-   {
-      hb_retni( 1 );
-      return;
-   }
+  if( !SetHandleInformation( g_hChildStd_OUT_Rd, HANDLE_FLAG_INHERIT, 0 ) )
+  {
+    hb_retni( 2 );
+    return;
+  }
 
-   // Ensure the read handle to the pipe for STDOUT is not inherited.
-   if( !SetHandleInformation( g_hChildStd_OUT_Rd, HANDLE_FLAG_INHERIT, 0 ) )
-   {
-      hb_retni( 2 );
-      return;
-   }
+  ZeroMemory( &pi, sizeof( PROCESS_INFORMATION ) );
+  ZeroMemory( &si, sizeof( si ) );
+  si.cb = sizeof( si );
 
-   // Set up members of the PROCESS_INFORMATION structure.
-   ZeroMemory( &pi, sizeof( PROCESS_INFORMATION ) );
+  bshow = ( !( HB_ISNIL( 3 ) ) && hb_parl( 3 ) ) ? TRUE : FALSE;
+  if( bshow )
+    si.wShowWindow = SW_SHOW;
+  else
+    si.wShowWindow = SW_HIDE;
 
-   // Set up members of the STARTUPINFO structure.
-   // This structure specifies the STDIN and STDOUT handles for redirection.
-   ZeroMemory( &si, sizeof( si ) );
-   si.cb = sizeof( si );
-   
- /* DF7BE: Running ZBar the sub window does not appear if SW_HIDE,
-    so cannot use the camera for scanning QR code */
-    bshow = ( !( HB_ISNIL( 3 ) ) && hb_parl( 3 ) ) ? TRUE : FALSE ;
-    if(bshow)
+  si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+  si.hStdOutput = g_hChildStd_OUT_Wr;
+  si.hStdError = g_hChildStd_OUT_Wr;
+
+  #ifdef UNICODE
+  {
+    wchar_t wc1[CMDLENGTH];
+    void *hCmd;
+    LPCTSTR lpCmd = HB_PARSTR( 1, &hCmd, NULL );
+    lstrcpyn( wc1, lpCmd, CMDLENGTH );
+    bSuccess = CreateProcess( NULL, wc1, NULL, NULL,
+                              TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi );
+    hb_strfree( hCmd );
+  }
+  #else
+  bSuccess = CreateProcess( NULL, ( LPTSTR ) hb_parc( 1 ), NULL, NULL,
+                            TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi );
+  #endif
+
+  if( !bSuccess )
+  {
+    hb_retni( 3 );
+    return;
+  }
+
+  GetExitCodeProcess( pi.hProcess, &dwExitCode );
+  CloseHandle( pi.hProcess );
+  CloseHandle( pi.hThread );
+  CloseHandle( g_hChildStd_OUT_Wr );
+
+  if( !HB_ISNIL( 2 ) )
+  {
+    #ifdef UNICODE
     {
-     si.wShowWindow = SW_SHOW;
-    }
-    else
-    {
-      si.wShowWindow = SW_HIDE;
-    } 
-   si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
-   si.hStdOutput = g_hChildStd_OUT_Wr;
-   si.hStdError = g_hChildStd_OUT_Wr;
-
-#ifdef UNICODE
-   MultiByteToWideChar( GetACP(), 0, hb_parc(1), -1, wc1, CMDLENGTH );
-   bSuccess = CreateProcess( NULL, wc1, NULL, NULL,
-         TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi );
-#else
-   bSuccess = CreateProcess( NULL, ( LPTSTR ) hb_parc( 1 ), NULL, NULL,
-         TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi );
-#endif
-   if( !bSuccess )
-   {
-      hb_retni( 3 );
-      return;
-   }
-
-   //WaitForSingleObject( pi.hProcess, 8000 ); //INFINITE );
-   GetExitCodeProcess( pi.hProcess, &dwExitCode );
-   CloseHandle( pi.hProcess );
-   CloseHandle( pi.hThread );
-   CloseHandle( g_hChildStd_OUT_Wr );
-
-   if( !HB_ISNIL( 2 ) )
-   {
-#ifdef UNICODE
-      MultiByteToWideChar( GetACP(), 0, hb_parc(2), -1, wc2, CMDLENGTH );
+      wchar_t wc2[CMDLENGTH];
+      void *hOutFile;
+      LPCTSTR lpOut = HB_PARSTR( 2, &hOutFile, NULL );
+      lstrcpyn( wc2, lpOut, CMDLENGTH );
       hOut = CreateFile( wc2, GENERIC_WRITE, 0, 0,
-            CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0 );
-#else
-      hOut = CreateFile( ( LPTSTR )hb_parc( 2 ), GENERIC_WRITE, 0, 0,
-            CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0 );
-#endif
-      iOutExist = 1;
-   }
-   else if( HB_ISBYREF( 3 ) )
-      iOutExist = 2;
+                         CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0 );
+      hb_strfree( hOutFile );
+    }
+    #else
+    hOut = CreateFile( ( LPTSTR ) hb_parc( 2 ), GENERIC_WRITE, 0, 0,
+                       CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0 );
+    #endif
+    iOutExist = 1;
+  }
+  else if( HB_ISBYREF( 3 ) )
+    iOutExist = 2;
 
-   while( 1 )
-   {
-      bSuccess =
-            ReadFile( g_hChildStd_OUT_Rd, chBuf, BUFSIZE, &dwRead, NULL );
-      if( !bSuccess || dwRead == 0 )
-         break;
+  while( 1 )
+  {
+    bSuccess = ReadFile( g_hChildStd_OUT_Rd, chBuf, BUFSIZE, &dwRead, NULL );
+    if( !bSuccess || dwRead == 0 )
+      break;
 
-      if( iOutExist == 1 )
+    if( iOutExist == 1 )
+    {
+      bSuccess = WriteFile( hOut, chBuf, dwRead, &dwWritten, NULL );
+      if( !bSuccess )
+        break;
+    }
+    else if( iOutExist == 2 && dwRead > 0 )
+    {
+      read_all += (int) dwRead;
+      if( iOutFirst )
       {
-         bSuccess = WriteFile( hOut, chBuf, dwRead, &dwWritten, NULL );
-         if( !bSuccess )
-            break;
+        pOut = (char*) hb_xgrab( (int)dwRead + 1 );
+        memcpy( pOut, chBuf, (int)dwRead );
+        iOutFirst = 0;
       }
-      else if( iOutExist == 2 && dwRead > 0 )
-      {
-         read_all += (int) dwRead;
-         if( iOutFirst )
-         {
-            pOut = (char*) hb_xgrab( (int)dwRead + 1 );
-            memcpy( pOut, chBuf, (int)dwRead );
-            iOutFirst = 0;
-         }
-         else
-         {
-            pOut = ( char * ) hb_xrealloc( pOut, read_all + 1 );
-            memcpy( pOut+read_all-(int)dwRead, chBuf, (int)dwRead );
-         }
-      }
-   }
-
-   if( iOutExist == 1 )
-      CloseHandle( hOut );
-   else if( iOutExist == 2 )
-   {
-      if( read_all > 0 )
-         hb_storclen_buffer( pOut, read_all, 3 );
       else
-         hb_storc( "", 3 );
-   }
-   CloseHandle( g_hChildStd_OUT_Rd );
+      {
+        pOut = ( char * ) hb_xrealloc( pOut, read_all + 1 );
+        memcpy( pOut+read_all-(int)dwRead, chBuf, (int)dwRead );
+      }
+    }
+  }
 
-   hb_retni( ( int ) dwExitCode );
+  if( iOutExist == 1 )
+    CloseHandle( hOut );
+  else if( iOutExist == 2 )
+  {
+    if( read_all > 0 )
+      hb_storclen_buffer( pOut, read_all, 3 );
+    else
+      hb_storc( "", 3 );
+  }
+  CloseHandle( g_hChildStd_OUT_Rd );
+
+  hb_retni( ( int ) dwExitCode );
 }
 #endif
 
-
-
+/*=============================================================================
+ * HWG_CHDIR()
+ * Change current directory
+ *===========================================================================*/
 HB_FUNC( HWG_CHDIR )
 {
-
-
-/* 2024-09-05, DF7BE:
-   the function chdir() is part of most C compiler
-   and is multi platform.
-   If this is not running with your compiler,
-   please use the commented parts of defines
-   to select your compiler.
-   If you have success, send us your modified code (TNX).
-   The code following is tested on:
-   LINUX and MacOS with GCC,
-   Windows 11 with MinGW and BCC
-   
-   The <direct.h>
-*/   
-
-/* #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(_WIN64)
-*/
-   /* HB_BOOL hb_fsChDir( const char * pszDirName ) */
-/*   hb_retl( HB_ISCHAR( 1 ) && hb_fsChDir( hb_parc( 1 ) ) );
-   #else */
-/* LINUX and also for MacOS and Windows */   
 #if defined( _MSC_VER )
    hb_retl( HB_ISCHAR( 1 ) && _chdir( hb_parc( 1 ) ) );
 #else
    hb_retl( HB_ISCHAR( 1 ) && chdir( hb_parc( 1 ) ) );
 #endif
-/*
-#endif
-*/
-
 }
 
+/*=============================================================================
+ * reverse_char() / reverse_char2() / reverse_string()
+ * Reverse a UTF-8 string
+ *===========================================================================*/
 static void reverse_char( char *beginn, char *ende )
-/*
-  Internal:
-  called by reverse_char2() 
- */
 {
   char zchn;
   while( beginn < ende )
@@ -1125,87 +958,58 @@ static void reverse_char( char *beginn, char *ende )
 }
 
 static char *reverse_char2( char *beginn )
-/*
-  Internal:
-  called by reverse_string() 
- */
 {
   char *ende;
-  
   ende = beginn;
-
   while( (ende[1] & 0xC0) == 0x80 )
-     { 
-       ende++;
-     }  
-
-    reverse_char( beginn,ende );
-    return( ende + 1 );
+     ende++;
+  reverse_char( beginn, ende );
+  return( ende + 1 );
 }
 
-
 static void reverse_string( char *string )
-/*
-  Internal:
-  called by hwg_strrev() 
- */
 {
-
   char *ende;
-  
-  ende =  string;
-    
+  ende = string;
   while( *ende )
-  {
     ende = reverse_char2( ende );
-  }   
   reverse_char( string, ende - 1 );
-}  
-  
+}
+
+/*=============================================================================
+ * HWG_STRREV()
+ * Reverse a UTF-8 string
+ *===========================================================================*/
 HB_FUNC( HWG_STRREV )
-/*
-   hwg_strrev(cstring)  
-   Reverses a string. 
-   This is the equivalent strrev() function from the standard C library,
-   but extended to understand UTF-8.
-   cstring may not exceed 511 bytes, inclusive length of all
-   used UTF-8 characters.  
-*/
 {
    const char *string;
    char puffer[512];
-   
-   string  =  ( HB_ISCHAR(1) )? hb_parc(1):"";   
 
+   string = ( HB_ISCHAR(1) ) ? hb_parc(1) : "";
    puffer[sizeof(puffer) - 1] = '\0';
-   strncpy(puffer,string,sizeof(puffer) - 1);   /* Don't overwrite final NULL */
-  
-   reverse_string(puffer);
-
-   hb_retc(puffer);
+   strncpy( puffer, string, sizeof(puffer) - 1 );
+   reverse_string( puffer );
+   hb_retc( puffer );
 }
 
-/* DF7BE 2205-03-28:
-   The function hb_setGetEpoch() is existing in Harbour 3.2,
-   but not apearing in a *.h file of Harbour,
-   so need to include "hb_missing.h" in HWGUI
-*/   
+/*=============================================================================
+ * HWG_GETEPOCH()
+ * Get Harbour epoch setting
+ *===========================================================================*/
 HB_FUNC( HWG_GETEPOCH )
 {
   int iEpoch = hb_setGetEpoch();
-  
   hb_retni(iEpoch);
 }
 
+/*=============================================================================
+ * HWG_GETDECIMALS()
+ * Get Harbour decimals setting
+ *===========================================================================*/
 HB_FUNC( HWG_GETDECIMALS )
 {
-/* code of Harbour in set.c 
- int     hb_setGetDecimals(void)
-*/
- int ndezimale;
- ndezimale = hb_setGetDecimals();
+ int ndezimale = hb_setGetDecimals();
  hb_retni(ndezimale);
 }
 
 /* ======================== EOF of cfuncs.c ================================ */
-

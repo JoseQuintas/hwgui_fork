@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 03:51 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **cfuncs.c**: fixed Unicode/ANSI string handling in `HWG_RUNCONSOLEAPP`,
+    `HWG_CHDIR`, and `HWG_REDIRON` – replaced `hb_parc()` with `HB_PARSTR()`
+    for proper TCHAR/Unicode support; added `_wfreopen`/`_wchdir` for
+    Unicode builds.
+  - **cfuncs.c**: fixed `HWG_STRREV()` buffer overflow – replaced fixed
+    512-byte stack buffer with dynamic allocation based on input string length.
+  - **cfuncs.c**: simplified conditional includes for better portability.
+
 026-09-06 03:36 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **video.prg**: fixed coordinate handling – removed undefined constants
