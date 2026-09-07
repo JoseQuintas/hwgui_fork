@@ -15,6 +15,17 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-08 17:42 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **hwg_qhtm.c**: refactored handle and pointer conversions to eliminate
+    all compiler warnings and errors on 32/64-bit builds. Replaced
+    `hb_parnl()`/`hb_parni()` with `HB_PARHANDLE()` for window handles and
+    control IDs; used `HB_RETHANDLE()` and `hb_retptr()` for returning
+    handles and pointers; replaced `hb_vmPushLong()` with
+    `hb_vmPushPointer()` for passing HWND to Harbour. Added `(INT_PTR)`
+    cast for HMENU to ensure 64-bit safety. Now compiles cleanly with
+    `-W3 -es2` on all supported compilers.
+
 2026-09-08 17:33 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **hqhtm.prg**: fixed compiler warnings triggered by `-es2`.
