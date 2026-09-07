@@ -58,7 +58,7 @@ METHOD New( oWndParent,nId,nStyle,nLeft,nTop,nWidth,nHeight,caption, ;
 
 Return Self
 
-METHOD Activate CLASS HQhtm
+METHOD Activate() CLASS HQhtm
    IF ::oParent:handle != 0
       ::handle := CreateQHTM( ::oParent:handle, ::id, ;
                   ::style, ::nLeft, ::nTop, ::nWidth, ::nHeight )
@@ -90,7 +90,7 @@ METHOD Redefine( oWndParent,nId,caption,bInit,bSize,bLink,bSubmit,fname,resname 
 
 Return Self
 
-METHOD Init CLASS HQhtm
+METHOD Init() CLASS HQhtm
 
    IF !::lInit
       ::Super:Init()
@@ -142,13 +142,15 @@ CLASS HQhtmButton INHERIT HButton
    DATA  cHtml
    METHOD New( oWndParent,nId,nStyle,nLeft,nTop,nWidth,nHeight,cCaption,oFont, ;
                   bInit,bSize,bClick,ctooltip )
-   METHOD Redefine( oWnd,nId,cCaption,oFont,bInit,bSize,bClick,ctooltip )
+   METHOD Redefine( oWndParent,nId,cCaption,oFont,bInit,bSize,bClick,ctooltip )
    METHOD Init()
 
 ENDCLASS
 
 METHOD New( oWndParent,nId,nStyle,nLeft,nTop,nWidth,nHeight,cCaption,oFont, ;
                   bInit,bSize,bClick,ctooltip ) CLASS HQhtmButton
+
+   HB_SYMBOL_UNUSED( oFont )
 
    ::cHtml := cCaption
    ::Super:New( oWndParent,nId,nStyle,nLeft,nTop,nWidth,nHeight,"",, ;
@@ -158,6 +160,8 @@ METHOD New( oWndParent,nId,nStyle,nLeft,nTop,nWidth,nHeight,cCaption,oFont, ;
 Return Self
 
 METHOD Redefine( oWndParent,nId,cCaption,oFont,bInit,bSize,bClick,ctooltip) CLASS HQhtmButton
+
+   HB_SYMBOL_UNUSED( oFont )
 
    ::cHtml := cCaption
    ::Super:Redefine( oWndParent,nId,,bInit,bSize,,bClick,ctooltip )

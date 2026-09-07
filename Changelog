@@ -15,6 +15,17 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-08 17:33 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **hqhtm.prg**: fixed compiler warnings triggered by `-es2`.
+  - Added parentheses to `Activate` and `Init` method implementations to
+    match class declarations, eliminating W0001 for `HQhtm`.
+  - Aligned parameter name in `Redefine` method of `HQhtmButton` class to
+    match declaration (`oWndParent` instead of `oWnd`), eliminating W0001.
+  - Added `HB_SYMBOL_UNUSED( oFont )` in `New` and `Redefine` methods of
+    `HQhtmButton` to suppress W0003 warnings for unused parameter.
+  - Now compiles cleanly without warnings.
+
 2026-09-08 16:18 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **hhtml.prg**: implemented missing `Activate()` method for `HHtml`
