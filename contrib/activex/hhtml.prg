@@ -50,7 +50,7 @@ METHOD New( oParent ) CLASS HHtml
 
 Return Self
 
-METHOD Activate CLASS HHtml
+METHOD Activate() CLASS HHtml
 
    IF !Empty( ::oParent:handle )
      ::oParent:oEmbedded := Self

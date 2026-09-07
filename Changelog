@@ -15,6 +15,13 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-08 16:18 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **hhtml.prg**: implemented missing `Activate()` method for `HHtml`
+    class, which embeds the WebBrowser control into the parent window
+    using `hwgax_EmbedBrowserObject()`. This eliminates the W0001
+    compiler warning and ensures the browser object is properly created.
+
 2026-09-07 15:52 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **h_activex.prg**: suppressed compiler warnings by adding
