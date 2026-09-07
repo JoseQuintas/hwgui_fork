@@ -15,6 +15,20 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 23:11 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **control.c**: fixed Unicode/ANSI string handling in time/date functions
+    (`HWG_GETUTCTIMEDATE`, `HWG_GETDATEANSI`, `HWG_DEFUSERLANG`) –
+    replaced Harbour-specific `HB_WIN_UNICODE` with standard `UNICODE` macro
+    for better compiler compatibility; replaced unsafe `sprintf()` with
+    `hb_snprintf()`; removed obsolete manual declaration of `GetAncestor()`
+    and obsolete compiler support for Digital Mars C (`__DMC__`).
+  - **control.c**: fixed `HWG_GETLOCALEINFON()` implementation – changed from
+    returning `LOCALE_SLIST` buffer size to returning the correct Windows
+    Locale ID (LCID) using `GetUserDefaultLCID()` as documented; added
+    `HWG_GETLOCALEID()` as the recommended function name and marked the old
+    name as deprecated but kept for backward compatibility.
+
 2026-09-06 22:24 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **commond.c**: fixed Unicode/ANSI string handling – replaced obsolete
