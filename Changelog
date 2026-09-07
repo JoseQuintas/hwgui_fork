@@ -15,6 +15,17 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 23:51 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **dialog.c**: fixed `HWG_CREATEDLGTEMPLATE()` parameter type – changed
+    `hb_parnd()` to `hb_parnl()` for proper integer handling in style
+    parameter.
+  - **dialog.c**: added `NULL` and `HB_IS_ARRAY` checks for `ACONTROLS` in
+    `s_CreateDlgTemplate()` and `s_FixupLargeCaptions()` to prevent crashes
+    when accessing invalid or empty control arrays.
+  - **dialog.c**: removed obsolete compiler support for Digital Mars C
+    (`__DMC__`) and Open Watcom (`__WATCOMC__`).
+
 2026-09-06 23:25 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **cxshade.c**: fixed `HWG_SHADE_SET()` parameter mapping – rectangle
