@@ -43,10 +43,6 @@
 ---------------------------------------------------------------------------*/
 
 #include "hwingui.h"
-
-#if defined(__POCC__) || defined(__XCC__)
-#include <unknwn.h>
-#endif
 #include <shlobj.h>
 
 #include "winreg.h"
@@ -54,17 +50,40 @@
 #include "hbstack.h"
 #include "hbapiitm.h"
 
-#if defined(__DMC__)
-#include "missing.h"
-#endif
+/* REMOVED: Unnecessary headers for obsolete compilers
+ * #if defined(__POCC__) || defined(__XCC__)
+ * #include <unknwn.h>
+ * #endif
+ * #if defined(__DMC__)
+ * #include "missing.h"
+ * #endif
+ */
 
-HB_FUNC_EXTERN( HWG_INITCOMMONCONTROLSEX );
+/*=============================================================================
+ * External function declarations
+ * HWG_INITCOMMONCONTROLSEX() is defined in control.c
+ *===========================================================================*/
+extern void HWG_INITCOMMONCONTROLSEX( void );
 
+/*=============================================================================
+ * HWG_INITIPADDRESS()
+ * Creates an IP Address control
+ * 
+ * Parameters:
+ *   1 - Parent window handle (HWND)
+ *   2 - Control ID
+ *   3 - Style flags (optional)
+ *   4-7 - Position and size (x, y, width, height)
+ * 
+ * Returns:
+ *   Handle to the IP Address control, or NULL on error
+ *===========================================================================*/
 HB_FUNC( HWG_INITIPADDRESS )
 {
    HWND hIpAddress;
 
-   HB_FUNC_EXEC( HWG_INITCOMMONCONTROLSEX );
+   /* Initialize common controls (IP Address is a common control) */
+   HWG_INITCOMMONCONTROLSEX();
 
    hIpAddress = CreateWindowEx( WS_EX_CLIENTEDGE, WC_IPADDRESS, TEXT( "" ),
          hb_parni( 3 ),
@@ -75,6 +94,14 @@ HB_FUNC( HWG_INITIPADDRESS )
    HB_RETHANDLE( hIpAddress );
 }
 
+/*=============================================================================
+ * HWG_SETIPADDRESS()
+ * Sets the IP address value
+ * 
+ * Parameters:
+ *   1 - IP Address control handle (HWND)
+ *   2-5 - IP address octets (v1, v2, v3, v4)
+ *===========================================================================*/
 HB_FUNC( HWG_SETIPADDRESS )
 {
    BYTE v1, v2, v3, v4;
@@ -88,6 +115,16 @@ HB_FUNC( HWG_SETIPADDRESS )
          MAKEIPADDRESS( v1, v2, v3, v4 ) );
 }
 
+/*=============================================================================
+ * HWG_GETIPADDRESS()
+ * Retrieves the IP address value
+ * 
+ * Parameters:
+ *   1 - IP Address control handle (HWND)
+ * 
+ * Returns:
+ *   Four numeric values (v1, v2, v3, v4) on the Harbour stack
+ *===========================================================================*/
 HB_FUNC( HWG_GETIPADDRESS )
 {
    DWORD pdwAddr;
@@ -108,6 +145,13 @@ HB_FUNC( HWG_GETIPADDRESS )
    hb_storvni( ( INT ) v4, -1, 4 );
 }
 
+/*=============================================================================
+ * HWG_CLEARIPADDRESS()
+ * Clears the IP address control
+ * 
+ * Parameters:
+ *   1 - IP Address control handle (HWND)
+ *===========================================================================*/
 HB_FUNC( HWG_CLEARIPADDRESS )
 {
    SendMessage( ( HWND ) HB_PARHANDLE( 1 ), IPM_CLEARADDRESS, 0, 0 );
