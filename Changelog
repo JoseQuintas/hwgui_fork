@@ -15,6 +15,20 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-07 15:34 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **htmlcore.c**: refactored for 64‑bit safety and modern compiler
+    compatibility.
+    * Replaced `GlobalAlloc`/`GlobalFree` with `hb_xgrab`/`hb_xfree` for
+      custom COM structures.
+    * Fixed pointer truncation in `SetEmbedded`/`GetEmbedded` by using
+      `hb_itemPutPtr`/`hb_itemGetPtr` instead of numeric handles.
+    * Switched to `GetWindowLongPtr`/`SetWindowLongPtr` unconditionally.
+    * Added `HB_SYMBOL_UNUSED` for unused parameters and casts for
+      `InterlockedIncrement`/`Decrement` to eliminate compiler warnings.
+    * Ensured Unicode/ANSI and 32/64‑bit builds compile cleanly with
+      `-W3 -es2`.
+
 2026-09-07 15:18 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **c_activex.c**: comprehensive refactoring for modern compiler
