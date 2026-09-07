@@ -15,6 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 22:24 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **commond.c**: fixed Unicode/ANSI string handling – replaced obsolete
+    `HB_PARSTRDEF()` with portable `HB_PARSTR()` for proper TCHAR/Unicode
+    support; removed 16-bit `far` keyword and dead code; increased fixed
+    buffers from 1024 to 2048 characters to reduce overflow risk; added
+    `NULL` checks for `GlobalLock()` and `GetObjectVar()` calls to prevent
+    crashes; added English documentation comments.
+
 2026-09-06 21:56 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **c_ipaddr.c**: fixed `HWG_INITCOMMONCONTROLSEX()` implicit declaration
