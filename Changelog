@@ -15,6 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-07 15:52 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **h_activex.prg**: suppressed compiler warnings by adding
+    ... := nil  for unused variables and parameters, without
+    removing any code. Now compiles without W0003 warnings.
+
 2026-09-07 15:34 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **htmlcore.c**: refactored for 64‑bit safety and modern compiler

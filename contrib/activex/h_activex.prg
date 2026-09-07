@@ -21,7 +21,6 @@
  * + Soporte de Eventos para los controles activeX [oSkAr] 20070829
  *
  * + Ported to hwgui by FP 20080331
- *
  */
 
 #include "windows.ch"
@@ -51,14 +50,17 @@ ENDCLASS
 
 METHOD New( oWnd, cProgId, nTop, nLeft, nWidth, nHeight, bSize ) CLASS HActiveX
    LOCAL nStyle, nExStyle, cClsName, hSink
-   LOCAL i,a,h,n
-   LOCAL oError, bErrorBlock
+   LOCAL i := nil, a := nil, h := nil, n := nil
+   LOCAL oError := nil , bErrorBlock := nil
+
+   HB_SYMBOL_UNUSED( bSize )
 
    nStyle   := WS_CHILD + WS_VISIBLE //+ WS_CLIPCHILDREN
    nExStyle := 0
    cClsName := "AtlAxWin"
 
-   ::Super:New( oWnd, , nStyle, nLeft, nTop, nWidth, nHeight )   // ,,,,bSize)
+   ::Super:New( oWnd, , nStyle, nLeft, nTop, nWidth, nHeight )
+
    ::title = cProgId
 
    ::handle := hwg_Createactivex(  nExStyle, cClsName, cProgId, ::style, ;
@@ -103,11 +105,11 @@ METHOD Release() CLASS HActiveX
 
 Return Nil
 
-*-----------------------------------------------------------------------------* 
-METHOD __Error( ... ) CLASS HActiveX 
-*-----------------------------------------------------------------------------* 
-Local cMessage, uRet 
-cMessage := __GetMessage() 
+*-----------------------------------------------------------------------------*
+METHOD __Error( ... ) CLASS HActiveX
+*-----------------------------------------------------------------------------*
+LOCAL cMessage, uRet := nil
+cMessage := __GetMessage()
 
    IF SubStr( cMessage, 1, 1 ) == "_"
       cMessage := SubStr( cMessage, 2 )
@@ -127,4 +129,3 @@ METHOD EventMap( nMsg, xExec, oSelf ) CLASS HActiveX
    ENDIF
    ::aAxExec[ nAt ] := { xExec, oSelf }
 RETURN NIL
-
