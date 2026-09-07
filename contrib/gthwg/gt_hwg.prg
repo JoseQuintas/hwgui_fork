@@ -32,9 +32,9 @@ FUNCTION HB_GT_WIN_DEFAULT
 
 FUNCTION gthwg_CreateMainWindow( cTitle, oFont, oIcon )
 
-   LOCAL oWnd, oPane
-   LOCAL nStyle, x := 0, y := 0, width := 400, height := 200
-   LOCAL bSize
+   LOCAL oWnd, oPane := Nil
+   LOCAL nStyle := Nil, x := 0, y := 0, width := 400, height := 200
+   LOCAL bSize := Nil
 
    oWnd := HMainWindow():New( 1, oIcon,, nStyle, x, y, width, height, ;
       Iif( Empty(cTitle),"gt_HwGUI",cTitle ),,, oFont,, {||gthwg_CloseWindow()}, ;
@@ -91,6 +91,8 @@ FUNCTION gthwg_CreatePane( oWnd, nLeft, nTop, nWidth, nHeight, oFont, bSize )
 FUNCTION gthwg_AddFont( cName, nHeight, nWidth, nWeight, nQuality, nCodepage )
 
    LOCAL oFont := HFont():Add( cName, nWidth, nHeight, nWeight, nCodePage ), oWnd
+
+   HB_SYMBOL_UNUSED( nQuality )
 
    IF !Empty( oFont )
       IF !Empty( oWnd := HWindow():GetMain() )

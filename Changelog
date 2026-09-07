@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-07 14:35 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **gt_hwg.prg**: fixed compiler warnings by initializing variables
+    `oPane`, `nStyle`, and `bSize` in `GTHWG_CREATEMAINWINDOW` to avoid
+    "variable never assigned" warnings; added `HB_SYMBOL_UNUSED` for
+    unused parameters; initialized `nQuality` in `GTHWG_ADDFONT`.
+    Now compiles cleanly without warnings.
+
 2026-09-06 03:51 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **cfuncs.c**: fixed Unicode/ANSI string handling in `HWG_RUNCONSOLEAPP`,
