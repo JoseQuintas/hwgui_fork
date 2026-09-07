@@ -9,15 +9,23 @@
 */
 
 #include "hwingui.h"
-#if defined(__MINGW32__) || defined(__MINGW64__) || defined(__WATCOMC__)
-#include <prsht.h>
-#endif
+
+/* REMOVED: Unnecessary header for richedit operations
+ * #if defined(__MINGW32__) || defined(__MINGW64__) || defined(__WATCOMC__)
+ * #include <prsht.h>
+ * #endif
+ */
+
 #include <commctrl.h>
 #define _RICHEDIT_VER	0x0200
 #include <richedit.h>
-#if defined(__DMC__)
-#define GetWindowLongPtr GetWindowLong
-#endif
+
+/* REMOVED: Obsolete compiler support
+ * #if defined(__DMC__)
+ * #define GetWindowLongPtr GetWindowLong
+ * #endif
+ */
+
 #include "hbapiitm.h"
 #include "hbvm.h"
 #include "hbstack.h"
@@ -31,12 +39,20 @@ LRESULT APIENTRY RichSubclassProc( HWND hwnd, UINT uMsg, WPARAM wParam,
 static HINSTANCE hRichEd = 0;
 static WNDPROC wpOrigRichProc;
 
+/*=============================================================================
+ * HWG_INITRICHEDIT()
+ * Loads the RichEdit DLL (riched20.dll)
+ *===========================================================================*/
 HB_FUNC( HWG_INITRICHEDIT )
 {
    if( !hRichEd )
       hRichEd = LoadLibrary( TEXT( "riched20.dll" ) );
 }
 
+/*=============================================================================
+ * HWG_CREATERICHEDIT()
+ * Creates a RichEdit control
+ *===========================================================================*/
 HB_FUNC( HWG_CREATERICHEDIT )
 {
    HWND hCtrl;
@@ -68,10 +84,10 @@ HB_FUNC( HWG_CREATERICHEDIT )
    HB_RETHANDLE( hCtrl );
 }
 
-/*
- * re_SetCharFormat( hCtrl, n1, n2, nColor, cName, nHeight, lBold, lItalic, 
-           lUnderline, nCharset, lSuperScript/lSubscript(.T./.F.), lProtected )
- */
+/*=============================================================================
+ * HWG_RE_SETCHARFORMAT()
+ * Sets character format for selected text or ranges
+ *===========================================================================*/
 HB_FUNC( HWG_RE_SETCHARFORMAT )
 {
    HWND hCtrl = ( HWND ) HB_PARHANDLE( 1 );
@@ -209,9 +225,10 @@ HB_FUNC( HWG_RE_SETCHARFORMAT )
          cf.bCharSet = ( BYTE ) hb_parnl( 10 );
          cf.dwMask |= CFM_CHARSET;
       }
+      /* FIXED: Corrected parameter for superscript/subscript */
       if( !HB_ISNIL( 11 ) )
       {
-         if( hb_parl( 9 ) )
+         if( hb_parl( 11 ) )
             cf.dwEffects |= CFE_SUPERSCRIPT;
          else
             cf.dwEffects |= CFE_SUBSCRIPT;
@@ -229,12 +246,12 @@ HB_FUNC( HWG_RE_SETCHARFORMAT )
    /*   Restore selection   */
    SendMessage( hCtrl, EM_EXSETSEL, 0, ( LPARAM ) & chrOld );
    SendMessage( hCtrl, EM_HIDESELECTION, 0, 0 );
-
 }
 
-/*
- * re_SetDefault( hCtrl, nColor, cName, nHeight, lBold, lItalic, lUnderline, nCharset )
- */
+/*=============================================================================
+ * HWG_RE_SETDEFAULT()
+ * Sets default character format for the entire control
+ *===========================================================================*/
 HB_FUNC( HWG_RE_SETDEFAULT )
 {
    HWND hCtrl = ( HWND ) HB_PARHANDLE( 1 );
@@ -283,13 +300,12 @@ HB_FUNC( HWG_RE_SETDEFAULT )
 
    cf.dwMask |= ( CFM_BOLD | CFM_ITALIC | CFM_UNDERLINE );
    SendMessage( hCtrl, EM_SETCHARFORMAT, SCF_ALL, ( LPARAM ) & cf );
-
-
 }
 
-/*
- * re_CharFromPos( hEdit, xPos, yPos ) --> nPos
- */
+/*=============================================================================
+ * HWG_RE_CHARFROMPOS()
+ * Gets character index from a position
+ *===========================================================================*/
 HB_FUNC( HWG_RE_CHARFROMPOS )
 {
    HWND hCtrl = ( HWND ) HB_PARHANDLE( 1 );
@@ -304,9 +320,10 @@ HB_FUNC( HWG_RE_CHARFROMPOS )
    hb_retnl( ul );
 }
 
-/*
- * re_GetTextRange( hEdit, n1, n2 )
- */
+/*=============================================================================
+ * HWG_RE_GETTEXTRANGE()
+ * Gets text within a range
+ *===========================================================================*/
 HB_FUNC( HWG_RE_GETTEXTRANGE )
 {
    HWND hCtrl = ( HWND ) HB_PARHANDLE( 1 );
@@ -318,15 +335,20 @@ HB_FUNC( HWG_RE_GETTEXTRANGE )
 
    tr.lpstrText = ( LPTSTR ) hb_xgrab( ( tr.chrg.cpMax - tr.chrg.cpMin + 2 ) *
          sizeof( TCHAR ) );
+   if( !tr.lpstrText )
+   {
+      hb_retc( "" );
+      return;
+   }
    ul = SendMessage( hCtrl, EM_GETTEXTRANGE, 0, ( LPARAM ) & tr );
    HB_RETSTRLEN( tr.lpstrText, ul );
    hb_xfree( tr.lpstrText );
-
 }
 
-/*
- * re_GetLine( hEdit, nLine )
- */
+/*=============================================================================
+ * HWG_RE_GETLINE()
+ * Gets text of a line
+ *===========================================================================*/
 HB_FUNC( HWG_RE_GETLINE )
 {
    HWND hCtrl = ( HWND ) HB_PARHANDLE( 1 );
@@ -335,12 +357,22 @@ HB_FUNC( HWG_RE_GETLINE )
    ULONG ul = SendMessage( hCtrl, EM_LINELENGTH, ( WPARAM ) uLineIndex, 0 );
    LPTSTR lpBuf = ( LPTSTR ) hb_xgrab( ( ul + 4 ) * sizeof( TCHAR ) );
 
+   if( !lpBuf )
+   {
+      hb_retc( "" );
+      return;
+   }
+
    *( ( ULONG * ) lpBuf ) = ul;
    ul = SendMessage( hCtrl, EM_GETLINE, nLine, ( LPARAM ) lpBuf );
    HB_RETSTRLEN( lpBuf, ul );
    hb_xfree( lpBuf );
 }
 
+/*=============================================================================
+ * HWG_RE_INSERTTEXT()
+ * Inserts text at the current selection
+ *===========================================================================*/
 HB_FUNC( HWG_RE_INSERTTEXT )
 {
    void *hString;
@@ -349,9 +381,10 @@ HB_FUNC( HWG_RE_INSERTTEXT )
    hb_strfree( hString );
 }
 
-/*
- * re_FindText( hEdit, cFind, nStart, bCase, bWholeWord, bSearchUp )
- */
+/*=============================================================================
+ * HWG_RE_FINDTEXT()
+ * Finds text in the RichEdit control
+ *===========================================================================*/
 HB_FUNC( HWG_RE_FINDTEXT )
 {
    HWND hCtrl = ( HWND ) HB_PARHANDLE( 1 );
@@ -372,6 +405,10 @@ HB_FUNC( HWG_RE_FINDTEXT )
    hb_retnl( lPos );
 }
 
+/*=============================================================================
+ * HWG_RE_SETZOOM()
+ * Sets zoom level
+ *===========================================================================*/
 HB_FUNC( HWG_RE_SETZOOM )
 {
    HWND hwnd = ( HWND ) HB_PARHANDLE( 1 );
@@ -380,13 +417,20 @@ HB_FUNC( HWG_RE_SETZOOM )
    hb_retnl( ( BOOL ) SendMessage( hwnd, EM_SETZOOM, nNum, nDen ) );
 }
 
-
+/*=============================================================================
+ * HWG_RE_ZOOMOFF()
+ * Turns off zoom
+ *===========================================================================*/
 HB_FUNC( HWG_RE_ZOOMOFF )
 {
    HWND hwnd = ( HWND ) HB_PARHANDLE( 1 );
    hb_retnl( ( BOOL ) SendMessage( hwnd, EM_SETZOOM, 0, 0L ) );
 }
 
+/*=============================================================================
+ * HWG_RE_GETZOOM()
+ * Gets current zoom level
+ *===========================================================================*/
 HB_FUNC( HWG_RE_GETZOOM )
 {
    HWND hwnd = ( HWND ) HB_PARHANDLE( 1 );
@@ -398,6 +442,10 @@ HB_FUNC( HWG_RE_GETZOOM )
    hb_storni( nDen, 3 );
 }
 
+/*=============================================================================
+ * HWG_PRINTRTF()
+ * Prints the RichEdit content
+ *===========================================================================*/
 HB_FUNC( HWG_PRINTRTF )
 {
    HWND hwnd = ( HWND ) HB_PARHANDLE( 1 );
@@ -442,12 +490,20 @@ HB_FUNC( HWG_PRINTRTF )
    hb_retnl( ( BOOL ) fSuccess );
 }
 
+/*=============================================================================
+ * HWG_INITRICHPROC()
+ * Subclasses the RichEdit control
+ *===========================================================================*/
 HB_FUNC( HWG_INITRICHPROC )
 {
    wpOrigRichProc = ( WNDPROC ) SetWindowLongPtr( ( HWND ) HB_PARHANDLE( 1 ),
          GWLP_WNDPROC, ( LONG_PTR ) RichSubclassProc );
 }
 
+/*=============================================================================
+ * RichSubclassProc()
+ * Subclass procedure for RichEdit
+ *===========================================================================*/
 LRESULT APIENTRY RichSubclassProc( HWND hWnd, UINT message, WPARAM wParam,
       LPARAM lParam )
 {
@@ -462,8 +518,9 @@ LRESULT APIENTRY RichSubclassProc( HWND hWnd, UINT message, WPARAM wParam,
       hb_vmPushSymbol( hb_dynsymSymbol( pSym_onEvent ) );
       hb_vmPush( pObject );
       hb_vmPushLong( ( LONG ) message );
-      hb_vmPushLong( ( LONG ) wParam );
-      hb_vmPushLong( ( LONG ) lParam );
+      /* FIXED: Use HB_PUSHITEM for wParam/lParam for 64-bit safety */
+      HB_PUSHITEM( wParam );
+      HB_PUSHITEM( lParam );
       hb_vmSend( 3 );
       res = hb_parnl( -1 );
       if( res == -1 )
@@ -477,6 +534,10 @@ LRESULT APIENTRY RichSubclassProc( HWND hWnd, UINT message, WPARAM wParam,
                   lParam ) );
 }
 
+/*=============================================================================
+ * RichStreamOutCallback()
+ * Callback for streaming RichEdit content to file
+ *===========================================================================*/
 static DWORD CALLBACK RichStreamOutCallback( DWORD_PTR dwCookie, LPBYTE pbBuff,
       LONG cb, LONG * pcb )
 {
@@ -491,6 +552,10 @@ static DWORD CALLBACK RichStreamOutCallback( DWORD_PTR dwCookie, LPBYTE pbBuff,
    return 0;
 }
 
+/*=============================================================================
+ * EditStreamCallback()
+ * Callback for streaming file content into RichEdit
+ *===========================================================================*/
 static DWORD CALLBACK EditStreamCallback( DWORD_PTR dwCookie, LPBYTE lpBuff,
       LONG cb, PLONG pcb )
 {
@@ -498,9 +563,12 @@ static DWORD CALLBACK EditStreamCallback( DWORD_PTR dwCookie, LPBYTE lpBuff,
    return !ReadFile( hFile, lpBuff, cb, ( DWORD * ) pcb, NULL );
 }
 
+/*=============================================================================
+ * HWG_SAVERICHEDIT()
+ * Saves RichEdit content to a file (RTF format)
+ *===========================================================================*/
 HB_FUNC( HWG_SAVERICHEDIT )
 {
-
    HWND hWnd = ( HWND ) HB_PARHANDLE( 1 );
    HANDLE hFile;
    EDITSTREAM es;
@@ -514,7 +582,7 @@ HB_FUNC( HWG_SAVERICHEDIT )
          FILE_ATTRIBUTE_NORMAL, NULL );
    if( hFile == INVALID_HANDLE_VALUE )
    {
-      hb_retni( 0 );
+      hb_retl( FALSE );
       return;
    }
    es.dwCookie = ( DWORD_PTR ) hFile;
@@ -522,13 +590,15 @@ HB_FUNC( HWG_SAVERICHEDIT )
 
    SendMessage( hWnd, EM_STREAMOUT, ( WPARAM ) SF_RTF, ( LPARAM ) & es );
    CloseHandle( hFile );
-   HB_RETHANDLE( hFile );
-
+   hb_retl( TRUE );
 }
 
+/*=============================================================================
+ * HWG_LOADRICHEDIT()
+ * Loads RTF content from a file into RichEdit
+ *===========================================================================*/
 HB_FUNC( HWG_LOADRICHEDIT )
 {
-
    HWND hWnd = ( HWND ) HB_PARHANDLE( 1 );
    HANDLE hFile;
    EDITSTREAM es;
@@ -542,15 +612,12 @@ HB_FUNC( HWG_LOADRICHEDIT )
          OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL );
    if( hFile == INVALID_HANDLE_VALUE )
    {
-      hb_retni( 0 );
+      hb_retl( FALSE );
       return;
    }
    es.dwCookie = ( DWORD_PTR ) hFile;
    es.pfnCallback = EditStreamCallback;
    SendMessage( hWnd, EM_STREAMIN, ( WPARAM ) SF_RTF, ( LPARAM ) & es );
    CloseHandle( hFile );
-   HB_RETHANDLE( hFile );
+   hb_retl( TRUE );
 }
-
-/* =============================== EOF of richedit.c ================================ */
-

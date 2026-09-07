@@ -15,6 +15,21 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 03:01 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **richedit.c**: fixed `HWG_RE_SETCHARFORMAT()` superscript/subscript
+    parameter handling – corrected to use parameter 11 instead of parameter 9.
+  - **richedit.c**: fixed 64-bit safety in `RichSubclassProc()` – replaced
+    `hb_vmPushLong()` with `HB_PUSHITEM()` for `wParam` and `lParam`
+    parameters.
+  - **richedit.c**: added `NULL` checks for memory allocation in
+    `HWG_RE_GETTEXTRANGE()` and `HWG_RE_GETLINE()` to prevent crashes.
+  - **richedit.c**: changed return values of `HWG_SAVERICHEDIT()` and
+    `HWG_LOADRICHEDIT()` from file handle to boolean (`TRUE`/`FALSE`) for
+    better Harbour usage.
+  - **richedit.c**: removed obsolete compiler support for Digital Mars C
+    (`__DMC__`) and unnecessary inclusion of `<prsht.h>`.
+
 2026-09-06 02:56 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **resource.c**: fixed `HWG_FINDRESOURCE()` to support both numeric and
