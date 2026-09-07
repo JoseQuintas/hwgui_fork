@@ -15,6 +15,19 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-06 01:36 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **grid.c**: fixed Unicode/ANSI string handling – replaced
+    `HB_PARSTRDEF()` with `HB_PARSTR()` for proper TCHAR/Unicode support
+    in `HWG_LISTVIEW_ADDCOLUMN()`, `HWG_LISTVIEW_ADDCOLUMNEX()`, and
+    `HWG_LISTVIEW_INSERTITEMEX()`.
+  - **grid.c**: fixed sorting comparison for Unicode builds – added
+    `#ifdef UNICODE` to use `wcscmp()` instead of ANSI `lstrcmp()`.
+  - **grid.c**: fixed `ProcessCustomDraw()` crash – added validation
+    before accessing color array elements.
+  - **grid.c**: removed obsolete compiler support for Pelles C (`__POCC__`),
+    xHarbour Compiler (`__XCC__`), and Digital Mars C (`__DMC__`).
+
 2026-09-06 00:58 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **drawtext.c**: fixed `HWG_GETFONTSLIST()` device context leak – added
