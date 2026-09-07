@@ -15,17 +15,27 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2026-09-06 00:30 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+2026-09-06 00:58 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
-  - **draw.c**: fixed Unicode/ANSI string handling in `HWG_OPENIMAGE()`
-    and `HWG_GDIPLUSOPENIMAGE()` – replaced `hb_parc()` with `HB_PARSTR()`
-    for proper TCHAR/Unicode support; added `#ifdef UNICODE` handling for
-    file name conversion in `HWG_OPENIMAGE()`.
+  - **drawtext.c**: fixed `HWG_GETFONTSLIST()` device context leak – added
+    `ReleaseDC()` call to release the DC obtained by `GetDC(GetDesktopWindow())`.
+  - **drawtext.c**: removed unused variable `hwnd` in `HWG_GETFONTSLIST()` and
+    dead code comment in `HWG_DRAWTEXT()`.
+
+2026-09-06 00:11 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **draw.c**: fixed `HWG_OPENIMAGE()` file name handling – reverted
+    unnecessary `HB_PARSTR()` conversion and kept `hb_parc()` with direct
+    `fopen()` call; `hb_parc()` returns ANSI string and `fopen()` accepts
+    `const char*`, so no conversion was needed.
+  - **draw.c**: fixed `HWG_GDIPLUSOPENIMAGE()` Unicode/ANSI string handling –
+    added `#ifdef UNICODE` conditional to use `HB_PARSTR()` as `wchar_t*`
+    when compiled with Unicode, otherwise convert from ANSI using
+    `MultiByteToWideChar(CP_ACP)`.
   - **draw.c**: removed obsolete compiler support for Digital Mars C
     (`__DMC__`) and Borland C++ 5.5 (`__BORLANDC__`); removed unnecessary
-    `HB_LONG_PCOUNT` conditional for 64-bit pointer returns.
-  - **draw.c**: removed `#include "missing.h"` header (no longer needed
-    with modern compilers).
+    `HB_LONG_PCOUNT` conditional for 64-bit pointer returns; removed
+    `#include "missing.h"` header.
 
 2026-09-06 23:51 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed

@@ -843,15 +843,15 @@ HB_FUNC( HWG_DRAWEDGE )
  *===========================================================================*/
 HB_FUNC( HWG_LOADICON )
 {
-   if( HB_ISNUM( 1 ) )
-      HB_RETHANDLE( LoadIcon( NULL, MAKEINTRESOURCE( hb_parni( 1 ) ) ) );
-   else
-   {
-      void *hString;
-      HB_RETHANDLE( LoadIcon( GetModuleHandle( NULL ), HB_PARSTR( 1, &hString,
-                        NULL ) ) );
-      hb_strfree( hString );
-   }
+      if( HB_ISNUM( 1 ) )
+            HB_RETHANDLE( LoadIcon( NULL, MAKEINTRESOURCE( hb_parni( 1 ) ) ) );
+      else
+      {
+            void *hString;
+            LPCTSTR lpIconName = HB_PARSTR( 1, &hString, NULL );
+            HB_RETHANDLE( LoadIcon( GetModuleHandle( NULL ), lpIconName ) );
+            hb_strfree( hString );
+      }
 }
 
 /*=============================================================================
@@ -1209,19 +1209,25 @@ HB_FUNC( HWG_OPENBITMAP )
    HBITMAP hbm = NULL;
    HDC hDC = ( hb_pcount(  ) > 1 && !HB_ISNIL( 2 ) ) ?
    ( HDC ) HB_PARHANDLE( 2 ) : NULL;
-   void *hString;
+   void *hString = NULL;
    HANDLE hfbm;
-
-   hfbm = CreateFile( HB_PARSTR( 1, &hString, NULL ), GENERIC_READ,
-                      FILE_SHARE_READ, ( LPSECURITY_ATTRIBUTES ) NULL, OPEN_EXISTING,
-                      FILE_ATTRIBUTE_READONLY, ( HANDLE ) NULL );
-   hb_strfree( hString );
+   #ifdef UNICODE
+      char szFileA[ MAX_PATH ];
+      LPCWSTR lpFile = HB_PARSTR( 1, &hString, NULL );
+      WideCharToMultiByte( CP_ACP, 0, lpFile, -1, szFileA, MAX_PATH, NULL, NULL );
+      hfbm = CreateFileA( szFileA, GENERIC_READ,
+   #else
+      hfbm = CreateFile( HB_PARSTR( 1, &hString, NULL ), GENERIC_READ,
+   #endif
+   FILE_SHARE_READ, ( LPSECURITY_ATTRIBUTES ) NULL, OPEN_EXISTING,
+   FILE_ATTRIBUTE_READONLY, ( HANDLE ) NULL );
+   if( hString ) hb_strfree( hString );
 
    if( hfbm == INVALID_HANDLE_VALUE )
-   {
-      HB_RETHANDLE( NULL );
-      return;
-   }
+      {
+         HB_RETHANDLE( NULL );
+         return;
+       }
 
    ReadFile( hfbm, &bmfh, sizeof( BITMAPFILEHEADER ), &dwRead, NULL );
    ReadFile( hfbm, &bmih, sizeof( BITMAPINFOHEADER ), &dwRead, NULL );
@@ -1634,128 +1640,115 @@ HB_FUNC( HWG_DRAWGRAYBITMAP )
  *===========================================================================*/
 HB_FUNC( HWG_OPENIMAGE )
 {
-   void *hFileName;
-   LPCTSTR cFileName = HB_PARSTR( 1, &hFileName, NULL );
-   BOOL bString = ( HB_ISNIL( 2 ) ) ? 0 : hb_parl( 2 );
-   int iType = ( HB_ISNIL( 3 ) ) ? IMAGE_BITMAP : hb_parni( 3 );
-   int iFileSize;
-   FILE *fp;
-   LPPICTURE pPic = NULL;
-   IStream *pStream = NULL;
-   HGLOBAL hG;
-   HBITMAP hRetResult = NULL;
+      const char *cFileName = hb_parc( 1 );   // ANSI
+      BOOL bString = ( HB_ISNIL( 2 ) ) ? 0 : hb_parl( 2 );
+      int iType = ( HB_ISNIL( 3 ) ) ? IMAGE_BITMAP : hb_parni( 3 );
+      int iFileSize;
+      FILE *fp;
+      LPPICTURE pPic = NULL;
+      IStream *pStream = NULL;
+      HGLOBAL hG;
+      HBITMAP hRetResult = NULL;
 
-   if( bString )
-   {
-      iFileSize = hb_parclen( 1 );
-      hG = GlobalAlloc( GPTR, iFileSize );
-      if( !hG )
+      if( bString )
       {
-         hb_retptr( NULL );
-         hb_strfree( hFileName );
-         return;
+            iFileSize = hb_parclen( 1 );
+            hG = GlobalAlloc( GPTR, iFileSize );
+            if( !hG )
+            {
+                  hb_retptr( NULL );
+                  return;
+            }
+            memcpy( ( void * ) hG, ( void * ) cFileName, iFileSize );
       }
-      memcpy( ( void * ) hG, ( void * ) cFileName, iFileSize );
-   }
-   else
-   {
-#ifdef UNICODE
-      char szFileA[ MAX_PATH ];
-      WideCharToMultiByte( CP_ACP, 0, cFileName, -1, szFileA, MAX_PATH, NULL, NULL );
-      fp = fopen( szFileA, "rb" );
-#else
-      fp = fopen( cFileName, "rb" );
-#endif
-      if( !fp )
+      else
       {
-         hb_retptr( NULL );
-         hb_strfree( hFileName );
-         return;
+            fp = fopen( cFileName, "rb" );   // fopen aceita const char*
+            if( !fp )
+            {
+                  hb_retptr( NULL );
+                  return;
+            }
+
+            fseek( fp, 0, SEEK_END );
+            iFileSize = ftell( fp );
+            hG = GlobalAlloc( GPTR, iFileSize );
+            if( !hG )
+            {
+                  fclose( fp );
+                  hb_retptr( NULL );
+                  return;
+            }
+            fseek( fp, 0, SEEK_SET );
+            fread( ( void * ) hG, 1, iFileSize, fp );
+            fclose( fp );
       }
 
-      fseek( fp, 0, SEEK_END );
-      iFileSize = ftell( fp );
-      hG = GlobalAlloc( GPTR, iFileSize );
-      if( !hG )
+      CreateStreamOnHGlobal( hG, 0, &pStream );
+
+      if( !pStream )
       {
-         fclose( fp );
-         hb_retptr( NULL );
-         hb_strfree( hFileName );
-         return;
+            GlobalFree( hG );
+            hb_retptr( NULL );
+            return;
       }
-      fseek( fp, 0, SEEK_SET );
-      fread( ( void * ) hG, 1, iFileSize, fp );
-      fclose( fp );
-   }
 
-   CreateStreamOnHGlobal( hG, 0, &pStream );
-
-   if( !pStream )
-   {
-      GlobalFree( hG );
-      hb_retptr( NULL );
-      hb_strfree( hFileName );
-      return;
-   }
-
-   #if defined(__cplusplus)
+      #if defined(__cplusplus)
       OleLoadPicture( pStream, 0, 0, IID_IPicture, ( void ** ) &pPic );
       pStream->Release(  );
-   #else
+      #else
       OleLoadPicture( pStream, 0, 0, &IID_IPicture, ( void ** ) ( void * ) &pPic );
       pStream->lpVtbl->Release( pStream );
-   #endif
-
-   GlobalFree( hG );
-
-   if( !pPic )
-   {
-      hb_retptr( NULL );
-      hb_strfree( hFileName );
-      return;
-   }
-
-   OLE_HANDLE oHnd = 0;
-
-   if( iType == IMAGE_BITMAP )
-   {
-      #if defined(__cplusplus)
-         pPic->get_Handle( &oHnd );
-      #else
-         pPic->lpVtbl->get_Handle( pPic, &oHnd );
       #endif
-      if( oHnd )
-         hRetResult = ( HBITMAP ) CopyImage( ( HBITMAP ) ( uintptr_t ) oHnd, IMAGE_BITMAP, 0, 0, LR_COPYRETURNORG );
-   }
-   else if( iType == IMAGE_ICON )
-   {
-      #if defined(__cplusplus)
-         pPic->get_Handle( &oHnd );
-      #else
-         pPic->lpVtbl->get_Handle( pPic, &oHnd );
-      #endif
-      if( oHnd )
-         hRetResult = ( HBITMAP ) CopyImage( ( HICON ) ( uintptr_t ) oHnd, IMAGE_ICON, 0, 0, 0 );
-   }
-   else
-   {
-      #if defined(__cplusplus)
-         pPic->get_Handle( &oHnd );
-      #else
-         pPic->lpVtbl->get_Handle( pPic, &oHnd );
-      #endif
-      if( oHnd )
-         hRetResult = ( HBITMAP ) CopyImage( ( HCURSOR ) ( uintptr_t ) oHnd, IMAGE_CURSOR, 0, 0, 0 );
-   }
 
-   #if defined(__cplusplus)
+      GlobalFree( hG );
+
+      if( !pPic )
+      {
+            hb_retptr( NULL );
+            return;
+      }
+
+      OLE_HANDLE oHnd = 0;
+
+      if( iType == IMAGE_BITMAP )
+      {
+            #if defined(__cplusplus)
+            pPic->get_Handle( &oHnd );
+            #else
+            pPic->lpVtbl->get_Handle( pPic, &oHnd );
+            #endif
+            if( oHnd )
+                  hRetResult = ( HBITMAP ) CopyImage( ( HBITMAP ) ( uintptr_t ) oHnd, IMAGE_BITMAP, 0, 0, LR_COPYRETURNORG );
+      }
+      else if( iType == IMAGE_ICON )
+      {
+            #if defined(__cplusplus)
+            pPic->get_Handle( &oHnd );
+            #else
+            pPic->lpVtbl->get_Handle( pPic, &oHnd );
+            #endif
+            if( oHnd )
+                  hRetResult = ( HBITMAP ) CopyImage( ( HICON ) ( uintptr_t ) oHnd, IMAGE_ICON, 0, 0, 0 );
+      }
+      else
+      {
+            #if defined(__cplusplus)
+            pPic->get_Handle( &oHnd );
+            #else
+            pPic->lpVtbl->get_Handle( pPic, &oHnd );
+            #endif
+            if( oHnd )
+                  hRetResult = ( HBITMAP ) CopyImage( ( HCURSOR ) ( uintptr_t ) oHnd, IMAGE_CURSOR, 0, 0, 0 );
+      }
+
+      #if defined(__cplusplus)
       pPic->Release(  );
-   #else
+      #else
       pPic->lpVtbl->Release( pPic );
-   #endif
+      #endif
 
-   hb_retptr( ( void * ) hRetResult );
-   hb_strfree( hFileName );
+      HB_RETHANDLE( hRetResult );
 }
 
 #if defined( __USE_GDIPLUS )
