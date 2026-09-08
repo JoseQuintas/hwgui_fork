@@ -15,7 +15,22 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2026-09-08 17:42 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+2026-09-07 22:15 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+    * source/winapi/message.c
+    ! Reverted previous changes back to HB_PARSTRDEF for parameter 2 in s_msgbox()
+      to prevent Unicode string stack corruption when title argument is omitted.
+
+2026-09-07 03:00 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **htmlfunc.c**: refactored for Unicode/ANSI and 64‑bit compatibility.
+    Replaced `hb_parc()` with `HB_PARSTR()` for string parameters in
+    `HWGAX_DISPLAYHTMLPAGE` and `HWGAX_DISPLAYHTMLSTR`; replaced
+    `hb_parnl()` with `hb_parnll()` for numeric parameters in
+    `HWGAX_RESIZEBROWSER` and `HWGAX_DOPAGEACTION` to avoid 64‑bit
+    truncation. Now compiles cleanly with `-W3 -es2` on all supported
+    compilers.
+
+2026-09-07 17:42 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **hwg_qhtm.c**: refactored handle and pointer conversions to eliminate
     all compiler warnings and errors on 32/64-bit builds. Replaced
@@ -26,7 +41,7 @@
     cast for HMENU to ensure 64-bit safety. Now compiles cleanly with
     `-W3 -es2` on all supported compilers.
 
-2026-09-08 17:33 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+2026-09-07 17:33 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **hqhtm.prg**: fixed compiler warnings triggered by `-es2`.
   - Added parentheses to `Activate` and `Init` method implementations to
@@ -37,7 +52,7 @@
     `HQhtmButton` to suppress W0003 warnings for unused parameter.
   - Now compiles cleanly without warnings.
 
-2026-09-08 16:18 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+2026-09-07 16:18 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **hhtml.prg**: implemented missing `Activate()` method for `HHtml`
     class, which embeds the WebBrowser control into the parent window
