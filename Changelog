@@ -15,6 +15,20 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-07 23:16 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Changed
+  - **theme.c**: dropped Windows 2000 support - removed the entire dynamic
+    LoadLibrary()/GetProcAddress() indirection for UxTheme.dll (~47
+    function-pointer typedefs, ~47 "Fail" fallback stubs, the GetProc()/
+    FPROC() machinery, and the m_hThemeDll handle). All hb_OpenThemeData(),
+    hb_DrawThemeBackground(), etc. wrappers now call the real Win32 theme
+    APIs directly; UxTheme is statically linked instead (uxtheme.lib via
+    #pragma comment for MSVC - GCC/Clang/MinGW builds need "-luxtheme"
+    added to their link command). HWG_INITTHEMELIB()/HWG_ENDTHEMELIB() are
+    kept for .prg compatibility but no longer load/free anything. File
+    shrank from 2058 to 1139 lines.
+    !Atention for use of UxTheme need link lib "-luxtheme"
+
 2026-09-07 22:15 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
     * source/winapi/message.c
     ! Reverted previous changes back to HB_PARSTRDEF for parameter 2 in s_msgbox()
