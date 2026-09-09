@@ -125,6 +125,7 @@ CLASS RichText
    METHOD SetFrame( ASize, cHorzAlign, cVertAlign, lNoWrap, cXAlign, xpos, cYAlign, ypos )
    METHOD RtfImage( cName, aSize, nPercent )
    METHOD Wmf2Rtf( cName, aSize, nPercent )
+   METHOD Bmp2Wmf( cName, aSize, nPercent )
    METHOD SetClrTab()
    METHOD Linea( aInicio, aFinal, nxoffset, nyoffset, ASize, cTipo, ;
          aColores, nWidth, nPatron, lSombra, aSombra )
@@ -1092,8 +1093,6 @@ METHOD Image( cName, ASize, nPercent, lCell, lInclude, lFrame, aFSize, cHorzAlig
       ::CloseGroup()
       ::CloseGroup()
    ELSE
-      /* Note: Methods RtfJpg, Wmf2Rtf, Bmp2Wmf are not implemented yet.
-         You can uncomment and complete them as needed. */
       cExt := Upper( cFileExt( cName ) )
       DO CASE
       CASE cExt == "BMP"
@@ -1896,230 +1895,148 @@ METHOD Wmf2Rtf( cName, aSize, nPercent ) CLASS RichText
 
    RETURN NIL
 
-/*
-METHOD RtfJpg(cName,aSize,nPercent) CLASS RichText
-local aInches[2],in,nWidth,nHeight,i
-LOCAL cMenInter,n_bloque,nBytes,lHecho
-local codigo,scale,PictWidth,PictHeight
-LOCAL ScreenResY,ScreenResX
+/*=============================================================================
+ * METHOD Bmp2Wmf( cName, aSize, nPercent ) CLASS RichText
+ *
+ * DESCRIPTION:
+ *   Converts a Windows Bitmap (BMP) into a Windows Metafile (WMF) and embeds
+ *   it into the RTF document. Uses native HWGUI HBitmap and GDI metafile
+ *   functions, ensuring full compatibility with 32-bit and 64-bit platforms
+ *   compiled via Clang, MSVC, or GCC.
+ *
+ * PARAMETERS:
+ *   cName    - Full file system path to the source BMP image.
+ *   aSize    - Optional array { nWidth, nHeight } in inches to override size.
+ *   nPercent - Scale factor (1 = 100%).
+ *
+ * RETURN:
+ *   NIL
+ *
+ * DEPENDENCIES:
+ *   - Harbour core: hb_DirTemp(), hb_StrToHex()
+ *   - HWGUI / GDI: HBitmap(), hwg_CreateMetafile(), hwg_CloseMetafile(),
+ *                  hwg_Setwindowextex(), hwg_Getdc(), hwg_Releasedc()
+ * =============================================================================
+ */
+METHOD Bmp2Wmf( cName, aSize, nPercent ) CLASS RichText
+   LOCAL cMenInter, nBloque := 8192, nBytes
+   LOCAL scalex, scaley
+   LOCAL hDCOut, oBmp, in, x
+   LOCAL nWidth, nHeight
+   LOCAL ResX, ResY, ScreenResX, ScreenResY
+   LOCAL cTempFile, oWnd, hWnd, hdc
+   LOCAL aInches
 
-DEFAULT  aSize:={}
-DEFAULT  nPercent=1
+   DEFAULT aSize := {}
+   DEFAULT nPercent := 1
 
-n_bloque:=1
-cMenInter:=space(n_bloque)
-lHecho:=.F.
+   aInches := Array( 2 )
 
-IF LoadPicture(cName,@nWidth,@nHeight,@ScreenResX,@ScreenResY) //NViewLib32( AllTrim(cName ))
-        aInches[1]:= ROUND(((nWidth/ScreenResX)*::nScale)+0.5,0)
-        aInches[2]:= ROUND(((nHeight/ScreenResY)*::nScale)+0.5,0)
-   // Dimensiones de la imagen en twips
-   IF EMPTY(aSize)
-                PictWidth:=ROUND(aInches[1]+0.5,0)*nPercent
-                PictHeight:=ROUND(aInches[2]+0.5,0)*nPercent
-        ELSE
-                PictWidth:=ROUND((aSize[1]*::nScale)+0.5,0)
-                PictHeight:=ROUND((aSize[2]*::nScale)+0.5,0)
-        ENDIF
-   in:=fopen(cName)
-   ::OpenGroup()
-   ::TextCode("pict\jpegblip")
-   scale=ROUND((PictWidth*100/aInches[1])+0.5,0)
-   ::NumCode("picw",nWidth,.F.)
-   ::NumCode("picwgoal",aInches[1],.F.)
-          ::NumCode("picscalex",scale,.F.)
-   scale=ROUND((PictHeight*100/aInches[2])+0.5,0)
-   ::NumCode("pich",nHeight,.F.)
-   ::NumCode("pichgoal",aInches[2],.F.)
-   ::NumCode("picscaley",scale,.F.)
-   do while !lHecho
-           nBytes:=fread(in,@cMenInter,n_bloque)
-           IF nBytes > 0
-              codigo:=PADL(L_DTOHEX(ASC(cMenInter)),2,"0")
-         FWRITE(::hfile,codigo)
-           else
-                   lHecho:= .T.
-           endif
-   ENDDO
-   ::CloseGroup()
+   // Load the BMP image using HWGUI's native object loader
+   oBmp := HBitmap():LoadFromFile( cName )
 
-   fclose(in)
-ENDIF
+   IF ! Empty( oBmp:handle )
+      // Extract pixel dimensions directly from the object
+      nWidth  := oBmp:nWidth
+      nHeight := oBmp:nHeight
 
-RETURN NIL
+      // Obtain native screen DPI context for logical unit resolution
+      oWnd := GetWndDefault()
+      hWnd := oWnd:hWnd
+      hdc  := hwg_Getdc( hWnd )
+      ScreenResX := GETDEVICEC( hdc, 88 ) // LOGPIXELSX
+      ScreenResY := GETDEVICEC( hdc, 90 ) // LOGPIXELSY
+      hwg_Releasedc( hWnd, hdc )
 
-METHOD Wmf2Rtf(cName,aSize,nPercent) CLASS RichText
-local in,cMenInter,n_bloque,nBytes,lHecho,i
-local codigo,cBRead,scale,PictWidth,PictHeight
-LOCAL ancho,alto,bmHeight,bmWidth,x,aInfo[5]
-
-DEFAULT  aSize to {}
-DEFAULT nPercent to 1
-
-n_bloque:=1
-cMenInter:=space(n_bloque)
-lHecho:=.F.
-cBRead:=0
-
-cBRead:=GETBMETAFILE(cName,aInfo)
-
-IF cBRead > 0
-
-        IF EMPTY(aSize)
-      alto=(aInfo[3]-aInfo[1])*nPercent  // Unidades
-      ancho=(aInfo[4]-aInfo[2])*nPercent
-        ELSE
-                alto:=(aSize[2]*aInfo[5])
-                ancho:=(aSize[1]*aInfo[5])
-        ENDIF
-
-      bmHeight=ROUND((alto*1440/2540)+0.5,0)
-      bmWidth=ROUND((ancho*1440/2540)+0.5,0)
-
-      PictHeight=ROUND((alto*1440/::oPrinter:nLogPixelY())+0.5,0)
-      PictWidth=ROUND((ancho*1440/::oPrinter:nLogPixelX())+0.5,0)
-      in:=fopen(cName)
-      ::OpenGroup()
-      ::TextCode("\pict\wmetafile8")
-      x = ROUND((bmWidth*2540/1440)+0.5,0)
-      ::NumCode("picw",x,.F.)
-      ::NumCode("picwgoal",bmWidth,.F.)
-      scale=ROUND((PictWidth*100/bmWidth)+0.5,0)
-      ::NumCode("picscalex",scale,.F.)
-      x = ROUND((bmHeight*2540/1440)+0.5,0)
-      ::NumCode("pich",x,.F.)
-      ::NumCode("pichgoal",bmHeight,.F.)
-      scale=ROUND((PictHeight*100/bmHeight)+0.5,0)
-      ::NumCode("picscaley",scale,.F.)
-      ::OpenGroup()
-      fseek(in,cBRead,0)
-      do while !lHecho
-         nBytes:=fread(in,@cMenInter,n_bloque)
-         IF nBytes > 0
-            codigo:=PADL(L_DTOHEX(ASC(cMenInter)),2,"0")
-            FWRITE(::hFile,codigo)
-         else
-            lHecho:= .T.
-         endif
-      ENDDO
-      ::CloseGroup()
-      ::CloseGroup()
-      fclose(in)
-   ENDIF
-
-   RETURN NIL
-*/
-
-****************************************************************************
-* Funtion to load a picture using nviewlib.
-*
-
-/*
-
-FUNCTION LoadPicture(cName,nWidth,nHeight,ScreenResX,ScreenResy)
-   LOCAL hDll,uResult,cFarProc
-   LOCAL oWnd,hWnd,hdc
-
-   hDLL := LoadLib32("nviewlib.dll")
-   IF Abs(hDll) <= 32
-      RETURN .F.
-   ENDIF
-
-   cFarProc:=GetProc32(hDll,"NViewLibLoad",.t.,LONG,STRING,LONG)
-   uResult=CallDll32(cFarProc,cName,0)
-   cFarProc:=GetProc32(hDll,"GetWidth",.t.,_INT)
-   nWidth=CallDll32(cFarProc)
-   cFarProc:=GetProc32(hDll,"GetHeight",.t.,_INT)
-   nHeight=CallDll32(cFarProc)
-   FreeLib32(hDll)
-   oWnd:=GetWndDefault()
-   hWnd:=oWnd:hWnd
-   hdc:=hwg_Getdc(hWnd)
-   ScreenResX:=GETDEVICEC(hdc,88)
-   ScreenResY:=GETDEVICEC(hdc,90)
-
-   RETURN .T.
-
-METHOD Bmp2Wmf(cName,aSize,nPercent) CLASS RichText
-   LOCAL cMenInter,n_bloque,nBytes,lHecho
-   LOCAL codigo,PictWidth,PictHeight
-   LOCAL hDCOut,hDib,hPal,nRaster
-   LOCAL cDir,temp,scalex,in,x,scaley
-   LOCAL nWidth,nHeight
-   LOCAL ResX,ResY
-   LOCAL aInches[2]
-
-   DEFAULT  aSize:={}
-   DEFAULT nPercent:=1
-
-   n_bloque := 1
-   cMenInter := Space(n_bloque)
-   lHecho := .F.
-   cDir := GetEnv( "TEMP" )
-   temp := cDir + "\tmp" + padl( ALLTRIM( STR( ::nFile, 4, 0 ) ), 4, "0" ) + ".wmf"
-   hDCOut := hwg_CreateMetafile( temp )
-   hDib := DibRead( cName )
-   IF hDib > 0
-      // Dimensiones en pixels
-      nWidth := DIBWIDTH( hDib )
-      nHeight := DIBHEIGHT( hDib )
-      ResX := DIBXPIX( hDib ) / 39.37
-      ResY := DIBYPIX( hDib ) / 39.37
-      // Dimensiones reales de la imagen en pulgadas
-      aInches[1]:=nWidth/ResX
-      aInches[2]:=nHeight/ResY
-      IF EMPTY(aSize)
-         aInches[ 1 ] *= nPercent
-         aInches[ 2 ] *= nPercent
-         scalex := INT( nPercent*100 )
-         scaley := INT( nPercent*100 )
-      ELSE
-         scalex := ROUND( ( ( aSize[ 1 ] * 100 ) / aInches[ 1 ] ) + 0.5, 0 )
-         scaley := ROUND( ( ( aSize[ 2 ] * 100 ) / aInches[ 2 ] ) + 0.5, 0 )
-         aInches[1 ] := aSize[ 1 ]
-         aInches[ 2 ] := aSize[ 2 ]
+      // Fallback for screen DPI to prevent division by zero
+      IF ScreenResX == 0 .OR. ScreenResY == 0
+         ScreenResX := 96
+         ScreenResY := 96
       ENDIF
-      aInches[ 1 ] := ROUND( aInches[ 1 ] * 1440, 0 )
-      aInches[ 2 ] := ROUND( aInches[ 2 ] * 1440, 0 )
-      // initialize the metafile
-      SETWNDEX( hDCOut, 0, 0 )
-      hwg_Setwindowextex( hDCOut, nWidth, nHeight );
 
-      DibDraw( hDCOut, hDib, hPal, 0, 0, nWidth, nHeight, nRaster )
-      GlobalFree( hDib )
-      CloseMetafile( hDCOut )
-      DELETEMETA( hDcOut )
-      // La matriz que se necesita para el metafile
-      in := fopen( temp )
-      ::OpenGroup()
-      ::TextCode( "\pict\wmetafile8" )
-      x := ROUND( ( ( aInches[ 1 ] * 2540 ) / 1440 ) + 0.5, 0 )
-      ::NumCode( "picw", x, .F. )
-      ::NumCode( "picwgoal", aInches[ 1 ], .F. )
-      ::NumCode( "picscalex", scalex, .F. )
-      x := ROUND( ( ( aInches[ 2 ] * 2540 ) / 1440 ) + 0.5, 0 )
-      ::NumCode( "pich", x, .F. )
-      ::NumCode("pichgoal", aInches[2], .F. )
-      ::NumCode( "picscaley", scaley, .F.)
-      ::OpenGroup()
-      DO WHILE !lHecho
-         nBytes:=fread(in,@cMenInter,n_bloque)
-         IF nBytes > 0
-            codigo:=PADL(L_DTOHEX(ASC(cMenInter)),2,"0")
-            FWRITE(::hFile,codigo)
-         ELSE
-            lHecho:= .T.
-         ENDIF
-      ENDDO
-      ::CloseGroup()
-      ::CloseGroup()
-      fclose( in )
-      FERASE( temp )
-      ::nFile += 1
+      // Calculate resolution scale (convert inches/DPI equivalents)
+      ResX := ScreenResX
+      ResY := ScreenResY
+
+      // Compute actual image dimensions in inches
+      aInches[1] := nWidth  / ResX
+      aInches[2] := nHeight / ResY
+
+      IF EMPTY( aSize ) .OR. Len( aSize ) < 2
+         aInches[1] *= nPercent
+         aInches[2] *= nPercent
+         scalex     := INT( nPercent * 100 )
+         scaley     := INT( nPercent * 100 )
+      ELSE
+         scalex     := ROUND( ( ( aSize[1] * 100 ) / aInches[1] ) + 0.5, 0 )
+         scaley     := ROUND( ( ( aSize[2] * 100 ) / aInches[2] ) + 0.5, 0 )
+         aInches[1] := aSize[1]
+         aInches[2] := aSize[2]
+      ENDIF
+
+      // Convert dimensions to RTF standard Twips (1/1440 inch)
+      aInches[1] := ROUND( aInches[1] * 1440, 0 )
+      aInches[2] := ROUND( aInches[2] * 1440, 0 )
+
+      // Setup a secure, isolated temporary file path for the WMF output
+      cTempFile := hb_DirTemp() + "tmp_" + PADL( ALLTRIM( STR( ::nFile, 4, 0 ) ), 4, "0" ) + ".wmf"
+
+      // Initialize the GDI Metafile output context
+      hDCOut := hwg_CreateMetafile( cTempFile )
+
+      IF hDCOut != NIL .AND. hDCOut != 0
+         // Setup coordinate boundaries inside the Metafile DC
+         hwg_Setwindowextex( hDCOut, nWidth, nHeight )
+
+         // Draw the bitmap handle into the Metafile Device Context
+         oBmp:Draw( hDCOut, 0, 0, nWidth, nHeight )
+
+         // Close and commit the Metafile structure to disk
+         hwg_CloseMetafile( hDCOut )
+      ENDIF
+
+      // Dispose of the source graphic object memory
+      oBmp:Release()
+
+      // Open the generated metafile stream to copy into the RTF document
+      in := fopen( cTempFile )
+
+      IF in >= 0
+         ::OpenGroup()
+         ::TextCode( "\pict\wmetafile8" )
+
+         x := ROUND( ( ( aInches[1] * 2540 ) / 1440 ) + 0.5, 0 )
+         ::NumCode( "picw", x, .F. )
+         ::NumCode( "picwgoal", aInches[1], .F. )
+         ::NumCode( "picscalex", scalex, .F. )
+
+         x := ROUND( ( ( aInches[2] * 2540 ) / 1440 ) + 0.5, 0 )
+         ::NumCode( "pich", x, .F. )
+         ::NumCode( "pichgoal", aInches[2], .F. )
+         ::NumCode( "picscaley", scaley, .F. )
+
+         ::OpenGroup()
+
+         // Fast binary buffer read loop using optimized 8 KB blocks
+         cMenInter := Space( nBloque )
+         DO WHILE .T.
+            nBytes := fread( in, @cMenInter, nBloque )
+            IF nBytes <= 0
+               EXIT
+            ENDIF
+            FWRITE( ::hFile, hb_StrToHex( SubStr( cMenInter, 1, nBytes ) ) )
+         ENDDO
+
+         ::CloseGroup()
+         ::CloseGroup()
+
+         fclose( in )
+         FERASE( cTempFile )
+         ::nFile += 1
+      ENDIF
    ENDIF
 
    RETURN NIL
-*/
 
 /* Helper function to get file extension */
 FUNCTION cFileExt( cFile )

@@ -15,6 +15,22 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-09 01:23 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+    * contrib/misc/richtext.prg:
+      - Modernized Bmp2Wmf() method: replaced legacy DibRead/DibDraw with
+        HBitmap():LoadFromFile() and oBmp:Draw() to generate WMF metafiles
+        directly via GDI. Eliminates dependencies on obsolete DIB functions.
+      - Uses 8 KB buffer and hb_StrToHex() for fast binary conversion.
+      - Added screen DPI fallback and proper temporary file management.
+
+2026-09-09 01:08 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+    * contrib/misc/richtext.prg:
+      - Modernized Bmp2Wmf() method: replaced legacy DibRead/DibDraw with
+        HBitmap():LoadFromFile() and oBmp:Draw() to generate WMF metafiles
+        directly via GDI. Eliminates dependencies on obsolete DIB functions.
+      - Uses 8 KB buffer and hb_StrToHex() for fast binary conversion.
+      - Added screen DPI fallback and proper temporary file management.
+
 2026-09-09 01:08 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * contrib/misc/richtext.prg:
       - Added new Wmf2Rtf() method to embed Windows Metafiles (WMF) directly
