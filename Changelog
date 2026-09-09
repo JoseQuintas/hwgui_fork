@@ -15,7 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2026-09-08 00:43 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+2026-09-09 00:43 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source/winapi/draw.c:
       + Added HWG_GDIPLUSSAVEPNG() C function to handle native GDI+ PNG stream
         encoding, providing cross-platform 32/64-bit support (Clang/MSVC/GCC).
