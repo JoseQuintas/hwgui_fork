@@ -33,10 +33,15 @@ static WNDPROC wpOrigComboProc;
 
 HB_FUNC( COPYDATA )
 {
-   LPARAM lParam = ( LPARAM ) hb_parnl( 1 ) ;
+   /* lParam is the real buffer address Windows passed via WM_GETTEXT -
+      it is a pointer, so it must be read pointer-safely (hb_parnint),
+      not truncated to a 32-bit LONG via hb_parnl(), which corrupts the
+      address on 64-bit builds and makes lstrcpyn() write to the wrong
+      memory. */
+   LPARAM lParam = ( LPARAM ) hb_parnint( 1 ) ;
    void * hText;
    LPCTSTR m_strText = HB_PARSTR( 2, &hText, NULL );
-   WPARAM wParam = ( WPARAM ) hb_parnl( 3 ) ;
+   WPARAM wParam = ( WPARAM ) hb_parnint( 3 ) ;
 
    lstrcpyn( ( LPTSTR ) lParam, m_strText, ( INT ) wParam ) ;
    hb_strfree( hText );
@@ -56,10 +61,16 @@ LRESULT APIENTRY ComboSubclassProc( HWND hWnd, UINT message, WPARAM wParam,
       hb_vmPushSymbol( hb_dynsymSymbol( pSym_onEvent ) );
       hb_vmPush( pObject );
       hb_vmPushLong( ( LONG ) message );
-      hb_vmPushLong( ( LONG ) wParam );
-//      hb_vmPushLong( (LONG ) lParam );
+      /* wParam/lParam are pointer-sized (WPARAM/LPARAM) - some messages
+         this proc receives (WM_CTLCOLOREDIT, WM_CTLCOLORLISTBOX) carry a
+         real HDC in wParam and expect a HBRUSH handle back, so both must
+         round-trip through the VM without truncation. See s_MainWndProc
+         in window.c for the same pattern. */
+      HB_PUSHITEM( wParam );
       HB_PUSHITEM( lParam );
       hb_vmSend( 3 );
+      if( HB_ISPOINTER( -1 ) )
+         return ( LRESULT ) HB_PARHANDLE( -1 );
       res = hb_parnl( -1 );
       if( res == -1 )
          return ( CallWindowProc( wpOrigComboProc, hWnd, message, wParam,

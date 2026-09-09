@@ -15,6 +15,21 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-08 21:012 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **hcomboex.prg**: fixed 64-bit pointer truncation in the embedded C
+    section - HB_FUNC(COPYDATA) read the WM_GETTEXT buffer address
+    (lParam) via hb_parnl() (32-bit LONG), corrupting it on 64-bit builds
+    and making lstrcpyn() write to the wrong memory; now uses
+    hb_parnint(). ComboSubclassProc() still truncated wParam via
+    hb_vmPushLong((LONG)wParam) - a leftover from an earlier partial fix
+    that already switched lParam to HB_PUSHITEM() but missed wParam - and
+    never checked HB_ISPOINTER() on the .prg's return value, so a real
+    handle (e.g. the HBRUSH a combo box's WM_CTLCOLOREDIT/
+    WM_CTLCOLORLISTBOX handler must return) would get truncated through
+    hb_parnl(). Both now match the already-correct pattern used in
+    s_MainWndProc (window.c).
+
 2026-09-07 23:16 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Changed
   - **theme.c**: dropped Windows 2000 support - removed the entire dynamic
