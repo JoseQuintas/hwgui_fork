@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-08 23:00 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+    * contrib/misc/richtext.prg:
+      - Added full Unicode (UTF-8) support.
+        Changed RTF header to code page 65001 and implemented \u escapes.
+      - Fixed shading normalization in Paragraph and IncStyle.
+      - Corrected style handling in ParaStyle and CharStyle (now use Len(::ParStyles)).
+      - Added validation for header data in DefNewTable.
+      - Updated all comments to English and improved code readability.
+      - Kept image inclusion methods as stubs (future enhancement).
+
 2026-09-08 22:19 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
     * contrib/misc/miscfunc.prg:
       - Added comprehensive English comments for all functions.

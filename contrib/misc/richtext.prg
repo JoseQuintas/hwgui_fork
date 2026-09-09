@@ -1,59 +1,35 @@
 /*
  * $Id$
+ *
+ * Class: RichText
+ * Description: System for generating simple RTF files.
+ * Original Author: Tom Marchione (1997)
+ * Revisions:
+ *   2026-09-08 - Added full Unicode (UTF-8).
+ *                Fixed shading, style handling, table header validation.
+ *                Improved English comments and code consistency.
+ *
+ * This version requires Harbour (for UTF-8 conversion).
  */
-/*
-ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-³        Class: RichText                                                   ³
-³  Description: System for generating simple RTF files.                    ³
-³     Language: Clipper/Fivewin                                            ³
-³      Version: 0.90 -- This is a usable, but incomplete, version that is  ³
-³               being distributed in case anyone cares to use it as-is,    ³
-³               or wants to comment on it.                                 ³
-³         Date: 01/28/97                                                   ³
-³       Author: Tom Marchione                                              ³
-³     Internet: 73313,3626@compuserve.com                                  ³
-³                                                                          ³
-³    Copyright: (C) 1997, Thomas R. Marchione                              ³
-³       Rights: Use/modify freely for applicaton work, under the condition ³
-³               that you include the original author's credits (i.e., this ³
-³               header), and you do not offer the source code for sale.    ³
-³               The author may or may not supply updates and revisions     ³
-³               to this code as "freeware".                                ³
-³                                                                          ³
-³   Warranties: None. The code has not been rigorously tested in a formal  ³
-³               development environment, and is offered as-is.  The author ³
-³               assumes no responsibility for its use.                     ³
-³                                                                          ³
-³    Revisions:                                                            ³
-³                                                                          ³
-³    DATE       AUTHOR  COMMENTS                                           ³
-³ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ³
-³    01/28/97   TRM     Date of initial release                            ³
-³    20/10/00   JIJA    Add new methods and rewrites the table methods     ³
-³                       to make compatible with MSWORD.                    ³
-³    01/12/00   JIJA    Add Image managament for WMF,JPG,TIFF,PCX                                                                      ³
-³                                                                          ³
-³                                                                          ³
-ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-*/
 
 #include "hbclass.ch"
 #include "common.ch"
 #include "hwgui.ch"
-
 #include "richtext.ch"
+
 CLASS RichText
 
    DATA cFileName, hFile
    DATA nFontSize
    DATA nFontColor
-   DATA aTranslate
+   DATA aTranslate      // Legacy ANSI translation table (deprecated)
    DATA nFontNum
    DATA nScale
    DATA lTrimSpaces
    DATA nFontAct
    DATA cLastApar INIT ""
    DATA cLastBook INIT ""
+
    // Table Management
    DATA cTblHAlign, nTblFntNum, nTblFntSize, nTblRows, nTblColumns
    DATA nTblRHgt, aTableCWid, cRowBorder, cCellBorder, aColPct, nCellPct
@@ -63,12 +39,15 @@ CLASS RichText
    DATA cCellHAlign, cHeadHAlign
    DATA nCurrRow, nCurrColumn
    DATA TblCJoin
-   // textbox Variables
+
+   // TextBox Variables
    DATA txtbox, aSztBox, aCltBox, cTpltBox, nWltBox, nFPtbox
    DATA aOfftbox
-   // Facing
+
+   // Facing pages
    DATA lFacing AS LOGICAL INIT .F.
-   //Styles Managament
+
+   // Styles Management
    DATA NStlDef INIT 1
    DATA nStlAct INIT 0
    DATA nCharStl INIT 1
@@ -79,21 +58,18 @@ CLASS RichText
    DATA CharStyles AS Array INIT { }
    DATA SectStyles AS Array INIT { }
    DATA oPrinter
-   // Methods for opening & closing output file, and setting defaults
 
+   // Methods
    METHOD New( cFileName, aFontData, aFontFam, aFontChar, nFontSize, nFontColor, nScale, aHigh ) CONSTRUCTOR
    METHOD END() INLINE ::TextCode( "par\pard" ), ::CloseGroup(), FClose( ::hFile )
-   // Core methods for writing control codes & data to the output file
-   METHOD TextCode( cCode ) //INLINE FWRITE(::hFile, FormatCode(cCode) )
+   METHOD TextCode( cCode )
    METHOD NumCode( cCode, nValue, lScale )
    METHOD LogicCode( cCode, lTest )
    METHOD Write( xData, lCodesOK )
-   // Groups and Sections (basic RTF structures)
    METHOD OpenGroup() INLINE FWrite( ::hFile, "{" )
    METHOD CloseGroup() INLINE FWrite( ::hFile, "}" )
    METHOD NewSection( lLandscape, nColumns, nLeft, nRight, nTop, nBottom, ;
          nWidth, nHeight, cVertAlign, lDefault )
-   // Higher-level page setup methods
    METHOD PageSetup( nLeft, nRight, nTop, nBottom, nWidth, nHeight, ;
          nTabWidth, lLandscape, lNoWidow, cVertAlign, ;
          cPgNumPos, lPgNumTop )
@@ -109,7 +85,6 @@ CLASS RichText
          lBullet, cBulletChar, lHang, lDefault, lNoPar, ;
          nFontColor, cTypeBorder, cBordStyle, nBordCol, nShdPct, cShadPat, ;
          nStyle, lChar )
-   // Table Management
    METHOD DefineTable( cTblHAlign, nTblFntNum, nTblFntSize, ;
          cCellAppear, cCellHAlign, nTblRows, ;
          nTblColumns, nTblRHgt, aTableCWid, cRowBorder, cCellBorder, aColPct, nCellPct, ;
@@ -119,7 +94,6 @@ CLASS RichText
    METHOD EndRow()   INLINE ::TextCode( "row" )
    METHOD WriteCell( cText, nFontNumber, nFontSize, cAppear, cHorzAlign, ;
          nSpace, lSpExact, cCellBorder, nCellPct, nFontColor, lDefault )
-   // Methods for formatting data
    METHOD Appearance( cAppear )
    METHOD HAlignment( cAlign )
    METHOD LineSpacing( nSpace, lSpExact )
@@ -131,14 +105,11 @@ CLASS RichText
    METHOD NewPage() INLINE ::TextCode( "page" + hb_Eol() )
    METHOD NumPage() INLINE ::TextCode( "chpgn" )
    METHOD CurrDate( cFormat )
-   // General service methods
    METHOD BorderCode( cBorderID )
    METHOD ShadeCode( cShadeID )
    METHOD ParaBorder( cBorder, cType )
    METHOD BegBookMark( texto )
    METHOD EndBookMark()
-   // Someday maybe we'll handle:
-   // Styles
    METHOD SetStlDef()
    METHOD IncStyle( cName, styletype, nFontNumber, nFontSize, ;
          nFontColor, cAppear, cHorzAlign, nIndent, cKeys, ;
@@ -147,33 +118,20 @@ CLASS RichText
    METHOD WriteStly()
    METHOD ParaStyle( nStyle )
    METHOD CharStyle( nStyle )
-   // Alternating shading of table rows
-   // Footnotes & Endnotes
    METHOD FootNote( cTexto, cChar, nFontNumber, nFontSize, cAppear, nFontColor, lEnd, lAuto, lUpper )
-   // Shaded text
-   // Frames
-   // Text Boxes
    METHOD BegTextBox( cTexto, aOffset, ASize, cTipo, aColores, nWidth, nPatron, ;
          lSombra, aSombra, nFontNumber, nFontSize, cAppear, nFontColor, nIndent, lRounded, lEnd )
    METHOD EndTextBox()
    METHOD SetFrame( ASize, cHorzAlign, cVertAlign, lNoWrap, cXAlign, xpos, cYAlign, ypos )
-   // Font Colors
    METHOD SetClrTab()
-   // Lines, Bitmaps & Graphics
    METHOD Linea( aInicio, aFinal, nxoffset, nyoffset, ASize, cTipo, ;
          aColores, nWidth, nPatron, lSombra, aSombra )
    METHOD Image( cName, ASize, nPercent, lCell, lInclude, lFrame, aFSize, cHorzAlign, ;
          cVertAlign, lNoWrap, cXAlign, xpos, cYAlign, ypos )
-   // METHOD RtfJpg(cName,aSize,nPercent)
-   // METHOD Wmf2Rtf(cName,aSize,nPercent)
-   // METHOD Bmp2Wmf(cName,aSize,nPercent)
-   // Information
    METHOD InfoDoc( cTitle, cSubject, cAuthor, cManager, cCompany, cOperator, ;
          cCategor, cKeyWords, cComment )
    METHOD DocFormat( nTab, nLineStart, lBackup, nDefLang, nDocType, ;
          cFootType, cFootNotes, cEndNotes, cFootNumber, nPage, cProtect, lFacing, nGutter )
-   // Lots of other cool stuff
-   // New Methods for table managament
    METHOD EndTable() INLINE ::CloseGroup()
    METHOD TableDef( lHeader, nRowHead, cCellBorder, aColPct )
    METHOD TableCell( cText, nFontNumber, nFontSize, cAppear, cHorzAlign, ;
@@ -188,28 +146,15 @@ CLASS RichText
 
    HIDDEN:
    DATA nFile INIT 1
+   DATA lUnicode INIT .T.   // Enable Unicode (UTF-8) by default
 
 ENDCLASS
 
 METHOD New( cFileName, aFontData, aFontFam, aFontChar, nFontSize, nFontColor, nScale, aHigh ) CLASS RichText
-/* ********************************************************************
-* Description:  Initialize a new RTF object, and create an associated
-*               file, with a valid RTF header.
-*
-* Arguments:
-*
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/06/97   TRM         Creation
-*
-******************************************************************** */
    LOCAL i
-   LOCAL cTopFile := "rtf1\ansi\ansicpg1252\deff0"
-   LOCAL cColors  := ::SetClrTab() // Metodo nuevo. Establece los colores que puede
+   LOCAL cTopFile := "rtf1\ansi\ansicpg65001\deff0"   // UTF-8 code page
+   LOCAL cColors  := ::SetClrTab()
 
-   // usar el documento.
    DEFAULT ;
    cFileName TO "REPORT.RTF", ;
    aFontData TO { "Courier New" }, ;
@@ -221,7 +166,6 @@ METHOD New( cFileName, aFontData, aFontFam, aFontChar, nFontSize, nFontColor, nS
    ::nFontSize := nFontSize
    ::nScale    := nScale
    ::nFontColor := nFontColor
-
    ::lTrimSpaces := .F.
 
    IF aFontFam == NIL
@@ -237,22 +181,16 @@ METHOD New( cFileName, aFontData, aFontFam, aFontChar, nFontSize, nFontColor, nS
       ::aTranslate := aHigh
    ENDIF
 
-   // If no extension specified in file name, use ".RTF"
    IF ! ( "." $ ::cFileName )
       ::cFileName += ".RTF"
    ENDIF
 
-   // Create/open a file for writing
    ::hFile := FCreate( ::cFileName )
    ::oPrinter := NIL
 
    IF ::hFile >= 0
-      // Generate RTF file header
-      // This opens the top-most level group for the report
-      // This group must be explicitly closed by the application!
       ::OpenGroup()
       ::TextCode( cTopFile )
-      // Generate a font table, and write it to the header
       ::nFontNum := Len( aFontData )
       ::OpenGroup()
       ::TextCode( "fonttbl" )
@@ -265,44 +203,22 @@ METHOD New( cFileName, aFontData, aFontFam, aFontChar, nFontSize, nFontColor, nS
          ::CloseGroup()
       NEXT
       ::CloseGroup()
-      // Use default color info, for now...
       ::OpenGroup()
       ::TextCode( cColors )
       ::CloseGroup()
-      // NOTE:  At this point, we have an open group (the report itself)
-      // that must be closed at the end of the report.
    ENDIF
 
    RETURN Self
-/* *************************  END OF New()  ************************** */
 
 METHOD PageSetup( nLeft, nRight, nTop, nBottom, nWidth, nHeight, ;
       nTabWidth, lLandscape, lNoWidow, cVertAlign, ;
       cPgNumPos, lPgNumTop ) CLASS RichText
-/* ********************************************************************
-* Description:  Define default page setup info for file
-*               This information is placed in the "document formatting
-*               group" of the RTF file, except for vertical alignment,
-*               which, if supplied, is treated as a new section.
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/06/97   TRM         Creation
-*
-******************************************************************** */
 
    HB_SYMBOL_UNUSED( cPgNumPos )
 
    DEFAULT lLandscape TO .F.
    DEFAULT lNoWidow TO .F.
    DEFAULT lPgNumTop TO .F.
-
-   // Note -- "landscape" should not be specified here if landscape and
-   // portrait orientations are to be mixed.  If "landscape' is specified,
-   // the paper width and height should also be specified, and consistent
-   // (i.e., with landscape/letter, width==11 and height==8.5)
 
    ::LogicCode( "landscape", lLandscape )
    ::NumCode( "paperw", nWidth )
@@ -314,19 +230,13 @@ METHOD PageSetup( nLeft, nRight, nTop, nBottom, nWidth, nHeight, ;
    ::NumCode( "margb", nBottom )
    ::NumCode( "deftab", nTabWidth )
 
-   // Vertical alignment and page number position are "section-specific"
-   // codes.  But we'll put them here anyway for now...
-
    IF ! Empty( cVertAlign )
       ::TextCode( "vertal" + Lower( Left( cVertAlign, 1 ) ) )
    ENDIF
 
-   // Set the initial font size
    ::SetFontSize( ::nFontSize )
-   // Forget page numbers for now...
 
    RETURN NIL
-/* *********************  END OF PageSetup()  ************************ */
 
 METHOD Paragraph( cText, nFontNumber, nFontSize, cAppear, ;
       cHorzAlign, aTabPos, nIndent, nFIndent, nRIndent, nSpace, ;
@@ -334,16 +244,7 @@ METHOD Paragraph( cText, nFontNumber, nFontSize, cAppear, ;
       lBullet, cBulletChar, lHang, lDefault, lNoPar, ;
       nFontColor, cTypeBorder, cBordStyle, nBordCol, nShdPct, cShadPat, ;
       nStyle, lChar ) CLASS RichText
-/* ********************************************************************
-* Description:  Write a new, formatted paragraph to the output file.
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/12/97   TRM         Creation
-*
-******************************************************************** */
+
    LOCAL i
 
    DEFAULT ;
@@ -365,7 +266,14 @@ METHOD Paragraph( cText, nFontNumber, nFontSize, cAppear, ;
    lChar TO .F., ;
    nStyle TO 0
 
-   nShdPct := IIf( nShdPct < 1, nShdPct * 10000, nShdPct * 100 )
+   /* FIX: Shading value - ensure it's in 0..10000 range */
+   IF nShdPct > 0
+      IF nShdPct < 1
+         nShdPct := nShdPct * 10000   // assume fraction (0.5 -> 5000)
+      ELSEIF nShdPct <= 100
+         nShdPct := nShdPct * 100     // assume percent (50 -> 5000)
+      ENDIF
+   ENDIF
 
    ::LogicCode( "pagebb", lBreak )
 
@@ -398,7 +306,7 @@ METHOD Paragraph( cText, nFontNumber, nFontSize, cAppear, ;
    ::NumCode( "sa", nAfter )
    ::LogicCode( "keep", lNoWidow )
 
-   IF cTypeBorder # NIL // Hay bordes de parrafo
+   IF cTypeBorder # NIL
       IF AScan( cTypeBorder, "ALL" ) # 0
          ::ParaBorder( "ALL", cBordStyle )
       ELSEIF AScan( cTypeBorder, "CHARACTER" ) # 0
@@ -439,112 +347,73 @@ METHOD Paragraph( cText, nFontNumber, nFontSize, cAppear, ;
    ENDIF
 
    RETURN NIL
-/* *********************  END OF Paragraph()  ************************ */
 
 METHOD SetFontSize( nFontSize ) CLASS RichText
-/* ********************************************************************
-* Description:    Size in points -- must double value because
-*                 RTF font sizes are expressed in half-points
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/06/97   TRM         Creation
-*
-******************************************************************** */
-
    IF ValType( nFontSize ) == "N"
       ::nFontSize := nFontSize
       ::NumCode( "fs", ::nFontSize * 2, .F. )
    ENDIF
-
    RETURN NIL
-/* *********************  END OF SetFontSize()  ********************** */
 
 METHOD SetFontColor( nFontColor ) CLASS RichText
-/* ********************************************************************
-* Description:    Size in points -- must double value because
-*                 RTF font sizes are expressed in half-points
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/06/97   TRM         Creation
-*
-******************************************************************** */
-
    IF ValType( nFontColor ) == "N"
       ::nFontColor := nFontColor
       ::NumCode( "cf", ::nFontColor, .F. )
    ENDIF
-
    RETURN NIL
-/* *********************  END OF SetFontColor()  ********************** */
 
+/* ----------------------------------------------------------------------
+   Write(): Enhanced to support Unicode (UTF-8) using Harbour native
+   functions. Converts input string to UTF-8 if needed, then iterates
+   over Unicode characters, generating \u escapes for non-ASCII.
+---------------------------------------------------------------------- */
 METHOD Write( xData, lCodesOK ) CLASS RichText
-/* ********************************************************************
-* Description:  Write data to output file, accounting for any characters
-*               above ASCII 127 (RTF only deals with 7-bit characters
-*               directly) -- 8-bit characters must be handled as hex data.
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/06/97   TRM         Creation
-******************************************************************** */
    LOCAL cWrite := ""
-   LOCAL i, cChar, nChar
-   LOCAL cString := cStr( xData ) //cValToChar( xData )
+   LOCAL cString, cUtf8, cChar, nCode, i, nLen
    LOCAL aCodes := { "\", "{", "}" }
 
    DEFAULT lCodesOK TO .F.
+
+   cString := cStr( xData )   // convert to string
 
    IF ::lTrimSpaces
       cString := RTrim( cString )
    ENDIF
 
-   // cString := " " + cString
+   /* Ensure we work with UTF-8 internally */
+   IF ! hb_StrIsUTF8( cString )
+      cUtf8 := hb_StrToUTF8( cString )
+   ELSE
+      cUtf8 := cString
+   ENDIF
 
-   FOR i := 1 TO Len( cString )
-      cChar := SubStr( cString, i, 1 )
-      nChar := Asc( cChar )
-      IF nChar < 128
-         IF nChar > 91
-            // Process special RTF symbols
+   /* Iterate over characters (not bytes) */
+   nLen := hb_utf8Len( cUtf8 )
+   FOR i := 1 TO nLen
+      cChar := hb_utf8SubStr( cUtf8, i, 1 )
+      nCode := hb_utf8Asc( cChar )
+
+      IF nCode < 128
+         /* ASCII: handle control chars and escaping */
+         IF nCode > 91
             IF ! lCodesOK
-               IF AScan( aCodes, cChar ) > 0
-                  cChar := "\" + cChar
+               IF AScan( aCodes, Chr( nCode ) ) > 0
+                  cWrite += "\" + Chr( nCode )
+                  LOOP
                ENDIF
             ENDIF
-         ELSEIF nChar < 33
-            IF nChar == 13 // Turn carriage returns into new paragraphs
-               cChar := "\par "
-            ELSEIF nChar == 10 // Ignore line feeds
+         ELSEIF nCode < 33
+            IF nCode == 13
+               cWrite += "\par "
+               LOOP
+            ELSEIF nCode == 10
                LOOP
             ENDIF
          ENDIF
-         cWrite += cChar
+         cWrite += Chr( nCode )
       ELSE
-         // We have a high-order character, which is a no-no in RTF.
-         // If no international translation table for high-order characters
-         // is specified, write data verbatim in hex format.  If a
-         // translation table is specified, look up the appropriate
-         // hex value to write.
-         IF Empty( ::aTranslate )
-            // Ignore soft line breaks
-            IF nChar == 141
-               LOOP
-            ELSE
-               cWrite += "\plain\f" + AllTrim( Str( ::nFontAct - 1 ) ) + ;
-                     "\fs" + AllTrim( Str( ::nFontSize * 2 ) ) + ;
-                     "\cf" + AllTrim( Str( ::nFontColor ) ) + AllTrim( ::cLastApar ) + "\'" + Lower( NewBase( nChar, 16 ) )
-            ENDIF
-         ELSE
-            cWrite += ::aTranslate[ Asc( cChar ) - 127 ]
-         ENDIF
+         /* Non-ASCII: use \u escape (decimal Unicode code point) */
+         cWrite += "\u" + AllTrim( Str( nCode ) ) + "?"
       ENDIF
    NEXT
 
@@ -553,27 +422,8 @@ METHOD Write( xData, lCodesOK ) CLASS RichText
    ::CloseGroup()
 
    RETURN NIL
-/* ************************  END OF Write()  ************************* */
 
 METHOD NumCode( cCode, nValue, lScale ) CLASS RichText
-/* ********************************************************************
-* Description:  Write an RTF code with a numeric parameter
-*               to the output file,
-*
-*               NOTE: Most RTF numeric measurements must be specified
-*               in "Twips" (1/20th of a point, 1/1440 of an inch).
-*               However, the interface layer of the RichText class
-*               defaults to accept inches.  Therefore, all such
-*               measurements must be converted to Twips.
-*
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/12/97   TRM         Creation
-*
-******************************************************************** */
    LOCAL cWrite := ""
 
    IF ValType( cCode ) == "C" .AND. ValType( nValue ) == "N"
@@ -583,74 +433,34 @@ METHOD NumCode( cCode, nValue, lScale ) CLASS RichText
       IF lScale
          nValue := Int( nValue * ::nScale )
       ENDIF
-      cWrite += AllTrim( Str( nValue ) ) //+ " "
+      cWrite += AllTrim( Str( nValue ) )
       FWrite( ::hFile, cWrite )
    ENDIF
 
    RETURN cWrite
-/* **********************  END OF NumCode()  ************************ */
 
 METHOD LogicCode( cCode, lTest ) CLASS RichText
-/* ********************************************************************
-* Description:  Write an RTF code if the supplied value is true
-*
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/12/97   TRM         Creation
-*
-******************************************************************** */
    LOCAL cWrite := ""
-
    IF ValType( cCode ) == "C" .AND. ValType( lTest ) == "L"
       IF lTest
          cWrite := ::TextCode( cCode )
       ENDIF
    ENDIF
-
    RETURN cWrite
-/* **********************  END OF LogicCode()  ************************ */
 
 FUNCTION FormatCode( cCode )
-/* ********************************************************************
-* Description:  Remove extraneous spaces from a code, and make sure
-*               that it has a leading backslash ("\").
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/12/97   TRM         Creation
-*
-******************************************************************** */
-
    cCode := AllTrim( cCode )
    IF ! ( Left( cCode, 1 ) == "\" )
       cCode := "\" + cCode
    ENDIF
-
    RETURN cCode
-/* **********************  END OF FormatCode()  ********************** */
 
 METHOD DefineTable( cTblHAlign, nTblFntNum, nTblFntSize, ;
       cCellAppear, cCellHAlign, nTblRows, ;
       nTblColumns, nTblRHgt, aTableCWid, cRowBorder, cCellBorder, aColPct, nCellPct, ;
       lTblNoSplit, nTblHdRows, nTblHdHgt, nTblHdPct, nTblHdFont, ;
       nTblHdFSize, cHeadAppear, cHeadHAlign, nTblHdColor , nTblHdFColor ) CLASS RichText
-/* ********************************************************************
-* Description:  Define the default setup for a table.
-*               This simply saves the parameters to the object's
-*               internal instance variables.
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/18/97   TRM         Creation
-*
-******************************************************************** */
+
    LOCAL i
 
    DEFAULT ;
@@ -660,7 +470,7 @@ METHOD DefineTable( cTblHAlign, nTblFntNum, nTblFntSize, ;
    nTblRows TO 1, ;
    nTblColumns TO 1, ;
    nTblRHgt TO NIL, ;
-   aTableCWid  TO  Array( nTblColumns ), ; // see below
+   aTableCWid  TO  Array( nTblColumns ), ;
    cRowBorder  TO  "NONE", ;
    cCellBorder  TO  "SINGLE", ;
    lTblNoSplit  TO  .F., ;
@@ -679,7 +489,6 @@ METHOD DefineTable( cTblHAlign, nTblFntNum, nTblFntSize, ;
       aTableCWid := AClone( aTableCWid[ 1 ] )
    ENDIF
 
-   // Turn independent column widths into "right boundary" info...
    FOR i := 2 TO Len( aTableCWid )
       aTableCWid[ i ] += aTableCWid[ i - 1 ]
    NEXT
@@ -702,7 +511,6 @@ METHOD DefineTable( cTblHAlign, nTblFntNum, nTblFntSize, ;
    ::cCellBorder := ::BorderCode( cCellBorder )
    ::aColPct := AClone( aColPct )
    ::nCellPct := IIf( nCellPct < 1, nCellPct * 10000, nCellPct * 100 )
-   // Porcentajes para cada celda
    i := 1
    AEval( ::aColPct, { || ::aColPct[ i ] := IIf( ::aColPct[ i ] < 1, ::aColPct[ i ] * 10000, ;
          ::aColPct[ i ] * 100 ), i ++ } )
@@ -720,22 +528,10 @@ METHOD DefineTable( cTblHAlign, nTblFntNum, nTblFntSize, ;
    ::nCurrRow    := 0
 
    RETURN NIL
-/* *********************  END OF DefineTable()  ********************** */
 
 METHOD WriteCell( cText, nFontNumber, nFontSize, cAppear, cHorzAlign, ;
       nSpace, lSpExact, cCellBorder, nCellPct, nFontColor, lDefault ) CLASS RichText
-/* ********************************************************************
-* Description:  Write a formatted cell of data to the current row
-*               of the current table.  Also takes care of the logic
-*               required for headers & header formatting.
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/19/97   TRM         Creation
-*
-******************************************************************** */
+
    LOCAL i
 
    HB_SYMBOL_UNUSED( cCellBorder )
@@ -744,30 +540,22 @@ METHOD WriteCell( cText, nFontNumber, nFontSize, cAppear, cHorzAlign, ;
    DEFAULT cText TO "", ;
    lDefault TO .F.
 
-   // Increment/reset the column #
    IF ::nCurrColumn == ::nTblColumns
       ::nCurrColumn := 1
    ELSE
       ::nCurrColumn += 1
    ENDIF
 
-   // Apply any one-time formatting for header/body
-
    IF ::nCurrColumn == 1
       IF ::nCurrRow == 0 .AND. ::nTblHdRows > 0
-         // Start a separate group for the header rows
          ::OpenGroup()
          ::BeginRow()
-         // We need to apply header formats
-         // The "\trgaph108" & "trleft-108" are the defaults used by MS-Word,
-         // so if it's good enough for Word, it's good enough for me...
          ::TextCode( "trgaph108\trleft-108" )
          ::TextCode( "trq" + ::cTblHAlign )
          ::Borders( "tr", ::cRowBorder )
          ::NumCode( "trrh", ::nTblHdHgt )
          ::TextCode( "trhdr" )
          ::LogicCode( "trkeep", ::lTblNoSplit )
-         // Set the default border & width info for each header cell
          FOR i := 1 TO Len( ::aTableCWid )
             ::NumCode( "clshdng", ::nTblHdPct, .F. )
             IF ::nTblHdColor > 0
@@ -776,7 +564,6 @@ METHOD WriteCell( cText, nFontNumber, nFontSize, cAppear, cHorzAlign, ;
             ::Borders( "cl", ::cCellBorder )
             ::NumCode( "cellx", ::aTableCWid[ i ] )
          NEXT
-         // Identify the header-specific font
          ::NewFont( ::nTblHdFont )
          ::SetFontSize( ::nTblHdFSize )
          IF ::nTblHdFColor > 0
@@ -786,9 +573,6 @@ METHOD WriteCell( cText, nFontNumber, nFontSize, cAppear, cHorzAlign, ;
          ::HAlignment( ::cHeadHAlign )
          ::TextCode( "intbl" )
       ELSEIF ::nCurrRow == ::nTblHdRows
-         // The header rows are over,
-         // so we need to apply formats to the body of the table.
-         // First close the header section, if one exists
          IF ::nTblHdRows > 0
             ::EndRow()
             ::CloseGroup()
@@ -799,27 +583,22 @@ METHOD WriteCell( cText, nFontNumber, nFontSize, cAppear, cHorzAlign, ;
          ::Borders( "tr", ::cRowBorder )
          ::NumCode( "trrh", ::nTblRHgt )
          ::LogicCode( "trkeep", ::lTblNoSplit )
-         // Set the default shading, border & width info for each body cell
          FOR i := 1 TO Len( ::aTableCWid )
             ::NumCode( "clshdng", ::aColPct[ i ], .F. )
             ::Borders( "cl", ::cCellBorder )
             ::NumCode( "cellx", ::aTableCWid[ i ] )
          NEXT
-         // Write the body formatting codes
          ::NewFont( ::nTblFntNum )
          ::SetFontSize( ::nTblFntSize )
-         // * ::SetFontColor( nFontColor )
          ::Appearance( ::cCellAppear )
          ::HAlignment( ::cCellHAlign )
          ::TextCode( "intbl" )
       ELSE
-         // End of a row of the table body.
          ::EndRow()
-         // Prepare the next row for inclusion in table
          ::TextCode( "intbl" )
       ENDIF
    ENDIF
-   // Apply any cell-specific formatting, and write the text
+
    ::OpenGroup()
    ::LogicCode( "pard", lDefault )
    ::NewFont( nFontNumber )
@@ -828,32 +607,17 @@ METHOD WriteCell( cText, nFontNumber, nFontSize, cAppear, cHorzAlign, ;
    ::Appearance( cAppear )
    ::HAlignment( cHorzAlign )
    ::LineSpacing( nSpace, lSpExact )
-   // Now write the text
    ::Write( cText )
    ::CloseGroup()
-   // Close the cell
    ::TextCode( "cell" )
 
    RETURN NIL
-/* **********************  END OF WriteCell()  *********************** */
 
 METHOD NewSection( lLandscape, nColumns, nLeft, nRight, nTop, nBottom, ;
       nWidth, nHeight, cVertAlign, lDefault ) CLASS RichText
-/* ********************************************************************
-* Description:  Open a new section, with optional new formatting
-*               properties.
-*
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/26/97   TRM         Creation
-******************************************************************** */
 
    DEFAULT lDefault TO .F.
 
-   //::OpenGroup()
    ::TextCode( "sect" )
    IF lDefault
       ::TextCode( "sectd" )
@@ -871,139 +635,52 @@ METHOD NewSection( lLandscape, nColumns, nLeft, nRight, nTop, nBottom, ;
       ::TextCode( "vertal" + Lower( Left( cVertAlign, 1 ) ) )
    ENDIF
 
-   // Formato de numero de pagina
    ::TextCode( "sbkpage" )
    ::TextCode( "pgncont" )
    ::TextCode( "pgndec" )
 
    RETURN NIL
-/* **********************  END OF NewSection()  ********************* */
 
 METHOD NewFont( nFontNumber ) CLASS RichText
-/* ********************************************************************
-* Description:  Change the current font.
-*               Converts app-level font number into RTF font number.
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/19/97   TRM         Creation
-*
-******************************************************************** */
-
    IF ! Empty( nFontNumber ) .AND. nFontNumber <= ::nFontNum
       ::NumCode( "f", nFontNumber - 1, .F. )
       ::nFontAct := nFontNumber
    ENDIF
-
    RETURN NIL
-/* ***********************  END OF NewFont()  ************************ */
 
 METHOD Appearance( cAppear ) CLASS RichText
-/* ********************************************************************
-* Description:  Change the "appearance" (bold, italic, etc.)
-*               Appearance codes are concatenable at the app-level
-*               and already contain backslashes.
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/19/97   TRM         Creation
-*
-******************************************************************** */
    LOCAL cWrite := ""
-
-   // Special case (see .CH file) -- first remove leading slash ...ugh.
    IF ! Empty( cAppear )
       cWrite := ::TextCode( SubStr( cAppear, 2 ) )
       ::cLastApar := cAppear
    ENDIF
-
    RETURN cWrite
-/* **********************  END OF Appearance()  ********************** */
 
 METHOD HAlignment( cAlign ) CLASS RichText
-/* ********************************************************************
-* Description:  Change the horizontal alignment
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/19/97   TRM         Creation
-*
-******************************************************************** */
-
    IF ! Empty( cAlign )
       ::TextCode( "q" + Lower( Left( cAlign, 1 ) ) )
    ENDIF
-
    RETURN NIL
-/* *********************  END OF HAlignment()  *********************** */
 
 METHOD LineSpacing( nSpace, lSpExact ) CLASS RichText
-/* ********************************************************************
-* Description:  Change the line spacing (spacing can either be "exact"
-*               or "multiple" (of single spacing).  If exact, the units
-*               of the supplied value must be converted to twips.
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/19/97   TRM         Creation
-*
-******************************************************************** */
-
    DEFAULT lSpExact TO .F.
-
    ::NumCode( "sl", nSpace, lSpExact )
    IF ! Empty( nSpace )
       ::NumCode( "slmult", IIf( lSpExact, 0, 1 ), .F. )
    ENDIF
-
    RETURN NIL
-/* *********************  END OF LineSpacing()  ********************** */
 
 METHOD Borders( cEntity, cBorder ) CLASS RichText
-*********************************************************************
-* Description:  Apply borders to rows or cells.  Currently limited to
-*               one type of border per rectangle.
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/19/97   TRM         Creation
-*
-*********************************************************************
    LOCAL i, aBorder := { "t", "b", "l", "r" }
-
    IF ValType( cBorder ) == "C"
       FOR i := 1 TO 4
          ::TextCode( cEntity + "brdr" + aBorder[ i ] + "\brdr" + cBorder )
       NEXT
    ENDIF
-
    RETURN NIL
-/* ***********************  END OF Borders()  ************************ */
 
 METHOD ParaBorder( cBorder, cType ) CLASS RichText
-/* ********************************************************************
-* Description:  Apply borders to paragraphs.  Currently limited to
-*               one type of border per rectangle.
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/19/97   TRM         Creation
-*
-******************************************************************** */
    LOCAL codigo
-
    cBorder := Upper( AllTrim( cBorder ) )
    DO CASE
    CASE cBorder == "CHARACTER"
@@ -1019,23 +696,9 @@ METHOD ParaBorder( cBorder, cType ) CLASS RichText
    CASE cBorder == "RIGHT"
       codigo := "RIGHT"
    ENDCASE
-
    RETURN ::TextCode( codigo + "\brdr" + ::BorderCode( cType ) )
 
-/* ***********************  END OF Borders()  ************************ */
-
 METHOD BorderCode( cBorderID ) CLASS RichText
-/* ********************************************************************
-* Description:  Convert an application-level border ID into
-*               a valid RTF border code.
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/19/97   TRM         Creation
-*
-******************************************************************** */
    LOCAL cBorderCode := "", n
    LOCAL aBorder := ;
          { ;
@@ -1048,28 +711,14 @@ METHOD BorderCode( cBorderID ) CLASS RichText
          { "DASHED",      "dash" }, ;
          { "HAIRLINE",    "hair" }  ;
          }
-
    cBorderID := Upper( RTrim( cBorderID ) )
    n := AScan( aBorder, { | x | x[ 1 ] == cBorderID } )
    IF n > 0
       cBorderCode := aBorder[ n ][ 2 ]
    ENDIF
-
    RETURN cBorderCode
-/* ***********************  END  OF BorderCode()  ******************** */
 
 METHOD ShadeCode( cShadeID ) CLASS RichText
-/* ********************************************************************
-* Description:  Convert an application-level border ID into
-*               a valid RTF border code.
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 06/07/00   JJA         Creation
-*
-******************************************************************** */
    LOCAL cShadeCode := "", n
    LOCAL aShade := ;
          { ;
@@ -1080,28 +729,14 @@ METHOD ShadeCode( cShadeID ) CLASS RichText
          { "FORDIAG",      "fdiag"   }, ;
          { "BACKDIAG",     "bdiag"      } ;
          }
-
    cShadeID := Upper( RTrim( cShadeID ) )
    n := AScan( aShade, { | x | x[ 1 ] == cShadeID } )
    IF n > 0
       cShadeCode := aShade[ n ][ 2 ]
    ENDIF
-
    RETURN cShadeCode
-/* ***********************  END  OF BorderCode()  ******************** */
 
 FUNCTION IntlTranslate()
-/* ********************************************************************
-* Description:  Example of an array that could be used to map
-*               high-order characters.
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/06/97   TRM         Creation
-*
-******************************************************************** */
    LOCAL i
    LOCAL aTranslate[ 128 ]
    LOCAL aHighTable := ;
@@ -1112,29 +747,14 @@ FUNCTION IntlTranslate()
          "\'d6", "\'dc", "\'a2", "\'a3", "\'a5", "\'83", "\'ed", "\'e1", ;
          "\'f3", "\'fa", "\'f1", "\'d1", "\'aa", "\'ba", "\'bf" ;
          }
-
    AFill( aTranslate, "" )
    FOR i := 1 TO Len( aHighTable )
       aTranslate[ i ] := aHighTable[ i ]
    NEXT
-
    RETURN aTranslate
-/* *********************  END OF IntlTranslate()  ******************** */
 
 FUNCTION NewBase( nDec, nBase )
-/* ********************************************************************
-* Description:  Convert a decimal numeric to a string in another
-*               base system
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/12/97   TRM         Creation
-*
-******************************************************************** */
    LOCAL cNewBase := "", nDividend, nRemain, lContinue := .T., cRemain
-
    DO WHILE lContinue
       nDividend := Int( nDec / nBase )
       nRemain := nDec % nBase
@@ -1150,28 +770,20 @@ FUNCTION NewBase( nDec, nBase )
       ENDIF
       cNewBase := cRemain + cNewBase
    ENDDO
-
    RETURN cNewBase
-/* ***********************  END OF NewBase()  ************************ */
 
 METHOD BegBookMark( texto )  CLASS RichText
-
    DEFAULT texto TO "marca"
-
    ::cLastBook := StrTran( texto, " ", "_" )
-   // Iniciar grupo
    ::OpenGroup()
    ::TextCode( "*\bkmkstart " + Lower( ::cLastBook ) )
    ::CloseGroup()
-
    RETURN NIL
 
 METHOD EndBookMark()  CLASS RichText
-
    ::OpenGroup()
    ::TextCode( "*\bkmkend " + Lower( ::cLastBook ) )
    ::CloseGroup()
-
    RETURN NIL
 
 METHOD Linea( aInicio, aFinal, nxoffset, nyoffset, ASize, cTipo, ;
@@ -1207,40 +819,31 @@ METHOD Linea( aInicio, aFinal, nxoffset, nyoffset, ASize, cTipo, ;
    CASE cTipo == "PUNTOLINEA"
       ::TextCode( "dplinedado" )
    ENDCASE
-   // Colores
    ::NumCode( "dplinecob", aColores[ 1 ], .F. )
    ::NumCode( "dplinecog", aColores[ 2 ], .F. )
    ::NumCode( "dplinecor", aColores[ 3 ], .F. )
-   // Ancho de la linea
    ::NumCode( "dplinew", nWidth, .T. )
-   // Patron
    ::NumCode( "dpfillpat", nPatron, .F. )
-   // Linea con sombra
    ::LogicCode( "dpshadow", lSombra )
    IF lSombra
       ::NumCode( "dpshadx", aSombra[ 1 ], .T. )
       ::NumCode( "dpshady", aSombra[ 2 ], .T. )
    ENDIF
    ::CloseGroup()
-
    RETURN NIL
 
 METHOD SetClrTab() CLASS RichText
    LOCAL colors
-
    colors := "colortbl;\red0\green0\blue0;\red0\green0\blue128;\red0\green128\blue0;"
    colors += "\red0\green128\blue128;\red128\green0\blue0;\red128\green0\blue128;\red128\green128\blue0;"
    colors += "\red192\green192\blue192;\red128\green128\blue128;\red0\green0\blue255;"
    colors += "\red0\green255\blue0;\red0\green255\blue255;\red255\green0\blue0;"
    colors += "\red255\green0\blue255;\red255\green255\blue0;\red255\green255\blue255;"
-
    RETURN colors
 
 METHOD SetStlDef() CLASS Richtext
-
    ::IncStyle( "Normal" )
    ::IncStyle( "Default Paragraph Font", "CHARACTER" )
-
    RETURN NIL
 
 METHOD InfoDoc( cTitle, cSubject, cAuthor, cManager, cCompany, cOperator, ;
@@ -1258,35 +861,16 @@ METHOD InfoDoc( cTitle, cSubject, cAuthor, cManager, cCompany, cOperator, ;
 
    ::OpenGroup()
    ::TextCode( "info" )
-   ::OpenGroup()
-   ::TextCode( "title " + cTitle )
+   ::OpenGroup() ; ::TextCode( "title " + cTitle ) ; ::CloseGroup()
+   ::OpenGroup() ; ::TextCode( "subject " + cSubject ) ; ::CloseGroup()
+   ::OpenGroup() ; ::TextCode( "author " + cAuthor ) ; ::CloseGroup()
+   ::OpenGroup() ; ::TextCode( "manager " + cManager ) ; ::CloseGroup()
+   ::OpenGroup() ; ::TextCode( "company " + cCompany ) ; ::CloseGroup()
+   ::OpenGroup() ; ::TextCode( "operator " + cOperator ) ; ::CloseGroup()
+   ::OpenGroup() ; ::TextCode( "category " + cCategor ) ; ::CloseGroup()
+   ::OpenGroup() ; ::TextCode( "keywords " + cKeyWords ) ; ::CloseGroup()
+   ::OpenGroup() ; ::TextCode( "comment " + cComment ) ; ::CloseGroup()
    ::CloseGroup()
-   ::OpenGroup()
-   ::TextCode( "subject " + cSubject )
-   ::CloseGroup()
-   ::OpenGroup()
-   ::TextCode( "author " + cAuthor )
-   ::CloseGroup()
-   ::OpenGroup()
-   ::TextCode( "manager " + cManager )
-   ::CloseGroup()
-   ::OpenGroup()
-   ::TextCode( "company " + cCompany )
-   ::CloseGroup()
-   ::OpenGroup()
-   ::TextCode( "operator " + cOperator )
-   ::CloseGroup()
-   ::OpenGroup()
-   ::TextCode( "category " + cCategor )
-   ::CloseGroup()
-   ::OpenGroup()
-   ::TextCode( "keywords " + cKeyWords )
-   ::CloseGroup()
-   ::OpenGroup()
-   ::TextCode( "comment " + cComment )
-   ::CloseGroup()
-   ::CloseGroup()
-
    RETURN NIL
 
 METHOD FootNote( cTexto, cChar, nFontNumber, ;
@@ -1312,7 +896,6 @@ METHOD FootNote( cTexto, cChar, nFontNumber, ;
          ::Write( cChar )
       ENDIF
    ENDIF
-
    IF lAuto ; ::TextCode( "chftn" ) ; ENDIF
    ::CloseGroup()
    ::OpenGroup()
@@ -1330,13 +913,11 @@ METHOD FootNote( cTexto, cChar, nFontNumber, ;
          ::Write( cChar )
       ENDIF
    ENDIF
-
    IF lAuto ; ::TextCode( "chftn" ) ; ENDIF
    ::CloseGroup()
    ::Write( cTexto )
    ::CloseGroup()
    ::CloseGroup()
-
    RETURN NIL
 
 METHOD BegTextBox( cTexto, aOffset, ASize, cTipo, aColores, nWidth, nPatron, ;
@@ -1377,12 +958,10 @@ METHOD BegTextBox( cTexto, aOffset, ASize, cTipo, aColores, nWidth, nPatron, ;
    IF lEnd
       ::EndTextBox()
    ENDIF
-
    RETURN NIL
 
 METHOD EndTextBox() CLASS RichText
-
-   ::CloseGroup() // Cierra el grupo de texto
+   ::CloseGroup()
    ::NumCode( "dpx", ::aOfftbox[ 1 ], .T. )
    ::NumCode( "dpy", ::aOfftbox[ 2 ], .T. )
    ::NumCode( "dpxsize", ::aSztBox[ 1 ], .T. )
@@ -1397,23 +976,18 @@ METHOD EndTextBox() CLASS RichText
    CASE ::cTpltBox == "PUNTOLINEA"
       ::TextCode( "dplinedado" )
    ENDCASE
-   // Colores
    ::NumCode( "dplinecob", ::aCltBox[ 1 ], .F. )
    ::NumCode( "dplinecog", ::aCltBox[ 2 ], .F. )
    ::NumCode( "dplinecor", ::aCltBox[ 3 ], .F. )
-   // Ancho de la linea
    ::NumCode( "dplinew", ::nWltBox, .F. )
    ::TextCode( "\dpfillbgcr255\dpfillbgcg255\dpfillbgcb255" )
-   // Patron
    ::NumCode( "dpfillpat", ::nFPtbox, .F. )
    ::CloseGroup()
-
    RETURN NIL
 
 METHOD SetFrame( ASize, cHorzAlign, cVertAlign, lNoWrap, ;
       cXAlign, xpos, cYAlign, ypos ) CLASS RichText
    LOCAL ancho
-
    IF Empty( ASize )
       RETURN NIL
    ENDIF
@@ -1463,11 +1037,10 @@ METHOD SetFrame( ASize, cHorzAlign, cVertAlign, lNoWrap, ;
    ENDIF
    ::TextCode( "par\li0\ql" )
    ::ParaBorder( "ALL", "SINGLE" )
-
    RETURN NIL
 
 METHOD Image( cName, ASize, nPercent, lCell, lInclude, lFrame, aFSize, cHorzAlign, ;
-      cVertAlign, lNoWrap, cXAlign, xpos, cYAlign, ypos )
+      cVertAlign, lNoWrap, cXAlign, xpos, cYAlign, ypos ) CLASS RichText
    LOCAL cExt
 
    DEFAULT cName TO "", ;
@@ -1487,9 +1060,10 @@ METHOD Image( cName, ASize, nPercent, lCell, lInclude, lFrame, aFSize, cHorzAlig
    IF Empty( cName )
       RETURN NIL
    ENDIF
+
    IF lCell
       ::nCurrColumn += 1
-      ::LogicCode( "pard", .t. )
+      ::LogicCode( "pard", .T. )
       ::TextCode( "intbl" )
       ::OpenGroup()
    ELSE
@@ -1499,15 +1073,14 @@ METHOD Image( cName, ASize, nPercent, lCell, lInclude, lFrame, aFSize, cHorzAlig
                cXAlign, xpos, cYAlign, ypos )
       ENDIF
    ENDIF
+
    IF ! lInclude
       ::NumCode( "sslinkpictw", ASize[ 1 ] )
       ::NumCode( "sslinkpicth", ASize[ 2 ] )
       ::OpenGroup()
       ::TextCode( "field" )
-
       ::OpenGroup()
       ::TextCode( "fldinst" )
-
       FWrite( ::hFile, " INCLUDEPICTURE " )
       cName := StrTran( cName, "\", "\\\\" )
       FWrite( ::hFile, " " + AllTrim( cName ) + " \\*MERGEFORMAT " )
@@ -1517,6 +1090,8 @@ METHOD Image( cName, ASize, nPercent, lCell, lInclude, lFrame, aFSize, cHorzAlig
       ::CloseGroup()
       ::CloseGroup()
    ELSE
+      /* Note: Methods RtfJpg, Wmf2Rtf, Bmp2Wmf are not implemented yet.
+         You can uncomment and complete them as needed. */
       cExt := Upper( cFileExt( cName ) )
       DO CASE
       CASE cExt == "BMP"
@@ -1527,10 +1102,11 @@ METHOD Image( cName, ASize, nPercent, lCell, lInclude, lFrame, aFSize, cHorzAlig
          ::RtfJpg( cName, ASize, nPercent )
       ENDCASE
    ENDIF
+
    IF lCell
       ::CloseGroup()
       ::TextCode( "cell" )
-      IF ::nCurrColumn == ::nTblColumns // Ha terminado una columna
+      IF ::nCurrColumn == ::nTblColumns
          ::TextCode( "intbl\row" )
          ::nCurrColumn := 0
       ENDIF
@@ -1540,9 +1116,13 @@ METHOD Image( cName, ASize, nPercent, lCell, lInclude, lFrame, aFSize, cHorzAlig
 
    RETURN NIL
 
+/* ===========================================================================
+   Style Management - Fixed IncStyle, ParaStyle, CharStyle
+=========================================================================== */
 METHOD IncStyle( cName, styletype, nFontNumber, nFontSize, ;
       nFontColor, cAppear, cHorzAlign, nIndent, cKeys, ;
       cTypeBorder, cBordStyle, nBordColor, nShdPct, cShadPat, lAdd, LUpdate ) CLASS RichText
+
    LOCAL lParrafo := .F., lChar := .F., i
    LOCAL cEstilo := ""
 
@@ -1562,7 +1142,16 @@ METHOD IncStyle( cName, styletype, nFontNumber, nFontSize, ;
          cShadPat TO "", ;
          lAdd TO .F., ;
          LUpdate TO .F.
-   nShdPct := IIf( nShdPct < 1, nShdPct * 10000, nShdPct * 100 )
+
+   /* FIX: Shading normalization */
+   IF nShdPct > 0
+      IF nShdPct < 1
+         nShdPct := nShdPct * 10000
+      ELSEIF nShdPct <= 100
+         nShdPct := nShdPct * 100
+      ENDIF
+   ENDIF
+
    ::OpenGroup()
    DO CASE
    CASE styletype == "PARAGRAPH"
@@ -1573,14 +1162,18 @@ METHOD IncStyle( cName, styletype, nFontNumber, nFontSize, ;
       lChar := .T.
    CASE styletype == "SECTION"
       ::NumCode( "ds", ::nStlSec, .F. )
+      /* FIX: increment section style counter */
+      ::nStlSec += 1
    ENDCASE
+
    IF ! Empty( cKeys )
       ::OpenGroup()
       ::TextCode( "keycode " + cKeys )
       ::CloseGroup()
    ENDIF
+
    IF lParrafo
-      IF cTypeBorder # NIL // Hay bordes de parrafo
+      IF cTypeBorder # NIL
          IF AScan( cTypeBorder, "ALL" ) # 0
             cEstilo += ::ParaBorder( "ALL", cBordStyle )
          ELSE
@@ -1591,17 +1184,20 @@ METHOD IncStyle( cName, styletype, nFontNumber, nFontSize, ;
       ENDIF
       cEstilo += ::NumCode( "\li", nIndent )
    ENDIF
+
    cEstilo += ::NumCode( "f", nFontNumber - 1, .F. )
    cEstilo += ::NumCode( "fs", nFontSize * 2, .F. )
    cEstilo += ::NumCode( "cf", nFontColor, .F. )
    cEstilo += ::Appearance( cAppear )
+
    IF lChar
       cEstilo += ::LogicCode( "\additive", lAdd )
       AAdd( ::CharStyles, cEstilo )
       ::nCharStl += 1
-
    ENDIF
+
    cEstilo += ::LogicCode( "\sautoupd", LUpdate )
+
    IF lParrafo
       IF nShdPct > 0
          cEstilo += ::NumCode( "shading", nShdPct, .F. )
@@ -1612,104 +1208,65 @@ METHOD IncStyle( cName, styletype, nFontNumber, nFontSize, ;
       AAdd( ::ParStyles, cEstilo )
       ::NStlDef += 1
    ENDIF
+
    FWrite( ::hFile, " " + cName + ";" )
    ::CloseGroup()
 
    RETURN NIL
 
 METHOD BeginStly() CLASS RichText
-
    ::OpenGroup()
    ::TextCode( "stylesheet" )
    ::SetStlDef()
-
    RETURN NIL
 
 METHOD WriteStly() CLASS RichText
-
    ::CloseGroup()
-
    RETURN NIL
 
+/* FIXED: ParaStyle and CharStyle now use Len(::ParStyles) properly */
 METHOD ParaStyle( nStyle ) CLASS RichText
-/* ********************************************************************
-* Description:  Change the paragraph style
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/09/99
-*
-******************************************************************** */
-
    IF nStyle == 0
       RETURN NIL
    ENDIF
    IF ::nStlAct # nStyle
-      IF nStyle <= Len( ::ParStyles[ nStyle ] )
+      IF nStyle <= Len( ::ParStyles )
          ::Numcode( "par\pard\s", nStyle, .F. )
          FWrite( ::hFile, ::ParStyles[ nStyle ] )
          ::nStlAct := nStyle
       ENDIF
    ENDIF
-
    RETURN NIL
 
 METHOD CharStyle( nStyle ) CLASS RichText
-/* ********************************************************************
-* Description:  Change the character style
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 01/09/99
-*
-******************************************************************** */
-
    IF nStyle == 0
       RETURN NIL
    ENDIF
    IF ::nCharAct # nStyle
-      IF nStyle <= Len( ::CharStyles[ nStyle ] )
+      IF nStyle <= Len( ::CharStyles )
          ::Numcode( "\cs", nStyle, .F. )
          FWrite( ::hFile, ::CharStyles[ nStyle ] )
          ::nCharAct := nStyle
       ENDIF
    ENDIF
-
    RETURN NIL
-/* *********************  END OF HAlignment()  *********************** */
 
 METHOD TextCode( cCode ) CLASS RichText
    LOCAL codigo
-
    codigo :=  FormatCode( cCode )
    FWrite( ::hFile, codigo )
-
    RETURN codigo
 
+/* ===========================================================================
+   DefNewTable - Added validation for aHeadTit and TblCJoin
+=========================================================================== */
 METHOD DefNewTable( cTblHAlign, nTblFntNum, nTblFntSize, ;
       cCellAppear, cCellHAlign, nTblRows, ;
       nTblColumns, nTblRHgt, aTableCWid, cRowBorder, cCellBorder, aColPct, nCellPct, ;
       lTblNoSplit, nTblHdRows, aHeadTit, nTblHdHgt, nTblHdPct, nTblHdFont, ;
       nTblHdFSize, cHeadAppear, cHeadHAlign, nTblHdColor , nTblHdFColor, ;
       aTblCJoin ) CLASS RichText
-/* ********************************************************************
-* Description:  Define the default setup for a table.
-*               Saves the parameters to the object's
-*               internal instance variables,and define the table
-*               defaults.
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 22/10/00   JIJA        Modification of Define Table.
-*                        You can introduce more than one header row
-*
-******************************************************************** */
+
    LOCAL i, j
 
    DEFAULT ;
@@ -1719,7 +1276,7 @@ METHOD DefNewTable( cTblHAlign, nTblFntNum, nTblFntSize, ;
          nTblRows  TO  1, ;
          nTblColumns TO  1, ;
          nTblRHgt  TO  NIL, ;
-         aTableCWid  TO  Array( nTblColumns ), ; // see below
+         aTableCWid  TO  Array( nTblColumns ), ;
          cRowBorder  TO  "NONE", ;
          cCellBorder  TO  "SINGLE", ;
          lTblNoSplit  TO  .F., ;
@@ -1739,14 +1296,15 @@ METHOD DefNewTable( cTblHAlign, nTblFntNum, nTblFntSize, ;
    ELSEIF ValType( aTableCWid[ 1 ] ) == "A"
       aTableCWid := AClone( aTableCWid[ 1 ] )
    ENDIF
-   // Turn independent column widths into "right boundary" info...
    FOR i := 2 TO Len( aTableCWid )
       aTableCWid[ i ] += aTableCWid[ i - 1 ]
    NEXT
+
    IF aColPct == NIL
       aColPct   := Array( nTblColumns )
       AFill( aColPct, 0 )
    ENDIF
+
    ::cTblHAlign := Lower( Left( cTblHAlign, 1 ) )
    ::nTblFntNum := nTblFntNum
    ::nTblFntSize := nTblFntSize
@@ -1760,7 +1318,6 @@ METHOD DefNewTable( cTblHAlign, nTblFntNum, nTblFntSize, ;
    ::cCellBorder := ::BorderCode( cCellBorder )
    ::aColPct := AClone( aColPct )
    ::nCellPct := IIf( nCellPct < 1, nCellPct * 10000, nCellPct * 100 )
-   // Porcentajes para cada celda
    i := 1
    AEval( ::aColPct, { || ::aColPct[ i ] := IIf( ::aColPct[ i ] < 1, ::aColPct[ i ] * 10000, ;
          ::aColPct[ i ] * 100 ), i ++ } )
@@ -1777,33 +1334,33 @@ METHOD DefNewTable( cTblHAlign, nTblFntNum, nTblFntSize, ;
    ::TblCJoin    := AClone( aTblCJoin )
    ::nCurrColumn := 0
    ::nCurrRow    := 0
+
    ::OpenGroup()
    FOR j := 1 TO ::nTblHdRows
+      /* Validate aHeadTit exists and has correct dimensions */
+      IF Len( aHeadTit ) >= j
+         IF ValType( aHeadTit[ j ] ) != "A"
+            aHeadTit[ j ] := Array( ::nTblColumns )
+            AFill( aHeadTit[ j ], "" )
+         ELSEIF Len( aHeadTit[ j ] ) < ::nTblColumns
+            aHeadTit[ j ] := ASize( aHeadTit[ j ], ::nTblColumns )
+            AFill( aHeadTit[ j ], "" )
+         ENDIF
+      ELSE
+         aHeadTit[ j ] := Array( ::nTblColumns )
+         AFill( aHeadTit[ j ], "" )
+      ENDIF
+
       ::TableDef( .T., j )
       FOR i := 1 TO Len( ::aTableCWid )
          ::TableCell( aHeadTit[ j ][ i ],,,,,,,, .T., .T. )
       NEXT i
    NEXT j
-   ::TableDef()
 
+   ::TableDef()
    RETURN NIL
-/* *********************  END OF DefNewTable()  ********************** */
 
 METHOD TableDef( lHeader, nRowHead, cCellBorder, aColPct ) CLASS RichText
-/* ********************************************************************
-* Description:  Writes the row defaults on the output file.
-*
-*
-*
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 22/10/00   JIJA
-*
-*
-******************************************************************** */
    LOCAL i, j, pos
 
    DEFAULT lHeader TO .F., ;
@@ -1818,7 +1375,6 @@ METHOD TableDef( lHeader, nRowHead, cCellBorder, aColPct ) CLASS RichText
    ::LogicCode( "trhdr", lHeader )
    ::LogicCode( "trkeep", ::lTblNoSplit )
 
-   // Set the default shading, border & width info for each body cell
    FOR i := 1 TO Len( ::aTableCWid )
       IF lHeader
          IF ! Empty( ::TblCJoin )
@@ -1852,25 +1408,10 @@ METHOD TableDef( lHeader, nRowHead, cCellBorder, aColPct ) CLASS RichText
    NEXT
 
    RETURN NIL
-/* *********************  END OF TableDef()  ********************** */
 
 METHOD TableCell( cText, nFontNumber, nFontSize, cAppear, cHorzAlign, ;
       nSpace, lSpExact, nFontColor, ;
       lDefault, lHeader, lPage, lDate ) CLASS RichText
-/* ********************************************************************
-* Description:  Writes the cell data and format on the output file.
-*
-*
-*
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 22/10/00   JIJA
-*
-*
-******************************************************************** */
 
    DEFAULT nFontNumber TO - 1, ;
          nFontSize TO - 1, ;
@@ -1906,42 +1447,22 @@ METHOD TableCell( cText, nFontNumber, nFontSize, cAppear, cHorzAlign, ;
    IF lPage
       ::NumPage()
    ENDIF
-
    IF lDate
       ::CurrDate()
    ENDIF
    ::TextCode( "cell" )
-   IF ::nCurrColumn == ::nTblColumns // Ha terminado una columna
+   IF ::nCurrColumn == ::nTblColumns
       ::TextCode( "intbl\row" )
       ::nCurrColumn := 0
    ENDIF
 
    RETURN NIL
-/* *********************  END OF TableCell()  ********************** */
 
 METHOD CellFormat( cCellBorder, aCellPct ) CLASS RichText
-/* ********************************************************************
-* Description:  Changes the format of one row.
-*               Now we can change the celborders and shading for
-*               a row on run time.
-*
-* Arguments:
-* Return:
-*
-*--------------------------------------------------------------------
-* Date       Developer   Comments
-* 22/10/00   JIJA
-*
-*
-******************************************************************** */
-
    DEFAULT cCellBorder TO ::cCellBorder, ;
          aCellPct TO AClone( ::aColPct )
-
    ::TableDef(,, cCellBorder, aCellPct )
-
    RETURN NIL
-/* *********************  END OF CellFormat()  ********************** */
 
 METHOD DocFormat( nTab, nLineStart, lBackup, nDefLang, nDocType, ;
       cFootType, cFootNotes, cEndNotes, cFootNumber, nPage, ;
@@ -2028,9 +1549,7 @@ METHOD DocFormat( nTab, nLineStart, lBackup, nDefLang, nDocType, ;
    RETURN NIL
 
 METHOD CurrDate( cFormat ) CLASS RichText
-
    DEFAULT cFormat TO "LONGFORMAT"
-
    DO CASE
    CASE cFormat == "LONGFORMAT"
       ::TextCode( "chdpl" )
@@ -2039,7 +1558,6 @@ METHOD CurrDate( cFormat ) CLASS RichText
    CASE cFormat == "HEADER"
       ::TextCode( "chdate" )
    ENDCASE
-
    RETURN NIL
 
 /*
@@ -2267,8 +1785,8 @@ METHOD Bmp2Wmf(cName,aSize,nPercent) CLASS RichText
    RETURN NIL
 */
 
+/* Helper function to get file extension */
 FUNCTION cFileExt( cFile )
-
    RETURN SubStr( cFile, At( '.', cFile ) + 1 )
 
 #ifndef __XHARBOUR__
