@@ -15,7 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2026-09-08 21:012 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+2026-09-08 21:39 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **hctrlex.prg**: removed a stray altd() call left in HButtonEx:Init(),
+    which opened the interactive Harbour/xHarbour debugger every time a
+    themed/owner-drawn button was initialized.
+  - **hctrlex.prg**: fixed HButtonEx:PaintBk() computing a zero-height
+    BitBlt (rect[4]-rect[4] instead of rect[4]-rect[2]) in both Bitblt()
+    calls, which would silently copy zero rows of pixels. Currently inert
+    since the only call site (in Paint()) is commented out, but fixed for
+    correctness in case it's re-enabled.
+
+2026-09-08 21:12 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **hcomboex.prg**: fixed 64-bit pointer truncation in the embedded C
     section - HB_FUNC(COPYDATA) read the WM_GETTEXT buffer address

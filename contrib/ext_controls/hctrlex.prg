@@ -602,7 +602,7 @@ METHOD END() CLASS HButtonEX
 
 METHOD INIT() CLASS HButtonEx
    LOCAL nbs
-altd()
+
    IF ! ::lInit
       ::nHolder := 1
       IF !Empty( ::handle )
@@ -1158,9 +1158,9 @@ METHOD PAINTBK( hdc ) CLASS HBUTTONEx
       ::m_dcBk:Createcompatibledc( clDC:m_hDC )
       ::m_bmpBk := hwg_Createcompatiblebitmap( clDC:m_hDC, rect[ 3 ] - rect[ 1 ], rect[ 4 ] - rect[ 2 ] )
       ::m_pbmpOldBk := ::m_dcBk:Selectobject( ::m_bmpBk )
-      ::m_dcBk:Bitblt( 0, 0, rect[ 3 ] - rect[ 1 ], rect[ 4 ] - rect[ 4 ], clDC:m_hDc, rect1[ 1 ], rect1[ 2 ], SRCCOPY )
+      ::m_dcBk:Bitblt( 0, 0, rect[ 3 ] - rect[ 1 ], rect[ 4 ] - rect[ 2 ], clDC:m_hDc, rect1[ 1 ], rect1[ 2 ], SRCCOPY )
    ENDIF
-   hwg_Bitblt( hdc, 0, 0, rect[ 3 ] - rect[ 1 ], rect[ 4 ] - rect[ 4 ], ::m_dcBk:m_hDC, 0, 0, SRCCOPY )
+   hwg_Bitblt( hdc, 0, 0, rect[ 3 ] - rect[ 1 ], rect[ 4 ] - rect[ 2 ], ::m_dcBk:m_hDC, 0, 0, SRCCOPY )
 
    RETURN Self
 
