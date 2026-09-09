@@ -15,6 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-08 00:43 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+    * source/winapi/draw.c:
+      + Added HWG_GDIPLUSSAVEPNG() C function to handle native GDI+ PNG stream
+        encoding, providing cross-platform 32/64-bit support (Clang/MSVC/GCC).
+    * contrib/misc/richtext.prg:
+      - Added new RtfImage() method to embed JPEG, PNG, and GIF images into RTF
+        documents using native Harbour/HWGUI functions.
+        GIF images are automatically converted to PNG via HWG_GDIPLUSSAVEPNG()
+        and embedded as PNG data (using \pngblip).
+      - Updated Image() method to call RtfImage() for all image formats except
+        BMP/WMF (which remain as stubs for future implementation).
+
 2026-09-08 23:00 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
     * contrib/misc/richtext.prg:
       - Added full Unicode (UTF-8) support.

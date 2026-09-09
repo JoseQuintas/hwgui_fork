@@ -2648,6 +2648,45 @@ HB_FUNC( HWG_LOADPNG )
 }
 
 /*=============================================================================
+ * HWG_GDIPLUSSAVEPNG()
+ * Saves a GpBitmap or converts an HBITMAP to a true PNG file via GDI+.
+ * Natively supports 32-bit and 64-bit environments (Clang, MSVC, GCC).
+ *===========================================================================*/
+HB_FUNC( HWG_GDIPLUSSAVEPNG )
+{
+      #if defined( __USE_GDIPLUS )
+      // CLSID for the native Windows PNG Encoder
+      const CLSID pngClsid = { 0x557cf406, 0x1a04, 0x11d3, { 0x9a,0x73,0x00,0x00,0xf8,0x1e,0xf3,0x2e } };
+      const char *cFileName = hb_parc( 1 );
+      HBITMAP hBitmap = ( HBITMAP ) hb_parptr( 2 );
+      GpBitmap* bitmap = NULL;
+      wchar_t wcharString[MAX_PATH];
+
+      if( !cFileName || !hBitmap )
+      {
+            hb_retl( 0 );
+            return;
+      }
+
+      // Convert the target filename to Unicode (required by GDI+ API)
+      MultiByteToWideChar( CP_ACP, 0, cFileName, -1, wcharString, MAX_PATH );
+
+      // Instantiate a GDI+ Bitmap object from the HWGUI HBITMAP handle
+      if ( GdipCreateBitmapFromHBITMAP( hBitmap, NULL, &bitmap ) == 0 && bitmap )
+      {
+            // Save the image file applying real binary PNG compression
+            GpStatus status = GdipSaveImageToFile( (GpImage*)bitmap, wcharString, &pngClsid, NULL );
+            GdipDisposeImage( bitmap );
+
+            hb_retl( status == 0 );
+            return;
+      }
+      #endif
+      hb_retl( 0 );
+}
+
+
+/*=============================================================================
  * Raw bitmap support structures and functions
  *===========================================================================*/
 
