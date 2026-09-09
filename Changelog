@@ -16,6 +16,15 @@
 */
 
 2026-09-08 21:39 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+    * contrib/misc/arr2str.c:
+    ### Fixed 64-bit integer serialization/deserialization:
+        * WriteArray: corrected pointer advancement from 9 to 8 bytes
+          when writing a 64-bit integer (type '\10').
+        * ReadArray: properly interprets type '\10' as a 64-bit integer
+          instead of incorrectly treating it as a long string.
+      - Updated function header comments to clarify binary format.
+
+2026-09-08 21:39 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **hctrlex.prg**: removed a stray altd() call left in HButtonEx:Init(),
     which opened the interactive Harbour/xHarbour debugger every time a

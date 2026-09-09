@@ -6,6 +6,11 @@
  *
  * Copyright 2003 Alexander S.Kresin <alex@belacy.belgorod.su>
  * www - http://kresin.belgorod.su
+ *
+ * 2026-09-08 Fixed 64-bit integer serialization/deserialization
+ *            - WriteArray: corrected pointer advance (ptr += 8 instead of 9)
+ *            - ReadArray: correctly reads 64-bit int as HB_LONGLONG
+ *            - Updated comments for clarity
 */
 
 #include "hbapi.h"
@@ -13,6 +18,20 @@
 #include "hbvm.h"
 #include "guilib.h"
 
+/*
+ * ReadArray: deserializes a binary string back into an Harbour array.
+ * The binary format uses a leading type byte for each element:
+ *   '\6' - nested array
+ *   '\1' - character string (length <= 0xFFFF)
+ *   '\7' - long character string (length > 0xFFFF)
+ *   '\2' - 32-bit integer
+ *   '\10' - 64-bit integer (if HB_LONG_LONG_OFF not defined)
+ *   '\3' - numeric (double) with width/decimals
+ *   '\4' - date (stored as Julian day number)
+ *   '\5' - logical
+ *   '\0' - NIL
+ * Returns pointer after the parsed array.
+ */
 static const char *ReadArray( const char *ptr, PHB_ITEM pItem )
 {
    HB_ULONG ulArLen, ulLen, ul;
@@ -24,11 +43,11 @@ static const char *ReadArray( const char *ptr, PHB_ITEM pItem )
    hb_arrayNew( pItem, ulArLen );
    for( ul = 1; ul <= ulArLen; ++ul )
    {
-      if( *ptr == '\6' )        // Array
+      if( *ptr == '\6' )        // nested array
       {
          ptr = ReadArray( ptr, hb_arrayGetItemPtr( pItem, ul ) );
       }
-      else if( *ptr == '\1' )   // Char
+      else if( *ptr == '\1' )   // short character string (16-bit length)
       {
          ptr++;
          ulLen = HB_GET_LE_UINT16( ptr );
@@ -37,14 +56,14 @@ static const char *ReadArray( const char *ptr, PHB_ITEM pItem )
          hb_itemPutCL( hb_arrayGetItemPtr( pItem, ul ), ptr, ulLen );
          ptr += ulLen;
       }
-      else if( *ptr == '\2' )   // Int
+      else if( *ptr == '\2' )   // 32-bit integer
       {
          ptr++;
          hb_itemPutNL( hb_arrayGetItemPtr( pItem, ul ),
                HB_GET_LE_UINT32( ptr ) );
          ptr += 4;
       }
-      else if( *ptr == '\3' )   // Numeric
+      else if( *ptr == '\3' )   // double with width/decimals
       {
          int iWidth, iDec;
          ptr++;
@@ -54,19 +73,19 @@ static const char *ReadArray( const char *ptr, PHB_ITEM pItem )
                HB_GET_LE_DOUBLE( ptr ), iWidth, iDec );
          ptr += 8;
       }
-      else if( *ptr == '\4' )   // Date
+      else if( *ptr == '\4' )   // date (Julian day)
       {
          ptr++;
          hb_itemPutDL( hb_arrayGetItemPtr( pItem, ul ),
                HB_GET_LE_UINT32( ptr ) );
          ptr += 4;
       }
-      else if( *ptr == '\5' )   // Logical
+      else if( *ptr == '\5' )   // logical
       {
          ptr++;
          hb_itemPutL( hb_arrayGetItemPtr( pItem, ul ), *ptr++ != 0 );
       }
-      else if( *ptr == '\7' )   // Long Char
+      else if( *ptr == '\7' )   // long character string (32-bit length)
       {
          ptr++;
          ulLen = HB_GET_LE_UINT32( ptr );
@@ -75,16 +94,16 @@ static const char *ReadArray( const char *ptr, PHB_ITEM pItem )
          ptr += ulLen;
       }
 #ifndef HB_LONG_LONG_OFF
-      else if( *ptr == '\10' )
+      else if( *ptr == '\10' )  // 64-bit integer (FIXED)
       {
          ptr++;
-         ulLen = HB_GET_LE_UINT64( ptr );
-         ptr += 8;
-         hb_itemPutCL( hb_arrayGetItemPtr( pItem, ul ), ptr, ulLen );
-         ptr += ulLen;
+         /* Read the 64-bit value and store as long long */
+         hb_itemPutNLL( hb_arrayGetItemPtr( pItem, ul ),
+                        (HB_LONGLONG)HB_GET_LE_UINT64( ptr ) );
+         ptr += 8;  /* 8 bytes for the integer value */
       }
 #endif
-      else                      // Nil
+      else                      // NIL
       {
          ptr++;
       }
@@ -92,6 +111,10 @@ static const char *ReadArray( const char *ptr, PHB_ITEM pItem )
    return ptr;
 }
 
+/*
+ * ArrayMemoSize: calculates the buffer size needed to serialize the array.
+ * Returns total bytes required (including headers and type markers).
+ */
 static HB_ULONG ArrayMemoSize( PHB_ITEM pArray )
 {
    HB_ULONG ulArrLen = hb_arrayLen( pArray ), ulMemoSize = 3, ulLen, ul;
@@ -110,11 +133,11 @@ static HB_ULONG ArrayMemoSize( PHB_ITEM pArray )
             break;
 
          case HB_IT_DATE:
-            ulMemoSize += 5;
+            ulMemoSize += 5;        /* type + 4 bytes for Julian */
             break;
 
          case HB_IT_LOGICAL:
-            ulMemoSize += 2;
+            ulMemoSize += 2;        /* type + 1 byte value */
             break;
 
          case HB_IT_ARRAY:
@@ -125,17 +148,17 @@ static HB_ULONG ArrayMemoSize( PHB_ITEM pArray )
          case HB_IT_LONG:
             dVal = hb_arrayGetND( pArray, ul );
             if( HB_DBL_LIM_INT32( dVal ) )
-               ulMemoSize += 5;
+               ulMemoSize += 5;     /* type + 4 bytes (32-bit) */
             else
-               ulMemoSize += 9;
+               ulMemoSize += 9;     /* type + 8 bytes (64-bit) */
             break;
 
          case HB_IT_DOUBLE:
-            ulMemoSize += 11;
+            ulMemoSize += 11;       /* type + width + dec + 8 bytes */
             break;
 
          default:
-            ulMemoSize += 1;
+            ulMemoSize += 1;        /* only type marker (NIL) */
             break;
       }
    }
@@ -143,6 +166,11 @@ static HB_ULONG ArrayMemoSize( PHB_ITEM pArray )
    return ulMemoSize;
 }
 
+/*
+ * WriteArray: serializes an Harbour array into a binary buffer.
+ * The buffer must have been allocated with enough space (use ArrayMemoSize).
+ * Returns pointer after the written data.
+ */
 static char *WriteArray( char *ptr, PHB_ITEM pArray )
 {
    int iDec, iWidth;
@@ -165,6 +193,7 @@ static char *WriteArray( char *ptr, PHB_ITEM pArray )
    if( ulArrLen > 0xFFFF )
       ulArrLen = 0xFFFF;
 
+   /* Write array header: type '\6' and 16-bit length */
    *ptr++ = '\6';
    HB_PUT_LE_UINT16( ptr, ulArrLen );
    ptr++;
@@ -178,13 +207,13 @@ static char *WriteArray( char *ptr, PHB_ITEM pArray )
             ulVal = hb_arrayGetCLen( pArray, ul );
             if( ulVal > 0xffff )
             {
-               *ptr++ = '\7';
+               *ptr++ = '\7';        /* long string marker */
                HB_PUT_LE_UINT32( ptr, ulVal );
                ptr += 4;
             }
             else
             {
-               *ptr++ = '\1';
+               *ptr++ = '\1';        /* short string marker */
                HB_PUT_LE_UINT16( ptr, ulVal );
                ptr += 2;
             }
@@ -213,7 +242,7 @@ static char *WriteArray( char *ptr, PHB_ITEM pArray )
             dVal = hb_arrayGetND( pArray, ul );
             if( HB_DBL_LIM_INT32( dVal ) )
             {
-               *ptr++ = '\2';
+               *ptr++ = '\2';        /* 32-bit integer */
                ulVal = hb_arrayGetNL( pArray, ul );
                HB_PUT_LE_UINT32( ptr, ulVal );
                ptr += 4;
@@ -221,10 +250,10 @@ static char *WriteArray( char *ptr, PHB_ITEM pArray )
 #ifndef HB_LONG_LONG_OFF
             else
             {
-               *ptr++ = '\10';
+               *ptr++ = '\10';       /* 64-bit integer (FIXED) */
                ullVal = hb_arrayGetNLL( pArray, ul );
                HB_PUT_LE_UINT64( ptr, ullVal );
-               ptr += 9;
+               ptr += 8;             /* was erroneously 9 before */
             }
 #endif
             break;
@@ -240,7 +269,7 @@ static char *WriteArray( char *ptr, PHB_ITEM pArray )
             ptr += 8;
             break;
 
-         default:
+         default:                  /* NIL or unsupported */
             *ptr++ = '\0';
       }
    }
@@ -248,6 +277,10 @@ static char *WriteArray( char *ptr, PHB_ITEM pArray )
    return ptr;
 }
 
+/*
+ * ARRAY2STRING( aArray ) -> cString
+ * Serializes an array into a binary string that can be stored or transmitted.
+ */
 HB_FUNC( ARRAY2STRING )
 {
    PHB_ITEM pArray = hb_param( 1, HB_IT_ARRAY );
@@ -258,6 +291,11 @@ HB_FUNC( ARRAY2STRING )
    hb_retclen_buffer( szResult, ulMemoSize );
 }
 
+/*
+ * STRING2ARRAY( cString ) -> aArray
+ * Deserializes a binary string back into an Harbour array.
+ * Returns NIL if the string does not start with a valid array marker.
+ */
 HB_FUNC( STRING2ARRAY )
 {
    const char *szResult = hb_parc( 1 );
@@ -270,4 +308,3 @@ HB_FUNC( STRING2ARRAY )
 }
 
 /* ==================== EOF of arr2str.c =========================== */
-
