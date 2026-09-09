@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-09 01:08 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+    * contrib/misc/richtext.prg:
+      - Added new Wmf2Rtf() method to embed Windows Metafiles (WMF) directly
+        into RTF documents. Extracts dimensions from the Aldus Placeable
+        Metafile header using native Harbour functions L2Bin() and Bin2W().
+      - Uses 8 KB buffer and hb_StrToHex() for fast binary-to-hex conversion.
+      - Eliminates dependency on GETBMETAFILE() and ::oPrinter.
+
 2026-09-09 00:43 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * source/winapi/draw.c:
       + Added HWG_GDIPLUSSAVEPNG() C function to handle native GDI+ PNG stream

@@ -123,7 +123,8 @@ CLASS RichText
          lSombra, aSombra, nFontNumber, nFontSize, cAppear, nFontColor, nIndent, lRounded, lEnd )
    METHOD EndTextBox()
    METHOD SetFrame( ASize, cHorzAlign, cVertAlign, lNoWrap, cXAlign, xpos, cYAlign, ypos )
-   METHOD RtfImage(cName, aSize, nPercent)
+   METHOD RtfImage( cName, aSize, nPercent )
+   METHOD Wmf2Rtf( cName, aSize, nPercent )
    METHOD SetClrTab()
    METHOD Linea( aInicio, aFinal, nxoffset, nyoffset, ASize, cTipo, ;
          aColores, nWidth, nPatron, lSombra, aSombra )
@@ -1770,6 +1771,130 @@ METHOD RtfImage( cName, aSize, nPercent ) CLASS RichText
 
    RETURN NIL
 
+/*=============================================================================
+ * METHOD Wmf2Rtf( cName, aSize, nPercent ) CLASS RichText
+ *
+ * DESCRIPTION:
+ *   Embeds a Windows Metafile (WMF) directly into the RTF document.
+ *   Reads the Aldus Placeable Metafile header to extract logical dimensions
+ *   and resolution, eliminating the need for external DLLs or printer objects.
+ *   Fully compatible with Clang, MSVC, and GCC (32/64-bit).
+ *
+ * PARAMETERS:
+ *   cName    - Full path to the WMF file.
+ *   aSize    - Optional array { nWidth, nHeight } in inches.
+ *   nPercent - Scale factor (1 = 100%).
+ *
+ * RETURN:
+ *   NIL
+ *
+ * DEPENDENCIES:
+ *   - Harbour core: Bin2L(), Bin2W(), hb_StrToHex()
+ *   - HWGUI: hwg_Getdc(), hwg_Releasedc(), GETDEVICEC()
+ * =============================================================================
+ */
+METHOD Wmf2Rtf( cName, aSize, nPercent ) CLASS RichText
+   LOCAL in, cMenInter, nBloque := 8192, nBytes
+   LOCAL scale, PictWidth, PictHeight
+   LOCAL ancho, alto, bmHeight, bmWidth, x
+   LOCAL cHeader, nLeft, nTop, nRight, nBottom, nInch
+   LOCAL ScreenResX, ScreenResY, oWnd, hWnd, hdc
+
+   DEFAULT aSize := {}
+   DEFAULT nPercent := 1
+
+   in := fopen( cName )
+
+   IF in >= 0
+      // Read the 22-byte Aldus Placeable Metafile header
+      cHeader := Space( 22 )
+      fread( in, @cHeader, 22 )
+
+      IF Bin2L( SubStr( cHeader, 1, 4 ) ) == -1698484777
+         // Extract bound coordinates (16-bit signed integers) using native Bin2W()
+         nLeft   := Bin2W( SubStr( cHeader, 7, 2 ) )
+         nTop    := Bin2W( SubStr( cHeader, 9, 2 ) )
+         nRight  := Bin2W( SubStr( cHeader, 11, 2 ) )
+         nBottom := Bin2W( SubStr( cHeader, 13, 2 ) )
+         nInch   := Bin2W( SubStr( cHeader, 15, 2 ) ) // Units per inch
+
+         // Protect against malformed headers (division by zero)
+         IF nInch == 0 .OR. nInch > 1440
+            nInch := 1440
+         ENDIF
+
+         // Compute dimensions in logical units
+         IF EMPTY( aSize ) .OR. Len( aSize ) < 2
+            alto  := ( nBottom - nTop ) * nPercent
+            ancho := ( nRight - nLeft ) * nPercent
+         ELSE
+            alto  := ( aSize[2] * nInch )
+            ancho := ( aSize[1] * nInch )
+         ENDIF
+
+         // Obtain screen DPI (fallback to 96 if unavailable)
+         oWnd := GetWndDefault()
+         hWnd := oWnd:hWnd
+         hdc  := hwg_Getdc( hWnd )
+         ScreenResX := GETDEVICEC( hdc, 88 ) // LOGPIXELSX
+         ScreenResY := GETDEVICEC( hdc, 90 ) // LOGPIXELSY
+         hwg_Releasedc( hWnd, hdc )
+
+         IF ScreenResX == 0 .OR. ScreenResY == 0
+            ScreenResX := 96
+            ScreenResY := 96
+         ENDIF
+
+         // Standard RTF Metafile scaling conversions (Twips setup)
+         bmHeight   := ROUND( ( alto  * 1440 / nInch ) + 0.5, 0 )
+         bmWidth    := ROUND( ( ancho * 1440 / nInch ) + 0.5, 0 )
+         PictHeight := ROUND( ( alto  * 1440 / ScreenResY ) + 0.5, 0 )
+         PictWidth  := ROUND( ( ancho * 1440 / ScreenResX ) + 0.5, 0 )
+
+         // Prevent division by zero
+         IF bmWidth == 0 .OR. bmHeight == 0
+            bmWidth  := 100
+            bmHeight := 100
+         ENDIF
+
+         ::OpenGroup()
+         ::TextCode( "\pict\wmetafile8" )
+
+         x := ROUND( ( bmWidth * 2540 / 1440 ) + 0.5, 0 )
+         ::NumCode( "picw", x, .F. )
+         ::NumCode( "picwgoal", bmWidth, .F. )
+
+         scale := ROUND( ( PictWidth * 100 / bmWidth ) + 0.5, 0 )
+         ::NumCode( "picscalex", scale, .F. )
+
+         x := ROUND( ( bmHeight * 2540 / 1440 ) + 0.5, 0 )
+         ::NumCode( "pich", x, .F. )
+         ::NumCode( "pichgoal", bmHeight, .F. )
+
+         scale := ROUND( ( PictHeight * 100 / bmHeight ) + 0.5, 0 )
+         ::NumCode( "picscaley", scale, .F. )
+
+         ::OpenGroup()
+
+         // Seek back past the Aldus header to write raw WMF data stream
+         fseek( in, 22, 0 )
+         cMenInter := Space( nBloque )
+
+         DO WHILE .T.
+            nBytes := fread( in, @cMenInter, nBloque )
+            IF nBytes <= 0
+               EXIT
+            ENDIF
+            FWRITE( ::hFile, hb_StrToHex( SubStr( cMenInter, 1, nBytes ) ) )
+         ENDDO
+
+         ::CloseGroup()
+         ::CloseGroup()
+      ENDIF
+      fclose( in )
+   ENDIF
+
+   RETURN NIL
 
 /*
 METHOD RtfJpg(cName,aSize,nPercent) CLASS RichText
