@@ -15,7 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2026-09-09 01:23 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+2026-09-09 02:08 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+    * contrib/misc/richtext.prg:
+      - Refactored Bmp2Wmf() to convert BMP files into Enhanced Metafiles (EMF)
+        using the library's native hwg_Createenhmetafile()
+
+2026-09-09 01:27 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * contrib/misc/richtext.prg:
       - Modernized Bmp2Wmf() method: replaced legacy DibRead/DibDraw with
         HBitmap():LoadFromFile() and oBmp:Draw() to generate WMF metafiles
@@ -23,7 +28,7 @@
       - Uses 8 KB buffer and hb_StrToHex() for fast binary conversion.
       - Added screen DPI fallback and proper temporary file management.
 
-2026-09-09 01:08 UTC-0300 Itamar Lins <itamarlins at gmail.com>
+2026-09-09 01:14 UTC-0300 Itamar Lins <itamarlins at gmail.com>
     * contrib/misc/richtext.prg:
       - Modernized Bmp2Wmf() method: replaced legacy DibRead/DibDraw with
         HBitmap():LoadFromFile() and oBmp:Draw() to generate WMF metafiles

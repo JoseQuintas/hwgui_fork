@@ -1982,7 +1982,7 @@ METHOD Bmp2Wmf( cName, aSize, nPercent ) CLASS RichText
       cTempFile := hb_DirTemp() + "tmp_" + PADL( ALLTRIM( STR( ::nFile, 4, 0 ) ), 4, "0" ) + ".wmf"
 
       // Initialize the GDI Metafile output context
-      hDCOut := hwg_CreateMetafile( cTempFile )
+      hDCOut := hwg_Createenhmetafile( hWnd, cTempFile )
 
       IF hDCOut != NIL .AND. hDCOut != 0
          // Setup coordinate boundaries inside the Metafile DC
@@ -1992,7 +1992,11 @@ METHOD Bmp2Wmf( cName, aSize, nPercent ) CLASS RichText
          oBmp:Draw( hDCOut, 0, 0, nWidth, nHeight )
 
          // Close and commit the Metafile structure to disk
-         hwg_CloseMetafile( hDCOut )
+         hEmf := hwg_Closeenhmetafile( hDCOut )
+
+         IF ! Empty( hEmf )
+            hwg_Deleteenhmetafile( hEmf )
+         ENDIF
       ENDIF
 
       // Dispose of the source graphic object memory
