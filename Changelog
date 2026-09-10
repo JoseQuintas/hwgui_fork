@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-09 23:20 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+  - **draw.c**: fixed a memory leak in hwg_BMPNewImageC() - the global
+    bmp_fileimg pointer was overwritten by a new malloc() without freeing
+    a previous allocation first, so calling HWG_BMPNEWIMAGE() twice
+    without an HWG_BMPDESTROY() in between silently leaked the earlier
+    buffer.
+
 2026-09-09 02:35 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **dialog.c**: fixed s_PSPProc() pushing pObject a second time instead

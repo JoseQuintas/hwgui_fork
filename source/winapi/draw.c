@@ -2685,7 +2685,6 @@ HB_FUNC( HWG_GDIPLUSSAVEPNG )
       hb_retl( 0 );
 }
 
-
 /*=============================================================================
  * Raw bitmap support structures and functions
  *===========================================================================*/
@@ -2894,6 +2893,16 @@ void * hwg_BMPNewImageC(
    image_size = ((bmp_bit_depth * bmp_width + 7 ) / 8 + pad ) * bmp_height;
    fileoffset_to_pixelarray = sizeof (fileheader) + sizeof(bitmapinfoheader) + colors * 4 ;
    filesize = fileoffset_to_pixelarray + image_size ;
+
+   /* Free any image left over from a previous call - HWG_BMPNEWIMAGE()
+      overwrites this global pointer unconditionally, so without this a
+      caller that forgets to call HWG_BMPDESTROY() between two images
+      silently leaks the previous buffer. */
+   if ( bmp_fileimg )
+   {
+      free( bmp_fileimg );
+      bmp_fileimg = NULL;
+   }
 
    bmp_fileimg = malloc(filesize);
    if (! bmp_fileimg)
