@@ -15,6 +15,37 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-10 11:58 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+### Fixed
+   - richtext/RtfImage: PNG images not rendered by WordPad/RichEdit.
+   - Several Fixes
+   ### Changed
+   - richtext/RtfImage: binary payload read buffer increased from 8 KB to
+     64 KB to reduce I/O calls during hex streaming.
+   - richtext/Image: documentation updated to recommend `lFrame = .F.` for
+     inline images.
+
+   ### Notes
+   - WordPad (RichEdit 8.1+) may block images from RTFs carrying the NTFS
+     `Zone.Identifier` stream (Mark-of-the-Web). This is not a code defect.
+     Locally generated RTFs have no MotW and open without prompting.
+     To disable content blocking for the current user:
+       HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\RichEdit
+       NoSecurityUpgrade = 1 (DWORD)
+   + Add files rtfsample.prg, rtfsample.hbp, for make file All_Features_Combined.rtf
+   + Add image \hwgui\doc\image\All_Features_Combined_Pgn1_rtf.png
+   + Add image \hwgui\doc\image\All_Features_Combined_Pgn2_rtf.png
+
+   ### Affected files
+   - misc/richtext.prg
+     (New, END, NumCode, TextCode, LogicCode, RtfImage, Image)
+
+  ### Compatibility
+   - Harbour, xHarbour.
+   - Clang, MSVC, GCC — 32/64-bit.
+   - Windows 7 SP1+ / 8.1 / 10 / 11.
+   - Word, WordPad, LibreOffice Writer, RichEdit 8.1+.
+
 2026-09-09 23:20 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
   - **draw.c**: fixed a memory leak in hwg_BMPNewImageC() - the global

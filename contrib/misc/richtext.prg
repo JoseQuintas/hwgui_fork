@@ -62,6 +62,7 @@ CLASS RichText
    // Methods
    METHOD New( cFileName, aFontData, aFontFam, aFontChar, nFontSize, nFontColor, nScale, aHigh ) CONSTRUCTOR
    METHOD END() INLINE ::TextCode( "par\pard" ), ::CloseGroup(), FClose( ::hFile )
+
    METHOD TextCode( cCode )
    METHOD NumCode( cCode, nValue, lScale )
    METHOD LogicCode( cCode, lTest )
@@ -155,11 +156,11 @@ ENDCLASS
 
 METHOD New( cFileName, aFontData, aFontFam, aFontChar, nFontSize, nFontColor, nScale, aHigh ) CLASS RichText
    LOCAL i
-   LOCAL cTopFile := "rtf1\ansi\ansicpg65001\deff0"   // UTF-8 code page
+   LOCAL cTopFile := "rtf1\ansi\ansicpg1252\deff0"   // Windows-1252
    LOCAL cColors  := ::SetClrTab()
 
    DEFAULT ;
-   cFileName TO "REPORT.RTF", ;
+   cFileName TO "report.rtf", ;
    aFontData TO { "Courier New" }, ;
    nFontSize TO 12, ;
    nScale    TO INCH_TO_TWIP, ;
@@ -172,11 +173,11 @@ METHOD New( cFileName, aFontData, aFontFam, aFontChar, nFontSize, nFontColor, nS
    ::lTrimSpaces := .F.
 
    IF aFontFam == NIL
-      aFontFam := Array( aFontData )
-      AFill( aFontFam, "fNIL" )
+      aFontFam := Array( Len ( aFontData ) )
+      AFill( aFontFam, "fnil" )
    ENDIF
    IF aFontChar == NIL
-      aFontChar := Array( aFontData )
+      aFontChar := Array( len( aFontData ) )
       AFill( aFontChar, 0 )
    ENDIF
 
@@ -200,7 +201,7 @@ METHOD New( cFileName, aFontData, aFontFam, aFontChar, nFontSize, nFontColor, nS
       FOR i := 1 TO ::nFontNum
          ::OpenGroup()
          ::NewFont( i )
-         ::NumCode( "charset", aFontChar[ i ], .F. )
+         ::NumCode( "fcharset", aFontChar[ i ], .F. )
          ::TextCode( aFontFam[ i ] )
          ::Write( aFontData[ i ] + ";" )
          ::CloseGroup()
@@ -213,9 +214,8 @@ METHOD New( cFileName, aFontData, aFontFam, aFontChar, nFontSize, nFontColor, nS
 
    RETURN Self
 
-METHOD PageSetup( nLeft, nRight, nTop, nBottom, nWidth, nHeight, ;
-      nTabWidth, lLandscape, lNoWidow, cVertAlign, ;
-      cPgNumPos, lPgNumTop ) CLASS RichText
+METHOD PageSetup( nLeft, nRight, nTop, nBottom, nWidth, nHeight, nTabWidth, lLandscape, lNoWidow, cVertAlign, ;
+                  cPgNumPos, lPgNumTop ) CLASS RichText
 
    HB_SYMBOL_UNUSED( cPgNumPos )
 
@@ -420,9 +420,9 @@ METHOD Write( xData, lCodesOK ) CLASS RichText
       ENDIF
    NEXT
 
-   ::OpenGroup()
+   // --- FIX: Removed OpenGroup() and CloseGroup() to prevent RTF stream corruption ---
    FWrite( ::hFile, cWrite )
-   ::CloseGroup()
+   // ----------------------------------------------------------------------------------
 
    RETURN NIL
 
@@ -437,10 +437,10 @@ METHOD NumCode( cCode, nValue, lScale ) CLASS RichText
          nValue := Int( nValue * ::nScale )
       ENDIF
       cWrite += AllTrim( Str( nValue ) )
-      FWrite( ::hFile, cWrite )
+      FWrite( ::hFile, cWrite + " ")
    ENDIF
 
-   RETURN cWrite
+   RETURN cWrite + " "
 
 METHOD LogicCode( cCode, lTest ) CLASS RichText
    LOCAL cWrite := ""
@@ -697,7 +697,7 @@ METHOD ParaBorder( cBorder, cType ) CLASS RichText
    CASE cBorder == "LEFT"
       codigo := "brdrl"
    CASE cBorder == "RIGHT"
-      codigo := "RIGHT"
+      codigo := "brdrr"
    ENDCASE
    RETURN ::TextCode( codigo + "\brdr" + ::BorderCode( cType ) )
 
@@ -1144,7 +1144,7 @@ METHOD IncStyle( cName, styletype, nFontNumber, nFontSize, ;
          lAdd TO .F., ;
          LUpdate TO .F.
 
-   /* FIX: Shading normalization */
+   /* Normalize shading values */
    IF nShdPct > 0
       IF nShdPct < 1
          nShdPct := nShdPct * 10000
@@ -1154,6 +1154,7 @@ METHOD IncStyle( cName, styletype, nFontNumber, nFontSize, ;
    ENDIF
 
    ::OpenGroup()
+
    DO CASE
    CASE styletype == "PARAGRAPH"
       ::NumCode( "s", ::NStlDef, .F. )
@@ -1163,7 +1164,7 @@ METHOD IncStyle( cName, styletype, nFontNumber, nFontSize, ;
       lChar := .T.
    CASE styletype == "SECTION"
       ::NumCode( "ds", ::nStlSec, .F. )
-      /* FIX: increment section style counter */
+      /* Increment section style counter */
       ::nStlSec += 1
    ENDCASE
 
@@ -1173,6 +1174,7 @@ METHOD IncStyle( cName, styletype, nFontNumber, nFontSize, ;
       ::CloseGroup()
    ENDIF
 
+   /* Process paragraph specific formatting properties */
    IF lParrafo
       IF cTypeBorder # NIL
          IF AScan( cTypeBorder, "ALL" ) # 0
@@ -1183,22 +1185,26 @@ METHOD IncStyle( cName, styletype, nFontNumber, nFontSize, ;
             NEXT i
          ENDIF
       ENDIF
-      cEstilo += ::NumCode( "\li", nIndent )
+      /* REMOVED: Avoid double backslash inside control sequences */
+      cEstilo += ::NumCode( "li", nIndent )
    ENDIF
 
+   /* Assemble standard font and text attributes */
    cEstilo += ::NumCode( "f", nFontNumber - 1, .F. )
    cEstilo += ::NumCode( "fs", nFontSize * 2, .F. )
    cEstilo += ::NumCode( "cf", nFontColor, .F. )
    cEstilo += ::Appearance( cAppear )
 
+   /* Process character specific properties */
    IF lChar
-      cEstilo += ::LogicCode( "\additive", lAdd )
+      cEstilo += ::LogicCode( "additive", lAdd )
       AAdd( ::CharStyles, cEstilo )
       ::nCharStl += 1
    ENDIF
 
-   cEstilo += ::LogicCode( "\sautoupd", LUpdate )
+   cEstilo += ::LogicCode( "sautoupd", LUpdate )
 
+   /* Process paragraph background shading */
    IF lParrafo
       IF nShdPct > 0
          cEstilo += ::NumCode( "shading", nShdPct, .F. )
@@ -1210,10 +1216,12 @@ METHOD IncStyle( cName, styletype, nFontNumber, nFontSize, ;
       ::NStlDef += 1
    ENDIF
 
-   FWrite( ::hFile, " " + cName + ";" )
+   /* FIX: Write accumulated style codes along with the name to the active file handle */
+   FWrite( ::hFile, cEstilo + " " + cName + ";" )
    ::CloseGroup()
 
    RETURN NIL
+
 
 METHOD BeginStly() CLASS RichText
    ::OpenGroup()
@@ -1253,10 +1261,18 @@ METHOD CharStyle( nStyle ) CLASS RichText
    RETURN NIL
 
 METHOD TextCode( cCode ) CLASS RichText
-   LOCAL codigo
-   codigo :=  FormatCode( cCode )
-   FWrite( ::hFile, codigo )
-   RETURN codigo
+   LOCAL cWrite := ""
+   IF ValType( cCode ) == "C" .AND. ! Empty( cCode )
+      cWrite := "\" + cCode
+      //codigo :=  FormatCode( cCode )
+      // Trailing space terminates the control word cleanly. Without it,
+      // RTF readers greedily consume the following letters/digits as
+      // part of the keyword and silently drop text (e.g. "\cf0\Complex"
+      // drops "Complex", "\sl0001" drops "001").
+
+      FWrite( ::hFile, cWrite + " " )
+   ENDIF
+   RETURN cWrite + " "
 
 /* ===========================================================================
    DefNewTable - Added validation for aHeadTit and TblCJoin
@@ -1270,27 +1286,28 @@ METHOD DefNewTable( cTblHAlign, nTblFntNum, nTblFntSize, ;
 
    LOCAL i, j
 
-   DEFAULT ;
-         cTblHAlign  TO  "CENTER", ;
-         nTblFntNum  TO  1, ;
-         nTblFntSize  TO  ::nFontSize, ;
-         nTblRows  TO  1, ;
-         nTblColumns TO  1, ;
-         nTblRHgt  TO  NIL, ;
-         aTableCWid  TO  Array( nTblColumns ), ;
-         cRowBorder  TO  "NONE", ;
-         cCellBorder  TO  "SINGLE", ;
-         lTblNoSplit  TO  .F., ;
-         nCellPct  TO  0, ;
-         nTblHdRows  TO  0, ;
-         aHeadTit TO { }, ;
-         nTblHdHgt  TO  nTblRHgt, ;
-         nTblHdPct  TO  0, ;
-         nTblHdFont  TO  nTblFntNum, ;
-         nTblHdFSize  TO  ::nFontSize + 2, ;
-         nTblHdColor   TO  0, ;
-         nTblHdFColor  TO  0, ;
-         aTblCJoin TO { }
+   // --- FIX: Secure, isolated default assignments preventing type overlapping ---
+   hb_Default( @cTblHAlign,  "CENTER" )
+   hb_Default( @nTblFntNum,  1 )
+   hb_Default( @nTblFntSize, ::nFontSize )
+   hb_Default( @nTblRows,     1 )
+   hb_Default( @nTblColumns,  1 )
+   hb_Default( @nTblRHgt,     NIL )
+   hb_Default( @aTableCWid,   Array( nTblColumns ) )
+   hb_Default( @cRowBorder,   "NONE" )
+   hb_Default( @cCellBorder,  "SINGLE" )
+   hb_Default( @lTblNoSplit,  .F. )
+   hb_Default( @nCellPct,     0 )
+   hb_Default( @nTblHdRows,   0 )
+   hb_Default( @aHeadTit,     { } )
+   hb_Default( @nTblHdHgt,    nTblRHgt )
+   hb_Default( @nTblHdPct,    0 )
+   hb_Default( @nTblHdFont,   nTblFntNum )
+   hb_Default( @nTblHdFSize,  ::nFontSize + 2 )
+   hb_Default( @nTblHdColor,  0 )
+   hb_Default( @nTblHdFColor, 0 )
+   hb_Default( @aTblCJoin,    { } )
+   // -----------------------------------------------------------------------------
 
    IF aTableCWid[ 1 ] == NIL
       AFill( aTableCWid, 6.5 / nTblColumns )
@@ -1318,14 +1335,29 @@ METHOD DefNewTable( cTblHAlign, nTblFntNum, nTblFntSize, ;
    ::cRowBorder := ::BorderCode( cRowBorder )
    ::cCellBorder := ::BorderCode( cCellBorder )
    ::aColPct := AClone( aColPct )
-   ::nCellPct := IIf( nCellPct < 1, nCellPct * 10000, nCellPct * 100 )
+
+   // Safely validate that nCellPct is numeric before evaluating expressions
+   IF ValType( nCellPct ) == "N"
+      ::nCellPct := IIf( nCellPct < 1, nCellPct * 10000, nCellPct * 100 )
+   ELSE
+      ::nCellPct := 0
+   ENDIF
+
    i := 1
    AEval( ::aColPct, { || ::aColPct[ i ] := IIf( ::aColPct[ i ] < 1, ::aColPct[ i ] * 10000, ;
          ::aColPct[ i ] * 100 ), i ++ } )
+
    ::lTblNoSplit := lTblNoSplit
    ::nTblHdRows := nTblHdRows
    ::nTblHdHgt := nTblHdHgt
-   ::nTblHdPct := IIf( nTblHdPct < 1, nTblHdPct * 10000, nTblHdPct * 100 )
+
+   // Safely validate that nTblHdPct is numeric before evaluating expressions
+   IF ValType( nTblHdPct ) == "N"
+      ::nTblHdPct := IIf( nTblHdPct < 1, nTblHdPct * 10000, nTblHdPct * 100 )
+   ELSE
+      ::nTblHdPct := 0
+   ENDIF
+
    ::nTblHdFont := nTblHdFont
    ::nTblHdFSize := nTblHdFSize
    ::nTblHdColor := nTblHdColor
@@ -1336,20 +1368,24 @@ METHOD DefNewTable( cTblHAlign, nTblFntNum, nTblFntSize, ;
    ::nCurrColumn := 0
    ::nCurrRow    := 0
 
+   // Ensure aHeadTit is safely initialized as an array
+   IF ValType( aHeadTit ) != "A"
+      aHeadTit := {}
+   ENDIF
+
+   // Ensure the array has at least the number of rows specified in nTblHdRows
+   IF Len( aHeadTit ) < ::nTblHdRows
+      ASize( aHeadTit, ::nTblHdRows )
+   ENDIF
+
    ::OpenGroup()
    FOR j := 1 TO ::nTblHdRows
-      /* Validate aHeadTit exists and has correct dimensions */
-      IF Len( aHeadTit ) >= j
-         IF ValType( aHeadTit[ j ] ) != "A"
-            aHeadTit[ j ] := Array( ::nTblColumns )
-            AFill( aHeadTit[ j ], "" )
-         ELSEIF Len( aHeadTit[ j ] ) < ::nTblColumns
-            aHeadTit[ j ] := ASize( aHeadTit[ j ], ::nTblColumns )
-            AFill( aHeadTit[ j ], "" )
-         ENDIF
-      ELSE
+      // Safely ensure each item inside is a valid column array
+      IF ValType( aHeadTit[ j ] ) != "A"
          aHeadTit[ j ] := Array( ::nTblColumns )
          AFill( aHeadTit[ j ], "" )
+      ELSEIF Len( aHeadTit[ j ] ) < ::nTblColumns
+         aSize( aHeadTit[ j ], ::nTblColumns )
       ENDIF
 
       ::TableDef( .T., j )
@@ -1360,6 +1396,7 @@ METHOD DefNewTable( cTblHAlign, nTblFntNum, nTblFntSize, ;
 
    ::TableDef()
    RETURN NIL
+
 
 METHOD TableDef( lHeader, nRowHead, cCellBorder, aColPct ) CLASS RichText
    LOCAL i, j, pos
@@ -1642,13 +1679,13 @@ METHOD CurrDate( cFormat ) CLASS RichText
  * =============================================================================
  */
 METHOD RtfImage( cName, aSize, nPercent ) CLASS RichText
-   LOCAL aInches[2], in, nWidth := 0, nHeight := 0
-   LOCAL cBuffer, nBytes, nBloque := 8192
-   LOCAL scale, PictWidth, PictHeight
-   LOCAL ScreenResY, ScreenResX
-   LOCAL hBitmap, oWnd, hWnd, hdc
-   LOCAL cExt, cImageType := "", cTempFile := ""
-   LOCAL lGif := .F.
+   LOCAL aNativeTwips := Array( 2 ), in, nWidth := 0, nHeight := 0
+   LOCAL cBuffer, nBytes, nBloque := 65536 // FIX: Increased to 64 KB to ensure fast and safe streaming
+   LOCAL PictWidth, PictHeight
+   LOCAL ScreenResX, ScreenResY
+   LOCAL hBitmap, hWnd, hdc
+   LOCAL cExt, cImageType, cTempFile := ""
+   LOCAL lConverted := .F.
 
    HB_SYMBOL_UNUSED( nWidth )
    HB_SYMBOL_UNUSED( nHeight )
@@ -1659,116 +1696,122 @@ METHOD RtfImage( cName, aSize, nPercent ) CLASS RichText
 
    cExt := Upper( cFileExt( cName ) )
 
-   // Load the image using GDI+ (handles JPEG, PNG, GIF, etc.)
+   // Decode any source format (PNG, JPG, GIF, BMP, ...) via GDI+.
    hBitmap := HWG_GDIPLUSOPENIMAGE( cName )
+   IF Empty( hBitmap )
+      hwg_msginfo( "Error opening image: " + cName )
+      RETURN NIL
+   ENDIF
 
-   IF ! Empty( hBitmap )
-      // Retrieve pixel dimensions
-      nWidth  := hwg_Getbitmapwidth( hBitmap )
-      nHeight := hwg_Getbitmapheight( hBitmap )
+   // Retrieve native pixel dimensions of the source bitmap.
+   nWidth  := hwg_Getbitmapwidth( hBitmap )
+   nHeight := hwg_Getbitmapheight( hBitmap )
 
-      // Convert GIF to PNG using GDI+ (RTF doesn't support GIF natively)
-      IF cExt == "GIF"
-         lGif := .T.
-         cTempFile := hb_DirTemp() + "img_" + LTrim(Str(::nFile)) + ".png"
-         ::nFile += 1
+   // GIF/JPG/JPEG must be transcoded to PNG for RTF \pngblip compatibility.
+   IF cExt == "GIF" .OR. cExt == "JPG" .OR. cExt == "JPEG"
+      lConverted := .T.
+      cTempFile := hb_DirTemp() + "img_" + LTrim( Str( ::nFile ) ) + ".png"
+      ::nFile += 1
 
-         IF HWG_GDIPLUSSAVEPNG( cTempFile, hBitmap )
-            hwg_Deleteobject( hBitmap )
-
-            // Reload to confirm dimensions (optional but safe)
-            hBitmap := HWG_GDIPLUSOPENIMAGE( cTempFile )
-            IF ! Empty( hBitmap )
-               nWidth  := hwg_Getbitmapwidth( hBitmap )
-               nHeight := hwg_Getbitmapheight( hBitmap )
-            ENDIF
-         ENDIF
-      ENDIF
-
-      // Obtain screen DPI for proper scaling to twips
-      oWnd := GetWndDefault()
-      hWnd := oWnd:hWnd
-      hdc  := hwg_Getdc( hWnd )
-      ScreenResX := GETDEVICEC( hdc, 88 ) // LOGPIXELSX
-      ScreenResY := GETDEVICEC( hdc, 90 ) // LOGPIXELSY
-      hwg_Releasedc( hWnd, hdc )
-
-      // Free the GDI handle immediately
-      IF ! Empty( hBitmap )
+      IF HWG_GDIPLUSSAVEPNG( cTempFile, hBitmap )
          hwg_Deleteobject( hBitmap )
-      ENDIF
-
-      // Safety fallback for DPI values (should never happen, but just in case)
-      IF ScreenResX == 0 .OR. ScreenResY == 0
-         ScreenResX := 96
-         ScreenResY := 96
-      ENDIF
-
-      // Convert pixels to twips (1/1440 inch)
-      aInches[1] := ROUND( ( ( nWidth  / ScreenResX ) * ::nScale ) + 0.5, 0 )
-      aInches[2] := ROUND( ( ( nHeight / ScreenResY ) * ::nScale ) + 0.5, 0 )
-
-      // Determine final rendering size
-      IF EMPTY( aSize ) .OR. Len( aSize ) < 2
-         PictWidth  := ROUND( aInches[1] + 0.5, 0 ) * nPercent
-         PictHeight := ROUND( aInches[2] + 0.5, 0 ) * nPercent
-      ELSE
-         PictWidth  := ROUND( ( aSize[1] * ::nScale ) + 0.5, 0 )
-         PictHeight := ROUND( ( aSize[2] * ::nScale ) + 0.5, 0 )
-      ENDIF
-
-      // Determine which file to read and which RTF blip to use
-      IF lGif
-         in := fopen( cTempFile )
-         cImageType := "pngblip"
-      ELSE
-         in := fopen( cName )
-         DO CASE
-         CASE cExt == "JPG" .OR. cExt == "JPEG"
-            cImageType := "jpegblip"
-         CASE cExt == "PNG"
-            cImageType := "pngblip"
-         OTHERWISE
-            cImageType := "pngblip"   // fallback
-         ENDCASE
-      ENDIF
-
-      IF in >= 0
-         ::OpenGroup()
-         ::TextCode( "pict\" + cImageType )
-
-         // Write the RTF picture meta-header
-         scale := ROUND( ( PictWidth  * 100 / aInches[1] ) + 0.5, 0 )
-         ::NumCode( "picw", nWidth, .F. )
-         ::NumCode( "picwgoal", aInches[1], .F. )
-         ::NumCode( "picscalex", scale, .F. )
-
-         scale := ROUND( ( PictHeight * 100 / aInches[2] ) + 0.5, 0 )
-         ::NumCode( "pich", nHeight, .F. )
-         ::NumCode( "pichgoal", aInches[2], .F. )
-         ::NumCode( "picscaley", scale, .F. )
-
-         // Read the binary file in 8 KB chunks and convert to hex
-         cBuffer := Space( nBloque )
-         DO WHILE .T.
-            nBytes := fread( in, @cBuffer, nBloque )
-            IF nBytes <= 0
-               EXIT
-            ENDIF
-            FWRITE( ::hFile, hb_StrToHex( SubStr( cBuffer, 1, nBytes ) ) )
-         ENDDO
-
-         ::CloseGroup()
-         fclose( in )
-
-         // Clean up temporary file (GIF conversion)
-         IF lGif .AND. ! Empty( cTempFile )
-            FERASE( cTempFile )
+         hBitmap := HWG_GDIPLUSOPENIMAGE( cTempFile )
+         IF ! Empty( hBitmap )
+            nWidth  := hwg_Getbitmapwidth( hBitmap )
+            nHeight := hwg_Getbitmapheight( hBitmap )
          ENDIF
       ENDIF
    ENDIF
 
+   // Free the GDI+ handle immediately after we have its dimensions.
+   IF ! Empty( hBitmap )
+      hwg_Deleteobject( hBitmap )
+   ENDIF
+
+   // Obtain screen DPI to convert native pixels into twips (1/1440 inch).
+   hWnd := hwg_Getactivewindow()
+   IF ! Empty( hWnd )
+      hdc := hwg_Getdc( hWnd )
+      ScreenResX := hwg_GetDeviceCaps( hdc, 88 ) // LOGPIXELSX
+      ScreenResY := hwg_GetDeviceCaps( hdc, 90 ) // LOGPIXELSY
+      hwg_Releasedc( hWnd, hdc )
+   ELSE
+      ScreenResX := 96
+      ScreenResY := 96
+   ENDIF
+
+   IF ScreenResX == 0 .OR. ScreenResY == 0
+      ScreenResX := 96
+      ScreenResY := 96
+   ENDIF
+
+   // FIX: Calculate target dimensions in accurate standard twips (Standard RTF compatibility)
+   aNativeTwips[1] := ROUND( ( nWidth  / ScreenResX ) * 1440, 0 )
+   aNativeTwips[2] := ROUND( ( nHeight / ScreenResY ) * 1440, 0 )
+
+   // Final target rendering size (in twips).
+   IF EMPTY( aSize ) .OR. Len( aSize ) < 2
+      PictWidth  := ROUND( aNativeTwips[1] * nPercent, 0 )
+      PictHeight := ROUND( aNativeTwips[2] * nPercent, 0 )
+   ELSE
+      // If explicit size array is passed in inches, convert directly to standard twips (1 inch = 1440 twips)
+      PictWidth  := ROUND( aSize[1] * ::nScale, 0 )
+      PictHeight := ROUND( aSize[2] * ::nScale, 0 )
+   ENDIF
+
+   // Select the file to stream and the RTF blip type.
+   IF lConverted
+      in := fopen( cTempFile )
+      cImageType := "pngblip"
+   ELSE
+      in := fopen( cName )
+      DO CASE
+      CASE cExt == "PNG"
+         cImageType := "pngblip"
+      OTHERWISE
+         cImageType := "pngblip"
+      ENDCASE
+   ENDIF
+
+   IF in < 0
+      IF lConverted .AND. ! Empty( cTempFile )
+         FERASE( cTempFile )
+      ENDIF
+      RETURN NIL
+   ENDIF
+
+   // Canonical RTF \pict header. No frame, no \absh, no \pvpara.
+   ::OpenGroup()
+   ::TextCode( "pict\" + cImageType )
+
+   // FIX: Swapped logic to write standard measurements expected by Word/Wordpad engines
+   ::NumCode( "picw",     nWidth,     .F. )
+   ::NumCode( "pich",     nHeight,    .F. )
+   ::NumCode( "picwgoal", PictWidth,  .F. )
+   ::NumCode( "pichgoal", PictHeight, .F. )
+
+   // FIX: Single safe space separator before rendering raw hex bytes stream
+   ::Write( " " )
+
+   // Stream the binary payload as hex, in 64 KB chunks.
+   cBuffer := Space( nBloque )
+   DO WHILE .T.
+      nBytes := fread( in, @cBuffer, nBloque )
+      IF nBytes <= 0
+         EXIT
+      ENDIF
+      FWRITE( ::hFile, hb_StrToHex( SubStr( cBuffer, 1, nBytes ) ) )
+   ENDDO
+
+   ::CloseGroup()
+   fclose( in )
+
+   IF lConverted .AND. ! Empty( cTempFile )
+      FERASE( cTempFile )
+   ENDIF
+
    RETURN NIL
+
 
 /*=============================================================================
  * METHOD Wmf2Rtf( cName, aSize, nPercent ) CLASS RichText
@@ -1789,7 +1832,7 @@ METHOD RtfImage( cName, aSize, nPercent ) CLASS RichText
  *
  * DEPENDENCIES:
  *   - Harbour core: Bin2L(), Bin2W(), hb_StrToHex()
- *   - HWGUI: hwg_Getdc(), hwg_Releasedc(), GETDEVICEC()
+ *   - HWGUI: hwg_Getdc(), hwg_Releasedc(), hwg_GetDeviceCaps()
  * =============================================================================
  */
 METHOD Wmf2Rtf( cName, aSize, nPercent ) CLASS RichText
@@ -1797,7 +1840,7 @@ METHOD Wmf2Rtf( cName, aSize, nPercent ) CLASS RichText
    LOCAL scale, PictWidth, PictHeight
    LOCAL ancho, alto, bmHeight, bmWidth, x
    LOCAL cHeader, nLeft, nTop, nRight, nBottom, nInch
-   LOCAL ScreenResX, ScreenResY, oWnd, hWnd, hdc
+   LOCAL ScreenResX, ScreenResY, hWnd, hdc
 
    DEFAULT aSize := {}
    DEFAULT nPercent := 1
@@ -1832,11 +1875,11 @@ METHOD Wmf2Rtf( cName, aSize, nPercent ) CLASS RichText
          ENDIF
 
          // Obtain screen DPI (fallback to 96 if unavailable)
-         oWnd := GetWndDefault()
-         hWnd := oWnd:hWnd
+         hWnd := hwg_Getactivewindow()
          hdc  := hwg_Getdc( hWnd )
-         ScreenResX := GETDEVICEC( hdc, 88 ) // LOGPIXELSX
-         ScreenResY := GETDEVICEC( hdc, 90 ) // LOGPIXELSY
+
+         ScreenResX := hwg_GetDeviceCaps( hdc, 88 ) // LOGPIXELSX
+         ScreenResY := hwg_GetDeviceCaps( hdc, 90 ) // LOGPIXELSY
          hwg_Releasedc( hWnd, hdc )
 
          IF ScreenResX == 0 .OR. ScreenResY == 0
@@ -1914,17 +1957,17 @@ METHOD Wmf2Rtf( cName, aSize, nPercent ) CLASS RichText
  *
  * DEPENDENCIES:
  *   - Harbour core: hb_DirTemp(), hb_StrToHex()
- *   - HWGUI / GDI: HBitmap(), hwg_CreateMetafile(), hwg_CloseMetafile(),
+ *   - HWGUI / GDI: HBitmap(), hwg_CreateEnhMetafile(), hwg_CloseEnhMetafile(),
  *                  hwg_Setwindowextex(), hwg_Getdc(), hwg_Releasedc()
  * =============================================================================
  */
 METHOD Bmp2Wmf( cName, aSize, nPercent ) CLASS RichText
    LOCAL cMenInter, nBloque := 8192, nBytes
-   LOCAL scalex, scaley
+   LOCAL scalex, scaley, hEmf
    LOCAL hDCOut, oBmp, in, x
    LOCAL nWidth, nHeight
    LOCAL ResX, ResY, ScreenResX, ScreenResY
-   LOCAL cTempFile, oWnd, hWnd, hdc
+   LOCAL cTempFile, hWnd, hdc
    LOCAL aInches
 
    DEFAULT aSize := {}
@@ -1941,11 +1984,11 @@ METHOD Bmp2Wmf( cName, aSize, nPercent ) CLASS RichText
       nHeight := oBmp:nHeight
 
       // Obtain native screen DPI context for logical unit resolution
-      oWnd := GetWndDefault()
-      hWnd := oWnd:hWnd
+      hWnd := hwg_Getactivewindow()
       hdc  := hwg_Getdc( hWnd )
-      ScreenResX := GETDEVICEC( hdc, 88 ) // LOGPIXELSX
-      ScreenResY := GETDEVICEC( hdc, 90 ) // LOGPIXELSY
+
+      ScreenResX := hwg_GetDeviceCaps( hdc, 88 ) // LOGPIXELSX
+      ScreenResY := hwg_GetDeviceCaps( hdc, 90 ) // LOGPIXELSY
       hwg_Releasedc( hWnd, hdc )
 
       // Fallback for screen DPI to prevent division by zero
@@ -2042,9 +2085,10 @@ METHOD Bmp2Wmf( cName, aSize, nPercent ) CLASS RichText
 
    RETURN NIL
 
-/* Helper function to get file extension */
+/* Helper function to get file extension from the last dot safely */
 FUNCTION cFileExt( cFile )
-   RETURN SubStr( cFile, At( '.', cFile ) + 1 )
+   LOCAL nPos := RAt( '.', cFile )
+   RETURN iif( nPos > 0, SubStr( cFile, nPos + 1 ), "" )
 
 #ifndef __XHARBOUR__
 STATIC FUNCTION CStr( xExp )

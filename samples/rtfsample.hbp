@@ -1,0 +1,15 @@
+#
+# $Id: rtfsample.hbp 3573 2026-09-09 00:02:52Z x $
+#
+# auto included hbmk.hbm
+
+#-stop={linux}
+
+-lhwg_misc
+
+-ortfsample
+-lgdiplus
+
+rtfsample.prg
+
+# ==================== EOF of rtfsample.hbp ===============
