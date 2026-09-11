@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-11 19:35 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  - samples/rtfsample.prg rewritten as a more complete usage example -
+    InfoDoc() document metadata, colored table header backgrounds
+    (nTblHdColor/nTblHdFColor), a dedicated text-color section with a
+    full 16-color palette reference and inline color/size mixing, a
+    per-cell color highlight, an embedded-vs-linked image note, and an
+    existence check before attempting to embed the sample image.
+  - Update image \hwgui\doc\image\All_Features_Combined_Pgn1_rtf.png
+  - Update image \hwgui\doc\image\All_Features_Combined_Pgn2_rtf.png
+
 2026-09-11 13:51 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
 * source/winapi/window.c: Fix compiler error in HWG_ANSITOUNICODE() when
   building in ANSI/non-Unicode mode (with -DUNICODE commented or disabled).
