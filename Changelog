@@ -15,6 +15,23 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-12 11:27 UTC-0300 Junior Itamar <itamarlins@gmail.com>
+  * source/winapi/draw.c - TransparentBmp()
+        - Fixed loss of transparency when mixing HBitmap():AddFile(PNG)
+      with FROM RESOURCE BMPs from HBinC container (imagens.rc)
+        - GdipCreateBitmapFromHBITMAP() was wrapping the original HBITMAP,
+      GdipBitmapSetPixel() modified the cached bitmap from container,
+      causing all resource bitmaps to lose transparency.
+        - Now clones the bitmap with GdipCloneBitmapAreaI(PixelFormat32bppARGB)
+      before any pixel manipulation.
+        - Added detection of real alpha channel: if bitmap already has alpha
+      < 255, trColor is ignored and GDI+ AlphaBlend path is forced.
+        - If 32bpp bitmap has no alpha (PNG with white background), converts
+      color-key to alpha with tolerance 30 to remove anti-aliased white
+      halo. Pure key color (dist < 10) becomes fully transparent.
+        - Fixes OWNERBUTTON with BITMAP ... TRANSPARENT mixing resource and
+      file-based images.
+
 2026-09-12 01:55 UTC-0300 Junior Itamar <itamarlins@gmail.com>
   * source/winapi/draw.c
   - Removed obsolete LoadLibrary for GradientFill

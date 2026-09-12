@@ -182,25 +182,92 @@ void TransparentBmp( HDC hDC, int x, int y, int nWidthDest, int nHeightDest,
       if( bm.bmBitsPixel == 32 )
       {
             #if defined( __USE_GDIPLUS )
-            /* Try GDI+ first - handles straight alpha (PNG) */
             GpGraphics *graphics = NULL;
-            GpBitmap   *bitmap   = NULL;
+            GpBitmap   *bitmapSrc = NULL;
+            GpBitmap   *bitmapWork = NULL;
 
-            if( GdipCreateBitmapFromHBITMAP( hBmp, NULL, &bitmap ) == Ok && bitmap )
+            /* Create GDI+ bitmap from HBITMAP */
+            if( GdipCreateBitmapFromHBITMAP( hBmp, NULL, &bitmapSrc ) == Ok && bitmapSrc )
             {
-                  if( GdipCreateFromHDC( hDC, &graphics ) == Ok && graphics )
+                  UINT w, h;
+                  GdipGetImageWidth( (GpImage*)bitmapSrc, &w );
+                  GdipGetImageHeight( (GpImage*)bitmapSrc, &h );
+
+                  /* Clone to avoid modifying original HBITMAP from container */
+                  if( GdipCloneBitmapAreaI( 0, 0, w, h, PixelFormat32bppARGB, bitmapSrc, &bitmapWork ) != Ok )
                   {
-                        GdipSetInterpolationMode( graphics, InterpolationModeHighQualityBicubic );
-                        GdipDrawImageRectI( graphics, (GpImage *) bitmap, x, y, nWidthDest, nHeightDest );
-                        GdipDeleteGraphics( graphics );
-                        GdipDisposeImage( (GpImage *) bitmap );
-                        return; /* Success - done */
+                        bitmapWork = NULL;
                   }
-                  GdipDisposeImage( (GpImage *) bitmap );
+                  GdipDisposeImage( (GpImage*) bitmapSrc );
+                  bitmapSrc = NULL;
+
+                  if( bitmapWork )
+                  {
+                        /* Check if bitmap already has real alpha */
+                        BOOL bHasAlpha = FALSE;
+                        for( UINT yy=0; yy<h && !bHasAlpha; yy++ )
+                        {
+                              for( UINT xx=0; xx<w && !bHasAlpha; xx++ )
+                              {
+                                    ARGB argb;
+                                    GdipBitmapGetPixel( bitmapWork, xx, yy, &argb );
+                                    if( (argb>>24) < 255 ) bHasAlpha = TRUE;
+                              }
+                        }
+
+                        /* If it has real alpha, ignore trColor - use alpha blending */
+                        if( bHasAlpha )
+                        {
+                              trColor = -1;
+                        }
+                        else
+                        {
+                              /* No alpha - PNG with white background - convert color-key to alpha */
+                              if( trColor != -1 )
+                              {
+                                    BYTE rKey = GetRValue(trColor);
+                                    BYTE gKey = GetGValue(trColor);
+                                    BYTE bKey = GetBValue(trColor);
+                                    for( UINT yy=0; yy<h; yy++ )
+                                    {
+                                          for( UINT xx=0; xx<w; xx++ )
+                                          {
+                                                ARGB argb;
+                                                GdipBitmapGetPixel( bitmapWork, xx, yy, &argb );
+                                                BYTE r = (argb>>16)&0xFF;
+                                                BYTE g = (argb>>8)&0xFF;
+                                                BYTE b = argb&0xFF;
+                                                /* Tolerance 30 to catch anti-aliased white border */
+                                                int dr = abs(r - rKey);
+                                                int dg = abs(g - gKey);
+                                                int db = abs(b - bKey);
+                                                if( dr <= 30 && dg <= 30 && db <= 30 )
+                                                {
+                                                      int dist = (dr+dg+db)/3;
+                                                      BYTE newA = (BYTE)(dist * 255 / 30);
+                                                      if( dist < 10 ) newA = 0; /* Pure key color = fully transparent */
+                                                            argb = (newA<<24) | (r<<16) | (g<<8) | b;
+                                                      GdipBitmapSetPixel( bitmapWork, xx, yy, argb );
+                                                }
+                                          }
+                                    }
+                                    trColor = -1; /* Now has alpha, use alpha path */
+                              }
+                        }
+
+                        if( GdipCreateFromHDC( hDC, &graphics ) == Ok && graphics )
+                        {
+                              GdipSetInterpolationMode( graphics, InterpolationModeHighQualityBicubic );
+                              GdipDrawImageRectI( graphics, (GpImage *) bitmapWork, x, y, nWidthDest, nHeightDest );
+                              GdipDeleteGraphics( graphics );
+                              GdipDisposeImage( (GpImage *) bitmapWork );
+                              return;
+                        }
+                        GdipDisposeImage( (GpImage *) bitmapWork );
+                        return;
+                  }
             }
-            /* GDI+ failed - fall through to TransparentBlt/AlphaBlend */
             #endif
-            /* Fallback: if trColor is valid, use color-key, else AlphaBlend */
             if( trColor != -1 )
             {
                   TransparentBlt( hDC, x, y, nWidthDest, nHeightDest,
@@ -212,6 +279,7 @@ void TransparentBmp( HDC hDC, int x, int y, int nWidthDest, int nHeightDest,
                   AlphaBlend( hDC, x, y, nWidthDest, nHeightDest,
                               dcImage, 0, 0, bmWidth, bmHeight, bf );
             }
+            return;
       }
       else
       {
