@@ -73,11 +73,6 @@
 #endif
 #endif
 
-typedef int ( _stdcall * TRANSPARENTBLT ) ( HDC, int, int, int, int, HDC, int,
-                                            int, int, int, int );
-
-static TRANSPARENTBLT s_pTransparentBlt = NULL;
-
 static void * bmp_fileimg ; /* Pointer to file image of a bitmap */
 
 #define GRADIENT_MAX_COLORS 16
@@ -137,10 +132,20 @@ typedef struct _TRIVERTEX
 #define MINIMUM(a, b) ((a) < (b) ? (a) : (b))
 
 #if defined( __USE_GDIPLUS )
+   #include <gdiplus.h>
 
-#include <gdiplus.h>
-static GdiplusStartupInput gdiplusStartupInput;
-static ULONG_PTR gdiplusToken = 0;
+   static GdiplusStartupInput gdiplusStartupInput;
+   static ULONG_PTR gdiplusToken = 0;
+
+   /* Forward - used by TransparentBmp() which is defined before the implementation */
+   void hwg_GdiplusInit( void );
+   void hwg_GdiplusExit( void );
+#endif
+#if defined( _MSC_VER )
+   #pragma comment( lib, "msimg32.lib" )
+   #if defined( __USE_GDIPLUS )
+      #pragma comment( lib, "gdiplus.lib" )
+   #endif
 #endif
 
 typedef int ( _stdcall * GRADIENTFILL ) ( HDC, PTRIVERTEX, int, PVOID, int, int );
@@ -149,37 +154,73 @@ static GRADIENTFILL FuncGradientFill = NULL;
 
 /*=============================================================================
  * TransparentBmp()
- * Draws a transparent bitmap using TransparentBlt API
+ * Windows 2000+ only - direct link, no LoadLibrary.
+ * Old BMPs (<=24bpp) -> TransparentBlt  (color-key, magenta)
+ * New BMPs/PNGs (32bpp):
+ *   - If HWGUI was built with -D__USE_GDIPLUS: rendered via GDI+,
+ *     which handles straight alpha correctly.
+ *   - Otherwise: falls back to AlphaBlend.
  *===========================================================================*/
-static HMODULE s_hMsImg32 = NULL;
+#if defined( _MSC_VER )
+   #pragma comment( lib, "msimg32.lib" )
+   #if defined( __USE_GDIPLUS )
+      #pragma comment( lib, "gdiplus.lib" )
+   #endif
+#endif
 
 void TransparentBmp( HDC hDC, int x, int y, int nWidthDest, int nHeightDest,
                      HDC dcImage, int bmWidth, int bmHeight, int trColor )
 {
-      /* Safe initialization: load the library and function address only ONCE */
-      /* Keep module handle to avoid leak */
-      if( s_pTransparentBlt == NULL )
-      {
-            if( s_hMsImg32 == NULL )
-            {
-                  s_hMsImg32 = GetModuleHandle( TEXT( "MSIMG32.DLL" ) );
-                  if( s_hMsImg32 == NULL )
-                  {
-                        s_hMsImg32 = LoadLibrary( TEXT( "MSIMG32.DLL" ) );
-                  }
-            }
+      BITMAP bm;
+      HBITMAP hBmp = (HBITMAP) GetCurrentObject( dcImage, OBJ_BITMAP );
 
-            if( s_hMsImg32 != NULL )
-            {
-                  s_pTransparentBlt = ( TRANSPARENTBLT ) GetProcAddress( s_hMsImg32, "TransparentBlt" );
-            }
+      if( !hBmp || GetObject( hBmp, sizeof(BITMAP), &bm ) == 0 )
+            bm.bmBitsPixel = 24;
+
+      /* Container passes -1 = auto transparent color = pixel 0,0 */
+      if( trColor == -1 )
+      {
+            trColor = (int) GetPixel( dcImage, 0, 0 );
       }
 
-      // Strict safety check before calling the 64-bit function pointer
-      if( s_pTransparentBlt != NULL )
+      if( bm.bmBitsPixel == 32 )
       {
-            s_pTransparentBlt( hDC, x, y, nWidthDest, nHeightDest, dcImage, 0, 0,
-                               bmWidth, bmHeight, trColor );
+            #if defined( __USE_GDIPLUS )
+            /* Try GDI+ first - handles straight alpha */
+            GpGraphics *graphics = NULL;
+            GpBitmap   *bitmap   = NULL;
+
+            if( GdipCreateBitmapFromHBITMAP( hBmp, NULL, &bitmap ) == Ok && bitmap )
+            {
+                  if( GdipCreateFromHDC( hDC, &graphics ) == Ok && graphics )
+                  {
+                        GdipSetInterpolationMode( graphics, InterpolationModeHighQualityBicubic );
+                        GdipDrawImageRectI( graphics, (GpImage *) bitmap, x, y, nWidthDest, nHeightDest );
+                        GdipDeleteGraphics( graphics );
+                        GdipDisposeImage( (GpImage *) bitmap );
+                        return; /* Success - done */
+                  }
+                  GdipDisposeImage( (GpImage *) bitmap );
+            }
+            /* GDI+ failed - fall through to TransparentBlt/AlphaBlend */
+            #endif
+            /* Fallback: if trColor is valid, use color-key, else AlphaBlend */
+            if( trColor != -1 )
+            {
+                  TransparentBlt( hDC, x, y, nWidthDest, nHeightDest,
+                                  dcImage, 0, 0, bmWidth, bmHeight, (UINT) trColor );
+            }
+            else
+            {
+                  BLENDFUNCTION bf = { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
+                  AlphaBlend( hDC, x, y, nWidthDest, nHeightDest,
+                              dcImage, 0, 0, bmWidth, bmHeight, bf );
+            }
+      }
+      else
+      {
+            TransparentBlt( hDC, x, y, nWidthDest, nHeightDest,
+                            dcImage, 0, 0, bmWidth, bmHeight, (UINT) trColor );
       }
 }
 

@@ -15,9 +15,39 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2026-09-12 00:21 UTC-3 Junior Itamar <itamarlins@gmail.com>
-    * source/winapi/draw.c (3944)
-        - Fixed dual ANSI/UNICODE support:
+2026-09-12 01:31 UTC-0300 Junior Itamar <itamarlins@gmail.com>
+! source/winapi/draw.c - TransparentBmp() modernized (Win2K+)
+!   Removed 1998-era LoadLibrary("MSIMG32.DLL") + GetProcAddress("TransparentBlt")
+!   dynamic loading. Now links directly to msimg32.lib (-lmsimg32).
+!   Old BMPs (1/4/8/24bpp) -> TransparentBlt() color-key (magenta), palette-safe.
+!   New BMPs/PNGs (32bpp):
+!     - with __USE_GDIPLUS: GDI+ GdipDrawImageRectI() - handles straight alpha
+!       correctly (no premultiplication needed, no black halos).
+!     - without __USE_GDIPLUS: AlphaBlend() fallback with documented limitation:
+!       expects premultiplied alpha. Caller must provide premultiplied HBITMAP
+!       for correct semi-transparent edges.
+!   Removed static HMODULE s_hMsImg32 leak, now fully thread-safe.
+!   libs=msimg32 (and gdiplus when __USE_GDIPLUS)
+
+### Notes
+- cfuncs/TransparentBmp: the removed GetModuleHandle/LoadLibrary/
+  GetProcAddress block was a 1996-era workaround. MSIMG32.DLL was not
+  present on Windows 95 RTM or NT 3.51, so statically linking against
+  msimg32.lib would cause the OS loader to refuse to launch the entire
+  executable ("A required DLL file, MSIMG32.DLL, was not found"), not
+  just fail the single call. Runtime resolution allowed one binary to
+  run on 95 RTM (transparent draw silently skipped) and 95 OSR2 / NT 4
+  (transparent draw active).
+- MSIMG32.DLL has been a guaranteed system component since Windows 2000
+  SP1, and HWGUI already requires GDI+ (Vista+), so the workaround has
+  protected nothing that HWGUI still supports for over two decades.
+  The modern equivalent, if one were ever needed again, is the linker's
+  /DELAYLOAD:msimg32.dll (available since MSVC 6.0, 1998), which does the
+  same thing without hand-written code.
+
+2026-09-12 00:21 UTC-0300 Junior Itamar <itamarlins@gmail.com>
+    * source/winapi/draw.c
+    - Fixed dual ANSI/UNICODE support:
       HWG_OPENIMAGE(): replaced hb_parc() with HB_PARSTR() + _wfopen() for file mode,
       now handles paths with accents (C:\Usuários\José\...) in both ANSI and UNICODE builds.
       Binary string mode (bString=.T.) keeps hb_parc() as raw binary data.
