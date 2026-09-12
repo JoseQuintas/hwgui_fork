@@ -15,6 +15,79 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-11 21:57 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+  ### Fixed
+   - source/common/procmisc/cfuncs.c EDI_UTF8_LOWER, EDI_UTF8_UPPER: missing `return` after
+     the error branch caused a fall-through to `hb_retclen( szDst, iDstLen )`
+     with `szDst == NULL` and `iDstLen == 0`, overwriting the intended
+     return value with an empty result on any conversion failure.
+  ### Changed
+   -  source/common/procmisc/cfuncs.c changeutf8case: switched from `malloc`/`realloc`/`free` to
+     `hb_xgrab`/`hb_xrealloc`/`hb_xfree`. Required so the returned buffer
+      can be handed to `hb_retclen_buffer()` without an extra copy.
+   - cfuncs/EDI_UTF8_LOWER, cfuncs/EDI_UTF8_UPPER: return via
+     `hb_retclen_buffer()` instead of `hb_retclen()` + `free()`. Removes
+     one allocation and one copy per call.
+   - cfuncs/EDI_UTF8_LOWER, cfuncs/EDI_UTF8_UPPER: store the result of
+     `hb_parclen()` in `HB_SIZE` instead of `int`, avoiding truncation on
+     large inputs and signed/unsigned mismatch warnings on strict builds.
+   - cfuncs/EDI_UTF8_LOWER, cfuncs/EDI_UTF8_UPPER: added explicit
+     `HB_ISCHAR(1)` guard with early return, so `hb_parc(1)` is never
+     called on a non-string parameter.
+  ### Notes
+   - No `#ifdef` added. Harbour strings are byte strings in both ANSI and
+     UNICODE builds; `changeutf8case` performs case folding entirely on
+     UTF-8 byte sequences, so no wide-char branch is required. Verified on
+     Linux GCC/Clang (32/64) and Windows MSVC, Clang-cl and MinGW-GCC
+     (32/64).
+  ### Fixed
+  - source/common/procmisc/cfuncs.c HWG_STRREV: input longer than 511 bytes was silently truncated
+    because the reversal ran against a fixed `char puffer[512]`. Now uses
+    `hb_parclen()` + `hb_xgrab()` and returns the exact-length result via
+    `hb_retclen_buffer()`, with no upper bound other than available memory.
+  ### Changed
+  - source/common/procmisc/cfuncs.c HWG_STRREV: replaced `strncpy` with `memcpy` + explicit
+    null-termination. Eliminates GCC `-Wstringop-truncation` and MSVC
+    `C4996` warnings and correctly preserves embedded NUL bytes.
+  - HWG_STRREV: replaced the ternary fallback with an explicit
+    `HB_ISCHAR(1)` guard and early return, for consistency with the rest
+    of the file.
+  - HWG_STRREV: `hb_retclen_buffer()` transfers buffer ownership
+    to Harbour, removing the extra copy previously done by `hb_retc()`.
+  ### Notes
+  - No `#ifdef` added. Harbour strings are byte strings in both ANSI and
+    UNICODE builds, and `reverse_string()` is already UTF-8-aware, so no
+    wide-char branch is required. Verified on Linux GCC/Clang (32/64) and
+    Windows MSVC, Clang-cl and MinGW-GCC (32/64).
+  ### Fixed
+  - source/common/procmisc/cfuncs.c HWG_CHDIR: return value was inverted. `chdir()`/`_chdir()`
+    return 0 on success and -1 on failure, but the code returned the
+    raw result inside a `&&` expression, so the Harbour-side value was
+    `.F.` on success and `.T.` on failure. Now compares explicitly:
+    `chdir(...) == 0`.
+  - cfuncs/HWG_CHDIR, cfuncsL/HWG_CHDIR: used `hb_parc()` (raw UTF-8
+    bytes) as the path argument. On Windows this bypasses the ANSI
+    codepage conversion and on POSIX it bypasses the locale conversion,
+    breaking non-ASCII paths (`João`, `Área de Trabalho`, `Café`, ...).
+    Now uses `hb_parcx()` on Windows ANSI and `hb_parc()` on POSIX
+    (native UTF-8).
+  - cfuncs/HWG_CHDIR, cfuncsL/HWG_CHDIR: added a native UNICODE branch
+    so the call is consistent under `-DUNICODE` builds and the CRT
+    working-directory state is updated along with the kernel one. The
+    UTF-8 -> UTF-16 conversion is done with `MultiByteToWideChar(CP_UTF8,
+    ...)` + `hb_xgrab`/`hb_xfree`, since Harbour has no `hb_parcw()`.
+    The path is then passed to `_wchdir()` (not `SetCurrentDirectoryW`,
+    which updates only the kernel state and would leave the CRT's
+    relative-path resolution out of sync).
+  ### Changed
+  - cfuncs/HWG_CHDIR: explicit `HB_ISCHAR(1)` guard with early
+    `hb_retl( HB_FALSE )` instead of relying on `&&` short-circuit.
+  - cfuncs includes: `<direct.h>` was only included under `_MSC_VER`,
+    so MinGW, Clang-cl and Clang/MSYS2 builds failed with
+    `call to undeclared function '_wchdir'`. Now included for every
+    Windows toolchain via
+    `#if defined( _WIN32 ) || defined( __WIN32__ ) || defined( __MINGW32__ )`
+
 2026-09-11 19:35 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   - samples/rtfsample.prg rewritten as a more complete usage example -
     InfoDoc() document metadata, colored table header backgrounds

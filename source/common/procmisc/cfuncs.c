@@ -25,8 +25,8 @@
 #include "hbapicdp.h"
 #include "hbapifs.h"
 
-#if defined( _MSC_VER )
-#include <direct.h>
+#if defined( _WIN32 ) || defined( __WIN32__ ) || defined( __MINGW32__ )
+   #include <direct.h>
 #endif
 
 #include "warnings.h"
@@ -579,109 +579,130 @@ static int utf8tow( const char *sUTF8, int iUTF8Length, unsigned int *iUCSResult
 }
 
 static int changeutf8case( const char *szSrc, int iSrcLen, char **szDst,
-      int *iDstLen, CaseFn pCaseFn )
+                           int *iDstLen, CaseFn pCaseFn )
 {
-   int iAllocated = iSrcLen;
-   char *szTMPDst = ( char * ) malloc( sizeof( char ) * iAllocated );
-   int iRealDstLen = 0;
-   int iProcessedSrc;
-   int iProcessedDst;
+  int iAllocated = iSrcLen;
+  /* Use Harbour's allocator so the buffer can later be handed to
+   *     hb_retclen_buffer() without an extra copy. */
+  char *szTMPDst = ( char * ) hb_xgrab( iAllocated );
+  int iRealDstLen = 0;
+  int iProcessedSrc;
+  int iProcessedDst;
 
-   for( ;; )
-   {
-      unsigned int iUCS = 0;
-      iProcessedSrc = utf8tow( szSrc, iSrcLen, &iUCS );
-      if( iProcessedSrc == -1 )
+  for( ;; )
+  {
+    unsigned int iUCS = 0;
+    iProcessedSrc = utf8tow( szSrc, iSrcLen, &iUCS );
+    if( iProcessedSrc == -1 )
+    {
+      hb_xfree( szTMPDst );
+      return -1;
+    }
+
+    szSrc += iProcessedSrc;
+    iSrcLen -= iProcessedSrc;
+
+    if( iSrcLen == 0 && iUCS == 0 )
+    {
+      szTMPDst[iRealDstLen] = 0;
+      break;
+    }
+
+    iUCS = ( ( *pCaseFn ) ( iUCS ) );
+
+    iProcessedDst = wtoutf8( iUCS, szTMPDst + iRealDstLen );
+    if( iProcessedDst == -1 )
+    {
+      hb_xfree( szTMPDst );
+      return -2;
+    }
+    iRealDstLen += iProcessedDst;
+
+    if( iRealDstLen + 6 > iAllocated )
+    {
+      char *szReallocated;
+      iAllocated = iAllocated + iAllocated / 2;
+      szReallocated = ( char * ) hb_xrealloc( szTMPDst, iAllocated );
+      if( szReallocated == NULL )
       {
-         free( szTMPDst );
-         return -1;
+        hb_xfree( szTMPDst );
+        return -3;
       }
+      szTMPDst = szReallocated;
+    }
 
-      szSrc += iProcessedSrc;
-      iSrcLen -= iProcessedSrc;
+    if( iSrcLen == 0 )
+      break;
+  }
 
-      if( iSrcLen == 0 && iUCS == 0 )
-      {
-         szTMPDst[iRealDstLen] = 0;
-         break;
-      }
-
-      iUCS = ( ( *pCaseFn ) ( iUCS ) );
-
-      iProcessedDst = wtoutf8( iUCS, szTMPDst + iRealDstLen );
-      if( iProcessedDst == -1 )
-      {
-         free( szTMPDst );
-         return -2;
-      }
-      iRealDstLen += iProcessedDst;
-
-      if( iRealDstLen + 6 > iAllocated )
-      {
-         char *szReallocated;
-         iAllocated = iAllocated + iAllocated / 2;
-         szReallocated = (char*) realloc( szTMPDst, iAllocated * sizeof( char ) );
-         if( szReallocated == NULL )
-         {
-            free( szTMPDst );
-            return -3;
-         }
-         szTMPDst = szReallocated;
-      }
-
-      if( iSrcLen == 0 )
-         break;
-   }
-
-   *iDstLen = iRealDstLen;
-   *szDst = szTMPDst;
-   return 0;
+  *iDstLen = iRealDstLen;
+  *szDst = szTMPDst;
+  return 0;
 }
 
 static int utf8lcstr( const char *szSrc, int iSrcLen, char **szDst, int *iDstLen )
 {
-   return changeutf8case( szSrc, iSrcLen, szDst, iDstLen, wlc );
+  return changeutf8case( szSrc, iSrcLen, szDst, iDstLen, wlc );
 }
 
 static int utf8ucstr( const char *szSrc, int iSrcLen, char **szDst, int *iDstLen )
 {
-   return changeutf8case( szSrc, iSrcLen, szDst, iDstLen, wuc );
+  return changeutf8case( szSrc, iSrcLen, szDst, iDstLen, wuc );
 }
 
 /*=============================================================================
  * EDI_UTF8_LOWER()
- * Convert UTF-8 string to lowercase
+ * Convert a UTF-8 string to lowercase.
  *===========================================================================*/
 HB_FUNC( EDI_UTF8_LOWER )
 {
-   const char * szSrc = hb_parc(1);
-   int iSrcLen = hb_parclen(1);
-   char * szDst = NULL;
-   int    iDstLen = 0;
+  if( !HB_ISCHAR( 1 ) )
+  {
+    hb_retc( "" );
+    return;
+  }
 
-   if( utf8lcstr( szSrc, iSrcLen, &szDst, &iDstLen ) != 0 )
-      hb_retclen( szSrc, iSrcLen );
+  const char * szSrc   = hb_parc( 1 );
+  HB_SIZE      iSrcLen = hb_parclen( 1 );
+  char *       szDst   = NULL;
+  int          iDstLen = 0;
 
-   hb_retclen( szDst, iDstLen );
-   free( szDst );
+  if( utf8lcstr( szSrc, ( int ) iSrcLen, &szDst, &iDstLen ) != 0 )
+  {
+    /* Conversion failed: return the input unchanged. */
+    hb_retclen( szSrc, iSrcLen );
+    return;
+  }
+
+  /* Ownership of szDst is transferred to the returned string.
+   *     Do NOT call hb_xfree() afterwards. */
+  hb_retclen_buffer( szDst, iDstLen );
 }
 
 /*=============================================================================
  * EDI_UTF8_UPPER()
- * Convert UTF-8 string to uppercase
+ * Convert a UTF-8 string to uppercase.
  *===========================================================================*/
 HB_FUNC( EDI_UTF8_UPPER )
 {
-   const char * szSrc = hb_parc(1);
-   int iSrcLen = hb_parclen(1);
-   char * szDst = NULL;
-   int    iDstLen = 0;
+  if( !HB_ISCHAR( 1 ) )
+  {
+    hb_retc( "" );
+    return;
+  }
 
-   if( utf8ucstr( szSrc, iSrcLen, &szDst, &iDstLen ) != 0 )
-      hb_retclen( szSrc, iSrcLen );
+  const char * szSrc   = hb_parc( 1 );
+  HB_SIZE      iSrcLen = hb_parclen( 1 );
+  char *       szDst   = NULL;
+  int          iDstLen = 0;
 
-   hb_retclen( szDst, iDstLen );
-   free( szDst );
+  if( utf8ucstr( szSrc, ( int ) iSrcLen, &szDst, &iDstLen ) != 0 )
+  {
+    hb_retclen( szSrc, iSrcLen );
+    return;
+  }
+
+  hb_retclen_buffer( szDst, iDstLen );
 }
 
 /*=============================================================================
@@ -690,15 +711,13 @@ HB_FUNC( EDI_UTF8_UPPER )
  *===========================================================================*/
 HB_FUNC( HWG_REDIRON )
 {
-   int istd = ( HB_ISNIL( 1 ) ) ? 1 : hb_parni( 1 );
-   int fd;
-   void *hFile;
+  int istd = ( HB_ISNIL( 1 ) ) ? 1 : hb_parni( 1 );
+  int fd;
 
-   fflush( ( istd == 1 ) ? stdout : stderr );
-   fd = dup( fileno( ( istd == 1 ) ? stdout : stderr ) );
-   freopen( HB_PARSTR( 2, &hFile, NULL ), "w", ( istd == 1 ) ? stdout : stderr );
-   hb_strfree( hFile );
-   hb_retni( fd );
+  fflush( ( istd == 1 ) ? stdout : stderr );
+  fd = dup( fileno( ( istd == 1 ) ? stdout : stderr ) );
+  freopen( hb_parcx( 2 ), "w", ( istd == 1 ) ? stdout : stderr );
+  hb_retni( fd );
 }
 
 /*=============================================================================
@@ -748,9 +767,10 @@ HB_FUNC( HWG_RUNCONSOLEAPP )
 
    if( !HB_ISNIL( 2 ) )
    {
-      void *hOutFile;
-      hOut = fopen( HB_PARSTR( 2, &hOutFile, NULL ), "w" );
-      hb_strfree( hOutFile );
+      //void *hOutFile;
+      //hOut = fopen( HB_PARSTR( 2, &hOutFile, NULL ), "w" );
+      hOut = fopen( hb_parcx( 2 ), "w" );
+      //hb_strfree( hOutFile );
       iOutExist = 1;
    }
    else if( HB_ISBYREF( 3 ) )
@@ -846,7 +866,7 @@ HB_FUNC( HWG_RUNCONSOLEAPP )
     lstrcpyn( wc1, lpCmd, CMDLENGTH );
     bSuccess = CreateProcess( NULL, wc1, NULL, NULL,
                               TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi );
-    hb_strfree( hCmd );
+    //hb_strfree( hCmd );
   }
   #else
   bSuccess = CreateProcess( NULL, ( LPTSTR ) hb_parc( 1 ), NULL, NULL,
@@ -874,7 +894,7 @@ HB_FUNC( HWG_RUNCONSOLEAPP )
       lstrcpyn( wc2, lpOut, CMDLENGTH );
       hOut = CreateFile( wc2, GENERIC_WRITE, 0, 0,
                          CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0 );
-      hb_strfree( hOutFile );
+      //hb_strfree( hOutFile );
     }
     #else
     hOut = CreateFile( ( LPTSTR ) hb_parc( 2 ), GENERIC_WRITE, 0, 0,
@@ -931,15 +951,39 @@ HB_FUNC( HWG_RUNCONSOLEAPP )
 
 /*=============================================================================
  * HWG_CHDIR()
- * Change current directory
+ * Change current directory. Returns .T. on success, .F. on failure.
+ *
+ * Encoding:
+ *   - Linux/macOS/BSD : path is UTF-8 (native), use hb_parc()
+ *   - Windows ANSI    : UTF-8 -> CP_ACP via hb_parcx()
+ *   - Windows UNICODE : UTF-8 -> UTF-16 via MultiByteToWideChar()
+ *                       (Harbour has no hb_parcw(); conversion is manual)
  *===========================================================================*/
 HB_FUNC( HWG_CHDIR )
 {
-#if defined( _MSC_VER )
-   hb_retl( HB_ISCHAR( 1 ) && _chdir( hb_parc( 1 ) ) );
-#else
-   hb_retl( HB_ISCHAR( 1 ) && chdir( hb_parc( 1 ) ) );
-#endif
+  HB_BOOL bOk = HB_FALSE;
+
+  if( HB_ISCHAR( 1 ) )
+  {
+    #if defined( _WIN32 ) || defined( __WIN32__ ) || defined( __MINGW32__ )
+       #if defined( UNICODE ) || defined( _UNICODE )
+          int nWide = MultiByteToWideChar( CP_UTF8, 0, hb_parc( 1 ), -1, NULL, 0 );
+          if( nWide > 0 )
+          {
+            wchar_t *pWide = ( wchar_t * ) hb_xgrab( nWide * sizeof( wchar_t ) );
+            MultiByteToWideChar( CP_UTF8, 0, hb_parc( 1 ), -1, pWide, nWide );
+            bOk = ( _wchdir( pWide ) == 0 );
+            hb_xfree( pWide );
+          }
+       #else
+         bOk = ( _chdir( hb_parcx( 1 ) ) == 0 );
+       #endif
+    #else
+       bOk = ( chdir( hb_parc( 1 ) ) == 0 );
+    #endif
+  }
+
+  hb_retl( bOk );
 }
 
 /*=============================================================================
@@ -957,39 +1001,71 @@ static void reverse_char( char *beginn, char *ende )
   }
 }
 
-static char *reverse_char2( char *beginn )
+/* Reverse the bytes of a single UTF-8 character (start byte + its
+ * continuation bytes) starting at `begin`. Stops at `end` (exclusive).
+ * Returns a pointer to the byte just past the character. */
+static char * reverse_char2( char *begin, char *end )
 {
-  char *ende;
-  ende = beginn;
-  while( (ende[1] & 0xC0) == 0x80 )
-     ende++;
-  reverse_char( beginn, ende );
-  return( ende + 1 );
+  char *p = begin;
+  while( p + 1 < end && ( p[1] & 0xC0 ) == 0x80 )
+    p++;
+  reverse_char( begin, p );
+  return p + 1;
 }
 
-static void reverse_string( char *string )
+/* Reverse a UTF-8 string of explicit length nLen. Unlike the previous
+ * version, this does NOT rely on a trailing NUL byte, so strings with
+ * embedded NULs are handled correctly. */
+static void reverse_string_len( char *string, HB_SIZE nLen )
 {
-  char *ende;
-  ende = string;
-  while( *ende )
-    ende = reverse_char2( ende );
-  reverse_char( string, ende - 1 );
+  char *end;
+  char *p;
+
+  if( nLen == 0 )
+    return;
+
+  end = string + nLen;
+  p   = string;
+  while( p < end )
+    p = reverse_char2( p, end );
+
+  reverse_char( string, end - 1 );
 }
 
 /*=============================================================================
  * HWG_STRREV()
- * Reverse a UTF-8 string
+ * Reverse a UTF-8 string (byte-order-aware for multi-byte sequences).
+ *
+ * Portability:
+ *   - Linux/macOS/BSD : GCC, Clang, 32/64-bit
+ *   - Windows         : MSVC, Clang-cl, MinGW, 32/64-bit, ANSI and UNICODE
+ *     (Harbour strings are byte strings in both builds; no wide-char branch
+ *      is required.)
  *===========================================================================*/
 HB_FUNC( HWG_STRREV )
 {
-   const char *string;
-   char puffer[512];
+  if( !HB_ISCHAR( 1 ) )
+  {
+    hb_retc( "" );
+    return;
+  }
 
-   string = ( HB_ISCHAR(1) ) ? hb_parc(1) : "";
-   puffer[sizeof(puffer) - 1] = '\0';
-   strncpy( puffer, string, sizeof(puffer) - 1 );
-   reverse_string( puffer );
-   hb_retc( puffer );
+  HB_SIZE nLen = hb_parclen( 1 );
+  if( nLen == 0 )
+  {
+    hb_retc( "" );
+    return;
+  }
+
+  char *pBuffer = ( char * ) hb_xgrab( nLen + 1 );
+  memcpy( pBuffer, hb_parc( 1 ), nLen );
+  pBuffer[ nLen ] = '\0';
+
+  reverse_string_len( pBuffer, nLen );
+
+  /* Ownership of pBuffer is transferred to the returned string.
+   *     Do NOT call hb_xfree() afterwards. */
+  hb_retclen_buffer( pBuffer, nLen );
 }
 
 /*=============================================================================
