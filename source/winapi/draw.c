@@ -148,10 +148,6 @@ typedef struct _TRIVERTEX
    #endif
 #endif
 
-typedef int ( _stdcall * GRADIENTFILL ) ( HDC, PTRIVERTEX, int, PVOID, int, int );
-
-static GRADIENTFILL FuncGradientFill = NULL;
-
 /*=============================================================================
  * TransparentBmp()
  * Windows 2000+ only - direct link, no LoadLibrary.
@@ -186,7 +182,7 @@ void TransparentBmp( HDC hDC, int x, int y, int nWidthDest, int nHeightDest,
       if( bm.bmBitsPixel == 32 )
       {
             #if defined( __USE_GDIPLUS )
-            /* Try GDI+ first - handles straight alpha */
+            /* Try GDI+ first - handles straight alpha (PNG) */
             GpGraphics *graphics = NULL;
             GpBitmap   *bitmap   = NULL;
 
@@ -2380,16 +2376,8 @@ HB_FUNC( HWG_DRAWGRADIENT )
                         gRect[i-1].LowerRight = (i-1)*2+1;
                   }
 
-                  if( FuncGradientFill == NULL )
-                  {
-                        FuncGradientFill = ( GRADIENTFILL )
-                        GetProcAddress( LoadLibrary( TEXT( "MSIMG32.DLL" ) ),
-                                        "GradientFill" );
-                  }
-
                   fill_type = ( isV ) ? GRADIENT_FILL_RECT_V : GRADIENT_FILL_RECT_H;
-
-                  FuncGradientFill( hDC_mem, vertex, (colors_num-1)*2, gRect, (colors_num-1), fill_type );
+                  GradientFill( hDC_mem, vertex, (colors_num-1)*2, gRect, (colors_num-1), fill_type );
 
                   if( ( isV && stop_y[0] > y1 ) || ( isH && stop_x[0] > x1 ) )
                   {
