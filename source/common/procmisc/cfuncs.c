@@ -24,6 +24,7 @@
 #include "hbapiitm.h"
 #include "hbapicdp.h"
 #include "hbapifs.h"
+#include "hbset.h"
 
 #if defined( _WIN32 ) || defined( __WIN32__ ) || defined( __MINGW32__ )
    #include <direct.h>
@@ -751,6 +752,11 @@ HB_FUNC( HWG_REDIROFF )
  * HWG_RUNCONSOLEAPP() - UNIX version
  *===========================================================================*/
 #if defined( HB_OS_UNIX )
+
+#ifndef BUFSIZE
+   #define BUFSIZE  16384
+#endif
+
 HB_FUNC( HWG_RUNCONSOLEAPP )
 {
    fflush( stdin );
@@ -860,17 +866,21 @@ HB_FUNC( HWG_RUNCONSOLEAPP )
 
   #ifdef UNICODE
   {
-    wchar_t wc1[CMDLENGTH];
-    void *hCmd;
-    LPCTSTR lpCmd = HB_PARSTR( 1, &hCmd, NULL );
-    lstrcpyn( wc1, lpCmd, CMDLENGTH );
-    bSuccess = CreateProcess( NULL, wc1, NULL, NULL,
-                              TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi );
-    //hb_strfree( hCmd );
+    /* Harbour has no hb_parcw(); convert UTF-8 -> UTF-16 manually. */
+    int nWide = MultiByteToWideChar( CP_UTF8, 0, hb_parc( 1 ), -1, NULL, 0 );
+    if( nWide > 0 && nWide <= CMDLENGTH )
+    {
+      wchar_t wc1[CMDLENGTH];
+      MultiByteToWideChar( CP_UTF8, 0, hb_parc( 1 ), -1, wc1, CMDLENGTH );
+      bSuccess = CreateProcess( NULL, wc1, NULL, NULL,
+                                TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi );
+    }
+    else
+      bSuccess = FALSE;
   }
   #else
-  bSuccess = CreateProcess( NULL, ( LPTSTR ) hb_parc( 1 ), NULL, NULL,
-                            TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi );
+    bSuccess = CreateProcess( NULL, ( LPTSTR ) hb_parc( 1 ), NULL, NULL,
+                               TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi );
   #endif
 
   if( !bSuccess )
@@ -888,17 +898,21 @@ HB_FUNC( HWG_RUNCONSOLEAPP )
   {
     #ifdef UNICODE
     {
-      wchar_t wc2[CMDLENGTH];
-      void *hOutFile;
-      LPCTSTR lpOut = HB_PARSTR( 2, &hOutFile, NULL );
-      lstrcpyn( wc2, lpOut, CMDLENGTH );
-      hOut = CreateFile( wc2, GENERIC_WRITE, 0, 0,
-                         CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0 );
-      //hb_strfree( hOutFile );
+      /* Harbour has no hb_parcw(); convert UTF-8 -> UTF-16 manually. */
+      int nWide2 = MultiByteToWideChar( CP_UTF8, 0, hb_parc( 2 ), -1, NULL, 0 );
+      if( nWide2 > 0 && nWide2 <= CMDLENGTH )
+      {
+        wchar_t wc2[CMDLENGTH];
+        MultiByteToWideChar( CP_UTF8, 0, hb_parc( 2 ), -1, wc2, CMDLENGTH );
+        hOut = CreateFile( wc2, GENERIC_WRITE, 0, 0,
+                           CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0 );
+      }
+      else
+        hOut = INVALID_HANDLE_VALUE;
     }
     #else
-    hOut = CreateFile( ( LPTSTR ) hb_parc( 2 ), GENERIC_WRITE, 0, 0,
-                       CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0 );
+       hOut = CreateFile( ( LPTSTR ) hb_parc( 2 ), GENERIC_WRITE, 0, 0,
+                          CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0 );
     #endif
     iOutExist = 1;
   }

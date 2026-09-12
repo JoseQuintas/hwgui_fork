@@ -15,6 +15,13 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-11 22:15 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
+### Changed
+  - source/common/procmisc/cfuncs.c: general code cleanup and consistency pass.
+  - Added `#include "hbset.h"` so `hb_setGetEpoch()` and
+    `hb_setGetDecimals()` are declared explicitly instead of relying on
+    transitive includes from other Harbour headers.
+
 2026-09-11 21:57 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
   ### Fixed
    - source/common/procmisc/cfuncs.c EDI_UTF8_LOWER, EDI_UTF8_UPPER: missing `return` after
