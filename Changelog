@@ -15,6 +15,27 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-12 00:21 UTC-3 Junior Itamar <itamarlins@gmail.com>
+    * source/winapi/draw.c (3944)
+        - Fixed dual ANSI/UNICODE support:
+      HWG_OPENIMAGE(): replaced hb_parc() with HB_PARSTR() + _wfopen() for file mode,
+      now handles paths with accents (C:\Usuários\José\...) in both ANSI and UNICODE builds.
+      Binary string mode (bString=.T.) keeps hb_parc() as raw binary data.
+        - HWG_OPENBITMAP(): removed CreateFileA() + WideCharToMultiByte() workaround,
+      now uses CreateFile( HB_PARSTR() ) directly, consistent with HWG_SAVEBITMAP().
+        - HWG_GDIPLUSSAVEPNG(): replaced hb_parc() + CP_ACP conversion with HB_PARSTR(),
+      UNICODE build now passes LPCWSTR directly to GdipSaveImageToFile(), ANSI build
+      keeps MultiByteToWideChar(). Added missing hb_strfree() on all exit paths.
+        - TransparentBmp(): fixed GDI handle leak. LoadLibrary("MSIMG32.DLL") was called
+      on every call without FreeLibrary(). Now caches HMODULE in static s_hMsImg32
+      and loads only once.
+        - HWG_QRCODEZOOM_C(): fixed potential buffer overread. nlen parameter from Harbour
+      is now clamped to 16384 bytes (buffer size) before memcpy() and loop.
+        - hwg_BMPNewImageC(): kept malloc()/free() pair for bmp_fileimg as intended
+      in this version (not hb_xgrab/hb_xfree). Added defensive free() of previous
+      buffer to prevent leak if caller forgets HWG_BMPDESTROY().
+  No API change. Fully backward compatible with ANSI and UNICODE (-DUNICODE) builds.
+
 2026-09-11 22:15 UTC-0300 Itamar Lins  <itamarlins at gmail.com>
 ### Changed
   - source/common/procmisc/cfuncs.c: general code cleanup and consistency pass.
