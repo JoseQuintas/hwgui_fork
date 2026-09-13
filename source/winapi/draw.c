@@ -3407,4 +3407,266 @@ HB_FUNC( HWG_QRCODEZOOM_C )
       hb_xfree(cLine);
 }
 
+#if defined( __USE_GDIPLUS )
+#include <gdiplus.h>
+
+static ULONG_PTR s_gdiplusToken = 0;
+
+static void hwg_gif_gdiplus_start( void )
+{
+      if( s_gdiplusToken == 0 )
+      {
+            GdiplusStartupInput in;
+            in.GdiplusVersion           = 1;
+            in.DebugEventCallback       = NULL;
+            in.SuppressBackgroundThread = FALSE;
+            in.SuppressExternalCodecs   = FALSE;
+            GdiplusStartup( &s_gdiplusToken, &in, NULL );
+      }
+}
+
+/* ------------------------------------------------------------------
+ * Static helpers (must be declared before any HB_FUNC uses them)
+ * ------------------------------------------------------------------ */
+
+/* Convert ANSI/UTF-8 string to wide char.
+ U TF-8 is probed with MB_ERR_INVALID_CHARS so a non-UTF-8 (ACP)*
+ path really falls back to CP_ACP instead of producing garbage. */
+static wchar_t* hb_wideFromAnsi( const char *ansi )
+{
+      int   n  = MultiByteToWideChar( CP_UTF8, MB_ERR_INVALID_CHARS, ansi, -1, NULL, 0 );
+      UINT  cp = ( n > 0 ) ? CP_UTF8 : CP_ACP;
+      wchar_t *w;
+
+      if( n == 0 )
+            n = MultiByteToWideChar( cp, 0, ansi, -1, NULL, 0 );
+
+      w = (wchar_t*) hb_xgrab( n * sizeof(wchar_t) );
+      MultiByteToWideChar( cp, ( cp == CP_UTF8 ) ? MB_ERR_INVALID_CHARS : 0,
+                           ansi, -1, w, n );
+      return w;
+}
+
+/* Read the delay (ms) of a single frame from an already-opened GpBitmap.
+ Returns 90 (default) when the property is missing or frame out* of range. */
+static UINT hb_gifDelayFromImage( GpBitmap *img, int frame )
+{
+      UINT sz  = 0;
+      UINT res = 90;
+
+      GdipGetPropertyItemSize( (GpImage*) img, PropertyTagFrameDelay, &sz );
+      if( sz > 0 )
+      {
+            PropertyItem *it = (PropertyItem*) hb_xgrab( sz );
+            if( GdipGetPropertyItem( (GpImage*) img, PropertyTagFrameDelay, sz, it ) == Ok )
+            {
+                  UINT n = it->length / sizeof(UINT);
+                  if( frame >= 0 && (UINT) frame < n )
+                  {
+                        res = ( (UINT*) it->value )[frame] * 10;   /* 1/100s -> ms */
+                        if( res < 20 )
+                              res = 20;
+                  }
+            }
+            hb_xfree( it );
+      }
+      return res;
+}
+
+/* Look for FrameDimensionTime in the image's dimension list.
+ R eturns TRUE only when Time is really found; otherwise FALSE. *
+ On success, *pGuid holds the GUID and *pCount the frame count. */
+static BOOL hb_gifFindTimeDimension( GpImage *img, GUID *pGuid, UINT *pCount )
+{
+      UINT dim = 0;
+      BOOL found = FALSE;
+
+      *pCount = 1;
+      if( GdipImageGetFrameDimensionsCount( img, &dim ) == Ok && dim > 0 )
+      {
+            GUID *list = (GUID*) hb_xgrab( dim * sizeof(GUID) );
+            if( GdipImageGetFrameDimensionsList( img, list, dim ) == Ok )
+            {
+                  UINT i;
+                  for( i = 0; i < dim; i++ )
+                  {
+                        if( IsEqualGUID( &list[i], &FrameDimensionTime ) )
+                        {
+                              *pGuid = list[i];
+                              GdipImageGetFrameCount( img, &list[i], pCount );
+                              found = TRUE;
+                              break;
+                        }
+                  }
+            }
+            hb_xfree( list );
+      }
+      return found;
+}
+
+/* ------------------------------------------------------------------
+ * Public HB_FUNCs
+ * ------------------------------------------------------------------ */
+
+/* Return the frame count of an animated GIF.
+ - file path  -> real animated frame count                     *
+ - HBITMAP    -> always 1 (handle loses frame info) */
+HB_FUNC( HWG_GIFFRAMECOUNT )
+{
+      GpBitmap *bmp   = NULL;
+      UINT      count = 1;
+
+      hwg_gif_gdiplus_start();
+
+      if( HB_ISCHAR(1) )
+      {
+            wchar_t *w = hb_wideFromAnsi( hb_parc(1) );
+            if( GdipCreateBitmapFromFile( w, &bmp ) == Ok && bmp )
+            {
+                  GUID g;
+                  UINT c = 1;
+                  if( hb_gifFindTimeDimension( (GpImage*) bmp, &g, &c ) )
+                        count = c;
+                  GdipDisposeImage( (GpImage*) bmp );
+            }
+            hb_xfree( w );
+      }
+      else if( HB_ISNUM(1) || HB_ISPOINTER(1) )
+      {
+            /* HBITMAP: animation info is lost.
+             T o animate, keep the original path and reopen it w*ith
+             GdipCreateBitmapFromFile. */
+            count = 1;
+      }
+
+      if( count == 0 )
+            count = 1;
+      hb_retni( (int) count );
+}
+
+/* Return the delay of a specific frame in milliseconds.
+ Only meaningful when a file path is passed (HBITMAP has no del*ays). */
+HB_FUNC( HWG_GIFFRAMEDELAY )
+{
+      GpBitmap *bmp   = NULL;
+      int       frame = hb_parni(2);
+      int       delay = 90;
+
+      hwg_gif_gdiplus_start();
+
+      if( HB_ISCHAR(1) )
+      {
+            wchar_t *w = hb_wideFromAnsi( hb_parc(1) );
+            if( GdipCreateBitmapFromFile( w, &bmp ) == Ok && bmp )
+            {
+                  delay = (int) hb_gifDelayFromImage( bmp, frame );
+                  GdipDisposeImage( (GpImage*) bmp );
+            }
+            hb_xfree( w );
+      }
+      hb_retni( delay );
+}
+
+/* Draw a specific GIF frame.
+ *  frame = -1 means auto animation using the GIF's own per-frame delays.
+ *
+ *  Parameters:
+ *    1 - HDC            : destination device context
+ *    2 - path or HBITMAP: file path (string) or bitmap handle
+ *    3 - x              : destination X
+ *    4 - y              : destination Y
+ *    5 - w              : destination width
+ *    6 - h              : destination height
+ *    7 - frame          : frame index, -1 = auto animation
+ *    8 - speed          : speed factor (optional, default 1.0)
+ *                         > 1.0 -> faster (2.0 = twice as fast)
+ *                         < 1.0 -> slower (0.5 = half speed) */
+HB_FUNC( HWG_DRAWGIFFRAME )
+{
+      HDC         hDC   = (HDC) HB_PARHANDLE(1);
+      int         x     = hb_parni(3);
+      int         y     = hb_parni(4);
+      int         w     = hb_parni(5);
+      int         h     = hb_parni(6);
+      int         frame = hb_parni(7);
+      double      speed = hb_parnd(8);        /* optional speed factor */
+      GpBitmap   *bmp   = NULL;
+      GpGraphics *gfx   = NULL;
+      GUID        timeGuid;
+      UINT        cnt   = 1;
+      BOOL        hasTime;
+
+      hwg_gif_gdiplus_start();                /* make sure GDI+ is up */
+
+      if( speed <= 0.0 )                      /* reject invalid values */
+            speed = 1.0;
+
+      if( HB_ISCHAR(2) )
+      {
+            wchar_t *wf = hb_wideFromAnsi( hb_parc(2) );
+            GdipCreateBitmapFromFile( wf, &bmp );
+            hb_xfree( wf );
+      }
+      else
+      {
+            HBITMAP hBmp = (HBITMAP) HB_PARHANDLE(2);
+            if( hBmp )
+                  GdipCreateBitmapFromHBITMAP( hBmp, NULL, &bmp );
+      }
+      if( !bmp )
+            return;
+
+      hasTime = hb_gifFindTimeDimension( (GpImage*) bmp, &timeGuid, &cnt );
+      if( cnt == 0 )
+            cnt = 1;
+
+      /* Auto animation driven by the GIF's own per-frame delays,
+       *        scaled by the speed factor */
+      if( frame == -1 )
+      {
+            DWORD total = 0;
+            UINT  i;
+            for( i = 0; i < cnt; i++ )
+                  total += (DWORD) ( hb_gifDelayFromImage( bmp, (int) i ) / speed );
+
+            if( total > 0 )
+            {
+                  DWORD pos = GetTickCount() % total;
+                  DWORD acc = 0;
+                  frame = 0;
+                  for( i = 0; i < cnt; i++ )
+                  {
+                        DWORD d = (DWORD) ( hb_gifDelayFromImage( bmp, (int) i ) / speed );
+                        if( pos < acc + d )
+                        {
+                              frame = (int) i;
+                              break;
+                        }
+                        acc += d;
+                  }
+            }
+            else
+                  frame = 0;
+      }
+
+      if( frame < 0 )
+            frame = 0;
+      if( (UINT) frame >= cnt )
+            frame = (int) ( cnt - 1 );
+
+      if( hasTime )
+            GdipImageSelectActiveFrame( (GpImage*) bmp, &timeGuid, (UINT) frame );
+
+      if( GdipCreateFromHDC( hDC, &gfx ) == Ok )
+      {
+            GdipSetCompositingMode( gfx, CompositingModeSourceOver );
+            GdipDrawImageRectI( gfx, (GpImage*) bmp, x, y, w, h );
+            GdipDeleteGraphics( gfx );
+      }
+      GdipDisposeImage( (GpImage*) bmp );
+}
+
+
+#endif
+
 /* ================== EOF of draw.c ========================== */

@@ -15,6 +15,30 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-13 10:57 UTC-0300 Junior Itamar <itamarlins@gmail.com>
+  * source/winapi/draw.c
+  * source/winapi/hownbtn.prg
+  + Add animated GIF support to OwnerButton. Windows OS only.
+    A button can now display a real animated GIF (all frames, with
+    their original per-frame delays), not just the first frame.
+  + Add HWG_DRAWGIFFRAME() optional speed factor (8th parameter).
+      > 1.0  faster  (2.0 = twice as fast)
+      < 1.0  slower  (0.5 = half speed)
+      1.0    GIF native timing (default)
+    Values <= 0 fall back to 1.0.
+  + Add HOwnButton:SetGifPath( cPath ) to inform the original GIF file
+    path when the @...OWNERBUTTON macro has already converted the BITMAP
+    clause to an HBitmap object.
+  + Add HOwnButton:SetGifSpeed( nSpeed ) to change the animation speed
+    at runtime. The internal timer interval is recalculated automatically.
+  + Add HOwnButton:GetGifRect() returning { x1, y1, x2, y2 } of the GIF
+    area in client coordinates. Used by OnGifTick() to invalidate only
+    the GIF region and by DrawItems() to paint at the same coordinates,
+    guaranteeing that both always agree.
+  + Add sample samples/gifownbtn.prg
+  + Add image/hwgui_64x64.gif
+  * Add -lgdiplus into hbmk.hbm for GDIPLUS lib.
+
 2026-09-12 11:27 UTC-0300 Junior Itamar <itamarlins@gmail.com>
   * source/winapi/draw.c - TransparentBmp()
         - Fixed loss of transparency when mixing HBitmap():AddFile(PNG)

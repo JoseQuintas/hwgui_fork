@@ -31,6 +31,7 @@
 
 {win}../hwgui.hbc
 {win}hbwin.hbc
+{win}-lgdiplus
 # GTK2
 {darwin}../hwgui_mac.hbc
 {linux}../hwgui.hbc
