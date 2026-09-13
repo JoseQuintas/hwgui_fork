@@ -48,22 +48,22 @@ FUNCTION Main()
 
    /* ---- Menu ---- */
    MENU OF oMain
-      MENU TITLE "&Arquivo"
-         MENUITEM "Mostrar &Logo HWGui"  ACTION ShowLogo()
-         MENUITEM "Mostrar &Teste"       ACTION ShowTest()
+      MENU TITLE "&File"
+         MENUITEM "Show &Logo HWGui"     ACTION ShowLogo()
+         MENUITEM "Show &Test"           ACTION ShowTest()
          SEPARATOR
-         MENUITEM "&Limpar tela"         ACTION ClearScreen()
+         MENUITEM "&Clear screen"        ACTION ClearScreen()
          SEPARATOR
-         MENUITEM "Sai&r"                ACTION oMain:Close()
+         MENUITEM "E&xit"                ACTION oMain:Close()
       ENDMENU
-      MENU TITLE "A&juda"
-         MENUITEM "&Sobre..." ACTION hwg_MsgInfo( "SVG Demo" + Chr(10) + ;
+      MENU TITLE "&Help"
+         MENUITEM "&About..." ACTION hwg_MsgInfo( "SVG Demo" + Chr(10) + ;
                                                   "HWGui + librsvg" )
       ENDMENU
    ENDMENU
 
-   /* ---- Two static bitmaps, both centered, both hidden at start ----
-      We toggle visibility instead of using bPaint. */
+   /* ---- Two static bitmaps, both centered, both hidden at start.
+      Visibility is toggled instead of using bPaint. ---- */
    IF oImgLogo != Nil
       @ ( WIN_W - 400 ) / 2, ( WIN_H - 215 ) / 2 BITMAP oImgLogo ;
          OF oMain ;
@@ -98,7 +98,7 @@ FUNCTION Main()
 STATIC FUNCTION ShowLogo()
 
    IF oLogoCtrl == Nil
-      hwg_MsgInfo( "Logo nao carregado" )
+      hwg_MsgInfo( "Logo not loaded" )
       RETURN Nil
    ENDIF
 
@@ -114,7 +114,7 @@ STATIC FUNCTION ShowLogo()
 STATIC FUNCTION ShowTest()
 
    IF oTestCtrl == Nil
-      hwg_MsgInfo( "Imagem de teste nao carregada" )
+      hwg_MsgInfo( "Test image not loaded" )
       RETURN Nil
    ENDIF
 

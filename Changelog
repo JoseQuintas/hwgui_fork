@@ -15,6 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-13 18:13 UTC-0300 Junior Itamar <itamarlins@gmail.com>
+  * Language changed samples\test_svg.prg pt-br for en
+    command for test SVG image files:
+    hbmk2 test_svg.prg ..\svg.hbc
+
 2026-09-13 18:02 UTC-0300 Junior Itamar <itamarlins@gmail.com>
   * Add optional SVG image loading via librsvg (Cairo + GLib + GObject).
     Enable with -D__USE_LIBRSVG and link against rsvg-2, cairo,
