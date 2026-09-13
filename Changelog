@@ -15,6 +15,52 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-13 20:35 UTC-0300 Junior Itamar <itamarlins@gmail.com>
+  * Add support for fully static linking of librsvg (SVG) on
+    MSYS2 CLANG64. Produces a single .exe with no third-party
+    DLL dependencies - only Windows system DLLs remain.
+    Tested with:
+      MSYS2 CLANG64 (Clang 22)
+      mingw-w64-clang-x86_64-librsvg 2.63.0-1
+      Harbour 3.2.1dev (r2607071005)
+    Note: librsvg 2.57 or earlier has a bug in the static library
+    on MinGW that prevents linking (ld.lld: .idata$4 should not
+    refer to special section 0). Version 2.63.0 is the first
+    known working release.
+  * svg.hbc: complete rewrite for static linking.
+    Lists ~45 static libraries in dependency order plus the
+    required Windows system libraries. All comments in English.
+    Build command:
+      hbmk2 your_app.prg path/to/hwgui.hbp path/to/svg.hbc -fullstatic
+  * draw.c: add bz2_error_stub.c logic (bz_internal_error).
+    The libbz2.a static archive references bz_internal_error()
+    but does not define it - the default handler is only in the
+    shared library. The stub is now part of libhwgui.a so that
+    any statically linked application resolves the symbol
+    automatically without needing to provide its own stub.
+  * Static link produces test_svg.exe at 34 MB.
+    After llvm-strip -s (or --strip-all):
+       25.783.296 bytes  (~25.7 MB)
+    Both -s and --strip-all have the same effect on PE/COFF:
+    they remove the symbol table. No further reduction from
+    strip alone.
+  * Options for further reduction (not applied by default):
+      - UPX:  upx --best --lzma test_svg.exe  -> ~9 MB
+        Caveat: some antivirus tools report false positives
+        on UPX-compressed executables.
+  * Verified with:
+      llvm-objdump -p test_svg.exe | grep "DLL Name"
+    Result: 38 entries, all Windows system DLLs
+    (KERNEL32, USER32, GDI32, gdiplus, ole32, SHELL32,
+     api-ms-win-crt-*, etc.). No librsvg, cairo, glib,
+     pango, gdk-pixbuf, harfbuzz, freetype, or any other
+     third-party DLL is imported.
+    The executable is fully self-contained on any
+    Windows 10 or later system.
+  Files changed:
+      source/winapi/draw.c      add bz_internal_error() stub
+      svg.hbc                   full rewrite for -fullstatic
+
 2026-09-13 18:13 UTC-0300 Junior Itamar <itamarlins@gmail.com>
   * Language changed samples\test_svg.prg pt-br for en
     command for test SVG image files:
@@ -38,7 +84,6 @@
     shared bitmap list, so HBitmap:RELEASE() deletes it when the object
     is released.
   * source\winapi\draw.c add function HWG_LOADSVG()
-  * source\winapi\drawwidg.prg add method AddHandle()
   + Add svg.hbc for use of optional SVG recurse. hbmk2 hwgui.hbp svg.hbc
   + Add files hwgui.svg and info.svg
   + Add sample test_svg.prg

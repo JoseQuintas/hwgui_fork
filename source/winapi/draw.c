@@ -3772,6 +3772,25 @@ HB_FUNC( HWG_LOADSVG )
       hb_retptr( (void *) hResult );
 }
 
+/* bz2_error_stub.c
+ * Stub for bz_internal_error(), required when libbz2.a is linked
+ * statically. The default handler is part of the shared library
+ * (libbz2-1.dll) but not of the static archive (libbz2.a).
+ *
+ * The bzip2 project itself documents that applications linking the
+ * static library must provide this function. It is only called on
+ * unrecoverable internal errors, and does not return.
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+
+void bz_internal_error( int errcode )
+{
+      fprintf( stderr, "bzip2 internal error: %d\n", errcode );
+      exit( 1 );
+}
+
 #else  /* ! __USE_LIBRSVG */
 
 /* Stub so that callers do not need to check whether SVG support is

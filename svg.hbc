@@ -1,7 +1,24 @@
-# svg.hbc - librsvg support for HWGui (CLANG64 / MSYS2)
+# svg.hbc - static linking for librsvg on CLANG64 / MSYS2
+#
+# Build with:
+#   hbmk2 your_app.prg path/to/hwgui.hbp path/to/svg.hbc -fullstatic
 
-cflags=-D__USE_LIBRSVG -I/msys64/clang64/include/librsvg-2.0 -I/msys64/clang64/include/gdk-pixbuf-2.0 -I/msys64/clang64/include/webp -DLIBDEFLATE_DLL -I/msys64/clang64/include/cairo -I/msys64/clang64/include/libxml2 -I/msys64/clang64/include/pango-1.0 -I/msys64/clang64/include/fribidi -I/msys64/clang64/include/pixman-1 -I/msys64/clang64/include/harfbuzz -I/msys64/clang64/include/freetype2 -I/msys64/clang64/include/libpng16 -I/msys64/clang64/include/glib-2.0 -I/msys64/clang64/lib/glib-2.0/include
+cflags=-D__USE_LIBRSVG -IC:/msys64/clang64/include/librsvg-2.0 -IC:/msys64/clang64/include/cairo -IC:/msys64/clang64/include/glib-2.0 -IC:/msys64/clang64/lib/glib-2.0/include -IC:/msys64/clang64/include/gdk-pixbuf-2.0 -IC:/msys64/clang64/include/pango-1.0 -IC:/msys64/clang64/include/harfbuzz -IC:/msys64/clang64/include/freetype2 -IC:/msys64/clang64/include/libpng16 -IC:/msys64/clang64/include/libxml2
 
-ldflags=-L/msys64/clang64/lib
-libs=rsvg-2 gdk_pixbuf-2.0 gio-2.0 cairo gobject-2.0 glib-2.0 intl
+libpaths=C:/msys64/clang64/lib
 
+# Static libraries, ordered from most dependent to least dependent.
+libs=rsvg-2 cairo cairo-gobject pangocairo-1.0 pango-1.0 pangoft2-1.0 pangowin32-1.0 gdk_pixbuf-2.0 harfbuzz fribidi thai datrie gobject-2.0 gio-2.0 gmodule-2.0 glib-2.0 xml2 expat intl iconv pcre2-8 ffi pixman-1 freetype fontconfig png16 z bz2 brotlidec brotlicommon tiff jpeg webp lzma
+
+# C++ runtime
+libs=c++ c++abi unwind
+
+# Windows native libraries.
+# graphite2 - harfbuzz complex text shaping
+# rpcrt4    - UuidCreate (harfbuzz)
+# dwrite    - DWriteCreateFactory (harfbuzz DirectWrite backend)
+# ntdll, bcrypt, userenv - Rust standard library
+# shlwapi, dnsapi - glib on Windows
+libs=graphite2 ntdll bcrypt userenv shlwapi dnsapi rpcrt4 dwrite
+cflags=-D__USE_LIBRSVG ... -Os -ffunction-sections -fdata-sections -Wno-unused-command-line-argument
+ldflags=-static -Wl,/ignore:4217
