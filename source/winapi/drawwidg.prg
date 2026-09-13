@@ -385,6 +385,7 @@ CLASS HBitmap INHERIT HObject
    METHOD Draw( hDC, x1, y1, width, height )
    METHOD RELEASE()
    METHOD OBMP2FILE( cfilename , name )
+   METHOD AddHandle( hBmp )
 
 ENDCLASS
 
@@ -601,6 +602,29 @@ METHOD Draw( hDC, x1, y1, width, height ) CLASS HBitmap
    ENDIF
 
    RETURN Nil
+
+METHOD AddHandle( hBmp ) CLASS HBitmap
+
+   /* Wrap an HBITMAP that was created outside the class
+      (for example by hwg_LoadSvg) so it can be used like any
+      other HBitmap object.
+
+      The caller owns the handle. When the HBitmap is released,
+      HBitmap:RELEASE() deletes the underlying HBITMAP. */
+   LOCAL aSize
+
+   ::handle := hBmp
+
+   IF hBmp != Nil
+      aSize := hwg_GetBitmapSize( hBmp )
+      IF aSize != Nil .AND. Len( aSize ) >= 2
+         ::nWidth  := aSize[1]
+         ::nHeight := aSize[2]
+      ENDIF
+      AAdd( ::aBitmaps, Self )       // <-- registra na lista compartilhada
+   ENDIF
+
+   RETURN Self
 
 METHOD RELEASE() CLASS HBitmap
 

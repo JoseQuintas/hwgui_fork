@@ -26,6 +26,16 @@
  * DF7BE, September 2022
  */
 
+/* ==================================================================
+ *  Optional SVG support via librsvg (Cairo + GLib + GObject).
+ *  Enable with -D__USE_LIBRSVG and link against librsvg-2, cairo,
+ *  gobject-2.0 and glib-2.0.
+ *
+ *  If __USE_LIBRSVG is not defined, HWG_LOADSVG() is compiled as a
+ *  stub that always returns 0, so callers do not need to know whether
+ *  SVG support is available.
+ * ================================================================== */
+
 #define OEMRESOURCE
 
 /* REMOVED: Obsolete compiler support
@@ -3668,5 +3678,110 @@ HB_FUNC( HWG_DRAWGIFFRAME )
 
 
 #endif
+
+#if defined( __USE_LIBRSVG )
+
+#include <cairo.h>
+#include <cairo-win32.h>
+#include <librsvg/rsvg.h>
+
+/* Load an SVG file and return a new HBITMAP of the requested size.
+ Returns 0 on any error. *The caller owns the returned HBITMAP and
+ must call DeleteObject() when it is no longer needed. */
+HB_FUNC( HWG_LOADSVG )
+{
+      const char *szFileName = hb_parc(1);
+      int         nWidth     = hb_parni(2);
+      int         nHeight    = hb_parni(3);
+
+      HBITMAP hResult = NULL;
+      GError *error   = NULL;
+
+      if( !szFileName || nWidth <= 0 || nHeight <= 0 )
+      {
+            hb_retptr( NULL );
+            return;
+      }
+
+      RsvgHandle *handle = rsvg_handle_new_from_file( szFileName, &error );
+      if( handle != NULL )
+      {
+            BITMAPINFO bmi = {0};
+            bmi.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
+            bmi.bmiHeader.biWidth       = nWidth;
+            bmi.bmiHeader.biHeight      = -nHeight;
+            bmi.bmiHeader.biPlanes      = 1;
+            bmi.bmiHeader.biBitCount    = 32;
+            bmi.bmiHeader.biCompression = BI_RGB;
+
+            void *pBits   = NULL;
+            HDC   hScreen = GetDC( NULL );
+            HBITMAP hDib  = CreateDIBSection(
+                  hScreen, &bmi, DIB_RGB_COLORS, &pBits, NULL, 0 );
+            ReleaseDC( NULL, hScreen );
+
+            if( hDib != NULL && pBits != NULL )
+            {
+                  /* Fill the DIB with white first: the SVG is rendered
+                   *                    with transparency, and the static BITMAP control
+                   *                    uses hwg_Drawbitmap which ignores the alpha
+                   *                    channel. Without this, transparent areas show as
+                   *                    black. */
+                  HBRUSH  hBrush  = CreateSolidBrush( RGB(255,255,255) );
+                  RECT    rc      = { 0, 0, nWidth, nHeight };
+                  HDC     hFillDC = CreateCompatibleDC( NULL );
+                  HBITMAP hOldFill = (HBITMAP) SelectObject( hFillDC, hDib );
+                  FillRect( hFillDC, &rc, hBrush );
+                  SelectObject( hFillDC, hOldFill );
+                  DeleteDC( hFillDC );
+                  DeleteObject( hBrush );
+
+                  HDC     hMemDC  = CreateCompatibleDC( NULL );
+                  HBITMAP hOldBmp = (HBITMAP) SelectObject( hMemDC, hDib );
+
+                  cairo_surface_t *surface = cairo_win32_surface_create( hMemDC );
+                  cairo_t         *cr      = cairo_create( surface );
+
+                  RsvgRectangle viewport = { 0.0, 0.0,
+                        (double) nWidth,
+                        (double) nHeight };
+                        gboolean bOk = rsvg_handle_render_document(
+                              handle, cr, &viewport, &error );
+
+                        cairo_surface_flush( surface );
+                        GdiFlush();
+
+                        cairo_destroy( cr );
+                        cairo_surface_destroy( surface );
+
+                        SelectObject( hMemDC, hOldBmp );
+                        DeleteDC( hMemDC );
+
+                        if( bOk && error == NULL )
+                              hResult = hDib;
+                  else
+                        DeleteObject( hDib );
+            }
+
+            g_object_unref( handle );
+      }
+
+      if( error != NULL )
+            g_error_free( error );
+
+      hb_retptr( (void *) hResult );
+}
+
+#else  /* ! __USE_LIBRSVG */
+
+/* Stub so that callers do not need to check whether SVG support is
+ compiled in. Always retu*rns NULL. */
+HB_FUNC( HWG_LOADSVG )
+{
+      HB_SYMBOL_UNUSED( hb_pcount() );
+      hb_retptr( NULL );
+}
+
+#endif  /* __USE_LIBRSVG */
 
 /* ================== EOF of draw.c ========================== */

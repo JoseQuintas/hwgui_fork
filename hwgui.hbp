@@ -17,9 +17,13 @@ hwgui.hbc
 
 -w3
 
-# Uncomment these two lines to build HwGUI in Unicode mode
+#Uncomment these two lines to build HwGUI in Unicode mode
 #-prgflag=-DUNICODE
 #-cflag=-DUNICODE
+
+#Uncomment these line to build HwGUI with LIBRSVG SVG files command $>hbmk2 hwgui.hbp svg.hbc
+#-cflag=-D__USE_LIBRSVG
+
 #
 # -cflag=-DHWG_USE_POINTER_ITEM
 # "{unix}-cflag=`pkg-config --cflags gtk+-2.0`"

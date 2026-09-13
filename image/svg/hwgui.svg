@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 286 154" width="100%" height="100%">
+   <!-- General White Background -->
+   <rect width="286" height="154" fill="#FFFFFF" />
+
+   <!-- Dark Brown Shape on the Left -->
+   <path d="M 0,0 L 82,0 L 37,74 L 71,154 L 0,154 Z" fill="#6A3B03" />
+
+   <!-- Orange/Triangular Bottom Shape -->
+   <path d="M 37,74 L 286,74 L 71,154 Z" fill="#FF843D" />
+
+   <!-- Main Text Block -->
+   <g font-family="Arial, Helvetica, sans-serif" fill="#000000">
+      <text x="76" y="34" font-size="25" font-weight="normal">HwGUI</text>
+      <text x="76" y="62" font-size="21" font-weight="normal">Harbour Win32 Gui</text>
+      <text x="167" y="143" font-size="12" font-weight="normal">By Alexander Kresin</text>
+   </g>
+</svg>

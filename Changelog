@@ -15,6 +15,45 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-13 18:02 UTC-0300 Junior Itamar <itamarlins@gmail.com>
+  * Add optional SVG image loading via librsvg (Cairo + GLib + GObject).
+    Enable with -D__USE_LIBRSVG and link against rsvg-2, cairo,
+    gobject-2.0 and glib-2.0.
+    New function:
+      hwg_LoadSvg( cPath, nWidth, nHeight ) -> HBITMAP
+    The DIB is filled with white before rendering so that transparent
+    areas of the SVG appear as white instead of black (hwg_Drawbitmap
+    ignores the alpha channel).
+    When __USE_LIBRSVG is not defined, HWG_LOADSVG() is compiled as a
+    stub that returns NULL, so callers do not need to guard the call
+    with #ifdef.
+  * hwgui.hbp add commented line #-cflag=-D__USE_LIBRSVG
+  * Add HBitmap:AddHandle( hBmp ) to wrap an HBITMAP created outside
+    the class (e.g. by hwg_LoadSvg). The handle is registered in the
+    shared bitmap list, so HBitmap:RELEASE() deletes it when the object
+    is released.
+  * source\winapi\draw.c add function HWG_LOADSVG()
+  * source\winapi\drawwidg.prg add method AddHandle()
+  + Add svg.hbc for use of optional SVG recurse. hbmk2 hwgui.hbp svg.hbc
+  + Add files hwgui.svg and info.svg
+  + Add sample test_svg.prg
+  ! Attention with file hwgui.hbp
+    # Uncomment these line to build HwGUI with LIBRSVG SVG files
+    #-cflag=-D__USE_LIBRSVG
+    command: hbmk2 hwgui.hbp svg.hbc
+    Note: Use msys2 on Windows OS Clang.
+        * pacman -S mingw-w64-clang-x86_64-librsvg
+        * pacman -S mingw-w64-clang-x86_64-gdk-pixbuf2
+    This resource uses several libraries: 4 main libs + their
+    transitive dependencies. To find all the libraries needed for
+    distributing your app:
+    C:\msys64\clang64\bin\llvm-objdump.exe -p test_svg.exe | C:\msys64\usr\bin\grep.exe -i "DLL Name"
+    cd C:\msys64\clang64\bin
+    C:\msys64\clang64\bin\llvm-objdump.exe -p librsvg-2-2.dll | C:\msys64\usr\bin\grep.exe -i "DLL Name"
+    C:\msys64\clang64\bin\llvm-objdump.exe -p libcairo-2.dll | C:\msys64\usr\bin\grep.exe -i "DLL Name"
+    C:\msys64\clang64\bin\llvm-objdump.exe -p libgobject-2.0-0.dll | C:\msys64\usr\bin\grep.exe -i "DLL Name"
+    C:\msys64\clang64\bin\llvm-objdump.exe -p libglib-2.0-0.dll | C:\msys64\usr\bin\grep.exe -i "DLL Name"
+
 2026-09-13 10:57 UTC-0300 Junior Itamar <itamarlins@gmail.com>
   * source/winapi/draw.c
   * source/winapi/hownbtn.prg
