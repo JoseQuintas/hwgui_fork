@@ -15,6 +15,42 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-15 21:45 UTC-0300  Itamar Junior <itamarlins@gmail.com>
+    * contrib/webview2: New module. Integration of Microsoft WebView2
+      (Edge Chromium engine) into Hwgui windows via the "webview" C/C++
+      library (https://github.com/webview/webview).
+      + New files:
+          contrib/webview2/webview_wrapper.c    - C++ wrapper exported as DLL
+          contrib/webview2/build.sh             - build script (MSYS2 CLANG64)
+          contrib/webview2/build.bat            - build script (CMD)
+          contrib/webview2/hbmk.hbc             - hbmk2 config for Harbour
+          contrib/webview2/WebView2Loader.dll   - Microsoft WebView2 SDK loader
+          contrib/webview2/webview_wrapper.dll
+          contrib/webview2/webview_test.prg     - sample of use
+      + Documentation (four languages):
+          doc/webview2_en.html      English
+          doc/webview2_es.html      Spanish
+          doc/webview2_ptbr.html    Portuguese (Brazil)
+          doc/webview2_ru.html      Russian
+      + Output DLL: bin/webview_wrapper.dll
+      + Exported functions:
+          create_webview_embedded( parent_title, title, w, h ) -> handle
+          navigate_webview( handle, url )
+          resize_webview( handle, w, h )
+          destroy_webview( handle )
+      + Requirements:
+          - WebView2Loader.dll (from WebView2 SDK) in the same folder
+            as the executable.
+          - WebView2 Runtime installed on Windows (one-time, Evergreen
+            Standalone Installer, x64).
+      + Built with Clang 22 (MSYS2 CLANG64 environment), static linking
+        of libc++/libunwind so it does not depend on MSYS2 DLLs at runtime.
+      + Example usage in Harbour/Hwgui:
+          pLib := hb_LibLoad( "webview_wrapper.dll" )
+          hWebView := hb_DynCall( { "create_webview_embedded", pLib, ... )
+      - Known limitation: single instance only (uses FindWindowA by title).
+      - Tested on Windows 10/11, x64.
+
 2026-09-13 20:35 UTC-0300 Junior Itamar <itamarlins@gmail.com>
   * Add support for fully static linking of librsvg (SVG) on
     MSYS2 CLANG64. Produces a single .exe with no third-party

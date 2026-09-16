@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Manual — WebView2 en Hwgui con Clang 22 (MSYS2)</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 900px; margin: 40px auto;
+         padding: 0 24px; line-height: 1.6; color: #222; }
+  h1 { border-bottom: 3px solid #2c3e50; padding-bottom: 8px; color: #2c3e50; }
+  h2 { border-bottom: 1px solid #ccc; padding-bottom: 4px; margin-top: 36px; color: #34495e; }
+  h3 { color: #34495e; margin-top: 24px; }
+  code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px;
+         font-family: Consolas, 'Courier New', monospace; font-size: 0.92em; }
+  pre { background: #282c34; color: #abb2bf; padding: 14px 18px; border-radius: 6px;
+        overflow-x: auto; font-family: Consolas, 'Courier New', monospace;
+        font-size: 0.88em; line-height: 1.45; }
+  pre code { background: none; padding: 0; color: inherit; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
+  th { background: #ecf0f1; }
+  blockquote { border-left: 4px solid #3498db; padding-left: 14px;
+               color: #555; background: #f9f9f9; margin: 16px 0; }
+  .toc { background: #f8f9fa; border: 1px solid #ddd; padding: 16px 24px; border-radius: 6px; }
+  .toc ul { margin: 6px 0; }
+  hr { border: none; border-top: 1px solid #ddd; margin: 32px 0; }
+  .badge { background: #27ae60; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; }
+</style>
+</head>
+<body>
+
+<h1>Manual — WebView2 en Hwgui con Clang 22 (MSYS2)</h1>
+
+<div class="toc">
+<strong>Índice</strong>
+<ul>
+  <li><a href="#overview">1. Visión general</a></li>
+  <li><a href="#requirements">2. Requisitos</a></li>
+  <li><a href="#webview">3. Descargar la biblioteca webview</a></li>
+  <li><a href="#wrapper">4. Crear el wrapper en C</a></li>
+  <li><a href="#compile">5. Compilar la DLL</a></li>
+  <li><a href="#copy">6. Copiar archivos a la carpeta del proyecto</a></li>
+  <li><a href="#harbour">7. Código Harbour (Hwgui)</a></li>
+  <li><a href="#structure">8. Estructura final</a></li>
+  <li><a href="#how">9. Cómo funciona la integración</a></li>
+  <li><a href="#troubleshooting">10. Solución de problemas</a></li>
+  <li><a href="#summary">11. Resumen de comandos</a></li>
+</ul>
+</div>
+
+<h2 id="overview">1. Visión general</h2>
+<p>Lo que vamos a construir:</p>
+<pre><code>Hwgui (Harbour)
+    │
+    └─ hb_LibLoad("webview_wrapper.dll")
+         │
+         └─ webview_wrapper.dll (compilada con Clang)
+              │
+              ├─ usa la biblioteca "webview" (compilada dentro)
+              │
+              └─ carga en tiempo de ejecución: WebView2Loader.dll
+                    │
+                    └─ usa el WebView2 Runtime (instalado en Windows)</code></pre>
+
+<table>
+  <tr><th>Componente</th><th>Qué es</th><th>Dónde va</th></tr>
+  <tr><td><code>webview</code></td><td>Biblioteca de código abierto que envuelve WebView2</td><td>Compilada dentro de tu DLL</td></tr>
+  <tr><td><code>webview_wrapper.dll</code></td><td>DLL que tú compilas — expone funciones C para Harbour</td><td>Junto a tu .exe</td></tr>
+  <tr><td><code>WebView2Loader.dll</code></td><td>Puente entre <code>webview</code> y el Runtime de Microsoft</td><td>Junto a tu .exe</td></tr>
+  <tr><td>WebView2 Runtime</td><td>Motor Chromium de Microsoft (~200 MB)</td><td>Instalado en Windows (una vez)</td></tr>
+</table>
+
+<h2 id="requirements">2. Requisitos</h2>
+
+<h3>2.1 Instalar MSYS2</h3>
+<p>MSYS2 es el entorno que proporciona Clang 22, el enlazador LLD y las bibliotecas necesarias en Windows sin depender de Visual Studio.</p>
+
+<p><strong>Descarga:</strong> <a href="https://www.msys2.org/">https://www.msys2.org/</a></p>
+
+<p><strong>Instalación:</strong></p>
+<ol>
+  <li>Descarga el instalador <code>msys2-x86_64-*.exe</code></li>
+  <li>Ejecútalo e instálalo en la ruta predeterminada: <code>C:\msys64</code></li>
+  <li>En la pantalla final, marca la opción <strong>"Run MSYS2 now"</strong> y finaliza</li>
+  <li>Después de la instalación, tendrás varios accesos directos en el menú Inicio:
+    <ul>
+      <li><strong>MSYS2 UCRT64</strong> — no usar</li>
+      <li><strong>MSYS2 MINGW64</strong> — no usar</li>
+      <li><strong>MSYS2 CLANG64</strong> — <span class="badge">usar este</span></li>
+      <li><strong>MSYS2 MSYS</strong> — no usar</li>
+    </ul>
+  </li>
+</ol>
+
+<blockquote>
+<strong>Importante:</strong> todos los comandos de este manual deben ejecutarse dentro de <strong>MSYS2 CLANG64</strong>, no en CMD, no en PowerShell, no en el MSYS2 estándar.
+</blockquote>
+
+<h3>2.2 Actualizar MSYS2 (primera vez)</h3>
+<p>La primera vez que abras MSYS2 CLANG64, actualiza la base de paquetes:</p>
+<pre><code>pacman -Syu</code></pre>
+<p>Si te pide cerrar la terminal y volver a abrirla, hazlo y ejecútalo de nuevo:</p>
+<pre><code>pacman -Syu</code></pre>
+<p>Repite hasta que deje de pedir reinicio.</p>
+
+<h3>2.3 Confirmar que estás en el entorno CLANG64</h3>
+<p>Antes de instalar cualquier cosa, confirma que estás en el entorno correcto:</p>
+<pre><code>echo $MINGW_PACKAGE_PREFIX</code></pre>
+<p>Debe mostrar exactamente:</p>
+<pre><code>mingw-w64-clang-x86_64</code></pre>
+<p>Si muestra cualquier otra cosa (<code>mingw-w64-ucrt-x86_64</code>, <code>mingw-w64-x86_64</code>, o vacío), abriste la terminal equivocada. Ciérrala y abre <strong>MSYS2 CLANG64</strong>.</p>
+
+<h3>2.4 Instalar los paquetes necesarios</h3>
+<p>Instala el toolchain completo, el SDK de WebView2 y Git:</p>
+<pre><code>pacman -S --needed \
+  mingw-w64-clang-x86_64-toolchain \
+  mingw-w64-clang-x86_64-webview2-loader \
+  git</code></pre>
+
+<p>Durante la instalación, <code>pacman</code> pedirá confirmación varias veces. Pulsa <strong>Enter</strong> para aceptar el valor predeterminado (que es "sí").</p>
+
+<p><strong>Qué proporciona cada paquete:</strong></p>
+<table>
+  <tr><th>Paquete</th><th>Proporciona</th></tr>
+  <tr><td><code>mingw-w64-clang-x86_64-toolchain</code></td><td>Clang 22, Clang++, LLD, libc++, libunwind, cabeceras de Windows, make, etc.</td></tr>
+  <tr><td><code>mingw-w64-clang-x86_64-webview2-loader</code></td><td><code>WebView2.h</code>, <code>WebView2EnvironmentOptions.h</code> y <code>WebView2Loader.dll</code></td></tr>
+  <tr><td><code>git</code></td><td>Cliente Git (para clonar el repositorio de <code>webview</code>)</td></tr>
+</table>
+
+<h3>2.5 Verificar la instalación</h3>
+<p>Confirma que todo está en su sitio:</p>
+
+<pre><code>clang --version</code></pre>
+<p>Debe mostrar algo como:</p>
+<pre><code>clang version 22.1.8 (...)
+Target: x86_64-w64-windows-gnu
+InstalledDir: C:/msys64/clang64/bin</code></pre>
+
+<pre><code>clang++ --version</code></pre>
+<p>Debe mostrar la misma versión de Clang, con target <code>x86_64-w64-windows-gnu</code>.</p>
+
+<pre><code>ls /clang64/include/WebView2.h</code></pre>
+<p>Debe mostrar la ruta del archivo (sin error).</p>
+
+<pre><code>ls /clang64/bin/WebView2Loader.dll</code></pre>
+<p>Debe mostrar la ruta del archivo (sin error).</p>
+
+<pre><code>git --version</code></pre>
+<p>Debe mostrar la versión de Git instalada.</p>
+
+<p>Si todos estos comandos se ejecutaron sin error, el entorno está listo. Puedes pasar a la sección 3.</p>
+
+<h3>2.6 Instalar el WebView2 Runtime (en Windows, fuera de MSYS2)</h3>
+<p>El WebView2 Runtime es el motor Chromium de Microsoft (unos 200 MB) que tu aplicación usará en tiempo de ejecución. Se instala <strong>en Windows</strong>, una sola vez, y no forma parte de tu proyecto.</p>
+
+<p><strong>Instalación mediante winget (más rápido, en CMD):</strong></p>
+<pre><code>winget install --id=Microsoft.EdgeWebView2Runtime -e</code></pre>
+
+<p><strong>Instalación manual (alternativa):</strong></p>
+<ol>
+  <li>Abre: <a href="https://developer.microsoft.com/microsoft-edge/webview2/">https://developer.microsoft.com/microsoft-edge/webview2/</a></li>
+  <li>Busca <strong>"Evergreen Standalone Installer"</strong></li>
+  <li>Descarga la versión <strong>x64</strong></li>
+  <li>Ejecuta el instalador como administrador</li>
+</ol>
+
+<p><strong>Confirmar que está instalado (en CMD):</strong></p>
+<pre><code>reg query "HKLM\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}" /v pv</code></pre>
+
+<p>Si muestra algo como <code>pv REG_SZ 1xx.x.xxxx.xx</code>, está instalado. Si devuelve un error de "no se pudo encontrar la clave o el valor del Registro especificado", no está instalado.</p>
+
+<blockquote>
+<strong>Nota:</strong> en máquinas con Windows 10/11 actualizado, el WebView2 Runtime normalmente ya viene preinstalado junto con Microsoft Edge. Confirma siempre con el comando anterior antes de asumirlo.
+</blockquote>
+
+<h3>2.7 Resumen de la sección 2</h3>
+<table>
+  <tr><th>Qué instalar</th><th>Dónde</th><th>Comando</th></tr>
+  <tr><td>MSYS2</td><td>Windows (instalador)</td><td><code>msys2-x86_64-*.exe</code></td></tr>
+  <tr><td>Actualización base</td><td>MSYS2 CLANG64</td><td><code>pacman -Syu</code></td></tr>
+  <tr><td>Toolchain + SDK + Git</td><td>MSYS2 CLANG64</td><td><code>pacman -S --needed mingw-w64-clang-x86_64-toolchain mingw-w64-clang-x86_64-webview2-loader git</code></td></tr>
+  <tr><td>WebView2 Runtime</td><td>Windows (CMD)</td><td><code>winget install --id=Microsoft.EdgeWebView2Runtime -e</code></td></tr>
+</table>
+
+<h2 id="webview">3. Descargar la biblioteca webview</h2>
+<pre><code>cd /c/dev
+git clone https://github.com/webview/webview.git
+cd webview</code></pre>
+<p>Estructura generada:</p>
+<pre><code>C:\dev\webview\
+  core\
+    include\webview\webview.h
+    include\webview\...
+    src\webview.cc</code></pre>
+
+<h2 id="wrapper">4. Crear el wrapper en C</h2>
+<p>Crea el archivo <code>C:\dev\webview\webview_wrapper.c</code> con el siguiente contenido:</p>
+<pre><code>#include &lt;webview/webview.h&gt;
+#include &lt;stdint.h&gt;
+#include &lt;windows.h&gt;
+
+static webview_t g_webview = NULL;
+static WNDPROC   g_old_proc = NULL;
+static HWND      g_parent   = NULL;
+
+static LRESULT CALLBACK SubclassProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
+    if (msg == WM_SIZE &amp;&amp; g_webview != NULL) {
+        int w = LOWORD(lp);
+        int h = HIWORD(lp);
+        if (w &gt; 0 &amp;&amp; h &gt; 0) {
+            webview_set_size(g_webview, w, h, WEBVIEW_HINT_NONE);
+        }
+    }
+    return CallWindowProc(g_old_proc, hwnd, msg, wp, lp);
+}
+
+extern "C" {
+
+__declspec(dllexport) void* create_webview_embedded(const char* parent_title, const char* title, int width, int height) {
+    HWND hwnd_parent = NULL;
+    if (parent_title &amp;&amp; parent_title[0]) hwnd_parent = FindWindowA(NULL, parent_title);
+    if (!hwnd_parent) hwnd_parent = GetActiveWindow();
+    if (!hwnd_parent) hwnd_parent = GetForegroundWindow();
+    if (!hwnd_parent) return NULL;
+
+    webview_t w = webview_create(0, NULL);
+    if (!w) return NULL;
+
+    webview_set_title(w, title);
+
+    HWND hwnd_wv = (HWND)webview_get_window(w);
+    if (!hwnd_wv) { webview_destroy(w); return NULL; }
+
+    LONG_PTR style = GetWindowLongPtr(hwnd_wv, GWL_STYLE);
+    style &amp;= ~(WS_POPUP | WS_CAPTION | WS_THICKFRAME | WS_OVERLAPPED |
+               WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX);
+    style |= WS_CHILD;
+    SetWindowLongPtr(hwnd_wv, GWL_STYLE, style);
+
+    LONG_PTR exstyle = GetWindowLongPtr(hwnd_wv, GWL_EXSTYLE);
+    exstyle &amp;= ~(WS_EX_CLIENTEDGE | WS_EX_WINDOWEDGE |
+                 WS_EX_DLGMODALFRAME | WS_EX_STATICEDGE);
+    SetWindowLongPtr(hwnd_wv, GWL_EXSTYLE, exstyle);
+
+    SetParent(hwnd_wv, hwnd_parent);
+
+    RECT rc;
+    GetClientRect(hwnd_parent, &amp;rc);
+    int cw = rc.right &gt; 0 ? rc.right : width;
+    int ch = rc.bottom &gt; 0 ? rc.bottom : height;
+
+    webview_set_size(w, cw, ch, WEBVIEW_HINT_NONE);
+    SetWindowPos(hwnd_wv, HWND_TOP, 0, 0, cw, ch,
+                 SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+
+    g_webview = w;
+    g_parent  = hwnd_parent;
+    g_old_proc = (WNDPROC)SetWindowLongPtr(hwnd_parent, GWLP_WNDPROC, (LONG_PTR)SubclassProc);
+
+    return (void*)w;
+}
+
+__declspec(dllexport) void navigate_webview(void* w, const char* url) {
+    if (!w) return;
+    webview_navigate((webview_t)w, url);
+}
+
+__declspec(dllexport) void destroy_webview(void* w) {
+    if (!w) return;
+    if (g_parent &amp;&amp; g_old_proc) {
+        SetWindowLongPtr(g_parent, GWLP_WNDPROC, (LONG_PTR)g_old_proc);
+        g_old_proc = NULL;
+        g_parent   = NULL;
+    }
+    g_webview = NULL;
+    webview_destroy((webview_t)w);
+}
+
+}</code></pre>
+
+<h2 id="compile">5. Compilar la DLL</h2>
+<p>En MSYS2 CLANG64:</p>
+<pre><code>cd /c/dev/webview
+
+clang++ -shared -O2 -std=c++17 -static -x c++ \
+  -o webview_wrapper.dll \
+  webview_wrapper.c core/src/webview.cc \
+  -Icore/include -DUNICODE -D_UNICODE \
+  -luser32 -lole32 -loleaut32 -lshlwapi \
+  -ladvapi32 -lversion -lcomctl32 -lntdll -ldwmapi \
+  -fuse-ld=lld</code></pre>
+
+<p>Explicación de las banderas:</p>
+<table>
+  <tr><th>Bandera</th><th>Significado</th></tr>
+  <tr><td><code>-shared</code></td><td>Generar DLL</td></tr>
+  <tr><td><code>-O2</code></td><td>Optimización</td></tr>
+  <tr><td><code>-std=c++17</code></td><td>Estándar C++ usado por la lib webview</td></tr>
+  <tr><td><code>-static</code></td><td>Enlaza estáticamente libc++/libunwind (evita depender de las DLL de MSYS2 en tiempo de ejecución)</td></tr>
+  <tr><td><code>-x c++</code></td><td>Trata todos los archivos como C++</td></tr>
+  <tr><td><code>-Icore/include</code></td><td>Directorio de las cabeceras de webview</td></tr>
+  <tr><td><code>-DUNICODE -D_UNICODE</code></td><td>Macros de Win32</td></tr>
+  <tr><td><code>-l...</code></td><td>Bibliotecas de Windows</td></tr>
+  <tr><td><code>-fuse-ld=lld</code></td><td>Usar el enlazador de LLVM</td></tr>
+</table>
+
+<p>Verifica los exports:</p>
+<pre><code>objdump -p webview_wrapper.dll | grep -iE "create_webview|navigate_webview|destroy_webview"</code></pre>
+<p>Debe mostrar:</p>
+<pre><code>create_webview_embedded
+destroy_webview
+navigate_webview</code></pre>
+
+<p>Verifica que no depende de DLL de MSYS2 (no debe listar <code>libc++.dll</code>):</p>
+<pre><code>objdump -p webview_wrapper.dll | grep "DLL Name"</code></pre>
+<p>Debe listar solo DLL de Windows (<code>KERNEL32.dll</code>, <code>USER32.dll</code>, etc.).</p>
+
+<h2 id="copy">6. Copiar archivos a la carpeta del proyecto</h2>
+<pre><code>cp /c/dev/webview/webview_wrapper.dll  /ruta/al/proyecto/
+cp /clang64/bin/WebView2Loader.dll     /ruta/al/proyecto/</code></pre>
+
+<h2 id="harbour">7. Código Harbour (Hwgui)</h2>
+<p>Archivo <code>webview_test.prg</code>:</p>
+<pre><code>#include "hwgui.ch"
+#include "hbdyn.ch"
+
+STATIC pLib     := NIL
+STATIC hWebView := NIL
+
+FUNCTION Main()
+   LOCAL oForm
+
+   pLib := hb_LibLoad( "webview_wrapper.dll" )
+   IF pLib == NIL
+      hwg_MsgStop( "hb_LibLoad falló" )
+      RETURN NIL
+   ENDIF
+
+   INIT WINDOW oForm TITLE "Hwgui + WebView2" SIZE 800, 600 ;
+      ON INIT { || InicializaWebView( oForm ) } ;
+      ON EXIT { || FinalizaWebView() }
+
+   ACTIVATE WINDOW oForm
+
+   hb_LibFree( pLib )
+RETURN NIL
+
+STATIC FUNCTION InicializaWebView( oForm )
+   hWebView := hb_DynCall( { "create_webview_embedded", pLib, ;
+                             hb_bitOr( HB_DYN_CTYPE_VOID_PTR, HB_DYN_CALLCONV_CDECL ), ;
+                             HB_DYN_CTYPE_CHAR_PTR, ;
+                             HB_DYN_CTYPE_CHAR_PTR, ;
+                             HB_DYN_CTYPE_INT, ;
+                             HB_DYN_CTYPE_INT }, ;
+                           "Hwgui + WebView2", "WebView2", 760, 540 )
+   IF hWebView != NIL
+      hb_DynCall( { "navigate_webview", pLib, ;
+                    hb_bitOr( HB_DYN_CTYPE_VOID, HB_DYN_CALLCONV_CDECL ), ;
+                    HB_DYN_CTYPE_VOID_PTR, ;
+                    HB_DYN_CTYPE_CHAR_PTR }, ;
+                  hWebView, "https://www.google.com" )
+   ENDIF
+RETURN NIL
+
+STATIC FUNCTION FinalizaWebView()
+   IF hWebView != NIL
+      hb_DynCall( { "destroy_webview", pLib, ;
+                    hb_bitOr( HB_DYN_CTYPE_VOID, HB_DYN_CALLCONV_CDECL ), ;
+                    HB_DYN_CTYPE_VOID_PTR }, ;
+                  hWebView )
+      hWebView := NIL
+   ENDIF
+RETURN NIL</code></pre>
+
+<p>Compilar:</p>
+<pre><code>hbmk2 webview_test.prg \dev\hwgui\hwgui.hbc -lgdiplus</code></pre>
+
+<p>Ejecutar:</p>
+<pre><code>webview_test.exe</code></pre>
+
+<h2 id="structure">8. Estructura final de la carpeta del proyecto</h2>
+<pre><code>proyecto/
+  webview_test.prg
+  webview_test.exe
+  webview_wrapper.dll      (la tuya, compilada con Clang)
+  WebView2Loader.dll       (de MSYS2: /clang64/bin/)
+  hwgui.hbc
+  ...</code></pre>
+
+<h2 id="how">9. Cómo funciona la integración</h2>
+<ol>
+  <li><strong>Harbour</strong> carga <code>webview_wrapper.dll</code> con <code>hb_LibLoad</code></li>
+  <li><strong>Harbour</strong> llama a <code>create_webview_embedded</code> pasando el título de la ventana Hwgui</li>
+  <li>La <strong>DLL wrapper</strong>:
+    <ul>
+      <li>Encuentra el HWND de la ventana Hwgui con <code>FindWindowA</code></li>
+      <li>Crea el WebView2 como ventana independiente</li>
+      <li>Quita los estilos de ventana de nivel superior, lo convierte en <code>WS_CHILD</code></li>
+      <li>Llama a <code>SetParent</code> para incrustarlo dentro de la ventana Hwgui</li>
+      <li>Instala una <strong>subclass</strong> en <code>WM_SIZE</code> de la ventana Hwgui</li>
+    </ul>
+  </li>
+  <li>Cuando el usuario redimensiona/maximiza, la <strong>subclass</strong> captura <code>WM_SIZE</code> y llama a <code>webview_set_size</code>, redimensionando el Chromium interno</li>
+  <li><strong>Harbour</strong> llama a <code>navigate_webview</code> para cargar la URL</li>
+  <li>Al cerrar, <strong>Harbour</strong> llama a <code>destroy_webview</code>, que elimina la subclass y destruye el WebView</li>
+</ol>
+
+<h2 id="troubleshooting">10. Solución de problemas</h2>
+<table>
+  <tr><th>Error</th><th>Causa</th><th>Solución</th></tr>
+  <tr><td><code>hb_LibLoad</code> devuelve NIL</td><td>Faltan dependencias en tiempo de ejecución</td><td>Verifica con <code>objdump -p webview_wrapper.dll | grep "DLL Name"</code> — si aparece <code>libc++.dll</code>, recompila con <code>-static</code></td></tr>
+  <tr><td><code>webview_create</code> devuelve NULL</td><td>WebView2 Runtime no instalado</td><td>Instala el Evergreen Runtime (paso 2.6)</td></tr>
+  <tr><td><code>webview_get_window</code> devuelve NULL</td><td><code>webview_create</code> no completó</td><td>Verifica el runtime</td></tr>
+  <tr><td>El WebView queda en blanco</td><td>Error de renderizado</td><td>Verifica si el WebView2 Runtime está actualizado</td></tr>
+  <tr><td>El WebView no se redimensiona</td><td>La subclass no se está llamando</td><td>Verifica que <code>create_webview_embedded</code> se ejecutó sin errores</td></tr>
+  <tr><td><code>hb_DynCall</code> devuelve NIL</td><td>La función no está exportada</td><td>Verifica con <code>objdump -p webview_wrapper.dll | grep export</code></td></tr>
+  <tr><td>Error <code>==</code> en puntero</td><td>Comparar un puntero con un número en Harbour</td><td>Usa solo <code>hWebView != NIL</code>, nunca <code>hWebView == 1</code></td></tr>
+</table>
+
+<h2 id="summary">11. Resumen de comandos</h2>
+
+<h3>MSYS2 CLANG64</h3>
+<pre><code># 1. Clonar la biblioteca webview (una vez)
+cd /c/dev
+git clone https://github.com/webview/webview.git
+
+# 2. Crear webview_wrapper.c (ver sección 4)
+
+# 3. Compilar la DLL (cada vez que modifiques el wrapper)
+cd /c/dev/webview
+clang++ -shared -O2 -std=c++17 -static -x c++ \
+  -o webview_wrapper.dll \
+  webview_wrapper.c core/src/webview.cc \
+  -Icore/include -DUNICODE -D_UNICODE \
+  -luser32 -lole32 -loleaut32 -lshlwapi \
+  -ladvapi32 -lversion -lcomctl32 -lntdll -ldwmapi \
+  -fuse-ld=lld
+
+# 4. Verificar los exports
+objdump -p webview_wrapper.dll | grep -iE "create_webview|navigate_webview|destroy_webview"</code></pre>
+
+<h3>CMD</h3>
+<pre><code># 5. Copiar al proyecto
+copy C:\dev\webview\webview_wrapper.dll C:\proyecto\
+copy C:\msys64\clang64\bin\WebView2Loader.dll C:\proyecto\
+
+# 6. Compilar el programa Harbour
+cd C:\proyecto
+hbmk2 webview_test.prg \dev\hwgui\hwgui.hbc -lgdiplus
+
+# 7. Ejecutar
+webview_test.exe</code></pre>
+
+<hr>
+<p style="text-align:center; color:#888; font-size:0.9em;">
+<strong>Fin del manual</strong> <span class="badge">v1.0</span>
+</p>
+
+</body>
+</html>
