@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HwguiTurbo — Client Manager</title>
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f5f6f7;
+    color: #222;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---- Tab bar ---- */
+  .tabs {
+    display: flex;
+    background: #e8eaed;
+    border-bottom: 1px solid #ccc;
+    padding: 0 10px;
+    flex-shrink: 0;
+    overflow-x: auto;
+  }
+
+  .tab {
+    padding: 12px 24px;
+    cursor: grab;
+    border: 1px solid transparent;
+    border-bottom: none;
+    margin-bottom: -1px;
+    user-select: none;
+    font-size: 14px;
+    color: #555;
+    transition: background 0.15s, opacity 0.15s;
+    border-radius: 6px 6px 0 0;
+    white-space: nowrap;
+  }
+
+  .tab:active { cursor: grabbing; }
+  .tab:hover { background: #dfe1e5; }
+
+  .tab.active {
+    background: #fff;
+    color: #0078d4;
+    border-color: #ccc;
+    font-weight: 600;
+  }
+
+  .tab.dragging { opacity: 0.4; }
+  .tab.drop-target { border-left: 3px solid #0078d4; }
+
+  /* ---- Panels ---- */
+  .panel {
+    display: none;
+    padding: 24px;
+    flex: 1;
+    overflow-y: auto;
+    background: #fff;
+  }
+
+  .panel.active { display: block; }
+
+  h2 {
+    margin-top: 0;
+    color: #2c3e50;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+  }
+
+  /* ---- Form ---- */
+  .form-row {
+    margin-bottom: 14px;
+    max-width: 500px;
+  }
+
+  .form-row label {
+    display: block;
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 4px;
+    color: #555;
+  }
+
+  .form-row input {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+
+  .form-row input:focus {
+    outline: none;
+    border-color: #0078d4;
+    box-shadow: 0 0 0 2px rgba(0,120,212,0.15);
+  }
+
+  /* ---- Buttons ---- */
+  button {
+    padding: 9px 20px;
+    background: #0078d4;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.15s;
+  }
+
+  button:hover { background: #006cbd; }
+  button:active { background: #005a9e; }
+
+  button.danger { background: #c0392b; padding: 4px 10px; font-size: 12px; }
+  button.danger:hover { background: #a93226; }
+
+  button.secondary { background: #6c757d; padding: 4px 10px; font-size: 12px; }
+  button.secondary:hover { background: #5a6268; }
+
+  button.restore { background: #27ae60; padding: 4px 10px; font-size: 12px; }
+  button.restore:hover { background: #1e8449; }
+
+  .del-label {
+    display: inline-block;
+    background: #f8d7da;
+    color: #721c24;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+    margin-left: 6px;
+  }
+
+  /* ---- Messages ---- */
+  .msg {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 5px;
+    font-weight: 500;
+    display: none;
+    max-width: 500px;
+  }
+
+  .msg.ok   { display: block; background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+  .msg.erro { display: block; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+  /* ---- Table ---- */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+  }
+
+  th {
+    background: #f0f2f5;
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 13px;
+    color: #444;
+    border-bottom: 2px solid #ddd;
+  }
+
+  td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+  }
+
+  tr:hover td { background: #f9fafb; }
+
+  tr.row-deleted td {
+    opacity: 0.55;
+    text-decoration: line-through;
+  }
+
+  .empty {
+    text-align: center;
+    padding: 30px;
+    color: #999;
+    font-style: italic;
+  }
+
+  /* ---- Pager ---- */
+  .pager {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .pager button {
+    padding: 6px 12px;
+    font-size: 16px;
+    min-width: 38px;
+  }
+
+  .pager span {
+    padding: 0 12px;
+    font-size: 13px;
+    color: #555;
+    font-weight: 500;
+  }
+
+  .pager select {
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 13px;
+  }
+
+  /* ---- Search ---- */
+  .busca-row {
+    display: flex;
+    gap: 10px;
+    max-width: 500px;
+    margin-bottom: 4px;
+  }
+
+  .busca-row input {
+    flex: 1;
+    padding: 9px 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+
+  /* ---- Summary / Report ---- */
+  .cards {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+
+  .card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px 24px;
+    min-width: 180px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+
+  .card .label {
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .card .value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #0078d4;
+    margin-top: 6px;
+  }
+
+  /* ---- Demo callback ---- */
+  .demo-box {
+    margin-top: 16px;
+    padding: 16px;
+    background: #f9fafb;
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    max-width: 500px;
+  }
+
+  .progress-bar {
+    height: 20px;
+    background: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 10px;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: #0078d4;
+    transition: width 0.2s;
+    text-align: center;
+    color: #fff;
+    font-size: 12px;
+    line-height: 20px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ TAB BAR ============ -->
+<div class="tabs" id="tabs">
+  <div class="tab active" data-tab="cadastro"  onclick="showTab('cadastro',  this)">Registration</div>
+  <div class="tab"        data-tab="lista"     onclick="showTab('lista',     this)">List</div>
+  <div class="tab"        data-tab="busca"     onclick="showTab('busca',     this)">Search</div>
+  <div class="tab"        data-tab="relatorio" onclick="showTab('relatorio', this)">Report</div>
+  <div class="tab"        data-tab="demo"      onclick="showTab('demo',      this)">Demo Callback</div>
+  <div class="tab"        data-tab="sobre"     onclick="showTab('sobre',     this)">About</div>
+</div>
+
+<!-- ============ TAB REGISTRATION ============ -->
+<div id="cadastro" class="panel active">
+  <h2>New Client</h2>
+
+  <div class="form-row">
+    <label>Name</label>
+    <input type="text" id="cad_nome" placeholder="Enter the full name">
+  </div>
+
+  <div class="form-row">
+    <label>Email</label>
+    <input type="text" id="cad_email" placeholder="name@domain.com">
+  </div>
+
+  <button onclick="salvar()">Save</button>
+  <button class="secondary" onclick="limparForm()" style="padding:9px 20px;font-size:14px;">Clear</button>
+
+  <div id="cad_msg" class="msg"></div>
+</div>
+
+<!-- ============ TAB LIST ============ -->
+<div id="lista" class="panel">
+  <h2>Registered Clients</h2>
+
+  <div class="pager">
+    <button onclick="listaPrimeira()" title="First">&laquo;</button>
+    <button onclick="listaAnterior()" title="Previous">&lsaquo;</button>
+    <span id="lista_info">—</span>
+    <button onclick="listaProxima()"  title="Next">&rsaquo;</button>
+    <button onclick="listaUltima()"   title="Last">&raquo;</button>
+    <select id="lista_por_pagina" onchange="listaMudarPorPagina()">
+      <option value="25">25 / page</option>
+      <option value="50" selected>50 / page</option>
+      <option value="100">100 / page</option>
+      <option value="200">200 / page</option>
+    </select>
+    <button onclick="listar()">Refresh</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:80px">RECNO</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th style="width:180px">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="lista_tbody">
+      <tr><td colspan="4" class="empty">No clients loaded</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============ TAB SEARCH ============ -->
+<div id="busca" class="panel">
+  <h2>Search Client</h2>
+
+  <div class="busca-row">
+    <input type="text" id="busca_nome" placeholder="Type part of the name...">
+    <button onclick="buscar(1)">Search</button>
+  </div>
+
+  <div class="pager" style="margin-top:12px;">
+    <button onclick="buscaPrimeira()" title="First">&laquo;</button>
+    <button onclick="buscaAnterior()" title="Previous">&lsaquo;</button>
+    <span id="busca_info">—</span>
+    <button onclick="buscaProxima()"  title="Next">&rsaquo;</button>
+    <button onclick="buscaUltima()"   title="Last">&raquo;</button>
+    <select id="busca_por_pagina" onchange="buscaMudarPorPagina()">
+      <option value="25">25 / page</option>
+      <option value="50" selected>50 / page</option>
+      <option value="100">100 / page</option>
+      <option value="200">200 / page</option>
+    </select>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:80px">RECNO</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th style="width:80px">Status</th>
+      </tr>
+    </thead>
+    <tbody id="busca_tbody">
+      <tr><td colspan="4" class="empty">Type a name to search</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============ TAB REPORT ============ -->
+<div id="relatorio" class="panel">
+  <h2>Report</h2>
+  <button onclick="gerarRelatorio()">Generate Report</button>
+
+  <div class="cards">
+    <div class="card">
+      <div class="label">Total (active)</div>
+      <div class="value" id="rel_total">—</div>
+    </div>
+    <div class="card">
+      <div class="label">Last RECNO</div>
+      <div class="value" id="rel_ultimo">—</div>
+    </div>
+    <div class="card">
+      <div class="label">With email</div>
+      <div class="value" id="rel_com_email">—</div>
+    </div>
+    <div class="card">
+      <div class="label">Deleted</div>
+      <div class="value" id="rel_deletados">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TAB DEMO CALLBACK ============ -->
+<div id="demo" class="panel">
+  <h2>Demo — JS Callback ← Harbour</h2>
+  <p>Harbour processes in a loop and calls JavaScript back at each iteration.</p>
+
+  <div class="demo-box">
+    <button onclick="demoContar()">Start Counting (10 iterations)</button>
+
+    <div style="margin-top:14px; font-weight:600; font-size:13px; color:#555;">
+      Status:
+    </div>
+    <div id="demo_status" style="margin-top:6px;">Ready to start.</div>
+
+    <div class="progress-bar">
+      <div class="progress-bar-fill" id="demo_bar">0%</div>
+    </div>
+
+    <div style="margin-top:12px; font-size:12px; color:#888;">
+      Log:
+    </div>
+    <div id="demo_log" style="margin-top:6px; font-family:Consolas,monospace; font-size:12px; color:#444; max-height:150px; overflow-y:auto;"></div>
+  </div>
+</div>
+
+<!-- ============ TAB ABOUT ============ -->
+<div id="sobre" class="panel">
+  <h2>About</h2>
+  <p><strong>HwguiTurbo</strong> — version 1.2.0</p>
+  <p>WebView2 (Chromium) integration with Hwgui/Harbour.</p>
+  <p>
+    <strong>Stack:</strong><br>
+    &bull; Clang 22 (MSYS2 CLANG64)<br>
+    &bull; Harbour (Git)<br>
+    &bull; Hwgui (dev)<br>
+    &bull; Microsoft WebView2 Runtime
+  </p>
+  <p><strong>Architecture:</strong> single bind (<code>ExecutarAcao</code>) with command dispatch; JS callbacks callable from Harbour via <code>eval_webview</code>.</p>
+  <p><strong>Features:</strong></p>
+  <ul>
+    <li>WebView2 embedded in the Hwgui window</li>
+    <li>Bidirectional JS ↔ Harbour communication over JSON</li>
+    <li>Single bind with command dispatch</li>
+    <li>JS callbacks callable from Harbour</li>
+    <li>Automatic resize</li>
+    <li>Draggable tabs</li>
+    <li>Soft-delete with DEL badge and Restore</li>
+    <li>Pagination in List and Search</li>
+    <li>Pure Clang build</li>
+  </ul>
+</div>
+
+<!-- ============ SCRIPT ============ -->
+<script>
+
+/* ============================================================
+   CALLBACK REGISTRY
+   ------------------------------------------------------------
+   Allows Harbour to call JS back via eval_webview():
+     window._hwgui.invoke("cb_1_171...", data)
+   ============================================================ */
+window._hwgui = {
+   callbacks: {},
+   nextId: 0,
+
+   register: function(fn) {
+      const id = "cb_" + (++this.nextId) + "_" + Date.now();
+      this.callbacks[id] = fn;
+      return id;
+   },
+
+   invoke: function(id, data) {
+      const fn = this.callbacks[id];
+      if (fn) fn(data);
+   },
+
+   unregister: function(id) {
+      delete this.callbacks[id];
+   }
+};
+
+/* ============================================================
+   SINGLE BRIDGE — all backend calls go through here
+   ============================================================ */
+async function Executar(acao, args) {
+   return await ExecutarAcao({ acao: acao, args: args || {} });
+}
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let listaPaginaAtual  = 1;
+let listaTotalPaginas = 1;
+let buscaPaginaAtual  = 1;
+let buscaTotalPaginas = 1;
+let buscaUltimoTermo  = "";
+
+/* ============================================================
+   TAB NAVIGATION
+   ============================================================ */
+function showTab(id, el) {
+   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+   el.classList.add('active');
+   document.getElementById(id).classList.add('active');
+
+   if (id === 'lista')      listar(1);
+   if (id === 'relatorio')  gerarRelatorio();
+}
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function mostrarMsg(idEl, texto, tipo) {
+   const el = document.getElementById(idEl);
+   el.className = 'msg ' + tipo;
+   el.innerText = texto;
+   if (tipo === 'ok') {
+      setTimeout(() => { el.className = 'msg'; }, 4000);
+   }
+}
+
+function limparForm() {
+   document.getElementById('cad_nome').value  = '';
+   document.getElementById('cad_email').value = '';
+   document.getElementById('cad_nome').focus();
+}
+
+function escapeHtml(s) {
+   if (s == null) return '';
+   return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+}
+
+/* ============================================================
+   REGISTRATION
+   ============================================================ */
+async function salvar() {
+   const nome  = document.getElementById('cad_nome').value.trim();
+   const email = document.getElementById('cad_email').value.trim();
+
+   if (!nome) {
+      mostrarMsg('cad_msg', 'The Name field is required.', 'erro');
+      return;
+   }
+
+   try {
+      const obj = await Executar("cliente.gravar", { nome: nome, email: email });
+
+      if (obj.ok) {
+         mostrarMsg('cad_msg', 'Client saved successfully! RECNO = ' + obj.recno, 'ok');
+         limparForm();
+      } else {
+         mostrarMsg('cad_msg', obj.msg || 'Error saving record.', 'erro');
+      }
+   } catch (e) {
+      mostrarMsg('cad_msg', 'Error: ' + e.message, 'erro');
+   }
+}
+
+/* ============================================================
+   LIST (with pagination)
+   ============================================================ */
+async function listar(pagina) {
+   if (pagina !== undefined) listaPaginaAtual = pagina;
+   if (listaPaginaAtual < 1) listaPaginaAtual = 1;
+
+   const porPagina = parseInt(document.getElementById('lista_por_pagina').value);
+
+   try {
+      const obj = await Executar("cliente.listar", {
+         pagina:     listaPaginaAtual,
+         por_pagina: porPagina
+      });
+
+      const tb = document.getElementById('lista_tbody');
+      tb.innerHTML = '';
+
+      if (!obj.ok || !obj.clientes || obj.clientes.length === 0) {
+         tb.innerHTML = '<tr><td colspan="4" class="empty">No clients registered</td></tr>';
+         document.getElementById('lista_info').innerText = "0 records";
+         listaTotalPaginas = 1;
+         return;
+      }
+
+      listaTotalPaginas = obj.total_pag;
+      listaPaginaAtual  = obj.pagina;
+
+      obj.clientes.forEach(c => {
+         const tr = document.createElement('tr');
+         if (c.deleted) tr.className = 'row-deleted';
+
+         const btn = c.deleted
+            ? '<button class="restore" onclick="toggleApagar(' + c.recno + ')">Restore</button>'
+            : '<button class="danger"  onclick="toggleApagar(' + c.recno + ')">Delete</button>';
+         const del = c.deleted ? '<span class="del-label">DEL</span>' : '';
+
+         tr.innerHTML =
+            '<td>' + c.recno + '</td>' +
+            '<td>' + escapeHtml(c.nome) + '</td>' +
+            '<td>' + escapeHtml(c.email) + '</td>' +
+            '<td>' + btn + del + '</td>';
+         tb.appendChild(tr);
+      });
+
+      document.getElementById('lista_info').innerText =
+         "Page " + listaPaginaAtual + " of " + listaTotalPaginas +
+         "  (" + obj.total + " records)";
+
+   } catch (e) {
+      alert('Error listing: ' + e.message);
+   }
+}
+
+function listaPrimeira() { listar(1); }
+function listaUltima()   { listar(listaTotalPaginas); }
+function listaProxima()  { if (listaPaginaAtual < listaTotalPaginas) listar(listaPaginaAtual + 1); }
+function listaAnterior() { if (listaPaginaAtual > 1) listar(listaPaginaAtual - 1); }
+function listaMudarPorPagina() { listar(1); }
+
+/* ============================================================
+   DELETE / RESTORE
+   ============================================================ */
+async function toggleApagar(recno) {
+   try {
+      const obj = await Executar("cliente.apagar", { recno: recno });
+      if (obj.ok) {
+         listar();
+      } else {
+         alert('Error: ' + (obj.msg || 'Could not change the record.'));
+      }
+   } catch (e) {
+      alert('Error: ' + e.message);
+   }
+}
+
+/* ============================================================
+   SEARCH (with pagination)
+   ============================================================ */
+async function buscar(pagina) {
+   if (pagina !== undefined) buscaPaginaAtual = pagina;
+   if (buscaPaginaAtual < 1) buscaPaginaAtual = 1;
+
+   const nome = document.getElementById('busca_nome').value.trim();
+   const porPagina = parseInt(document.getElementById('busca_por_pagina').value);
+
+   if (nome !== buscaUltimoTermo) {
+      buscaPaginaAtual = 1;
+      buscaUltimoTermo = nome;
+   }
+
+   const tb = document.getElementById('busca_tbody');
+   tb.innerHTML = '';
+
+   if (!nome) {
+      tb.innerHTML = '<tr><td colspan="4" class="empty">Type a name to search</td></tr>';
+      document.getElementById('busca_info').innerText = "—";
+      buscaTotalPaginas = 1;
+      return;
+   }
+
+   try {
+      const obj = await Executar("cliente.buscar", {
+         nome:       nome,
+         pagina:     buscaPaginaAtual,
+         por_pagina: porPagina
+      });
+
+      if (!obj.ok || !obj.clientes || obj.clientes.length === 0) {
+         tb.innerHTML = '<tr><td colspan="4" class="empty">No results found</td></tr>';
+         document.getElementById('busca_info').innerText = "0 records";
+         buscaTotalPaginas = 1;
+         return;
+      }
+
+      buscaTotalPaginas = obj.total_pag;
+      buscaPaginaAtual  = obj.pagina;
+
+      obj.clientes.forEach(c => {
+         const tr = document.createElement('tr');
+         if (c.deleted) tr.className = 'row-deleted';
+
+         const status = c.deleted
+            ? '<span class="del-label">DEL</span>'
+            : '<span style="color:#27ae60;font-weight:600;font-size:12px;">ACTIVE</span>';
+
+         tr.innerHTML =
+            '<td>' + c.recno + '</td>' +
+            '<td>' + escapeHtml(c.nome) + '</td>' +
+            '<td>' + escapeHtml(c.email) + '</td>' +
+            '<td>' + status + '</td>';
+         tb.appendChild(tr);
+      });
+
+      document.getElementById('busca_info').innerText =
+         "Page " + buscaPaginaAtual + " of " + buscaTotalPaginas +
+         "  (" + obj.total + " found)";
+
+   } catch (e) {
+      alert('Error searching: ' + e.message);
+   }
+}
+
+function buscaPrimeira() { buscar(1); }
+function buscaUltima()   { buscar(buscaTotalPaginas); }
+function buscaProxima()  { if (buscaPaginaAtual < buscaTotalPaginas) buscar(buscaPaginaAtual + 1); }
+function buscaAnterior() { if (buscaPaginaAtual > 1) buscar(buscaPaginaAtual - 1); }
+function buscaMudarPorPagina() { buscar(1); }
+
+/* ============================================================
+   REPORT — uses "cliente.resumo"
+   ============================================================ */
+async function gerarRelatorio() {
+   try {
+      const obj = await Executar("cliente.resumo", {});
+
+      if (!obj.ok) {
+         document.getElementById('rel_total').innerText     = '0';
+         document.getElementById('rel_ultimo').innerText    = '0';
+         document.getElementById('rel_com_email').innerText = '0';
+         document.getElementById('rel_deletados').innerText = '0';
+         return;
+      }
+
+      document.getElementById('rel_total').innerText     = obj.ativos;
+      document.getElementById('rel_ultimo').innerText    = obj.ultimo_recno;
+      document.getElementById('rel_com_email').innerText = obj.com_email;
+      document.getElementById('rel_deletados').innerText = obj.deletados;
+
+   } catch (e) {
+      alert('Error generating report: ' + e.message);
+   }
+}
+
+/* ============================================================
+   DEMO CALLBACK — Harbour calls JS back
+   ============================================================ */
+async function demoContar() {
+   const elStatus = document.getElementById('demo_status');
+   const elBar    = document.getElementById('demo_bar');
+   const elLog    = document.getElementById('demo_log');
+
+   elLog.innerHTML = '';
+   elBar.style.width = '0%';
+   elBar.innerText = '0%';
+   elStatus.innerText = 'Sending request to Harbour...';
+
+   const cbId = window._hwgui.register(function(progress) {
+      elBar.style.width = progress + '%';
+      elBar.innerText = progress + '%';
+      elLog.innerHTML += '[callback received] ' + progress + '%<br>';
+      elLog.scrollTop = elLog.scrollHeight;
+   });
+
+   try {
+      const obj = await Executar("demo.contar", {
+         callbackId: cbId,
+         total: 10
+      });
+
+      window._hwgui.unregister(cbId);
+
+      if (obj.ok) {
+         elStatus.innerText = 'Done!';
+      } else {
+         elStatus.innerText = 'Error: ' + (obj.msg || 'unknown');
+      }
+   } catch (e) {
+      elStatus.innerText = 'Error: ' + e.message;
+   }
+}
+
+/* ============================================================
+   KEYBOARD SHORTCUTS
+   ============================================================ */
+document.getElementById('cad_email').addEventListener('keypress', e => {
+   if (e.key === 'Enter') salvar();
+});
+
+document.getElementById('busca_nome').addEventListener('keypress', e => {
+   if (e.key === 'Enter') buscar(1);
+});
+
+/* ============================================================
+   INITIALIZATION
+   ============================================================ */
+window.addEventListener('load', () => {
+   document.getElementById('cad_nome').focus();
+   ativarDrag();
+});
+
+/* ============================================================
+   DRAGGABLE TABS
+   ============================================================ */
+let dragSrcEl = null;
+
+function handleDragStart(e) {
+   dragSrcEl = this;
+   e.dataTransfer.effectAllowed = 'move';
+   e.dataTransfer.setData('text/html', this.outerHTML);
+   this.classList.add('dragging');
+}
+
+function handleDragOver(e) {
+   e.preventDefault();
+   e.dataTransfer.dropEffect = 'move';
+   return false;
+}
+
+function handleDragEnter(e) {
+   if (this !== dragSrcEl) this.classList.add('drop-target');
+}
+
+function handleDragLeave(e) {
+   this.classList.remove('drop-target');
+}
+
+function handleDrop(e) {
+   e.stopPropagation();
+   e.preventDefault();
+
+   if (dragSrcEl !== this) {
+      const tabs = Array.from(document.querySelectorAll('.tab'));
+      const idxSrc  = tabs.indexOf(dragSrcEl);
+      const idxDest = tabs.indexOf(this);
+
+      if (idxSrc < idxDest) {
+         this.parentNode.insertBefore(dragSrcEl, this.nextSibling);
+      } else {
+         this.parentNode.insertBefore(dragSrcEl, this);
+      }
+   }
+   this.classList.remove('drop-target');
+   return false;
+}
+
+function handleDragEnd(e) {
+   this.classList.remove('dragging');
+   document.querySelectorAll('.tab').forEach(t => t.classList.remove('drop-target'));
+}
+
+function ativarDrag() {
+   document.querySelectorAll('.tab').forEach(tab => {
+      tab.setAttribute('draggable', 'true');
+      tab.addEventListener('dragstart', handleDragStart);
+      tab.addEventListener('dragover',  handleDragOver);
+      tab.addEventListener('dragenter', handleDragEnter);
+      tab.addEventListener('dragleave', handleDragLeave);
+      tab.addEventListener('drop',      handleDrop);
+      tab.addEventListener('dragend',   handleDragEnd);
+   });
+}
+
+</script>
+</body>
+</html>

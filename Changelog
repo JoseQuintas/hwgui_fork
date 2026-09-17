@@ -15,6 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-16  Itamar Junior <itamarlins@gmail.com>
+    * contrib/webview2: Multi-context architecture.
+      * Each WebView now has its own context (up to 16 per process).
+      * API change: create_webview_embedded() takes an extra "id" arg;
+        all functions receive the context pointer returned by it.
+      * Fixed ACCESS_VIOLATION crash caused by overwriting GWLP_USERDATA
+        (now uses SetPropA/GetPropA named properties instead).
+      * All 15 exports stable; sample validated with full feature set..
+      + Add file client.html
+      + Add file client_test.prg
+      - removed file webview_test.prg
+
 2026-09-15 21:45 UTC-0300  Itamar Junior <itamarlins@gmail.com>
     * contrib/webview2: New module. Integration of Microsoft WebView2
       (Edge Chromium engine) into Hwgui windows via the "webview" C/C++
