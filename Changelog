@@ -15,7 +15,35 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2026-09-16  Itamar Junior <itamarlins@gmail.com>
+
+2026-09-17 00:41 UTC-0300 Itamar Junior <itamarlins@gmail.com>
+   * source/win/wprint.c
+     Fixed 4 bugs related to resource leaks and missing error
+     handling:
+     * HWG_SETPRINTERMODE(): fixed a printer HANDLE leak that
+       occurred when the printer was opened internally via
+       OpenPrinter() and the subsequent DocumentProperties() call
+       failed while querying the DEVMODE size (nSize == 0).
+       ClosePrinter() is now called on that error path.
+     * HWG_SETDOCUMENTPROPERTIES(): fixed a memory leak
+       (hb_xgrab/hb_xfree) of the DEVMODE buffer when the initial
+       DocumentProperties() query call did not return IDOK. The
+       pointer is now freed and reset to NULL in that case,
+       avoiding a leak on every call where the printer driver
+       rejects the first query.
+     * HWG_PLAYENHMETAFILE(): the local RECT variable was left
+       uninitialized and could contain stack garbage when
+       WindowFromDC() returned NULL (e.g. a metafile/printer DC
+       passed by mistake instead of a window DC). rc is now
+       zero-initialized, and on GetClientRect() failure the
+       device's full area (via GetDeviceCaps()) is used as the
+       destination rectangle instead.
+     * HWG_CREATEENHMETAFILE(): fixed a division-by-zero in the
+       client-coordinate-to-.01mm conversion when
+       GetDeviceCaps(HORZRES/VERTRES) returned 0 (invalid DC).
+       Also added a check for GetDC() returning NULL.
+
+2026-09-17 00:26 UTC-0300 Itamar Junior <itamarlins@gmail.com>
     * contrib/webview2: Multi-context architecture.
       * Each WebView now has its own context (up to 16 per process).
       * API change: create_webview_embedded() takes an extra "id" arg;
@@ -141,7 +169,6 @@
     command: hbmk2 hwgui.hbp svg.hbc
     Note: Use msys2 on Windows OS Clang.
         * pacman -S mingw-w64-clang-x86_64-librsvg
-        * pacman -S mingw-w64-clang-x86_64-gdk-pixbuf2
     This resource uses several libraries: 4 main libs + their
     transitive dependencies. To find all the libraries needed for
     distributing your app:

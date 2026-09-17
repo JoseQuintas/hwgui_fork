@@ -195,11 +195,15 @@ HB_FUNC( HWG_SETPRINTERMODE )
    LPCTSTR lpPrinterName = HB_PARSTR( 1, &hPrinterName, NULL );
    HANDLE hPrinter =
          ( HB_ISNIL( 2 ) ) ? ( HANDLE ) NULL : ( HANDLE ) HB_PARHANDLE( 2 );
+   BOOL bOpenedHere = FALSE;
    long int nSize;
    PDEVMODE pdm;
 
    if( !hPrinter )
-      OpenPrinter( ( LPTSTR ) lpPrinterName, &hPrinter, NULL );
+   {
+      if( OpenPrinter( ( LPTSTR ) lpPrinterName, &hPrinter, NULL ) )
+         bOpenedHere = TRUE;
+   }
 
    if( hPrinter )
    {
@@ -210,6 +214,8 @@ HB_FUNC( HWG_SETPRINTERMODE )
       
       if( nSize == 0 )
       {
+         if( bOpenedHere )
+            ClosePrinter( hPrinter );
          hb_strfree( hPrinterName );
          HB_RETHANDLE( NULL );
          return;
@@ -218,7 +224,8 @@ HB_FUNC( HWG_SETPRINTERMODE )
       pdm = ( PDEVMODE ) GlobalAlloc( GPTR, nSize );
       if( pdm == NULL )
       {
-         ClosePrinter( hPrinter );
+         if( bOpenedHere )
+            ClosePrinter( hPrinter );
          hb_strfree( hPrinterName );
          HB_RETHANDLE( NULL );
          return;
@@ -404,10 +411,17 @@ HB_FUNC( HWG_GETDEVICEAREA )
 HB_FUNC( HWG_CREATEENHMETAFILE )
 {
    HWND hWnd = ( HWND ) HB_PARHANDLE( 1 );
-   HDC hDCref = GetDC( hWnd ), hDCmeta;
+   HDC hDCref = GetDC( hWnd ), hDCmeta = NULL;
    void *hFileName;
    int iWidthMM, iHeightMM, iWidthPels, iHeightPels;
-   RECT rc;
+   RECT rc = { 0, 0, 0, 0 };
+
+   if( hDCref == NULL )
+   {
+      /* GetDC() falhou: nao ha DC valido para criar o metafile */
+      HB_RETHANDLE( NULL );
+      return;
+   }
 
    iWidthMM = GetDeviceCaps( hDCref, HORZSIZE );
    iHeightMM = GetDeviceCaps( hDCref, VERTSIZE );
@@ -416,11 +430,15 @@ HB_FUNC( HWG_CREATEENHMETAFILE )
 
    GetClientRect( hWnd, &rc );
 
-   /* Convert client coordinates to .01-mm units */
-   rc.left = ( rc.left * iWidthMM * 100 ) / iWidthPels;
-   rc.top = ( rc.top * iHeightMM * 100 ) / iHeightPels;
-   rc.right = ( rc.right * iWidthMM * 100 ) / iWidthPels;
-   rc.bottom = ( rc.bottom * iHeightMM * 100 ) / iHeightPels;
+   /* Convert client coordinates to .01-mm units
+    * (protege contra divisao por zero se o driver retornar 0 pels) */
+   if( iWidthPels != 0 && iHeightPels != 0 )
+   {
+      rc.left = ( rc.left * iWidthMM * 100 ) / iWidthPels;
+      rc.top = ( rc.top * iHeightMM * 100 ) / iHeightPels;
+      rc.right = ( rc.right * iWidthMM * 100 ) / iWidthPels;
+      rc.bottom = ( rc.bottom * iHeightMM * 100 ) / iHeightPels;
+   }
 
    hDCmeta = CreateEnhMetaFile( hDCref, HB_PARSTR( 2, &hFileName, NULL ),
          &rc, NULL );
@@ -490,7 +508,7 @@ HB_FUNC( HWG_DELETEENHMETAFILE )
 HB_FUNC( HWG_PLAYENHMETAFILE )
 {
    HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
-   RECT rc;
+   RECT rc = { 0, 0, 0, 0 };
 
    if( hb_pcount() > 2 )
    {
@@ -499,8 +517,14 @@ HB_FUNC( HWG_PLAYENHMETAFILE )
       rc.right = hb_parni( 5 );
       rc.bottom = hb_parni( 6 );
    }
-   else
-      GetClientRect( WindowFromDC( hDC ), &rc );
+   else if( !GetClientRect( WindowFromDC( hDC ), &rc ) )
+   {
+      /* hDC nao pertence a uma janela (ex.: DC de metafile/impressora)
+       * ou WindowFromDC() falhou: usar a area do proprio dispositivo
+       * como retangulo de destino, em vez de deixar rc indeterminado. */
+      SetRect( &rc, 0, 0, GetDeviceCaps( hDC, HORZRES ),
+            GetDeviceCaps( hDC, VERTRES ) );
+   }
    hb_retnl( ( LONG ) PlayEnhMetaFile( hDC,
                ( HENHMETAFILE ) HB_PARHANDLE( 2 ), &rc ) );
 }
@@ -553,7 +577,13 @@ HB_FUNC( HWG_SETDOCUMENTPROPERTIES )
             pDevMode = ( PDEVMODE ) hb_xgrab( lSize );
 
             if( pDevMode && DocumentProperties( 0, hPrinter, ( LPTSTR ) lpPrinterName,
-                  pDevMode, pDevMode, DM_OUT_BUFFER ) == IDOK )
+                  pDevMode, pDevMode, DM_OUT_BUFFER ) != IDOK )
+            {
+               hb_xfree( pDevMode );
+               pDevMode = NULL;
+            }
+
+            if( pDevMode )
             {
                BOOL bAskUser = HB_ISBYREF( 3 ) || HB_ISBYREF( 4 ) ||
                      HB_ISBYREF( 5 ) || HB_ISBYREF( 6 ) || HB_ISBYREF( 7 ) ||
