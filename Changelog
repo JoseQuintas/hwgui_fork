@@ -15,6 +15,37 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-17 01:18 UTC-0300 Itamar Junior <itamarlins@gmail.com>
+  * menu_c.c
+    * HWG__ADDMENUITEM(): fixed a menu handle leak when InsertMenu()
+      failed to insert a freshly-created submenu (the handle was left
+      orphaned); the submenu is now destroyed in that case. Also fixed
+      the return value on the non-submenu branch, which always
+      returned 0 regardless of InsertMenu()'s actual result.
+    * HWG__CREATESUBMENU(): fixed a menu handle leak when
+      SetMenuItemInfo() failed to attach the freshly-created submenu.
+    * HWG__INSERTBITMAPMENU(): fixed use of uninitialized memory - the
+      MENUITEMINFO had MIIM_ID and MIIM_DATA set in fMask without wID
+      and dwItemData being filled in, causing SetMenuItemInfo() to
+      write stack garbage into the menu item's command ID and item
+      data. fMask reduced to MIIM_BITMAP (the only field this function
+      is actually meant to change), and the struct is now zeroed
+      before use.
+    * HWG_SETMENUBACKCOLOR(): fixed a bug introduced by an earlier GDI
+      leak fix - the brush just assigned via SetMenuInfo() was deleted
+      right afterward, leaving the menu with an invalid brush handle
+      for repainting (MENUINFO.hbrBack is not copied by Windows). The
+      PREVIOUS brush is now retrieved via GetMenuInfo() and freed only
+      after the new one is installed, removing the leak without
+      invalidating the handle in use.
+    * HWG_GETMENUCAPTION(): added a check on the return value of the
+      first GetMenuItemInfo() call before computing the buffer size,
+      instead of implicitly relying on the earlier memset().
+  * menu.prg
+    * Hwg_DefineMenuItem(): fixed a logical operator (.OR. -> .AND.)
+      in the lBitmap check, which triggered an attempt to load a
+      bitmap even when lBitmap was an empty string ("") rather than
+      Nil.
 
 2026-09-17 00:41 UTC-0300 Itamar Junior <itamarlins@gmail.com>
    * source/win/wprint.c

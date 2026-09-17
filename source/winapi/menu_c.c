@@ -81,25 +81,46 @@ HB_FUNC( HWG__ADDMENUITEM )
    if( !HB_ISNIL( 7 ) && hb_parl( 7 ) )
    {
       HMENU hSubMenu = CreateMenu();
-      uFlags |= MF_POPUP;
-      InsertMenu( ( HMENU ) HB_PARHANDLE( 1 ), hb_parni( 3 ), uFlags,
-            ( UINT_PTR ) hSubMenu, lpNewItem );
-      HB_RETHANDLE( hSubMenu );
 
-      nPos = GetMenuItemCount( ( HMENU ) HB_PARHANDLE( 1 ) );
-      mii.cbSize = sizeof( MENUITEMINFO );
-      mii.fMask = MIIM_ID;
-      if( GetMenuItemInfo( ( HMENU ) HB_PARHANDLE( 1 ), nPos - 1, TRUE, &mii ) )
+      if( hSubMenu == NULL )
       {
-         mii.wID = hb_parni( 5 );
-         SetMenuItemInfo( ( HMENU ) HB_PARHANDLE( 1 ), nPos - 1, TRUE, &mii );
+         HB_RETHANDLE( NULL );
+      }
+      else
+      {
+         uFlags |= MF_POPUP;
+         if( !InsertMenu( ( HMENU ) HB_PARHANDLE( 1 ), hb_parni( 3 ), uFlags,
+               ( UINT_PTR ) hSubMenu, lpNewItem ) )
+         {
+            /* FIXED: InsertMenu failed - the submenu was never attached,
+             * so it must be destroyed here or its handle leaks. Return
+             * NULL to signal failure to the caller instead of an orphan
+             * handle. */
+            DestroyMenu( hSubMenu );
+            HB_RETHANDLE( NULL );
+         }
+         else
+         {
+            HB_RETHANDLE( hSubMenu );
+
+            nPos = GetMenuItemCount( ( HMENU ) HB_PARHANDLE( 1 ) );
+            memset( &mii, 0, sizeof( MENUITEMINFO ) );
+            mii.cbSize = sizeof( MENUITEMINFO );
+            mii.fMask = MIIM_ID;
+            if( GetMenuItemInfo( ( HMENU ) HB_PARHANDLE( 1 ), nPos - 1, TRUE, &mii ) )
+            {
+               mii.wID = hb_parni( 5 );
+               SetMenuItemInfo( ( HMENU ) HB_PARHANDLE( 1 ), nPos - 1, TRUE, &mii );
+            }
+         }
       }
    }
    else
    {
-      InsertMenu( ( HMENU ) HB_PARHANDLE( 1 ), hb_parni( 3 ), uFlags,
-            ( UINT_PTR ) hb_parni( 5 ), lpNewItem );
-      hb_retnl( 0 );
+      /* FIXED: return the actual result of InsertMenu() instead of a
+       * hardcoded 0, so the caller can detect failure. */
+      hb_retnl( InsertMenu( ( HMENU ) HB_PARHANDLE( 1 ), hb_parni( 3 ), uFlags,
+            ( UINT_PTR ) hb_parni( 5 ), lpNewItem ) ? 1 : 0 );
    }
    hb_strfree( hNewItem );
 }
@@ -113,6 +134,7 @@ HB_FUNC( HWG__CREATESUBMENU )
    MENUITEMINFO mii;
    HMENU hSubMenu = CreateMenu();
 
+   memset( &mii, 0, sizeof( MENUITEMINFO ) );
    mii.cbSize = sizeof( MENUITEMINFO );
    mii.fMask = MIIM_SUBMENU;
    mii.hSubMenu = hSubMenu;
@@ -120,7 +142,14 @@ HB_FUNC( HWG__CREATESUBMENU )
    if( SetMenuItemInfo( ( HMENU ) HB_PARHANDLE( 1 ), hb_parni( 2 ), 0, &mii ) )
       HB_RETHANDLE( hSubMenu );
    else
+   {
+      /* FIXED: SetMenuItemInfo failed - hSubMenu was never attached to
+       * any parent menu, so it must be destroyed here or its handle
+       * (and the GDI/menu resources behind it) leaks. */
+      if( hSubMenu != NULL )
+         DestroyMenu( hSubMenu );
       HB_RETHANDLE( NULL );
+   }
 }
 
 /*=============================================================================
@@ -407,7 +436,13 @@ HB_FUNC( HWG_GETMENUCAPTION )
    mii.fMask = MIIM_STRING;
    mii.dwTypeData = NULL;
    mii.cch = 0;
-   GetMenuItemInfo( hMenu, hb_parni( 2 ), 0, &mii );
+   if( !GetMenuItemInfo( hMenu, hb_parni( 2 ), 0, &mii ) )
+   {
+      /* FIXED: bail out explicitly on failure instead of relying on
+       * mii.cch happening to still be 0 from the memset above. */
+      hb_retc( "" );
+      return;
+   }
 
    dwSize = mii.cch + 1;
    lpBuffer = ( LPTSTR ) hb_xgrab( dwSize * sizeof( TCHAR ) );
@@ -550,12 +585,20 @@ HB_FUNC( HWG__INSERTBITMAPMENU )
 {
    MENUITEMINFO mii;
 
+   /* FIXED: the struct was left uninitialized while fMask included
+    * MIIM_ID and MIIM_DATA, so SetMenuItemInfo() was reading mii.wID
+    * and mii.dwItemData from uninitialized stack memory and writing
+    * that garbage into the menu item's command ID and item data.
+    * Only MIIM_BITMAP is actually needed here (the only field this
+    * function is meant to change is hbmpItem), so the other flags
+    * are removed; the struct is also zeroed defensively. */
+   memset( &mii, 0, sizeof( MENUITEMINFO ) );
    mii.cbSize = sizeof( MENUITEMINFO );
-   mii.fMask = MIIM_ID | MIIM_BITMAP | MIIM_DATA;
+   mii.fMask = MIIM_BITMAP;
    mii.hbmpItem = ( HBITMAP ) HB_PARHANDLE( 3 );
 
-   hb_retl( ( LONG ) SetMenuItemInfo( ( HMENU ) HB_PARHANDLE( 1 ),
-               hb_parni( 2 ), 0, &mii ) );
+   hb_retl( SetMenuItemInfo( ( HMENU ) HB_PARHANDLE( 1 ),
+               hb_parni( 2 ), 0, &mii ) ? TRUE : FALSE );
 }
 
 /*=============================================================================
@@ -615,20 +658,35 @@ HB_FUNC( HWG_SETMENUBACKCOLOR )
 
    if( hMenu )
    {
-      MENUINFO mi;
+      MENUINFO mi, miOld;
       HBRUSH hbrush = NULL;
+      HBRUSH hOldBrush = NULL;
 
       if( hb_pcount() > 1 && !HB_ISNIL( 2 ) )
          hbrush = CreateSolidBrush( ( COLORREF ) hb_parnl( 2 ) );
 
+      /* FIXED: MENUINFO.hbrBack is NOT copied by Windows - the menu
+       * keeps using this exact handle every time it repaints its
+       * background. The previous "fix" deleted the brush right after
+       * assigning it, leaving the menu with a dangling GDI handle
+       * (silent mispaint / undefined behavior on next redraw).
+       * The correct fix is to remember whatever brush the menu was
+       * using BEFORE this call, install the new one, and only then
+       * delete the OLD brush - never the one just installed. */
+      memset( &miOld, 0, sizeof( miOld ) );
+      miOld.cbSize = sizeof( miOld );
+      miOld.fMask = MIM_BACKGROUND;
+      if( GetMenuInfo( hMenu, &miOld ) )
+         hOldBrush = miOld.hbrBack;
+
+      memset( &mi, 0, sizeof( mi ) );
       mi.cbSize = sizeof( mi );
       mi.fMask = MIM_BACKGROUND | ( ( HB_ISLOG( 3 ) && !hb_parl( 3 ) ) ? 0 : MIM_APPLYTOSUBMENUS );
       mi.hbrBack = hbrush;
       SetMenuInfo( hMenu, &mi );
 
-      /* FIXED: Delete the brush after use to prevent GDI leak */
-      if( hbrush )
-         DeleteObject( hbrush );
+      if( hOldBrush && hOldBrush != hbrush )
+         DeleteObject( hOldBrush );
    }
 }
 

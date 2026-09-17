@@ -258,7 +258,11 @@ FUNCTION Hwg_DefineMenuItem( cItem, nId, bItem, lDisabled, accFlag, accKey, lBit
    ENDIF
    nId := IIf( nId == Nil .AND. cItem != Nil, ++ _Id, nId )
    AAdd( aMenu, { bItem, cItem, nId, nFlag } )
-   IF lBitmap != Nil .or. ! Empty( lBitmap )
+   /* FIXED: era .OR., o que disparava o carregamento do bitmap mesmo
+    * quando lBitmap era uma string vazia "" (nao Nil, porem vazia).
+    * Com .AND. so tenta carregar quando ha de fato um valor informado
+    * e nao-vazio. */
+   IF lBitmap != Nil .AND. ! Empty( lBitmap )
       IF lResource == Nil ;lResource := .F. ; ENDIF
       IF ! lResource
          oBmp := HBitmap():AddFile( lBitmap )
