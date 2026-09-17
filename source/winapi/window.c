@@ -598,8 +598,18 @@ HB_FUNC( HWG_SETWINDOWOBJECT )
 
 void SetWindowObject( HWND hWnd, PHB_ITEM pObject )
 {
+   /* FIXED: if this window already had an object attached, that previous
+    * hb_itemNew() copy was being silently overwritten and leaked - it was
+    * only ever released once, at teardown, by HWG_DECREASEHOLDERS(). Any
+    * re-assignment via HWG_SETWINDOWOBJECT() before that leaked the old
+    * item. */
+   PHB_ITEM pOldObject = ( PHB_ITEM ) GetWindowLongPtr( hWnd, GWLP_USERDATA );
+
    SetWindowLongPtr( hWnd, GWLP_USERDATA,
          pObject ? ( LPARAM ) hb_itemNew( pObject ) : 0 );
+
+   if( pOldObject )
+      hb_itemRelease( pOldObject );
 }
 
 HB_FUNC( HWG_GETWINDOWOBJECT )
@@ -1409,7 +1419,7 @@ HB_FUNC( HWG_ANSITOUNICODE )
       PHB_ITEM pItem = hb_param( 1, HB_IT_STRING );
       const char *pszText;
       HB_SIZE nLen, nWideLen;
-      TCHAR *pResult = NULL;
+      WCHAR *pResult = NULL;
       if( pItem == NULL || HB_IS_NIL( pItem ) )
       {
             hb_retc( "" );
@@ -1427,28 +1437,33 @@ HB_FUNC( HWG_ANSITOUNICODE )
        * hardcoded CP_ACP so this stays consistent with hwg_wstrget() and
        * friends above. */
 
-      // FIX: Added (LPWSTR) typecast so Clang accepts the pointer when building in ANSI mode
       nWideLen = MultiByteToWideChar( s_iVM_CP, 0, pszText, (int)nLen, (LPWSTR)NULL, 0 );
       if( nWideLen == 0 )
       {
             hb_retc( "" );
             return;
       }
-      pResult = ( TCHAR * ) hb_xgrab( ( nWideLen + 1 ) * sizeof( TCHAR ) );
+
+      /* FIXED: this function always produces UTF-16 output regardless of
+       * whether the project is built ANSI or UNICODE (it explicitly casts
+       * to LPWSTR/WCHAR* below). The buffer therefore has to be sized and
+       * typed as WCHAR, not TCHAR - in an ANSI build TCHAR is a 1-byte
+       * char, so allocating/writing via TCHAR here caused MultiByteToWideChar()
+       * and the manual NUL terminator write below to overrun the buffer by
+       * up to 2x its allocated size (heap buffer overflow). */
+      pResult = ( WCHAR * ) hb_xgrab( ( nWideLen + 1 ) * sizeof( WCHAR ) );
       if( pResult == NULL )
       {
             hb_retc( "" );
             return;
       }
 
-      // FIX: Added (LPWSTR) typecast to pResult
       MultiByteToWideChar( s_iVM_CP, 0, pszText, (int)nLen, (LPWSTR)pResult, (int)nWideLen );
 
-      // FIX: Applied explicit WCHAR* cast to accurately index the wide character array
-      ((WCHAR*)pResult)[nWideLen] = 0;
+      pResult[nWideLen] = 0;
 
       // CORRECT HARBOUR API: Returns the wide-char buffer with its size calculated in bytes
-      hb_retclen( ( const char * ) pResult, nWideLen * sizeof( TCHAR ) );
+      hb_retclen( ( const char * ) pResult, nWideLen * sizeof( WCHAR ) );
 
       hb_xfree( pResult );
 }
@@ -1475,7 +1490,15 @@ HB_FUNC( HWG_PAINTWINDOW )
 
 HB_FUNC( HWG_GETBACKBRUSH )
 {
-   HB_RETHANDLE( GetCurrentObject( GetDC( ( HWND ) HB_PARHANDLE( 1 ) ), OBJ_BRUSH ) );
+   /* FIXED: GetDC() must be paired with ReleaseDC() - the DC handle was
+    * being leaked on every call. */
+   HWND hWnd = ( HWND ) HB_PARHANDLE( 1 );
+   HDC hDC = GetDC( hWnd );
+   HANDLE hBrush = GetCurrentObject( hDC, OBJ_BRUSH );
+
+   ReleaseDC( hWnd, hDC );
+
+   HB_RETHANDLE( hBrush );
 }
 
 HB_FUNC( HWG_WINDOWSETRESIZE )

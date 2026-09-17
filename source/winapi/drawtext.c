@@ -15,8 +15,18 @@
 #include "hbstack.h"
 #include "hbapiitm.h"
 
-static PHB_ITEM aFontsList;
-static PHB_ITEM pFontsItemLast, pFontsItem;
+/* FIXED (HB_MT): the font-list state used to live in file-scope static
+ * PHB_ITEM variables, shared by every thread. Two threads calling
+ * hwg_GetFontsList() at the same time would corrupt each other's list.
+ * EnumFontFamiliesEx() already provides a per-call context channel (the
+ * lParam passed to the callback) - that channel is now used instead, so
+ * each call gets its own private state on the stack. */
+typedef struct _HWG_FONTENUM_CTX
+{
+   PHB_ITEM aFontsList;
+   PHB_ITEM pFontsItem;
+   PHB_ITEM pFontsItemLast;
+} HWG_FONTENUM_CTX;
 
 /*=============================================================================
  * HWG_DEFINEPAINTSTRU()
@@ -511,15 +521,18 @@ HB_FUNC( HWG_CREATEFONTINDIRECT )
 int CALLBACK GetFontsCallback( ENUMLOGFONTEX *lpelfe, NEWTEXTMETRICEX *lpntme,
       DWORD FontType, LPARAM lParam )
 {
+   /* FIXED (HB_MT): read/write the per-call context passed via lParam
+    * instead of file-scope statics. */
+   HWG_FONTENUM_CTX *pCtx = ( HWG_FONTENUM_CTX * ) lParam;
+
    HB_SYMBOL_UNUSED( lpntme );
    HB_SYMBOL_UNUSED( FontType );
-   HB_SYMBOL_UNUSED( lParam );
 
-   HB_ITEMPUTSTR( pFontsItem, (LPCTSTR)lpelfe->elfFullName );
-   if( !hb_itemEqual( pFontsItem, pFontsItemLast ) )
+   HB_ITEMPUTSTR( pCtx->pFontsItem, (LPCTSTR)lpelfe->elfFullName );
+   if( !hb_itemEqual( pCtx->pFontsItem, pCtx->pFontsItemLast ) )
    {
-      HB_ITEMPUTSTR( pFontsItemLast, (LPCTSTR)lpelfe->elfFullName );
-      hb_arrayAdd( aFontsList, pFontsItem );
+      HB_ITEMPUTSTR( pCtx->pFontsItemLast, (LPCTSTR)lpelfe->elfFullName );
+      hb_arrayAdd( pCtx->aFontsList, pCtx->pFontsItem );
    }
    return 1;
 }
@@ -532,21 +545,24 @@ HB_FUNC( HWG_GETFONTSLIST )
 {
    LOGFONT lf;
    HDC hDC;
+   /* FIXED (HB_MT): local (stack) context - one private copy per call/
+    * per thread, instead of shared file-scope statics. */
+   HWG_FONTENUM_CTX ctx;
 
    hDC = GetDC( GetDesktopWindow() );
 
    memset(&lf, 0, sizeof(lf));
    lf.lfCharSet = DEFAULT_CHARSET;
-   aFontsList = hb_itemArrayNew( 0 );
-   pFontsItem = hb_itemPutC( NULL, "" );
-   pFontsItemLast = hb_itemPutC( NULL, "" );
+   ctx.aFontsList = hb_itemArrayNew( 0 );
+   ctx.pFontsItem = hb_itemPutC( NULL, "" );
+   ctx.pFontsItemLast = hb_itemPutC( NULL, "" );
 
-   EnumFontFamiliesEx( hDC, &lf, (FONTENUMPROC)GetFontsCallback, 0, 0 );
+   EnumFontFamiliesEx( hDC, &lf, (FONTENUMPROC)GetFontsCallback, ( LPARAM ) &ctx, 0 );
 
    ReleaseDC( GetDesktopWindow(), hDC );   /* FIXED: Release DC to prevent leak */
 
-   hb_itemRelease( pFontsItem );
-   hb_itemRelease( pFontsItemLast );
-   hb_itemReturnRelease( aFontsList );
+   hb_itemRelease( ctx.pFontsItem );
+   hb_itemRelease( ctx.pFontsItemLast );
+   hb_itemReturnRelease( ctx.aFontsList );
 }
 #endif

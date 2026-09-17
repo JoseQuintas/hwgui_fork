@@ -486,8 +486,15 @@ METHOD SetupScrollbars() CLASS HScrollArea
       IF ::nHscrollPos > 0
          nPos := hwg_Getscrollpos( ::handle, SB_HORZ )
          IF nPos < ::nHscrollPos
-            hwg_Scrollwindow( ::Handle, 0, ( ::nHscrollPos - nPos ) * SB_HORZ )
-            ::nVscrollPos := nPos
+            // FIXED: SB_HORZ e a constante de identificacao de barra (vale
+            // 0 no Win32) e nao um incremento de pixels - multiplicar por
+            // ela sempre resultava em 0 (no-op). O fator correto e
+            // HORZ_PTS (como o bloco vertical, logo abaixo, usa VERT_PTS),
+            // e o delta deve ir no argumento X (nao Y) de hwg_Scrollwindow.
+            hwg_Scrollwindow( ::Handle, ( ::nHscrollPos - nPos ) * HORZ_PTS, 0 )
+            // FIXED: era ::nVscrollPos (variavel vertical) dentro do bloco
+            // horizontal - outro copy-paste do bloco vertical logo abaixo.
+            ::nHscrollPos := nPos
             hwg_Setscrollpos( ::Handle, SB_HORZ, ::nHscrollPos, .T. )
          ENDIF
       ENDIF

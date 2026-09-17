@@ -618,6 +618,7 @@ FUNCTION hwg_ReleaseAllWindows( hWnd )
 STATIC FUNCTION onCommand( oWnd, wParam, lParam )
 
    LOCAL iItem, iCont, aMenu, iParHigh, iParLow, nHandle
+   LOCAL aMdiChildren, nPos
 
     * Parameters not used
     HB_SYMBOL_UNUSED(lParam)
@@ -636,8 +637,22 @@ STATIC FUNCTION onCommand( oWnd, wParam, lParam )
          hwg_Sendmessage( HWindow():aWindows[2]:handle, WM_MDIMAXIMIZE, nHandle, 0 )
       ENDIF
    ELSEIF wParam >= FIRST_MDICHILD_ID .AND. wparam < FIRST_MDICHILD_ID + MAX_MDICHILD_WINDOWS
-      nHandle := HWindow():aWindows[wParam - FIRST_MDICHILD_ID + 3]:handle
-      hwg_Sendmessage( HWindow():aWindows[2]:handle, WM_MDIACTIVATE, nHandle, 0 )
+      // FIXED: a formula antiga "aWindows[wParam - FIRST_MDICHILD_ID + 3]"
+      // presumia uma posicao fixa (main + client + n-esima filha) dentro
+      // de HWindow():aWindows. Como DelItem() remove janelas fechadas
+      // desse mesmo array (ADel/ASize), fechar uma filha MDI fora de
+      // ordem desloca os indices das que continuam abertas, levando a
+      // ativar a janela errada ou a um erro de limite de array. Em vez
+      // disso, filtramos apenas as filhas MDI (na ordem em que ainda
+      // existem) e indexamos nessa lista, o que reflete corretamente
+      // quais janelas seguem abertas.
+      aMdiChildren := {}
+      AEval( HWindow():aWindows, {|o| Iif( o:type == WND_MDICHILD, AAdd( aMdiChildren, o ), Nil ) } )
+      nPos := wParam - FIRST_MDICHILD_ID + 1
+      IF nPos >= 1 .AND. nPos <= Len( aMdiChildren )
+         nHandle := aMdiChildren[ nPos ]:handle
+         hwg_Sendmessage( HWindow():aWindows[2]:handle, WM_MDIACTIVATE, nHandle, 0 )
+      ENDIF
    ENDIF
    iParHigh := hwg_Hiword( wParam )
    iParLow := hwg_Loword( wParam )

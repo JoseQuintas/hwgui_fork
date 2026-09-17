@@ -203,8 +203,11 @@ METHOD Setmapmode( nMapMode ) CLASS HDC
 
    LOCAL nRetVal := 0
 
+   // FIXED: era ::Setmapmode( ::m_hDC, nMapMode ) - chamava o proprio
+   // metodo (recursao infinita / stack overflow). Deve chamar a funcao
+   // de nivel C, como os metodos irmaos (Setrop2, Setarcdirection, etc).
    IF ( ::m_hDC != ::m_hAttribDC )
-      nRetVal := ::Setmapmode( ::m_hDC, nMapMode )
+      nRetVal := hwg_Setmapmode( ::m_hDC, nMapMode )
    ENDIF
    IF ! Empty( ::m_hAttribDC )
       nRetVal := hwg_Setmapmode( ::m_hAttribDC, nMapMode )

@@ -15,6 +15,29 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-17 18:57 UTC-0300 Itamar Junior <itamarlins@gmail.com>
+  * window.c
+    - HWG_ANSITOUNICODE(): fixed heap buffer overflow in ANSI builds
+      (buffer sized/typed as TCHAR while writing WCHAR data; now uses
+      WCHAR throughout).
+    - HWG_GETBACKBRUSH(): fixed DC leak (GetDC without ReleaseDC).
+    - SetWindowObject(): fixed PHB_ITEM leak on reassignment (previous
+      item is now released before overwrite).
+  * hdc.prg
+    - HDC:Setmapmode(): fixed infinite recursion (was calling itself
+      instead of hwg_Setmapmode()).
+  * hcwindow.prg
+    - SetupScrollbars(): fixed horizontal scroll adjustment (used
+      SB_HORZ instead of HORZ_PTS, wrong axis, wrong tracking var).
+  * hwindow.prg
+    - onCommand(): fixed fragile MDI child indexing that broke when
+      children were closed out of order; now filters live
+      WND_MDICHILD windows instead of assuming a fixed array position.
+  * drawtext.c
+    - GetFontsCallback() / HWG_GETFONTSLIST(): fixed thread-safety bug
+      in HB_MT builds (shared static state replaced with a per-call
+      context passed via the enumeration callback's lParam).
+
 2026-09-17 01:18 UTC-0300 Itamar Junior <itamarlins@gmail.com>
   * menu_c.c
     * HWG__ADDMENUITEM(): fixed a menu handle leak when InsertMenu()
