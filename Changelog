@@ -15,31 +15,47 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-17 19:44 UTC-0300 Itamar Junior <itamarlins@gmail.com>
+   *  contrib/webview2/webview_wrapper.c
+    - Fixed critical bug: only one embedded WebView per parent HWND
+      was safe (manual WndProc swap + single-slot property clobbered
+      on a second embed). Replaced with SetWindowSubclass()/
+      RemoveWindowSubclass(), keyed per context.
+    - Fixed memory leak: FuncBinding allocations from bind_webview()
+      were never freed; now tracked per context and released in
+      destroy_webview().
+    - Fixed silent overflow: once MAX_WEBVIEWS slots were full, a
+      fully-created context was still returned but never registered
+      (unreachable, and re-creatable as a duplicate). Slot is now
+      reserved before setup runs; fails fast with NULL otherwise.
+    - Added missing NULL checks after malloc()/realloc() in
+      hwgui_bridge()/bind_webview().
+
 2026-09-17 18:57 UTC-0300 Itamar Junior <itamarlins@gmail.com>
-  * window.c
+  * source/winapi/window.c
     - HWG_ANSITOUNICODE(): fixed heap buffer overflow in ANSI builds
       (buffer sized/typed as TCHAR while writing WCHAR data; now uses
       WCHAR throughout).
     - HWG_GETBACKBRUSH(): fixed DC leak (GetDC without ReleaseDC).
     - SetWindowObject(): fixed PHB_ITEM leak on reassignment (previous
       item is now released before overwrite).
-  * hdc.prg
+  * source/winapi/hdc.prg
     - HDC:Setmapmode(): fixed infinite recursion (was calling itself
       instead of hwg_Setmapmode()).
-  * hcwindow.prg
+  * source/winapi/hcwindow.prg
     - SetupScrollbars(): fixed horizontal scroll adjustment (used
       SB_HORZ instead of HORZ_PTS, wrong axis, wrong tracking var).
-  * hwindow.prg
+  * source/winapi/hwindow.prg
     - onCommand(): fixed fragile MDI child indexing that broke when
       children were closed out of order; now filters live
       WND_MDICHILD windows instead of assuming a fixed array position.
-  * drawtext.c
+  * source/winapi/drawtext.c
     - GetFontsCallback() / HWG_GETFONTSLIST(): fixed thread-safety bug
       in HB_MT builds (shared static state replaced with a per-call
       context passed via the enumeration callback's lParam).
 
 2026-09-17 01:18 UTC-0300 Itamar Junior <itamarlins@gmail.com>
-  * menu_c.c
+  * /source/winapi/menu_c.c
     * HWG__ADDMENUITEM(): fixed a menu handle leak when InsertMenu()
       failed to insert a freshly-created submenu (the handle was left
       orphaned); the submenu is now destroyed in that case. Also fixed
@@ -64,7 +80,7 @@
     * HWG_GETMENUCAPTION(): added a check on the return value of the
       first GetMenuItemInfo() call before computing the buffer size,
       instead of implicitly relying on the earlier memset().
-  * menu.prg
+  * source/winapi/menu.prg
     * Hwg_DefineMenuItem(): fixed a logical operator (.OR. -> .AND.)
       in the lBitmap check, which triggered an attempt to load a
       bitmap even when lBitmap was an empty string ("") rather than

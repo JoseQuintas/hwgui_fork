@@ -1,24 +1,47 @@
 #include <webview/webview.h>
 #include <stdint.h>
 #include <windows.h>
+#include <commctrl.h>
 #include <stdlib.h>
 #include <string.h>
+
+/* FIXED: SetWindowSubclass()/RemoveWindowSubclass() (comctl32, Common
+ * Controls v6) require comctl32.dll v6 to be loaded - normally already
+ * the case for any app with a modern manifest (comctl32 v6 is what
+ * themed controls need anyway). No extra initialization call is
+ * required beyond that. */
 
 #define WM_HWGUI_WEBVIEW_MSG (WM_USER + 100)
 #define MAX_WEBVIEWS         16
 
 //-----------------------------------------------------------------------------
+// Auxiliary structure to hold the JS function name alongside the context
+// (passed as "arg" to webview_bind). Forward-declared here so it can be
+// referenced from WebViewContext below.
+//-----------------------------------------------------------------------------
+typedef struct {
+      void  *ctx;        /* WebViewContext* - void* to avoid a forward-declare cycle */
+      char  *func_name;
+} FuncBinding;
+
+//-----------------------------------------------------------------------------
 // Per-WebView context — one instance per WebView
 //-----------------------------------------------------------------------------
 typedef struct {
-      webview_t w;
-      WNDPROC   old_proc;
-      HWND      parent;
-      char     *pending_id;
-      char     *pending_data;
-      char     *pending_func;
-      int       id;
-      int       used;
+      webview_t     w;
+      HWND          parent;
+      char         *pending_id;
+      char         *pending_data;
+      char         *pending_func;
+      int           id;
+      int           used;
+      /* FIXED: track every FuncBinding allocated by bind_webview() so
+       * destroy_webview() can webview_unbind() and free() them instead
+       * of leaking one FuncBinding (+ its func_name string) per bound
+       * JS function name, for the lifetime of the process. */
+      FuncBinding **bindings;
+      int           bindings_count;
+      int           bindings_cap;
 } WebViewContext;
 
 static WebViewContext *g_contexts[MAX_WEBVIEWS] = { NULL };
@@ -46,12 +69,25 @@ static void free_pending(WebViewContext *ctx) {
 
 //-----------------------------------------------------------------------------
 // SubclassProc — intercepts WM_SIZE from the parent window and resizes
-// the WebView accordingly. Uses a window property (not GWLP_USERDATA)
-// to retrieve the context associated with the window, so it does not
-// conflict with Hwgui's own use of GWLP_USERDATA.
+// the WebView accordingly.
+//
+// FIXED: previously this replaced the parent window's GWLP_WNDPROC
+// directly and stashed the single associated context in one
+// fixed-name window property ("HwguiTurboCtx"). That only supports ONE
+// embedded WebView per parent HWND: a second create_webview_embedded()
+// call on the same parent silently overwrote the property (orphaning
+// the first WebView's resize handling) and captured SubclassProc
+// itself as "old_proc" (so destroy_webview() on the first context
+// could never restore the real original WndProc). Using
+// SetWindowSubclass()/RemoveWindowSubclass() (comctl32) instead lets
+// any number of contexts subclass the same parent independently, each
+// identified by its own uIdSubclass (the context pointer) and carrying
+// its own dwRefData (also the context pointer) - no shared state, no
+// clobbering.
 //-----------------------------------------------------------------------------
-static LRESULT CALLBACK SubclassProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
-      WebViewContext *ctx = (WebViewContext*)GetPropA(hwnd, "HwguiTurboCtx");
+static LRESULT CALLBACK SubclassProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp,
+                                      UINT_PTR uIdSubclass, DWORD_PTR dwRefData) {
+      WebViewContext *ctx = (WebViewContext*)dwRefData;
 
       if (msg == WM_SIZE && ctx && ctx->w) {
             int w = LOWORD(lp);
@@ -65,20 +101,15 @@ static LRESULT CALLBACK SubclassProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) 
             }
       }
 
-      if (ctx && ctx->old_proc)
-            return CallWindowProc(ctx->old_proc, hwnd, msg, wp, lp);
+      if (msg == WM_NCDESTROY) {
+            /* The parent window itself is going away - detach cleanly
+             * so we never process further messages through a dead
+             * subclass. */
+            RemoveWindowSubclass(hwnd, SubclassProc, uIdSubclass);
+      }
 
-      return DefWindowProc(hwnd, msg, wp, lp);
+      return DefSubclassProc(hwnd, msg, wp, lp);
 }
-
-//-----------------------------------------------------------------------------
-// Auxiliary structure to hold the JS function name alongside the context
-// (passed as "arg" to webview_bind)
-//-----------------------------------------------------------------------------
-typedef struct {
-      WebViewContext *ctx;
-      char           *func_name;
-} FuncBinding;
 
 //-----------------------------------------------------------------------------
 // Callback invoked by JavaScript (through webview_bind).
@@ -92,14 +123,23 @@ static void hwgui_bridge(const char *id, const char *req, void *arg) {
             return;
       }
 
-      WebViewContext *ctx = fb->ctx;
+      WebViewContext *ctx = (WebViewContext*)fb->ctx;
       free_pending(ctx);
 
-      if (id)  { ctx->pending_id   = (char*)malloc(strlen(id)+1);  strcpy(ctx->pending_id,   id);  }
-      if (req) { ctx->pending_data = (char*)malloc(strlen(req)+1); strcpy(ctx->pending_data, req); }
+      /* FIXED: check every malloc() before strcpy() - a failed
+       * allocation used to be passed straight into strcpy(NULL, ...),
+       * crashing instead of just dropping that piece of the message. */
+      if (id) {
+            ctx->pending_id = (char*)malloc(strlen(id)+1);
+            if (ctx->pending_id) strcpy(ctx->pending_id, id);
+      }
+      if (req) {
+            ctx->pending_data = (char*)malloc(strlen(req)+1);
+            if (ctx->pending_data) strcpy(ctx->pending_data, req);
+      }
       if (fb->func_name) {
             ctx->pending_func = (char*)malloc(strlen(fb->func_name)+1);
-            strcpy(ctx->pending_func, fb->func_name);
+            if (ctx->pending_func) strcpy(ctx->pending_func, fb->func_name);
       }
 
       if (ctx->parent) {
@@ -123,9 +163,26 @@ extern "C" {
       void* create_webview_embedded(const char* parent_title, const char* title,
                                     int width, int height, int id) {
             WebViewContext *ctx = NULL;
+            int slot = -1;
+            int i;
 
             // Check if the ID already exists
             if (find_context(id) != NULL) return NULL;
+
+            /* FIXED: reserve a free slot in g_contexts BEFORE doing any of
+             * the heavy/side-effecting setup below (webview_create,
+             * reparenting, subclassing). The old code only tried to
+             * register at the very end, after everything else succeeded;
+             * if all MAX_WEBVIEWS slots were already taken it silently
+             * dropped the fully-initialized context on the floor while
+             * still returning it as if successful - get_context_by_id()
+             * could never find it again, and a later call with the same
+             * id would pass the duplicate check and create yet another
+             * unreachable context. */
+            for (i = 0; i < MAX_WEBVIEWS; i++) {
+                  if (!g_contexts[i]) { slot = i; break; }
+            }
+            if (slot < 0) return NULL;   // no room for another WebView
 
             // Allocate a new context
             ctx = (WebViewContext*)calloc(1, sizeof(WebViewContext));
@@ -175,18 +232,16 @@ extern "C" {
             ctx->w      = w;
             ctx->parent = hwnd_parent;
 
-            // Store the context on the window using a named property (NOT GWLP_USERDATA,
-            // which is used by Hwgui for its own purposes)
-            SetPropA(hwnd_parent, "HwguiTurboCtx", (HANDLE)ctx);
+            // FIXED: SetWindowSubclass() (comctl32) instead of manually
+            // swapping GWLP_WNDPROC + a single fixed-name window property.
+            // uIdSubclass and dwRefData are both the context pointer, so
+            // any number of WebViews embedded in the same parent HWND get
+            // their own independent subclass entry - no shared state, no
+            // clobbering between them (see SubclassProc's comment above).
+            SetWindowSubclass(hwnd_parent, SubclassProc, (UINT_PTR)ctx, (DWORD_PTR)ctx);
 
-            // Install the subclass
-            ctx->old_proc = (WNDPROC)SetWindowLongPtr(hwnd_parent, GWLP_WNDPROC,
-                                                      (LONG_PTR)SubclassProc);
-
-            // Register in the global array
-            for (int i = 0; i < MAX_WEBVIEWS; i++) {
-                  if (!g_contexts[i]) { g_contexts[i] = ctx; break; }
-            }
+            // Register in the global array (slot reserved above)
+            g_contexts[slot] = ctx;
 
             return (void*)ctx;
                                     }
@@ -214,9 +269,25 @@ extern "C" {
 
                                           // Allocate a FuncBinding passed as "arg" to webview_bind
                                           FuncBinding *fb = (FuncBinding*)malloc(sizeof(FuncBinding));
-                                          fb->ctx       = ctx;
+                                          if (!fb) return -1;
                                           fb->func_name = (char*)malloc(strlen(name)+1);
+                                          if (!fb->func_name) { free(fb); return -1; }
+                                          fb->ctx = ctx;
                                           strcpy(fb->func_name, name);
+
+                                          // FIXED: keep a reference to fb so destroy_webview() can
+                                          // webview_unbind()/free() it - previously every bind_webview()
+                                          // call leaked its FuncBinding (and func_name string)
+                                          // permanently, since nothing tracked it for later release.
+                                          if (ctx->bindings_count == ctx->bindings_cap) {
+                                                int newCap = ctx->bindings_cap ? ctx->bindings_cap * 2 : 4;
+                                                FuncBinding **newArr = (FuncBinding**)realloc(
+                                                      ctx->bindings, newCap * sizeof(FuncBinding*) );
+                                                if (!newArr) { free(fb->func_name); free(fb); return -1; }
+                                                ctx->bindings     = newArr;
+                                                ctx->bindings_cap = newCap;
+                                          }
+                                          ctx->bindings[ctx->bindings_count++] = fb;
 
                                           return webview_bind(ctx->w, name, hwgui_bridge, fb);
                                     }
@@ -302,17 +373,41 @@ extern "C" {
                                           WebViewContext *ctx = (WebViewContext*)w;
                                           if (!ctx) return;
 
-                                          // Restore the original WndProc and remove the property
-                                          if (ctx->parent && ctx->old_proc) {
-                                                RemovePropA(ctx->parent, "HwguiTurboCtx");
-                                                SetWindowLongPtr(ctx->parent, GWLP_WNDPROC, (LONG_PTR)ctx->old_proc);
-                                          }
+                                          // FIXED: detach via RemoveWindowSubclass() - matches the
+                                          // SetWindowSubclass() install in create_webview_embedded()
+                                          // and only ever affects THIS context's own subclass entry,
+                                          // never another WebView's (or an unrelated subclass chain)
+                                          // sharing the same parent window.
+                                          if (ctx->parent)
+                                                RemoveWindowSubclass(ctx->parent, SubclassProc, (UINT_PTR)ctx);
 
-                                          // Destroy the WebView
+                                          // Destroy the WebView (this also tears down whatever
+                                          // internal bookkeeping webview_bind() created on the
+                                          // library's side for every binding).
                                           if (ctx->w)
                                                 webview_destroy(ctx->w);
 
                                           free_pending(ctx);
+
+                                          // FIXED: release every FuncBinding registered by bind_webview()
+                                          // - previously these were never freed, leaking one FuncBinding
+                                          // + its func_name string per bound JS function name on every
+                                          // destroy_webview() call. Only OUR OWN heap allocations need
+                                          // freeing here - webview_destroy() above already tore down
+                                          // the library's internal binding state, so calling
+                                          // webview_unbind() at this point would touch an
+                                          // already-destroyed ctx->w and must not be done.
+                                          if (ctx->bindings) {
+                                                int i;
+                                                for (i = 0; i < ctx->bindings_count; i++) {
+                                                      FuncBinding *fb = ctx->bindings[i];
+                                                      if (fb) {
+                                                            free(fb->func_name);
+                                                            free(fb);
+                                                      }
+                                                }
+                                                free(ctx->bindings);
+                                          }
 
                                           // Remove from the global array
                                           for (int i = 0; i < MAX_WEBVIEWS; i++) {
