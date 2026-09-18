@@ -15,6 +15,13 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-18 19:20 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+   * source/winapi/dialog.c: use INT_PTR CALLBACK in s_ModalDlgProc,
+     s_DlgProc, s_PSPProc and s_PSPProcRelease prototypes to match
+     their definitions (Windows SDK DLGPROC). Fixes 64-bit build
+     errors (MinGW-w64, MSVC x64, Clang x64).
+     Thanks to José Quintas for reporting the problem.
+
 2026-09-17 19:44 UTC-0300 Itamar Junior <itamarlins@gmail.com>
    *  contrib/webview2/webview_wrapper.c
     - Fixed critical bug: only one embedded WebView per parent HWND
