@@ -29,7 +29,7 @@
 static INT_PTR CALLBACK s_ModalDlgProc( HWND, UINT, WPARAM, LPARAM );
 static INT_PTR CALLBACK s_DlgProc( HWND, UINT, WPARAM, LPARAM );
 static INT_PTR CALLBACK s_PSPProc( HWND, UINT, WPARAM, LPARAM );
-static INT_PTR CALLBACK s_PSPProcRelease( HWND, UINT, LPPROPSHEETPAGE );
+static UINT CALLBACK s_PSPProcRelease( HWND, UINT, LPPROPSHEETPAGE );
 
 #define	WND_DLG_RESOURCE       10
 #define	WND_DLG_NORESOURCE     11
@@ -1010,7 +1010,7 @@ static INT_PTR CALLBACK s_PSPProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM l
       }
 }
 
-static INT_PTR CALLBACK s_PSPProcRelease( HWND hwnd, UINT uMsg, LPPROPSHEETPAGE ppsp )
+static UINT CALLBACK s_PSPProcRelease( HWND hwnd, UINT uMsg, LPPROPSHEETPAGE ppsp )
 {
       HB_SYMBOL_UNUSED( hwnd );
       if( PSPCB_CREATE == uMsg )

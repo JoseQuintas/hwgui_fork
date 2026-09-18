@@ -16,6 +16,15 @@
 */
 
 2026-09-18 19:20 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+   - source/winapi/dialog.c`: corrected callback signatures to match the actual Windows SDK
+     typedefs instead of the mismatched `LRESULT CALLBACK` previously used
+     (masked by explicit casts at the registration sites; technically UB).
+   - `s_ModalDlgProc`, `s_DlgProc`, `s_PSPProc` → `INT_PTR CALLBACK` (matches `DLGPROC`)
+   - `s_PSPProcRelease` → `UINT CALLBACK` (matches `LPFNPSPCALLBACK`)
+   - No runtime behavior change. Verified type-compatible with GCC (MinGW-w64),
+     Clang/clang-cl, and MSVC on both 32- and 64-bit builds.
+
+2026-09-18 19:20 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
    * source/winapi/dialog.c: use INT_PTR CALLBACK in s_ModalDlgProc,
      s_DlgProc, s_PSPProc and s_PSPProcRelease prototypes to match
      their definitions (Windows SDK DLGPROC). Fixes 64-bit build
