@@ -15,6 +15,25 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-20 20:51 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+   hwgui\contrib\chat
+   [HwguiTurbo Chat] Initial release 1.0.0
+   LAN corporate chat: TCP server + WebView2 client.
+   Harbour 3.2.1 + HWGUI 2.23 + Clang 22.
+   + server.prg : TCP server, tray icon, hidden window
+   + user.prg   : WebView2 client, JS<->Harbour bridge
+   + user.html  : WhatsApp-like UI, emoji picker, file transfer
+   + user.ini   : Client configuration
+   + hbmk.hbm   : Config file for hbmk2.exe
+   + server.ico
+   * LICENSE    : MIT
+   + README.txt : Documentation
+   EXTERNAL DEPENDENCIES
+   * WebView2Loader.dll (Microsoft WebView2 SDK) or (Clang 22)
+   * webview.dll (lib webview/webview) with -static link it goto webview_wrapper.dll
+   * webview_wrapper.dll (C wrapper compiled with Clang)
+   These DLLs are in the \hwgui\contrib\webview2 folder.
+
 2026-09-18 19:20 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
    - source/winapi/dialog.c`: corrected callback signatures to match the actual Windows SDK
      typedefs instead of the mismatched `LRESULT CALLBACK` previously used
