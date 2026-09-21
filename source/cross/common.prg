@@ -733,6 +733,31 @@ FUNCTION hwg_resize_onAnchor( oCtrl, x, y, w, h )
    LOCAL nAnchor, nXincRelative, nYincRelative, nXincAbsolute, nYincAbsolute
    LOCAL x1, y1, w1, h1, x9, y9, w9, h9
 
+   /*
+    * -----------------------------------------------------------------
+    * GUARD - skip the anchor math while the parent is still unmeasured.
+    *
+    * GTK4 measures a window AFTER it has been built, so the very first
+    * resize notification arrives with wold = 0 (or hold = 0).  With
+    * x = 0 the ANCHOR_RIGHTREL formula below degenerates into:
+    *
+    *     x1 := w - ( x - x9 - w9 ) * 1 - w9
+    *         = w - ( 0 - x9 - w9 ) - w9
+    *         = w + x9
+    *
+    * i.e. the control is pushed to the RIGHT by the full width of the
+    * parent, off-screen.  The same happens vertically for
+    * ANCHOR_BOTTOMREL when y = 0.
+    *
+    * Returning early preserves the control at its declared position;
+    * the next genuine resize event will anchor it correctly (with a
+    * real wold, so the delta will be 0 or a small, sane number).
+    * -----------------------------------------------------------------
+    */
+   IF Empty( x ) .OR. Empty( y ) .OR. Empty( w ) .OR. Empty( h )
+      RETURN .F.
+   ENDIF
+
    nAnchor := oCtrl:anchor
    x9 := x1 := oCtrl:nLeft
    y9 := y1 := oCtrl:nTop
