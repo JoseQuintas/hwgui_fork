@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HWGUI GTK4 — Guia de Uso</title>
+<style>
+  :root {
+    --bg: #fafafa;
+    --fg: #222;
+    --muted: #666;
+    --accent: #2b6cb0;
+    --code-bg: #f0f0f0;
+    --border: #ddd;
+  }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+    line-height: 1.55;
+    color: var(--fg);
+    background: var(--bg);
+  }
+  h1 { border-bottom: 3px solid var(--accent); padding-bottom: .3rem; }
+  h2 { color: var(--accent); margin-top: 2rem; border-bottom: 1px solid var(--border); padding-bottom: .2rem; }
+  h3 { margin-top: 1.5rem; }
+  h4 { margin-top: 1.2rem; color: #444; }
+  code {
+    background: var(--code-bg);
+    padding: .1em .35em;
+    border-radius: 3px;
+    font-family: "JetBrains Mono", Consolas, monospace;
+    font-size: .92em;
+  }
+  pre {
+    background: var(--code-bg);
+    padding: .8rem 1rem;
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    overflow-x: auto;
+  }
+  pre code { background: none; padding: 0; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1rem 0;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: .5rem .7rem;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { background: #eee; }
+  .note, .warn, .tip {
+    padding: .8rem 1rem;
+    border-radius: 4px;
+    margin: 1rem 0;
+    border-left: 4px solid;
+  }
+  .note  { background: #eaf4ff; border-color: #2b6cb0; }
+  .warn  { background: #fff4e5; border-color: #d97706; }
+  .tip   { background: #e8f5e9; border-color: #2e7d32; }
+  .muted { color: var(--muted); }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<h1>HWGUI GTK4 — Guia de Uso</h1>
+
+<p class="muted">
+Portabilidade do HWGUI de GTK2 para GTK4.<br>
+Este documento descreve os princípios, as diretivas e o uso dos recursos GTK4
+no HWGUI.
+</p>
+
+<hr>
+
+<h2>1. Visão geral</h2>
+
+<p>
+O HWGUI é uma biblioteca GUI para Harbour que oferece uma API única para
+aplicações Win32 e Linux (GTK). A versão GTK4 é um <strong>port paralelo</strong>
+à GTK2, mantendo a compatibilidade da API no nível Harbour — ou seja,
+o mesmo código de aplicação compila em ambos os backends.
+</p>
+
+<h3>1.1. Por que GTK4?</h3>
+
+<ul>
+  <li>GTK2 está em fim de vida — sem suporte moderno e sem integração com
+      Wayland, HiDPI e temas contemporâneos.</li>
+  <li>GTK4 oferece melhor integração com KDE, GNOME e Wayland via
+      <code>xdg-desktop-portal</code>.</li>
+  <li>Suporte nativo a HiDPI, escalonamento e aceleração por GPU.</li>
+  <li>Compatível com Harbour Unicode de forma transparente.</li>
+</ul>
+
+<h3>1.2. Princípios do port</h3>
+
+<ol>
+  <li><strong>Paralelismo, não substituição.</strong> GTK2 e GTK4 coexistem
+      no mesmo repositório. A aplicação escolhe qual linkar.</li>
+  <li><strong>Sem poluição com <code>#ifdef</code>.</strong> Código específico
+      de cada toolkit vive em arquivos separados, não em ramos condicionais
+      no mesmo arquivo.</li>
+  <li><strong>API Harbour inalterada.</strong> O código do usuário não precisa
+      saber se está sobre GTK2 ou GTK4.</li>
+  <li><strong>Cada toolkit tem seu diretório e seu <code>.hbp</code>.</strong>
+      <code>source/gtk4/</code> para o backend novo;
+      <code>source/common/</code> só para o que compila em todos os toolkits.</li>
+</ol>
+
+<hr>
+
+<h2>2. Estrutura de arquivos</h2>
+
+<table>
+  <thead>
+    <tr><th>Caminho</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>source/gtk4/</code></td>
+      <td>Implementação dos widgets, janelas, diálogos e controllers GTK4.</td>
+    </tr>
+    <tr>
+      <td><code>include/hwgtk4.h</code></td>
+      <td>Cabeçalho com as definições específicas do backend GTK4.</td>
+    </tr>
+    <tr>
+      <td><code>hwguiGTK4.hbp</code> / <code>.hbc</code> / <code>.hbm</code></td>
+      <td>Arquivos de projeto e build do backend GTK4. Geram
+          <code>lib/hwgui.a</code>.</td>
+    </tr>
+    <tr>
+      <td><code>procmiscGTK4.hbp</code></td>
+      <td>Lib utilitária (editor, processamento) para GTK4. Gera
+          <code>lib/procmisc.a</code>.</td>
+    </tr>
+    <tr>
+      <td><code>utils/bincnt/bincntGTK4.hbp</code></td>
+      <td>Gerenciador de containers binários compilado contra GTK4.</td>
+    </tr>
+    <tr>
+      <td><code>source/common/editor/hcedit_l_gtk4.c</code></td>
+      <td>Editor de texto (Linux) portado para GTK4.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <strong>Regra prática:</strong> se um arquivo usa APIs exclusivas do GTK4
+  (<code>GtkFileDialog</code>, <code>gtk_widget_get_width()</code>,
+  <code>g_list_model_*</code>, etc.), ele <strong>deve</strong> ficar em
+  <code>source/gtk4/</code> ou ter um sufixo <code>_gtk4</code>.
+</div>
+
+<hr>
+
+<h2>3. Compilando</h2>
+
+<h3>3.1. Requisitos</h3>
+
+<ul>
+  <li>GTK 4.10+ (idealmente 4.20+ para <code>GtkFileDialog</code>)</li>
+  <li>Harbour 3.2+ com suporte a <code>hb_thread</code></li>
+  <li><code>pkg-config</code> e <code>gtk4.pc</code> instalados</li>
+</ul>
+
+<pre><code># Verificar GTK4
+pkg-config --modversion gtk4
+
+# Verificar Harbour
+harbour --version</code></pre>
+
+<h3>3.2. Compilar a biblioteca HWGUI</h3>
+
+<p>
+A lib é gerada com o nome <code>lib/hwgui.a</code>, tanto para GTK2 quanto
+para GTK4 — o que distingue os dois backends é o <code>.hbp</code> usado
+no build, não o nome do arquivo gerado.
+</p>
+
+<pre><code>cd hwgui
+
+# Backend GTK2
+hbmk2 hwgui.hbp
+# Produz: lib/hwgui.a (compilada com GTK2)
+
+# Backend GTK4
+hbmk2 hwguiGTK4.hbp
+# Produz: lib/hwgui.a (compilada com GTK4) — sobrescreve a anterior</code></pre>
+
+<div class="warn">
+  <strong>Atenção:</strong> as duas versões produzem <code>lib/hwgui.a</code>
+  no mesmo caminho. <strong>Não é possível manter GTK2 e GTK4 instalados
+  ao mesmo tempo</strong> no mesmo diretório. Para alternar entre backends,
+  é preciso recompilar a lib a partir do <code>.hbp</code> correspondente.
+</div>
+
+<h3>3.3. Compilar as libs utilitárias</h3>
+
+<p>
+O mesmo vale para as libs utilitárias: o <code>.hbp</code> específico do
+backend gera <code>lib/procmisc.a</code> em ambos os casos.
+</p>
+
+<pre><code># Backend GTK2
+hbmk2 procmisc.hbp
+# Produz: lib/procmisc.a (GTK2)
+
+# Backend GTK4
+hbmk2 procmiscGTK4.hbp
+# Produz: lib/procmisc.a (GTK4) — sobrescreve a anterior</code></pre>
+
+<h3>3.4. Compilar uma aplicação do usuário</h3>
+
+<p>
+A aplicação referencia o <code>.hbc</code> correspondente ao backend que
+deseja usar. Como as libs têm o mesmo nome (<code>hwgui.a</code>,
+<code>procmisc.a</code>), o <code>.hbc</code> é quem aponta para o caminho
+correto — e a aplicação linka com o mesmo nome de biblioteca nos dois casos.
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Backend</th>
+      <th><code>.hbc</code> a incluir</th>
+      <th>Libs linkadas</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>GTK2</td>
+      <td><code>hwgui.hbc</code> + <code>procmisc.hbc</code></td>
+      <td><code>lib/hwgui.a</code>, <code>lib/procmisc.a</code></td>
+    </tr>
+    <tr>
+      <td>GTK4</td>
+      <td><code>hwguiGTK4.hbc</code> + <code>procmiscGTK4.hbc</code></td>
+      <td><code>lib/hwgui.a</code>, <code>lib/procmisc.a</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <strong>Implicação prática:</strong> como as libs têm o mesmo nome, o
+  <code>.hbc</code> é quem determina qual backend será usado no link.
+  Certifique-se de recompilar <code>lib/hwgui.a</code> e
+  <code>lib/procmisc.a</code> com o backend desejado <strong>antes</strong>
+  de compilar a aplicação.
+</div>
+
+<p>Exemplo de <code>meuappGTK4.hbp</code>:</p>
+
+<pre><code># meuappGTK4.hbp
+
+{linux}hwguiGTK4.hbc
+{linux}procmiscGTK4.hbc
+
+-L.
+
+-n -w1
+
+-omeuapp
+
+meuapp.prg</code></pre>
+
+<p>
+O <code>.hbc</code> adiciona <code>-lhwgui -lprocmisc</code> ao link, mas
+aponta para o caminho onde as libs GTK4 estão. Ou seja, o nome do
+<code>.a</code> é o mesmo, mas o conteúdo é GTK4.
+</p>
+
+<hr>
+
+<h2>4. Usando GTK4 no código Harbour</h2>
+
+<p>
+A API de alto nível (classes <code>HWindow</code>, <code>HDialog</code>,
+<code>HButton</code>, <code>HGet</code>, <code>HBrowse</code> etc.) é
+<strong>idêntica</strong> entre GTK2 e GTK4. O código abaixo funciona nos
+dois backends:
+</p>
+
+<pre><code>#include "hwgui.ch"
+
+FUNCTION Main()
+   LOCAL oWnd, oBtn
+
+   INIT WINDOW oWnd TITLE "Exemplo GTK4" SIZE 400, 200
+
+   @ 20, 20 BUTTON oBtn CAPTION "Clique" SIZE 120, 30 ;
+      ON CLICK { || hwg_MsgInfo( "Olá GTK4!" ) }
+
+   ACTIVATE WINDOW oWnd
+RETURN Nil</code></pre>
+
+<div class="tip">
+  <strong>Dica:</strong> para testar a mesma aplicação nos dois backends,
+  basta ter dois arquivos <code>.hbp</code> — um linkando <code>hwgui.hbc</code>
+  e outro linkando <code>hwguiGTK4.hbc</code>.
+</div>
+
+<hr>
+
+<h2>5. Temas, aparência e CSS</h2>
+
+<p>
+O GTK4 tem um sistema de estilos em cascata (CSS) com múltiplas camadas de
+prioridade. Entender essa hierarquia é essencial para prever qual cor vai
+vencer quando duas regras se aplicam ao mesmo widget.
+</p>
+
+<h3>5.0. Hierarquia de CSS no GTK4</h3>
+
+<p>
+Cada provider de CSS é registado com uma <strong>prioridade</strong>. Quanto
+maior o número, mais tarde ele é aplicado e, portanto, mais ele vence em caso
+de conflito.
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Constante</th>
+      <th>Valor</th>
+      <th>Quem usa no HWGUI GTK4</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>GTK_STYLE_PROVIDER_PRIORITY_FALLBACK</code></td>
+      <td>1</td>
+      <td>Reservado ao GTK (fallback interno).</td>
+    </tr>
+    <tr>
+      <td><code>GTK_STYLE_PROVIDER_PRIORITY_THEME</code></td>
+      <td>200</td>
+      <td>Tema do sistema (Adwaita claro/escuro, Breeze, etc.).</td>
+    </tr>
+    <tr>
+      <td><code>GTK_STYLE_PROVIDER_PRIORITY_SETTINGS</code></td>
+      <td>400</td>
+      <td>Configurações do utilizador (ex.: <code>gtk-theme-name</code>).</td>
+    </tr>
+    <tr>
+      <td><code>GTK_STYLE_PROVIDER_PRIORITY_APPLICATION</code></td>
+      <td>600</td>
+      <td>
+        <code>set_css_data()</code> em <code>control.c</code> —
+        usado por <code>HWG_SETFGCOLOR</code>, <code>HWG_SETBGCOLOR</code>
+        e <code>HWG_CSSLOAD</code>.
+      </td>
+    </tr>
+    <tr>
+      <td><code>GTK_STYLE_PROVIDER_PRIORITY_USER</code></td>
+      <td>800</td>
+      <td>
+        <code>hwg_install_entry_css()</code> em <code>window.c</code> —
+        reset de geometria dos entries (e, no código atual, também cores
+        claras fixas).
+      </td>
+    </tr>
+    <tr>
+      <td><code>USER + 1</code></td>
+      <td>801</td>
+      <td>
+        <code>HWG_CSSLOADFILE</code> em <code>control.c</code> — o
+        <strong>theme.css</strong> da aplicação.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<h4>Precedência efetiva (do mais fraco ao mais forte)</h4>
+
+<pre><code>tema do sistema (200)
+   &lt; set_css_data / HWG_SETFGCOLOR / HWG_SETBGCOLOR (600)
+      &lt; hwg_install_entry_css (800)
+         &lt; theme.css da aplicação (801)</code></pre>
+
+<div class="note">
+  <strong>Regra de ouro:</strong> o <strong>theme.css</strong> tem sempre a
+  última palavra. Se o seu app carrega um <code>theme.css</code>, ele vence o
+  tema do KDE, o Adwaita e qualquer CSS interno do HWGUI.
+</div>
+
+<h3>5.1. Como o GTK4 escolhe o tema</h3>
+
+<p>
+Por padrão, o GTK4 consulta o <strong>xdg-desktop-portal</strong> para saber
+se o sistema está em modo claro ou escuro. No KDE, isso requer o
+<code>xdg-desktop-portal-kde</code> instalado:
+</p>
+
+<pre><code>sudo apt install xdg-desktop-portal-kde kde-config-gtk-style</code></pre>
+
+<p>
+Depois de instalar, reinicie os serviços (note que no Plasma 6 o serviço tem
+o prefixo <code>plasma-</code>):
+</p>
+
+<pre><code>systemctl --user daemon-reload
+systemctl --user restart plasma-xdg-desktop-portal-kde.service
+systemctl --user restart xdg-desktop-portal.service</code></pre>
+
+<p>
+Para confirmar o que o portal está a reportar:
+</p>
+
+<pre><code>gdbus call --session --dest org.freedesktop.portal.Desktop \
+  --object-path /org/freedesktop/portal/desktop \
+  --method org.freedesktop.portal.Settings.Read \
+  org.freedesktop.appearance color-scheme</code></pre>
+
+<p>O retorno é um <code>uint32</code>:</p>
+
+<table>
+  <thead>
+    <tr><th>Valor</th><th>Significado</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>0</code></td><td>Sem preferência</td></tr>
+    <tr><td><code>1</code></td><td>Prefer-dark</td></tr>
+    <tr><td><code>2</code></td><td>Prefer-light</td></tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <strong>Atenção:</strong> se o portal KDE não estiver instalado, o GTK4
+  cai no backend genérico (<code>gtk.portal</code>) e pode escolher cores
+  inconsistentes — janela clara com popover escuro, por exemplo.
+</div>
+
+<h3>5.2. Forçando claro ou escuro</h3>
+
+<pre><code># por execução
+GTK_THEME=Adwaita:dark  ./meuapp
+GTK_THEME=Adwaita:light ./meuapp
+
+# global (arquivo ~/.config/gtk-4.0/settings.ini)
+[Settings]
+gtk-theme-name=Adwaita
+gtk-application-prefer-dark-theme=0</code></pre>
+
+<h3>5.3. CSS customizado (theme.css)</h3>
+
+<p>
+Aplicações podem carregar um CSS próprio via
+<code>hwg_CssLoadFile()</code>. Ele é aplicado no <em>display</em> com
+prioridade <code>GTK_STYLE_PROVIDER_PRIORITY_USER + 1</code> (801), o que
+sobrescreve o tema do sistema e o CSS interno do HWGUI — inclusive para
+popovers e menus.
+</p>
+
+<pre><code>hwg_CssLoadFile( "theme.css" )</code></pre>
+
+<h3>5.4. Quando usar cada mecanismo</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Mecanismo</th>
+      <th>Prioridade</th>
+      <th>Quando usar</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Tema do sistema</td>
+      <td>200</td>
+      <td>Nada a fazer — é o padrão. Ideal para utilitários que devem seguir
+          o SO.</td>
+    </tr>
+    <tr>
+      <td><code>HWG_SETFGCOLOR</code> / <code>HWG_SETBGCOLOR</code></td>
+      <td>600</td>
+      <td>Cor pontual de um widget específico durante a execução. Baixa
+          precedência, fácil de sobrescrever.</td>
+    </tr>
+    <tr>
+      <td><code>HWG_CSSLOAD</code> (CSS em string)</td>
+      <td>600</td>
+      <td>CSS dinâmico, gerado em tempo de execução (ex.: cores do banco de
+          dados).</td>
+    </tr>
+    <tr>
+      <td><code>hwg_install_entry_css</code></td>
+      <td>800</td>
+      <td>Reset de geometria dos entries (comportamento Win32-like). Evite
+          colocar cores aqui, para não "vazar" sobre o theme.css.</td>
+    </tr>
+    <tr>
+      <td><code>HWG_CSSLOADFILE</code> (theme.css)</td>
+      <td>801</td>
+      <td>Identidade visual completa da aplicação. Vence tudo. Deve cobrir
+          <code>entry</code>, <code>popover</code>, <code>menu</code> e
+          <code>button</code> se quiser controle total.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>5.5. Boas práticas</h3>
+
+<ol>
+  <li>
+    <strong>Utilitário sem identidade visual própria:</strong> não carregue
+    <code>theme.css</code>. Deixe o GTK4 seguir o portal e o tema do sistema.
+    Resultado: janela e popovers coerentes (tudo claro ou tudo escuro,
+    conforme o SO).
+  </li>
+  <li>
+    <strong>Aplicação com identidade visual:</strong> carregue
+    <code>theme.css</code> e cubra <em>todos</em> os estados dos widgets que
+    quer controlar — especialmente <code>entry</code>, <code>popover</code>,
+    <code>menu</code> e <code>button</code>.
+  </li>
+  <li>
+    <strong>Evite cores fixas em <code>hwg_install_entry_css</code>.</strong>
+    Se essa função só serve para resetar a geometria (padding, border-width,
+    min-width), não coloque <code>background-color</code> nem
+    <code>color</code> ali — caso contrário, mesmo com o <code>theme.css</code>
+    carregado, os entries vão continuar brancos se o CSS do app não os cobrir.
+  </li>
+  <li>
+    <strong>Se o <code>theme.css</code> não cobrir entries,</strong> baixe a
+    prioridade de <code>hwg_install_entry_css</code> para
+    <code>GTK_STYLE_PROVIDER_PRIORITY_APPLICATION</code> (600), para que ele
+    deixe de brigar com o tema.
+  </li>
+  <li>
+    <strong>Teste com <code>GTK_THEME</code>:</strong>
+    <code>GTK_THEME=Adwaita:light</code> e <code>GTK_THEME=Adwaita:dark</code>
+    permitem ver o comportamento nos dois modos sem reiniciar a sessão.
+  </li>
+</ol>
+
+<div class="tip">
+  <strong>Exemplo prático — theme.css cobrindo os widgets principais:</strong>
+  <pre><code>entry, entry.entry &gt; text {
+  background-color: #2b2b2b;
+  color: #e0e0e0;
+  border-color: #444;
+}
+
+popover, popover.background, menu {
+  background-color: #2b2b2b;
+  color: #e0e0e0;
+}
+
+button {
+  background-color: #3a3a3a;
+  color: #e0e0e0;
+  border-color: #444;
+}</code></pre>
+  Com este CSS em <code>theme.css</code>, o app controla entries, menus e
+  botões mesmo quando o sistema está em dark mode.
+</div>
+
+<hr>
+
+<h2>6. Diferenças de comportamento em relação ao GTK2</h2>
+
+<table>
+  <thead>
+    <tr><th>Recurso</th><th>GTK2</th><th>GTK4</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Diálogo de arquivo</td>
+      <td><code>GtkFileChooserDialog</code> síncrono</td>
+      <td><code>GtkFileDialog</code> assíncrono (com GMainLoop local)</td>
+    </tr>
+    <tr>
+      <td>Layout de janela</td>
+      <td><code>GtkFixed</code> direto</td>
+      <td><code>GtkOverlay</code> → <code>GtkBox</code> → <code>GtkFixed</code>
+          (para suportar background image)</td>
+    </tr>
+    <tr>
+      <td>Eventos de teclado</td>
+      <td><code>key_press_event</code> / <code>key_release_event</code></td>
+      <td><code>GtkEventControllerKey</code> na fase CAPTURE</td>
+    </tr>
+    <tr>
+      <td>Redraw parcial</td>
+      <td><code>gtk_widget_queue_draw_area()</code></td>
+      <td><code>gtk_widget_queue_draw()</code> (widget inteiro)</td>
+    </tr>
+    <tr>
+      <td>Ícone de janela</td>
+      <td><code>gtk_window_set_icon()</code></td>
+      <td><code>gdk_toplevel_set_icon_list()</code> no sinal
+          <code>realize</code></td>
+    </tr>
+    <tr>
+      <td>Alocação de widget</td>
+      <td><code>GtkAllocation</code></td>
+      <td><code>gtk_widget_get_width/height()</code></td>
+    </tr>
+    <tr>
+      <td>Toque / multitouch</td>
+      <td>Suporte completo no Windows</td>
+      <td>Ainda limitado no Windows; melhor em Linux/Wayland</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>7. Limitações conhecidas</h2>
+
+<h3>7.1. Toque no Windows</h3>
+
+<p>
+O GTK4 no Windows ainda apresenta problemas com telas de toque:
+arrastar-e-soltar, movimentação de janelas com caneta e coordenadas de
+eventos deslocadas em escalas HiDPI. Para aplicações que dependem de toque
+confiável no Windows, a versão Win32 nativa da HWGUI continua sendo a
+melhor escolha.
+</p>
+
+<h3>7.2. Wayland</h3>
+
+<p>
+No Wayland, o ícone de janela é obtido do arquivo <code>.desktop</code>
+correspondente ao <em>app_id</em>. Se a aplicação não tiver um
+<code>.desktop</code> instalado, o compositor usa um ícone genérico.
+O código chama <code>g_set_prgname()</code> em <code>HWG_GTK_INIT</code>
+para ajudar nisso.
+</p>
+
+<h3>7.3. Redraw parcial</h3>
+
+<p>
+O GTK4 removeu <code>gtk_widget_queue_draw_area()</code>. Toda invalidação
+é feita no widget inteiro. Em editores e browses grandes isso pode gerar
+um pequeno custo extra de redraw — imperceptível na prática, mas vale
+saber.
+</p>
+
+<hr>
+
+<h2>8. Solução de problemas</h2>
+
+<h3>8.1. Menu/popover com cor diferente da janela</h3>
+
+<p>
+Causa: o GTK4 recebeu do sistema a preferência de tema dark (ou light),
+mas o <code>hwg_install_entry_css</code> em <code>window.c</code> força
+cores claras apenas nos <code>entry</code>. Resultado: popovers escuros
+sobre janela clara (ou o inverso). Ver secção
+<a href="#5">5 — Temas, aparência e CSS</a> para o detalhe completo.
+</p>
+
+<p>Diagnóstico:</p>
+<ol>
+  <li>Confirme o que o portal reporta:
+      <pre><code>gdbus call --session --dest org.freedesktop.portal.Desktop \
+  --object-path /org/freedesktop/portal/desktop \
+  --method org.freedesktop.portal.Settings.Read \
+  org.freedesktop.appearance color-scheme</code></pre>
+  </li>
+  <li>Teste com <code>GTK_THEME=Adwaita:light ./bincnt</code>. Se a
+      incoerência desaparecer, é o CSS interno forçando cores.</li>
+</ol>
+
+<p>Soluções (escolha uma):</p>
+<ol>
+  <li>
+    <strong>Instalar o portal KDE:</strong>
+    <pre><code>sudo apt install xdg-desktop-portal-kde kde-config-gtk-style
+systemctl --user daemon-reload
+systemctl --user restart plasma-xdg-desktop-portal-kde.service
+systemctl --user restart xdg-desktop-portal.service</code></pre>
+  </li>
+  <li>
+    <strong>Remover cores fixas de <code>hwg_install_entry_css</code></strong>
+    em <code>window.c</code>, deixando apenas geometria (padding,
+    border-width, min-width, border-radius). Assim os entries seguem o mesmo
+    tema do resto da janela.
+  </li>
+  <li>
+    <strong>Carregar um <code>theme.css</code></strong> no app que cubra
+    <code>entry</code>, <code>popover</code> e <code>menu</code>. Como o
+    theme.css vai para a prioridade 801, ele vence o CSS interno do HWGUI.
+  </li>
+</ol>
+
+<hr>
+
+<h2>9. Diretivas para contribuidores</h2>
+
+<ol>
+  <li>
+    <strong>Não misture GTK2 e GTK4 no mesmo arquivo.</strong>
+    Se precisa de comportamento diferente, crie um arquivo separado com
+    sufixo <code>_gtk4</code> ou coloque em <code>source/gtk4/</code>.
+  </li>
+  <li>
+    <strong>Não use <code>#ifdef</code> de toolkit.</strong>
+    O código-fonte deve ser puro para cada backend.
+  </li>
+  <li>
+    <strong>Sempre adicione entrada no <code>Changelog</code></strong>
+    antes de commitar. Use a convenção:
+    <code>+</code> para adição, <code>*</code> para modificação,
+    <code>-</code> para remoção.
+  </li>
+  <li>
+    <strong>Prefira criar arquivos <code>*_gtk4.c/.prg</code></strong>
+    em vez de duplicar libs inteiras. Um arquivo específico em
+    <code>source/common/editor/</code>, por exemplo, é mais fácil de
+    manter do que uma cópia inteira de <code>procmisc.hbp</code>.
+  </li>
+  <li>
+    <strong>Teste em KDE e GNOME</strong> antes de considerar uma mudança
+    de UI "pronta".
+  </li>
+  <li>
+    <strong>Documente mudanças de API</strong> neste README e no
+    <code>Changelog</code>.
+  </li>
+  <li>
+    <strong>Ao mexer em CSS, respeite a hierarquia de prioridades.</strong>
+    Não coloque cores fixas em providers de prioridade 800/801 sem cobrir
+    todos os widgets relacionados — ou o resultado vai ser uma mistura
+    de temas.
+  </li>
+</ol>
+
+<hr>
+
+<h2>10. Referências</h2>
+
+<ul>
+  <li><a href="https://docs.gtk.org/gtk4/">GTK4 Reference</a></li>
+  <li><a href="https://docs.gtk.org/gtk4/migrating-3to4.html">Migrando de GTK3 para GTK4</a></li>
+  <li><a href="https://docs.gtk.org/gtk4/css-properties.html">GTK4 CSS Properties</a></li>
+  <li><a href="https://flatpak.github.io/xdg-desktop-portal/">XDG Desktop Portal</a></li>
+  <li><a href="https://sourceforge.net/projects/hwgui/">HWGUI no SourceForge</a></li>
+</ul>
+
+<hr>
+
+<p class="muted">
+  Última atualização: 2026-09-23<br>
+  Autor do port GTK4: Itamar Junior &lt;itamarlins@gmail.com&gt;
+</p>
+
+</body>
+</html>
