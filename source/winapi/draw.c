@@ -65,6 +65,18 @@
 #include <stdint.h>
 #include <malloc.h>
 
+/*
+ * MinGW-w64 headers are inconsistent about declaring the
+ * GRADIENTFILL typedef. Some versions ship it in msimg32.h,
+ * others do not. Define it locally when the compiler has not
+ * seen it, so the declaration used by HB_FUN_HWG_DRAWGRADIENT
+ * still resolves.
+ */
+#ifndef GRADIENTFILL
+typedef BOOL ( WINAPI * GRADIENTFILL )( HDC, PTRIVERTEX, ULONG,
+                                        PVOID, ULONG, ULONG );
+#endif
+
 /* REMOVED: Borland C++ 5.5 obsolete support
  * #if defined( __BORLANDC__ ) && __BORLANDC__ == 0x0550
  * #ifdef __cplusplus
@@ -3435,13 +3447,16 @@ static void hwg_gif_gdiplus_start( void )
       }
 }
 
-/* ------------------------------------------------------------------
- * Static helpers (must be declared before any HB_FUNC uses them)
- * ------------------------------------------------------------------ */
-
 /* Convert ANSI/UTF-8 string to wide char.
- U TF-8 is probed with MB_ERR_INVALID_CHARS so a non-UTF-8 (ACP)*
- path really falls back to CP_ACP instead of producing garbage. */
+ * UTF-8 is probed with MB_ERR_INVALID_CHARS so a non-UTF-8 (ACP)
+ * path really falls back to CP_ACP instead of producing garbage.
+ *
+ * MultiByteToWideChar returns 0 on failure and GCC cannot prove the
+ * result is non-negative, so the subsequent n * sizeof(wchar_t)
+ * would be promoted to a huge size_t and trigger
+ * -Walloc-size-larger-than.  Reject the invalid result up front and
+ * cast to HB_SIZE before multiplying so the arithmetic happens in
+ * 64-bit unsigned space. */
 static wchar_t* hb_wideFromAnsi( const char *ansi )
 {
       int   n  = MultiByteToWideChar( CP_UTF8, MB_ERR_INVALID_CHARS, ansi, -1, NULL, 0 );
@@ -3451,7 +3466,10 @@ static wchar_t* hb_wideFromAnsi( const char *ansi )
       if( n == 0 )
             n = MultiByteToWideChar( cp, 0, ansi, -1, NULL, 0 );
 
-      w = (wchar_t*) hb_xgrab( n * sizeof(wchar_t) );
+      if( n <= 0 )
+            return NULL;
+
+      w = (wchar_t*) hb_xgrab( (HB_SIZE) n * sizeof(wchar_t) );
       MultiByteToWideChar( cp, ( cp == CP_UTF8 ) ? MB_ERR_INVALID_CHARS : 0,
                            ansi, -1, w, n );
       return w;

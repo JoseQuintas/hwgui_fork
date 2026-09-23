@@ -1468,6 +1468,7 @@ HB_FUNC( HWG_ANSITOUNICODE )
       hb_xfree( pResult );
 }
 
+
 HB_FUNC( HWG_CLEARKEYBOARD )
 {
    s_ClearKeyboard(  );

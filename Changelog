@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-23 00:08 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  * winapi: fix GCC 15 / MinGW-w64 build warnings and errors.
+    - draw.c: add local GRADIENTFILL typedef fallback, remove unused
+      FuncGradientFill pointer, and guard hb_wideFromAnsi() against
+      a negative length before hb_xgrab().
+    - window.c: cast the destination buffer to LPWSTR in
+      MultiByteToWideChar inside HWG_ANSITOUNICODE.
+
 2026-09-21 20:42 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
    * source\cross\common.prg: hwg_resize_onAnchor() bails out on wold/hold == 0
      (0x0 parent).  Windows / GTK2 / GTK4 -- cross-platform guard.
