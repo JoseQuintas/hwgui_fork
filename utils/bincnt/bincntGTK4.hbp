@@ -1,0 +1,24 @@
+# $Id$
+#
+# bincntGTK4.hbp - GTK4 variant of bincnt.hbp
+#
+
+# Special parameters for LINUX/GTK4
+{linux}-lm
+{linux}-lz
+{linux}-static
+{linux}-d__LINUX__
+{linux}-d__GTK__
+
+# GTK4
+{linux}../../hwguiGTK4.hbc
+
+-L../..
+
+-n -w1
+
+-o../../bin/bincnt
+
+bincnt.prg
+
+# ============== EOF of bincntGTK4.hbp =============
