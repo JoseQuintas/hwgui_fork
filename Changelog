@@ -15,6 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-23 11:29 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+ + hwgui/hwguiGTK4.hbp
+ + hwgui/hwguiGTK4.hbc
+ + hwgui/hwguiGTK4.hbm
+ + hwgui/source/gtk4/
+   Initial commit for the HWGUI GTK4 port.
+   Added hwguiGTK4.hbp (Harbour project file), hwguiGTK4.hbc (build
+   configuration) and hwguiGTK4.hbm (makefile) as the base for the
+   GTK2 to GTK4 migration.
+   Added the source/gtk4/ directory containing the initial GTK4
+   source files, headers and supporting resources for the port.
+
 2026-09-23 00:08 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
   * winapi: fix GCC 15 / MinGW-w64 build warnings and errors.
     - draw.c: add local GRADIENTFILL typedef fallback, remove unused

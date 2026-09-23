@@ -1,0 +1,25 @@
+#
+# $Id: hwgui.hbp 3578 2025-04-11 23:17:28Z ItamarLins $
+#
+
+hwguiGTK4.hbc
+
+-hblib
+
+-olib/hwgui
+
+-hbx=hwgui.hbx
+
+-w3
+
+# Uncomment these two lines to build HwGUI in Unicode mode
+-prgflag=-DUNICODE
+-cflag=-DUNICODE
+#
+-cflag=-DHWG_USE_POINTER_ITEM
+"{unix}-cflag=`pkg-config --cflags gtk4`"
+
+@hwguiGTK4.hbm
+
+# ============== EOF of hwguiGTK4.hbp ====================
+

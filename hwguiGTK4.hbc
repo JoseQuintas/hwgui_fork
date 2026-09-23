@@ -1,0 +1,43 @@
+#
+# $Id: hwgui.hbc 3256 2023-07-26 09:53:25Z alkresin $
+#
+# GTK4 port
+#
+# NOTES
+# -----
+#   * pkg-config package name changed from "gtk+-2.0" to "gtk4".
+#   * -Wno-deprecated-declarations silences the deprecation warnings
+#     emitted by GTK 4.24 (GtkMessageDialog, GtkDialog, GtkFontChooserDialog,
+#     GtkColorChooserDialog, GtkFileChooserDialog — all functional but
+#     flagged since 4.10/4.18).
+#   * -DHWG_USE_POINTER_ITEM is preserved unchanged.
+
+# Include this file in hbmk2 command line to build an app:
+#   'hbmk2 hwguiGTK4.hbc test.prg'
+
+incpaths=include
+libpaths=lib
+
+{win&!HB_NO_GTGUI=YES}gt=gtgui
+{!hblib&!HB_NO_HWGDEBUG=YES}libs=hwgdebug
+
+{!hblib}libs=hwgui procmisc hbxml
+
+# --- Outdated, out of support ---
+#{win&!allmingw&!watcom&!hblib}libs=hbactivex hwg_extctrl hwg_qhtm
+
+{unix}ldflags+="`pkg-config --libs gtk4`"
+
+# Change 3 lines to build HwGUI in Unicode mode
+
+PRGFLAGS=-DUNICODE -q -m -n -es2
+{win}CFLAGS=-DUNICODE -DHWG_USE_POINTER_ITEM
+{unix}CFLAGS=-DUNICODE -DHWG_USE_POINTER_ITEM "`pkg-config --cflags gtk4`"
+
+PRGFLAGS=-q -m -n -es2
+{win}CFLAGS=-DHWG_USE_POINTER_ITEM
+{unix}CFLAGS=-DHWG_USE_POINTER_ITEM -Wno-deprecated-declarations "`pkg-config --cflags gtk4`"
+
+{allmingw}libs=gdiplus
+
+# =============================== EOF of hwguiGTK4.hbc ====================================
