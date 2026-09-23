@@ -204,25 +204,66 @@ HB_FUNC( HWG_SELECTFONT )
     }
 }
 
-
 /* =====================================================================
  *  hwg_SelectFile / hwg_SelectFileEx / hwg_SelectFolder — GtkFileDialog
  *
  *  GTK 4.24: GtkFileDialog uses GListModel for both the filters list
  *  and the multi-selection result.
+ *
+ *  Fix: the async callback must call the *_finish() function that
+ *  matches the operation that was started (open single, open multiple,
+ *  or select folder).  Previously hwg_file_open_cb() always called
+ *  gtk_file_dialog_open_multiple_finish(), which returned NULL for
+ *  single-file and folder dialogs, causing hwg_SelectFile() to return
+ *  an empty string.
  * ===================================================================== */
 typedef struct {
     GMainLoop  *loop;
     GListModel *files;    /* model of GFile* — owned by ctx */
+    int         mode;     /* 0 = open single, 1 = open multiple, 2 = folder */
 } HWG_FILE_CTX;
+
+/* Wrap a single GFile into a GListModel so the rest of the code can
+ * treat single and multiple results uniformly. */
+static GListModel *hwg_file_wrap_single( GFile *file )
+{
+    GListStore *store;
+
+    if( !file )
+        return NULL;
+
+    store = g_list_store_new( G_TYPE_FILE );
+    g_list_store_append( store, file );
+    g_object_unref( file );
+
+    return G_LIST_MODEL( store );
+}
 
 static void hwg_file_open_cb( GObject *source, GAsyncResult *res, gpointer user_data )
 {
     HWG_FILE_CTX *ctx = (HWG_FILE_CTX *) user_data;
     GError       *error = NULL;
 
-    ctx->files = gtk_file_dialog_open_multiple_finish(
-        GTK_FILE_DIALOG( source ), res, &error );
+    if( ctx->mode == 1 )
+    {
+        /* Open multiple */
+        ctx->files = gtk_file_dialog_open_multiple_finish(
+            GTK_FILE_DIALOG( source ), res, &error );
+    }
+    else if( ctx->mode == 2 )
+    {
+        /* Select folder */
+        GFile *file = gtk_file_dialog_select_folder_finish(
+            GTK_FILE_DIALOG( source ), res, &error );
+        ctx->files = hwg_file_wrap_single( file );
+    }
+    else
+    {
+        /* Open single */
+        GFile *file = gtk_file_dialog_open_finish(
+            GTK_FILE_DIALOG( source ), res, &error );
+        ctx->files = hwg_file_wrap_single( file );
+    }
 
     if( error )
     {
@@ -256,7 +297,7 @@ static char *hwg_file_model_to_string( GListModel *model )
     GFile *file;
     char  *path;
 
-    if( g_list_model_get_n_items( model ) == 0 )
+    if( !model || g_list_model_get_n_items( model ) == 0 )
         return NULL;
 
     file = G_FILE( g_list_model_get_item( model, 0 ) );
@@ -316,6 +357,7 @@ HB_FUNC( HWG_SELECTFILEEX )
 
     ctx.loop  = g_main_loop_new( NULL, FALSE );
     ctx.files = NULL;
+    ctx.mode  = bMulti ? 1 : 0;
 
     if( bMulti )
     {
@@ -379,6 +421,7 @@ HB_FUNC( HWG_SELECTFOLDER )
 
     ctx.loop  = g_main_loop_new( NULL, FALSE );
     ctx.files = NULL;
+    ctx.mode  = 2;
 
     gtk_file_dialog_select_folder( dialog, hwg_get_parent_window(),
                                    NULL, hwg_file_open_cb, &ctx );
@@ -400,7 +443,6 @@ HB_FUNC( HWG_SELECTFOLDER )
 
     g_object_unref( dialog );
 }
-
 
 /* =====================================================================
  *  hwg_ChooseColor — GtkColorDialog
