@@ -1,0 +1,26 @@
+#
+# $Id: procmiscGTK4.hbp 3578 2025-04-11 23:17:28Z josequintas $
+#
+
+hwguiGTK4.hbc
+
+-hblib
+
+-olib/procmisc
+
+-hbx=procmiscGTK4.hbx
+
+-w3
+# Uncomment these two lines to build HwGUI in Unicode mode
+-prgflag=-DUNICODE
+-cflag=-DUNICODE
+-cflag=-DHWG_USE_POINTER_ITEM
+"{unix}-cflag=`pkg-config --cflags gtk4`"
+
+source/common/procmisc/*.c
+source/common/procmisc/*.prg
+{win}source/common/editor/hcedit_w.c
+{unix}source/common/editor/hcedit_l_gtk4.c
+source/common/editor/*.prg
+
+# ======================= EOF of procmiscGTK4.hbp ====================================
