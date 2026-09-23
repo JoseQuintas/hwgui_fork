@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-23 17:55 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+ * hwgui/source/gtk4/menu_c.c
+   Fix top-level menu enable/disable and separators in GTK4.
+   EnableMenuItem now accepts GMenu handles for submenus, toggling
+   widget sensitivity on the top-level GtkPopoverMenuBarItem (no
+   hover when disabled).  Separators use section breaks, which
+   GtkPopoverMenu renders as horizontal lines.
+
 2026-09-23 15:43 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
  + hwgui/doc/ReadmeGTK4.html
  + hwgui/doc/ReadmeGtk4_en.html

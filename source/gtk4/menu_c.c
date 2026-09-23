@@ -29,11 +29,45 @@
  *
  * To keep the Harbour API unchanged we map:
  *      "menu handle"        ->  GMenu
- *      "menu item handle"   ->  GMenuItem
+ *      "menu item handle"   ->  GMenuItem / GMenu (see below)
  *      "accel table handle" ->  GtkShortcutController
  *
- * The owning window is stored inside each GMenuItem under the key
- * "hwg_wnd", and the associated action name under "hwg_actname".
+ * Handle type per item:
+ *   - Regular / check items  -> GMenuItem
+ *   - Separators             -> section break (no handle returned)
+ *   - Submenus (top-level)   -> GMenu (the submenu model itself)
+ *
+ * The owning window is stored under the key "hwg_wnd", and the
+ * associated action name under "hwg_actname".  Both keys are attached
+ * to whichever object the Harbour side actually stores (GMenuItem for
+ * regular items, GMenu for submenus).
+ *
+ * SEPARATORS
+ * ----------
+ * GTK4 has no GtkSeparatorMenuItem.  Instead, we group items into
+ * "sections" inside each submenu GMenu.  GtkPopoverMenu draws a
+ * horizontal line between two adjacent sections.  Each SEPARATOR in
+ * the Harbour menu definition closes the current section; the next
+ * item starts a fresh one.
+ *
+ * The menubar (GtkPopoverMenuBar) expects a flat model, so its
+ * top-level items are added directly to the model, bypassing the
+ * section grouping (they are marked with "hwg_is_menubar").
+ *
+ * TOP-LEVEL ENABLE / DISABLE
+ * --------------------------
+ * GtkPopoverMenuBar renders each top-level item as a
+ * GtkPopoverMenuBarItem widget that is NOT bound to any action -- it
+ * simply opens the submenu popover.  Setting the associated GAction
+ * to disabled has no visual effect on it.
+ *
+ * To make hwg__EnableMenuItem work on top-level items we therefore
+ * walk the menubar's direct children once, right after it is built,
+ * and link each child widget to its submenu GMenu under the
+ * "hwg_menubar_button" key.  hwg__EnableMenuItem then toggles both
+ * gtk_widget_set_sensitive() and gtk_widget_set_can_target() on that
+ * widget, so the item is greyed out and does not respond to mouse
+ * hover or clicks.
  */
 
 #include "guilib.h"
@@ -68,6 +102,7 @@ static guint       s_menu_action_counter = 0;
 typedef struct {
     long      nId;
     GtkWidget *hWnd;
+    gboolean   bSubmenu;   /* TRUE for top-level items that open a submenu */
 } HWG_MENU_ACTION;
 
 
@@ -113,14 +148,53 @@ static void hwg_menu_action_activate( GSimpleAction *action,
 
     if( !ctx ) return;
 
+    /*
+     * Submenu items: GTK opens the popover on its own.  We must not
+     * forward this to Harbour, otherwise the application would receive
+     * a spurious ONEVENT when the user merely opens the submenu.
+     */
+    if( ctx->bSubmenu ) return;
+
     snprintf( buf, sizeof(buf), "0 %ld %ld",
               ctx->nId, (long) ctx->hWnd );
     cb_signal( ctx->hWnd, buf );
 }
 
+
 static void hwg_menu_action_free( gpointer data )
 {
     g_free( data );
+}
+
+
+/* =====================================================================
+ *  Section management
+ *
+ *  GtkPopoverMenu draws a horizontal separator line between two
+ *  adjacent sections of a GMenu.  We keep a "current section" pointer
+ *  inside each model's metadata; SEPARATOR closes it, and the next
+ *  item opens a new one.
+ * ===================================================================== */
+
+/* Return the current section of a submenu model, creating it if needed. */
+static GMenu *hwg_menu_current_section( GMenu *model )
+{
+    GMenu *section = g_object_get_data( G_OBJECT( model ),
+                                        "hwg_current_section" );
+
+    if( !section ) {
+        section = g_menu_new();
+        g_menu_append_section( model, NULL, G_MENU_MODEL( section ) );
+        g_object_set_data_full( G_OBJECT( model ), "hwg_current_section",
+                                section, g_object_unref );
+    }
+    return section;
+}
+
+/* Close the current section.  The next item will start a new one. */
+static void hwg_menu_close_section( GMenu *model )
+{
+    g_object_set_data( G_OBJECT( model ), "hwg_current_section", NULL );
 }
 
 
@@ -130,6 +204,15 @@ static void hwg_menu_action_free( gpointer data )
 HB_FUNC( HWG__CREATEMENU )
 {
     GMenu *model = g_menu_new();
+
+    /*
+     * GtkPopoverMenuBar expects a flat model (no sections), so we
+     * flag this model as a menubar and bypass the section grouping
+     * used for popover menus.
+     */
+    g_object_set_data( G_OBJECT( model ), "hwg_is_menubar",
+                       GINT_TO_POINTER( 1 ) );
+
     HB_RETHANDLE( model );
 }
 
@@ -149,6 +232,7 @@ HB_FUNC( HWG__CREATEPOPUPMENU )
  *  Returns:
  *    - a GMenuItem handle for a normal item
  *    - a GMenu handle for a submenu (caller adds items to it)
+ *    - NULL handle for a separator (section break)
  * ===================================================================== */
 HB_FUNC( HWG__ADDMENUITEM )
 {
@@ -192,28 +276,75 @@ HB_FUNC( HWG__ADDMENUITEM )
     /* ---------- separator ---------- */
     if( bIsSeparator ) {
         /*
-         * GTK4's GMenu has no native separator item.  The accepted
-         * workaround is an empty GMenuItem with a NULL label and NULL
-         * action; GtkPopoverMenu renders it as a small gap.
+         * GTK4 has no GtkSeparatorMenuItem.  Instead, we close the
+         * current section so that the next item starts a new one;
+         * GtkPopoverMenu then draws a horizontal line between the
+         * two sections.
          */
-        item = g_menu_item_new( NULL, NULL );
-        g_menu_append_item( model, item );
-        HB_RETHANDLE( item );
+        hwg_menu_close_section( model );
+
+        hb_ret();
         return;
     }
 
     /* ---------- submenu ---------- */
     if( bSubMenu ) {
         GMenu *submenu = g_menu_new();
+        gchar *sub_action_simple;
+        gchar *sub_action_full;
+
+        /*
+         * GTK4: a GMenuItem that carries a submenu has no action of its
+         * own.  We still attach a dummy GSimpleAction to the item so
+         * that the Harbour-side API (enable/check/is*) has something to
+         * manipulate consistently across item types.  The visible
+         * enable/disable effect on the top-level button is handled
+         * separately (see hwg__EnableMenuItem).
+         */
+        sub_action_simple = g_strdup_printf( "sub.%u", ++s_menu_action_counter );
+        sub_action_full   = g_strdup_printf( "%s.%s",
+                                             HWG_ACTION_PREFIX,
+                                             sub_action_simple );
+
+        ctx = g_new0( HWG_MENU_ACTION, 1 );
+        ctx->nId      = nId;
+        ctx->hWnd     = hWnd;
+        ctx->bSubmenu = TRUE;
+
+        action = g_simple_action_new( sub_action_simple, NULL );
+        g_simple_action_set_enabled( action, !bDisabled );
+        g_signal_connect( action, "activate",
+                          G_CALLBACK( hwg_menu_action_activate ), ctx );
+
+        if( hWnd && GTK_IS_WIDGET( hWnd ) ) {
+            group = hwg_get_action_group( hWnd );
+            if( group )
+                g_action_map_add_action( G_ACTION_MAP( group ),
+                                         G_ACTION( action ) );
+        }
+        g_object_unref( action );
 
         gcLabel = hwg_convert_to_utf8( cCaption );
-        item    = g_menu_item_new( gcLabel, NULL );
+        item    = g_menu_item_new( gcLabel, sub_action_full );
         g_free( gcLabel );
 
         g_menu_item_set_submenu( item, G_MENU_MODEL( submenu ) );
         g_menu_append_item( model, item );
 
-        /* Return the submenu model, not the item */
+        /*
+         * Metadata is attached to the submenu GMenu (not the GMenuItem)
+         * because that is the handle the Harbour side stores and passes
+         * back to hwg__EnableMenuItem / hwg__CheckMenuItem.
+         */
+        g_object_set_data( G_OBJECT( submenu ), "hwg_wnd", hWnd );
+        g_object_set_data_full( G_OBJECT( submenu ), "hwg_actname",
+                                g_strdup( sub_action_full ), g_free );
+        g_object_set_data_full( G_OBJECT( submenu ), "hwg_ctx",
+                                ctx, hwg_menu_action_free );
+
+        g_free( sub_action_simple );
+        g_free( sub_action_full );
+
         HB_RETHANDLE( submenu );
         return;
     }
@@ -225,8 +356,9 @@ HB_FUNC( HWG__ADDMENUITEM )
                                           action_simple_name );
 
     ctx = g_new0( HWG_MENU_ACTION, 1 );
-    ctx->nId  = nId;
-    ctx->hWnd = hWnd;
+    ctx->nId      = nId;
+    ctx->hWnd     = hWnd;
+    ctx->bSubmenu = FALSE;
 
     if( bCheck )
     {
@@ -242,11 +374,6 @@ HB_FUNC( HWG__ADDMENUITEM )
     g_signal_connect( action, "activate",
                       G_CALLBACK( hwg_menu_action_activate ), ctx );
 
-    /*
-     * GTK4: GtkWindow does not implement GActionMap.  Add the action
-     * to a per-window GSimpleActionGroup (prefix "hwg") that we
-     * installed with gtk_widget_insert_action_group().
-     */
     if( hWnd && GTK_IS_WIDGET( hWnd ) )
     {
         group = hwg_get_action_group( hWnd );
@@ -266,12 +393,16 @@ HB_FUNC( HWG__ADDMENUITEM )
                                          g_variant_new_boolean( FALSE ) );
     }
 
-    g_menu_append_item( model, item );
-
     /*
-     * Attach metadata to the item so the check/enable helpers can find
-     * the associated action without extra parameters.
+     * Menubar top-level items go directly into the model (flat).
+     * Submenu items are grouped into sections so GtkPopoverMenu
+     * draws separator lines between them.
      */
+    if( g_object_get_data( G_OBJECT( model ), "hwg_is_menubar" ) )
+        g_menu_append_item( model, item );
+    else
+        g_menu_append_item( hwg_menu_current_section( model ), item );
+
     g_object_set_data_full( G_OBJECT( item ), "hwg_actname",
                             g_strdup( action_full_name ), g_free );
     g_object_set_data( G_OBJECT( item ), "hwg_wnd", hWnd );
@@ -290,6 +421,44 @@ HB_FUNC( HWG__ADDMENUITEM )
  *  Materialize a GtkPopoverMenuBar from the GMenuModel and insert it at
  *  the top of the window's vertical box.
  * ===================================================================== */
+
+/*
+ * Walk the GtkPopoverMenuBar's direct children.  In GTK 4 the children
+ * are GtkPopoverMenuBarItem widgets, one per top-level item, in the
+ * same order as the items in the model.  There is no intermediate
+ * GtkBox.
+ *
+ * For each child that corresponds to a submenu, store its pointer in
+ * the submenu GMenu's metadata under "hwg_menubar_button".  This lets
+ * hwg__EnableMenuItem toggle widget sensitivity directly, since the
+ * item widget is not bound to the submenu's dummy GAction.
+ */
+static void hwg_link_menubar_buttons( GtkWidget *menubar, GMenuModel *model )
+{
+    GtkWidget *child;
+    guint      i, n;
+
+    if( !menubar || !model ) return;
+
+    n     = g_menu_model_get_n_items( model );
+    child = gtk_widget_get_first_child( menubar );
+
+    for( i = 0; i < n && child; i++ )
+    {
+        GMenuModel *submenu =
+        g_menu_model_get_item_link( model, i, G_MENU_LINK_SUBMENU );
+
+        if( submenu && G_IS_MENU( submenu ) )
+        {
+            g_object_set_data( G_OBJECT( submenu ),
+                               "hwg_menubar_button", child );
+        }
+
+        child = gtk_widget_get_next_sibling( child );
+    }
+}
+
+
 HB_FUNC( HWG__SETMENU )
 {
     GObject    *handle = (GObject *)    HB_PARHANDLE(1);
@@ -339,6 +508,12 @@ HB_FUNC( HWG__SETMENU )
 
     g_object_set_data( handle, "hwg_menubar", menubar );
 
+    /*
+     * Link top-level item widgets to their submenu models so that
+     * hwg__EnableMenuItem can later toggle widget sensitivity directly.
+     */
+    hwg_link_menubar_buttons( menubar, model );
+
     hb_retl( 1 );
 }
 
@@ -353,20 +528,26 @@ HB_FUNC( HWG_GETMENUHANDLE )
 /* =====================================================================
  *  Helpers to look up a menu item's action name and owning window
  * ===================================================================== */
-static const gchar *hwg_item_action_name( GMenuItem *item )
+/*
+ * Return the full action name ("hwg.act.N") associated with a menu
+ * object.  Accepts both GMenuItem (regular items) and GMenu (submenus,
+ * which are returned by hwg__AddMenuItem when lSubMenu=.T.).
+ */
+static const gchar *hwg_item_action_name( GObject *obj )
 {
     const gchar *n;
     const gchar *action = NULL;
 
-    n = g_object_get_data( G_OBJECT( item ), "hwg_actname" );
+    if( !obj ) return NULL;
+
+    n = g_object_get_data( obj, "hwg_actname" );
     if( n ) return n;
 
-    /*
-     * Fallback: read the item's own action attribute.
-     * GTK4 signature: g_menu_item_get_attribute(item, attr, format, &out).
-     */
-    if( g_menu_item_get_attribute( item, G_MENU_ATTRIBUTE_ACTION, "s", &action ) )
-        return action;
+    if( G_IS_MENU_ITEM( obj ) ) {
+        if( g_menu_item_get_attribute( G_MENU_ITEM( obj ),
+            G_MENU_ATTRIBUTE_ACTION, "s", &action ) )
+            return action;
+    }
 
     return NULL;
 }
@@ -399,22 +580,23 @@ static GAction *hwg_lookup_action( GtkWidget *hWnd, const gchar *full_name )
 
 
 /* =====================================================================
- *  hwg__CheckMenuItem( hMenuItem [, lChecked] )
+ *  hwg__CheckMenuItem( hMenuItemOrSubmenu [, lChecked] )
  * ===================================================================== */
 HB_FUNC( HWG__CHECKMENUITEM )
 {
-    GMenuItem   *item = (GMenuItem *) HB_PARHANDLE(1);
+    GObject     *obj = (GObject *) HB_PARHANDLE(1);
     GtkWidget   *hWnd;
     const gchar *name;
     GAction     *action;
     gboolean     bSet = HB_ISNIL(2) ? TRUE : hb_parl(2);
 
-    if( !item || !G_IS_MENU_ITEM( item ) ) { hb_ret(); return; }
+    if( !obj || !G_IS_OBJECT( obj ) ) { hb_ret(); return; }
+    if( !G_IS_MENU_ITEM( obj ) && !G_IS_MENU( obj ) ) { hb_ret(); return; }
 
-    hWnd = (GtkWidget *) g_object_get_data( G_OBJECT( item ), "hwg_wnd" );
-    if( !hWnd || !GTK_IS_WIDGET( hWnd ) )  { hb_ret(); return; }
+    hWnd = (GtkWidget *) g_object_get_data( obj, "hwg_wnd" );
+    if( !hWnd || !GTK_IS_WIDGET( hWnd ) ) { hb_ret(); return; }
 
-    name = hwg_item_action_name( item );
+    name = hwg_item_action_name( obj );
     if( !name ) { hb_ret(); return; }
 
     action = hwg_lookup_action( hWnd, name );
@@ -429,80 +611,107 @@ HB_FUNC( HWG__CHECKMENUITEM )
 
 HB_FUNC( HWG__ISCHECKEDMENUITEM )
 {
-    GMenuItem   *item = (GMenuItem *) HB_PARHANDLE(1);
+    GObject     *obj = (GObject *) HB_PARHANDLE(1);
     GtkWidget   *hWnd;
     const gchar *name;
     GAction     *action;
     GVariant    *state;
     gboolean     bSet = FALSE;
 
-    if( item && G_IS_MENU_ITEM( item ) ) {
-        hWnd = (GtkWidget *) g_object_get_data( G_OBJECT( item ), "hwg_wnd" );
-        if( hWnd && GTK_IS_WIDGET( hWnd ) ) {
-            name = hwg_item_action_name( item );
-            if( name ) {
-                action = hwg_lookup_action( hWnd, name );
-                if( action ) {
-                    state = g_action_get_state( action );
-                    if( state && g_variant_is_of_type( state,
-                        G_VARIANT_TYPE_BOOLEAN ) )
-                        bSet = g_variant_get_boolean( state );
-                }
+    if( obj && G_IS_OBJECT( obj ) &&
+        ( G_IS_MENU_ITEM( obj ) || G_IS_MENU( obj ) ) ) {
+        hWnd = (GtkWidget *) g_object_get_data( obj, "hwg_wnd" );
+    if( hWnd && GTK_IS_WIDGET( hWnd ) ) {
+        name = hwg_item_action_name( obj );
+        if( name ) {
+            action = hwg_lookup_action( hWnd, name );
+            if( action ) {
+                state = g_action_get_state( action );
+                if( state && g_variant_is_of_type( state,
+                    G_VARIANT_TYPE_BOOLEAN ) )
+                    bSet = g_variant_get_boolean( state );
             }
         }
     }
+        }
 
-    hb_retl( bSet );
+        hb_retl( bSet );
 }
 
 
 /* =====================================================================
- *  hwg__EnableMenuItem( hMenuItem [, lEnabled] )
+ *  hwg__EnableMenuItem( hMenuItemOrSubmenu [, lEnabled] )
+ *
+ *  Works for both regular items (GMenuItem) and top-level submenus
+ *  (GMenu).
+ *
+ *  Regular items: toggles the GAction's enabled state, which
+ *  GtkModelButton inside the popover menu honours.
+ *
+ *  Submenus: the top-level GtkPopoverMenuBarItem is NOT bound to the
+ *  dummy action, so we also toggle the widget directly:
+ *    - gtk_widget_set_sensitive()  greys it out
+ *    - gtk_widget_set_can_target() removes it from hit-testing, so no
+ *      hover highlight is shown when the item is disabled
  * ===================================================================== */
 HB_FUNC( HWG__ENABLEMENUITEM )
 {
-    GMenuItem   *item = (GMenuItem *) HB_PARHANDLE(1);
+    GObject     *obj = (GObject *) HB_PARHANDLE(1);
     GtkWidget   *hWnd;
     const gchar *name;
     GAction     *action;
     gboolean     bSet = HB_ISNIL(2) ? TRUE : hb_parl(2);
 
-    if( !item || !G_IS_MENU_ITEM( item ) ) return;
+    if( !obj || !G_IS_OBJECT( obj ) ) return;
+    if( !G_IS_MENU_ITEM( obj ) && !G_IS_MENU( obj ) ) return;
 
-    hWnd = (GtkWidget *) g_object_get_data( G_OBJECT( item ), "hwg_wnd" );
+    hWnd = (GtkWidget *) g_object_get_data( obj, "hwg_wnd" );
     if( !hWnd || !GTK_IS_WIDGET( hWnd ) ) return;
 
-    name = hwg_item_action_name( item );
+    name = hwg_item_action_name( obj );
     if( !name ) return;
 
     action = hwg_lookup_action( hWnd, name );
     if( action && G_IS_SIMPLE_ACTION( action ) )
+    {
         g_simple_action_set_enabled( G_SIMPLE_ACTION( action ), bSet );
+    }
+
+    if( G_IS_MENU( obj ) )
+    {
+        GtkWidget *button = g_object_get_data( obj, "hwg_menubar_button" );
+        if( button && GTK_IS_WIDGET( button ) )
+        {
+            gtk_widget_set_sensitive( button, bSet );
+            gtk_widget_set_can_target( button, bSet );
+        }
+    }
 
     hb_ret();
 }
 
 HB_FUNC( HWG__ISENABLEDMENUITEM )
 {
-    GMenuItem   *item = (GMenuItem *) HB_PARHANDLE(1);
+    GObject     *obj = (GObject *) HB_PARHANDLE(1);
     GtkWidget   *hWnd;
     const gchar *name;
     GAction     *action;
     gboolean     bEnabled = FALSE;
 
-    if( item && G_IS_MENU_ITEM( item ) ) {
-        hWnd = (GtkWidget *) g_object_get_data( G_OBJECT( item ), "hwg_wnd" );
-        if( hWnd && GTK_IS_WIDGET( hWnd ) ) {
-            name = hwg_item_action_name( item );
-            if( name ) {
-                action = hwg_lookup_action( hWnd, name );
-                if( action )
-                    bEnabled = g_action_get_enabled( action );
-            }
+    if( obj && G_IS_OBJECT( obj ) &&
+        ( G_IS_MENU_ITEM( obj ) || G_IS_MENU( obj ) ) ) {
+        hWnd = (GtkWidget *) g_object_get_data( obj, "hwg_wnd" );
+    if( hWnd && GTK_IS_WIDGET( hWnd ) ) {
+        name = hwg_item_action_name( obj );
+        if( name ) {
+            action = hwg_lookup_action( hWnd, name );
+            if( action )
+                bEnabled = g_action_get_enabled( action );
         }
     }
+        }
 
-    hb_retl( bEnabled );
+        hb_retl( bEnabled );
 }
 
 
@@ -586,7 +795,11 @@ HB_FUNC( HWG__ADDACCELERATOR )
     ( iCtrl == FCONTROL ) ? GDK_CONTROL_MASK :
     ( iCtrl == FALT )     ? GDK_ALT_MASK     : 0;
 
-    action_name = hwg_item_action_name( item );
+    /*
+     * Accelerators are attached only to leaf items (GMenuItem).
+     * The helper accepts GObject, so cast explicitly here.
+     */
+    action_name = hwg_item_action_name( G_OBJECT( item ) );
     if( !action_name ) return;
 
     trigger  = gtk_keyval_trigger_new( nKey, mods );
@@ -630,30 +843,44 @@ HB_FUNC( HWG__SETMENUCAPTION )
 
 
 /* =====================================================================
- *  hwg__DeleteMenuItem( hMenuItem )
+ *  hwg__DeleteMenuItem( hMenuItemOrSubmenu )
  *
  *  GMenu has no "remove this item" call without the parent + index.
- *  We disable the action instead, which is the closest observable
- *  behaviour.
+ *  We disable the action instead (and, for top-level submenus, also
+ *  the corresponding top-level widget), which is the closest
+ *  observable behaviour.  Accepts both GMenuItem and GMenu.
  * ===================================================================== */
 HB_FUNC( HWG__DELETEMENU )
 {
-    GMenuItem   *item = (GMenuItem *) HB_PARHANDLE(1);
+    GObject     *obj = (GObject *) HB_PARHANDLE(1);
     GtkWidget   *hWnd;
     const gchar *name;
     GAction     *action;
 
-    if( !item || !G_IS_MENU_ITEM( item ) ) return;
+    if( !obj || !G_IS_OBJECT( obj ) ) return;
+    if( !G_IS_MENU_ITEM( obj ) && !G_IS_MENU( obj ) ) return;
 
-    hWnd = (GtkWidget *) g_object_get_data( G_OBJECT( item ), "hwg_wnd" );
+    hWnd = (GtkWidget *) g_object_get_data( obj, "hwg_wnd" );
     if( !hWnd || !GTK_IS_WIDGET( hWnd ) ) return;
 
-    name = hwg_item_action_name( item );
+    name = hwg_item_action_name( obj );
     if( !name ) return;
 
     action = hwg_lookup_action( hWnd, name );
     if( action && G_IS_SIMPLE_ACTION( action ) )
+    {
         g_simple_action_set_enabled( G_SIMPLE_ACTION( action ), FALSE );
+    }
+
+    if( G_IS_MENU( obj ) )
+    {
+        GtkWidget *button = g_object_get_data( obj, "hwg_menubar_button" );
+        if( button && GTK_IS_WIDGET( button ) )
+        {
+            gtk_widget_set_sensitive( button, FALSE );
+            gtk_widget_set_can_target( button, FALSE );
+        }
+    }
 }
 
 
