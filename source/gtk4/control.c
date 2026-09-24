@@ -24,8 +24,10 @@
  *  - HWG_CREATEEDIT / HWG_CREATESTATIC set width_chars to 0.
  *  - The mouse-wheel event controller is installed ONLY on the
  *    GtkDrawingArea of a browse (HWG_CREATEBROWSE).
- *  - CSS theme loader (hwg_CssLoadFile) + widget class helpers
- *    (hwg_AddCssClass and friends) live at the end of this file.
+ *  - Colour helpers at the end of this file keep two CSS providers
+ *    per widget (fg and bg), stored as widget data so they can be
+ *    removed later.  This is what allows an entry to go back to the
+ *    current theme when it loses focus.
  */
 
 #include "guilib.h"
@@ -707,6 +709,22 @@ HB_FUNC( HWG_EDIT_GETTEXT )
     }
 }
 
+/*
+ * Clear the selection range of a GtkEntry, without changing the caret
+ * position.  Used on WM_KILLFOCUS so a highlighted selection is not
+ * left visible in an entry that no longer has focus.
+ */
+HB_FUNC( HWG_EDIT_CLEARSELECTION )
+{
+    GtkWidget *hCtrl = (GtkWidget*) HB_PARHANDLE( 1 );
+
+    if( !hCtrl || !G_IS_OBJECT( hCtrl ) ||
+        !GTK_IS_WIDGET( hCtrl ) || !GTK_IS_EDITABLE( hCtrl ) )
+        return;
+
+    gtk_editable_select_region( GTK_EDITABLE( hCtrl ), 0, 0 );
+}
+
 HB_FUNC( HWG_EDIT_SETPOS )
 {
     GtkWidget *hCtrl = (GtkWidget*) HB_PARHANDLE( 1 );
@@ -754,6 +772,36 @@ HB_FUNC( HWG_EDIT_GETSELPOS )
         hb_itemReturn( aSel );
         hb_itemRelease( aSel );
     }
+}
+
+/* Idle callback that resets the caret and clears any selection.
+ * Runs after the current GTK event queue drains, so it overrides
+ * GTK4's auto-select that happens when an entry receives focus. */
+static gboolean hwg_clear_selection_idle( gpointer data )
+{
+    GtkWidget *w = GTK_WIDGET( data );
+
+    if( G_IS_OBJECT( w ) && GTK_IS_WIDGET( w ) && GTK_IS_EDITABLE( w ) )
+    {
+        gtk_editable_set_position( GTK_EDITABLE( w ), 0 );
+        gtk_editable_select_region( GTK_EDITABLE( w ), 0, 0 );
+    }
+
+    if( G_IS_OBJECT( w ) )
+        g_object_unref( w );
+
+    return G_SOURCE_REMOVE;
+}
+
+HB_FUNC( HWG_EDIT_CLEARSELECTION_ASYNC )
+{
+    GtkWidget *hCtrl = (GtkWidget*) HB_PARHANDLE( 1 );
+
+    if( !hCtrl || !G_IS_OBJECT( hCtrl ) || !GTK_IS_WIDGET( hCtrl ) )
+        return;
+
+    g_object_ref( hCtrl );
+    g_idle_add_full( G_PRIORITY_LOW, hwg_clear_selection_idle, hCtrl, NULL );
 }
 
 HB_FUNC( HWG_EDIT_SET_OVERMODE )
@@ -1866,36 +1914,6 @@ HB_FUNC( HWG_CREATEIMAGE )
 
 
 /* =====================================================================
- *  Colors via CSS
- * ===================================================================== */
-HB_FUNC( HWG_SETFGCOLOR )
-{
-    GtkWidget *hCtrl = (GtkWidget*) HB_PARHANDLE( 1 );
-    char szData[128], szColor[8];
-    const char *pName = gtk_widget_get_name( hCtrl );
-
-    if( pName && strncmp( pName, "Gtk", 3 ) != 0 ) {
-        hwg_colorN2C( (unsigned int) hb_parni( 2 ), szColor );
-        sprintf( szData, "#%s { color: #%s; }", pName, szColor );
-        set_css_data( szData );
-    }
-}
-
-HB_FUNC( HWG_SETBGCOLOR )
-{
-    GtkWidget *hCtrl = (GtkWidget*) HB_PARHANDLE( 1 );
-    char szData[128], szColor[8];
-    const char *pName = gtk_widget_get_name( hCtrl );
-
-    if( pName && strncmp( pName, "Gtk", 3 ) != 0 ) {
-        hwg_colorN2C( (unsigned int) hb_parni( 2 ), szColor );
-        sprintf( szData, "#%s { background: #%s; }", pName, szColor );
-        set_css_data( szData );
-    }
-}
-
-
-/* =====================================================================
  *  Splitter / Board
  * ===================================================================== */
 HB_FUNC( HWG_CREATESPLITTER )
@@ -1973,6 +1991,108 @@ HB_FUNC( HWG_GETCURSORTYPE )
 {
     hb_retnl( 0 );
 }
+
+
+/* =====================================================================
+ *  Per-widget colour
+ *
+ *  We keep two CSS providers per widget (one for fg, one for bg),
+ *  both stored as widget data so they can be removed later.  The
+ *  selector is the widget's own name (#GtkEntry123), so rules never
+ *  bleed into other widgets.
+ *
+ *  Same guard as the original set_css_data() path: widgets with a
+ *  default GTK name ("GtkEntry", "GtkWindow", ...) are skipped, so
+ *  hwg_SetBgColor(window, ...) does not paint the whole window.
+ * ===================================================================== */
+/* Custom destroy notifier: removes the provider from the display
+ * before releasing it.  Without this the provider stays attached
+ * to the display even after the widget is destroyed, so the rule
+ * leaks into the next dialog that reuses the same widget name. */
+static void hwg_provider_destroy( gpointer data )
+{
+    GtkCssProvider *p = GTK_CSS_PROVIDER( data );
+    GdkDisplay     *display = gdk_display_get_default();
+
+    if( display )
+    {
+        gtk_style_context_remove_provider_for_display(
+            display, GTK_STYLE_PROVIDER( p ) );
+    }
+        g_object_unref( p );
+}
+
+static void hwg_apply_widget_color( GtkWidget *w, const char *property,
+                                    long int color )
+{
+    const char *name;
+    const char *key;
+    char        szColor[8];
+    char        szCss[256];
+    GtkCssProvider *p;
+
+    if( !w || !GTK_IS_WIDGET( w ) )
+        return;
+
+    name = gtk_widget_get_name( w );
+    if( !name || strncmp( name, "Gtk", 3 ) == 0 )
+        return;
+
+    key = ( strcmp( property, "color" ) == 0 ) ? "hwg_css_fg" : "hwg_css_bg";
+
+    hwg_colorN2C( (unsigned int) color, szColor );
+    snprintf( szCss, sizeof( szCss ), "#%s { %s: #%s; }",
+              name, property, szColor );
+
+    p = g_object_get_data( G_OBJECT( w ), key );
+    if( !p )
+    {
+        p = gtk_css_provider_new();
+        gtk_style_context_add_provider_for_display(
+            gdk_display_get_default(),
+                                                   GTK_STYLE_PROVIDER( p ),
+                                                   GTK_STYLE_PROVIDER_PRIORITY_APPLICATION );
+        /* hwg_provider_destroy takes care of unref-ing AND detaching
+         * from the display when the widget dies. */
+        g_object_set_data_full( G_OBJECT( w ), key, p, hwg_provider_destroy );
+        /* Do NOT g_object_unref() here: the destroy notify will do it. */
+        return;
+    }
+    gtk_css_provider_load_from_data( p, szCss, -1 );
+}
+
+static void hwg_clear_widget_color( GtkWidget *w, const char *key )
+{
+    if( !w || !GTK_IS_WIDGET( w ) )
+        return;
+
+    /* Setting the data to NULL fires the destroy notifier, which
+     * removes the provider from the display and unrefs it. */
+    g_object_set_data( G_OBJECT( w ), key, NULL );
+}
+
+HB_FUNC( HWG_SETFGCOLOR )
+{
+    hwg_apply_widget_color( (GtkWidget*) HB_PARHANDLE(1),
+                            "color", hb_parnl(2) );
+}
+
+HB_FUNC( HWG_SETBGCOLOR )
+{
+    hwg_apply_widget_color( (GtkWidget*) HB_PARHANDLE(1),
+                            "background-color", hb_parnl(2) );
+}
+
+HB_FUNC( HWG_CLEARFGCOLOR )
+{
+    hwg_clear_widget_color( (GtkWidget*) HB_PARHANDLE(1), "hwg_css_fg" );
+}
+
+HB_FUNC( HWG_CLEARBGCOLOR )
+{
+    hwg_clear_widget_color( (GtkWidget*) HB_PARHANDLE(1), "hwg_css_bg" );
+}
+
 
 /* =====================================================================
  *  Theme detection
@@ -2059,6 +2179,7 @@ HB_FUNC( HWG_GETTHEMECOLORS )
 
     hb_itemReturnRelease( aColors );
 }
+
 
 /* =====================================================================
  *  CSS theme loader + widget class helpers

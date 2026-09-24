@@ -1,5 +1,5 @@
 /*
- *$Id: hedit.prg 3418 2023-12-16 06:21:23Z alkresin $
+ *$Id$
  *
  * HWGUI - Harbour Linux (GTK) GUI library source code:
  * HEdit class
@@ -11,7 +11,7 @@
  *
  * NOTE
  * ----
- * This file needs no changes for GTK4.  Two things to be aware of:
+ * This file is 100% GTK4; it is not compiled for Win32 or GTK2.
  *
  * 1. hwg_SetEvent("focus_in_event" | "focus_out_event" | "key_press_event")
  *    are no-ops in GTK4 (those signals were removed).  The equivalent
@@ -22,6 +22,16 @@
  *    GTK4 (those signals were removed from GtkEntry).  The clipboard is
  *    still functional because the WM_KEYDOWN branch of onEvent handles
  *    Ctrl+V / Ctrl+C directly.
+ *
+ * 3. When the widget loses focus, the focus colours are always cleared.
+ *    The entry inherits from the current theme again (dark or light).
+ *    See HWG_CLEARFGCOLOR / HWG_CLEARBGCOLOR in control.c.
+ *
+ * 4. GTK4 auto-selects the whole text when an entry receives focus via
+ *    keyboard navigation.  On WM_SETFOCUS (keyboard only) we put the
+ *    caret at position 1 and clear the selection, to match Windows
+ *    behaviour.  This must run AFTER __When(), because Refresh() inside
+ *    __When calls set_text(), which repositions the caret.
  */
 
 #include "hbclass.ch"
@@ -132,21 +142,23 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HEdit
    IF msg == WM_SETFOCUS
       oParent := hwg_getParentForm( Self )
 
-      IF lColorinFocus .OR. oParent:tColorinFocus >= 0 .OR. oParent:bColorinFocus >= 0 .OR. ::bColorBlock != Nil
+      IF lColorinFocus .OR. oParent:tColorInFocus >= 0 .OR. oParent:bColorInFocus >= 0 .OR. ::bColorBlock != Nil
          ::aColorOld[1] := ::tcolor
          ::aColorOld[2] := ::bcolor
          IF ::bColorBlock != Nil
             Eval( ::bColorBlock, Self )
          ELSE
-            ::Setcolor( Iif( oParent:tColorinFocus >= 0, oParent:tColorinFocus, tColorinFocus ), ;
-                  Iif( oParent:bColorinFocus >= 0, oParent:bColorinFocus, bColorinFocus ), .T. )
+            ::Setcolor( Iif( oParent:tColorInFocus >= 0, oParent:tColorInFocus, tColorInFocus ), ;
+                  Iif( oParent:bColorInFocus >= 0, oParent:bColorInFocus, bColorInFocus ), .T. )
          ENDIF
       ENDIF
       IF ::lMouse
          ::lFirst := .F.
          ::lMouse := .F.
       ENDIF
+
       hwg_edit_set_Overmode( ::handle, !Set( _SET_INSERT ) )
+
       IF ::bSetGet == Nil
          IF ::bGetFocus != Nil
             Eval( ::bGetFocus, hwg_Edit_GetText( ::handle ), Self )
@@ -154,11 +166,37 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HEdit
       ELSE
          __When( Self )
       ENDIF
+
    ELSEIF msg == WM_KILLFOCUS
-      oParent := hwg_getParentForm( Self )
-      IF lColorinFocus .OR. oParent:tColorinFocus >= 0 .OR. oParent:bColorinFocus >= 0 .OR. ::bColorBlock != Nil
-         ::Setcolor( ::aColorOld[1], ::aColorOld[2], .T. )
+
+      /*
+       * Clear the visual selection before losing focus.  GTK4 keeps
+       * the selection painted in the losing entry (as a greyed-out
+       * highlight), which looks wrong when the focus has already
+       * moved to another control.
+       */
+      hwg_edit_ClearSelection( ::handle )
+
+      /*
+       * Always drop the focus colours, unconditionally.  The entry
+       * then inherits the current theme again (dark or light).
+       *
+       * Doing this without a decision based on aColorOld avoids the
+       * race where the next control's focus-in arrives before this
+       * control's focus-out: the previous logic sometimes skipped
+       * the clear, leaving the entry red.
+       *
+       * If the column has a bColorBlock, let it decide the colour
+       * (it will typically call SetColor with the value-based colour,
+       * or do nothing to leave the theme in place).
+       */
+      IF ::bColorBlock == Nil
+         hwg_ClearFgColor( ::handle )
+         hwg_ClearBgColor( ::handle )
+      ELSE
+         Eval( ::bColorBlock, Self )
       ENDIF
+
       IF ::bSetGet == Nil
          IF ::bLostFocus != Nil
             Eval( ::bLostFocus, hwg_Edit_GetText( ::handle ), Self )
@@ -166,6 +204,7 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HEdit
       ELSE
          __Valid( Self )
       ENDIF
+
    ELSEIF msg == WM_LBUTTONDOWN .OR. msg == WM_RBUTTONDOWN
       ::lMouse := .T.
       IF ::cType != "N"
@@ -556,7 +595,6 @@ FUNCTION hwg_GET_Helper(cp_get,nlen)
 
    c_get := cp_get
 
-#ifdef __GTK__
    IF EMPTY(c_get)
       c_get := ""
    ELSE
@@ -566,6 +604,5 @@ FUNCTION hwg_GET_Helper(cp_get,nlen)
          c_get := PADR(c_get,nlen)
       ENDIF
    ENDIF
-#endif
 
 RETURN c_get

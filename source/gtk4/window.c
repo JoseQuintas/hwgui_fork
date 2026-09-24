@@ -613,14 +613,6 @@ static gboolean hwg_deferred_setfocus_idle( gpointer data )
 {
     GtkWidget *w = GTK_WIDGET( data );
 
-    /*
-     * Guard against "destroyed but not yet finalized": GTK4 defers
-     * finalization of the GObject, so GTK_IS_WIDGET still returns
-     * TRUE on a corpse -- but gtk_widget_grab_focus() would then call
-     * gtk_widget_get_native() on it, raising
-     *   gtk_widget_get_native: assertion 'GTK_IS_WIDGET (widget)' failed
-     * and its cascade.  Requiring an attached root rejects those.
-     */
     if( G_IS_OBJECT( w ) && GTK_IS_WIDGET( w ) &&
         !hwg_is_dead( (GObject*) w ) &&
         gtk_widget_get_root( w ) != NULL &&
@@ -630,6 +622,21 @@ static gboolean hwg_deferred_setfocus_idle( gpointer data )
         gtk_widget_is_sensitive( w ) )
     {
         gtk_widget_grab_focus( w );
+
+        /*
+         * GTK4 auto-selects the whole content of an editable when it
+         * receives focus.  The selection happens inside grab_focus(),
+         * BEFORE focus-in is emitted, so we must undo it right here
+         * -- in the same callback -- to avoid a visible flash.  Any
+         * reset placed in a separate idle runs after GTK has already
+         * queued the paint, and any reset placed in the focus-in
+         * handler runs after the auto-select has been processed.
+         */
+        if( GTK_IS_EDITABLE( w ) )
+        {
+            gtk_editable_set_position( GTK_EDITABLE( w ), 0 );
+            gtk_editable_select_region( GTK_EDITABLE( w ), 0, 0 );
+        }
     }
 
     if( G_IS_OBJECT( w ) )
@@ -1846,6 +1853,12 @@ HB_FUNC( HWG_SETFOCUS )
                 if( gtk_widget_get_mapped( widget ) )
                 {
                     gtk_widget_grab_focus( widget );
+
+                    if( GTK_IS_EDITABLE( widget ) )
+                    {
+                        gtk_editable_set_position( GTK_EDITABLE( widget ), 0 );
+                        gtk_editable_select_region( GTK_EDITABLE( widget ), 0, 0 );
+                    }
                 }
                 else
                 {
