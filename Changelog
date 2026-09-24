@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-23 HH:MM UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+ * hwgui/source/gtk4/message.c
+   Rewrite message boxes with non-deprecated GTK4 widgets.
+   GtkWindow + boxes + local GMainLoop replace GtkMessageDialog /
+   gtk_dialog_run.  Buttons go through gtk_window_close().  Labels
+   come from the GTK catalog (g_dgettext), so pt-BR works after
+   installing the GTK language pack.
+
 2026-09-23 22:35 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
  * hwgui/source/gtk4/control.c
  * hwgui/source/gtk4/window.c
