@@ -279,13 +279,13 @@ static void hwg_install_entry_css( void )
     s_EntryCss = gtk_css_provider_new();
 
     gtk_css_provider_load_from_string( s_EntryCss,
-                                       /* Normal state: reset Adwaita's inflated
-                                        * geometry so the pixel size requested by
-                                        * gtk_widget_set_size_request() is honored.
-                                        * Win32-like geometry: 1px border,
-                                        * 1/3px padding, no min-size.
-                                        * Corners are kept slightly rounded (4px)
-                                        * for a modern look. */
+                                       /*
+                                        * Geometry only -- no colours.  Colours come from the current
+                                        * GTK theme (light or dark, as the OS dictates).  This way the
+                                        * entry matches the rest of the window and the popovers, and
+                                        * any application theme.css loaded later (priority 801) can
+                                        * override everything.
+                                        */
                                        "entry,"
                                        "entry.entry,"
                                        "entry.entry > text,"
@@ -296,11 +296,6 @@ static void hwg_install_entry_css( void )
                                        "  margin: 0;"
                                        "  border-width: 1px;"
                                        "  border-radius: 4px;"
-                                       "  background-color: #ffffff;"
-                                       "  background-image: none;"
-                                       "  color: #000000;"
-                                       "  caret-color: #000000;"
-                                       "  border-color: #a0a0a0;"
                                        "  box-shadow: none;"
                                        "  outline: none;"
                                        "}"
@@ -316,32 +311,8 @@ static void hwg_install_entry_css( void )
                                        "  margin: 0;"
                                        "  border-width: 1px;"
                                        "  border-radius: 4px;"
-                                       "  background-color: #ffffcc;"
-                                       "  background-image: none;"
-                                       "  color: #000000;"
-                                       "  caret-color: #000000;"
-                                       "  border-color: #4488ff;"
-                                       "  box-shadow: 0 0 0 1px #4488ff;"
+                                       "  box-shadow: none;"
                                        "  outline: none;"
-                                       "}"
-
-                                       "entry selection,"
-                                       "entry.entry > text selection {"
-                                       "  background-color: #308cc6;"
-                                       "  color: #ffffff;"
-                                       "}"
-
-                                       "entry:disabled,"
-                                       "entry.entry:disabled,"
-                                       "entry.entry:disabled > text {"
-                                       "  min-width: 0;"
-                                       "  min-height: 0;"
-                                       "  padding: 1px 3px;"
-                                       "  margin: 0;"
-                                       "  border-width: 1px;"
-                                       "  border-radius: 4px;"
-                                       "  background-color: #e0e0e0;"
-                                       "  color: #808080;"
                                        "}"
     );
 

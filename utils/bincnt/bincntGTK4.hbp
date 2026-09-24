@@ -12,6 +12,7 @@
 
 # GTK4
 {linux}../../hwguiGTK4.hbc
+{linux}-d__HWGUI_GTK4__
 
 -L../..
 

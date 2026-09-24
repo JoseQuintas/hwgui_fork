@@ -1974,6 +1974,91 @@ HB_FUNC( HWG_GETCURSORTYPE )
     hb_retnl( 0 );
 }
 
+/* =====================================================================
+ *  Theme detection
+ *
+ *  GTK4 does not expose a supported way to query the current theme's
+ *  colours programmatically.  The pragmatic approach used here is:
+ *    1. Read org.gnome.desktop.interface color-scheme via GSettings
+ *       (works on KDE/GNOME/XFCE with xdg-desktop-portal installed).
+ *    2. Fall back to gtk-application-prefer-dark-theme.
+ *  From the result we build a small colour set that matches the
+ *  standard light/dark palettes closely enough for HWGUI's widgets.
+ * ===================================================================== */
+
+static gboolean hwg_is_dark_theme( void )
+{
+    GSettings   *gset;
+    gchar       *scheme;
+    gboolean     dark = FALSE;
+
+    /* 1. Ask the desktop portal / GSettings. */
+    gset = g_settings_new( "org.gnome.desktop.interface" );
+    if( gset )
+    {
+        scheme = g_settings_get_string( gset, "color-scheme" );
+        if( scheme )
+        {
+            if( g_strcmp0( scheme, "prefer-dark" ) == 0 )
+                dark = TRUE;
+            g_free( scheme );
+        }
+        g_object_unref( gset );
+    }
+
+    /* 2. Respect an explicit GTK setting if it was forced. */
+    if( !dark )
+    {
+        GtkSettings *gtset = gtk_settings_get_default();
+        if( gtset )
+            g_object_get( gtset, "gtk-application-prefer-dark-theme",
+                          &dark, NULL );
+    }
+
+    return dark;
+}
+
+/*
+ * hwg_GetThemeColors() -> array with 8 elements:
+ *   1: bg           (window / browse background)
+ *   2: fg           (text)
+ *   3: bg_alt       (alternate row / panel background)
+ *   4: sel_bg       (selection background)
+ *   5: sel_fg       (selection text)
+ *   6: header_bg    (column header background)
+ *   7: header_fg    (column header text)
+ *   8: separator    (grid / separator lines)
+ */
+HB_FUNC( HWG_GETTHEMECOLORS )
+{
+    gboolean dark = hwg_is_dark_theme();
+    PHB_ITEM aColors = hb_itemArrayNew( 8 );
+
+    if( dark )
+    {
+        hb_arraySetNL( aColors, 1, 0x2B2B2B );   /* bg         */
+        hb_arraySetNL( aColors, 2, 0xE0E0E0 );   /* fg         */
+        hb_arraySetNL( aColors, 3, 0x363636 );   /* bg_alt     */
+        hb_arraySetNL( aColors, 4, 0x4A90D9 );   /* sel_bg     */
+        hb_arraySetNL( aColors, 5, 0xFFFFFF );   /* sel_fg     */
+        hb_arraySetNL( aColors, 6, 0x3A3A3A );   /* header_bg  */
+        hb_arraySetNL( aColors, 7, 0xD0D0D0 );   /* header_fg  */
+        hb_arraySetNL( aColors, 8, 0x555555 );   /* separator  */
+    }
+    else
+    {
+        hb_arraySetNL( aColors, 1, 0xFFFFFF );
+        hb_arraySetNL( aColors, 2, 0x000000 );
+        hb_arraySetNL( aColors, 3, 0xF5F5F5 );
+        hb_arraySetNL( aColors, 4, 0x308CC6 );
+        hb_arraySetNL( aColors, 5, 0xFFFFFF );
+        hb_arraySetNL( aColors, 6, 0xE0E0E0 );
+        hb_arraySetNL( aColors, 7, 0x000000 );
+        hb_arraySetNL( aColors, 8, 0xC0C0C0 );
+    }
+
+    hb_itemReturnRelease( aColors );
+}
 
 /* =====================================================================
  *  CSS theme loader + widget class helpers

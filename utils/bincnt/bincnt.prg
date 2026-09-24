@@ -33,8 +33,41 @@ STATIC cHead := "hwgbc"
 FUNCTION Main( cContainer )
 
    LOCAL oMainW, oMainFont, oMenuBrw
-   LOCAL oStyle := HStyle():New( { 0xffffff, 0xbbbbbb } )
-   LOCAL bRClick := {|o,nCol,nLine|
+   LOCAL nBkColor, nFgColor, nHeadBg, nHeadFg, nSelBg, nSelFg, nSepColor
+   LOCAL aColors
+   LOCAL oStyle
+   LOCAL bRClick
+
+#ifdef __HWGUI_GTK4__
+   /*
+    * GTK4: read the current theme (light or dark) from the system
+    * and use matching colours.  Bar, browse, header and status panel
+    * then follow the desktop theme (KDE / GNOME).
+    */
+   aColors   := hwg_GetThemeColors()
+   nBkColor  := aColors[1]   /* bg         */
+   nFgColor  := aColors[2]   /* fg         */
+   nHeadBg   := aColors[6]   /* header_bg  */
+   nHeadFg   := aColors[7]   /* header_fg  */
+   nSelBg    := aColors[4]   /* sel_bg     */
+   nSelFg    := aColors[5]   /* sel_fg     */
+   nSepColor := aColors[8]   /* separator  */
+#else
+   /*
+    * Windows and GTK2: keep the original fixed light palette.
+    */
+   nBkColor  := 0xffffff
+   nFgColor  := 0
+   nHeadBg   := 0xffffff
+   nHeadFg   := 0xbbbbbb
+   nSelBg    := 0xeeeeee
+   nSelFg    := 0
+   nSepColor := 0xbbbbbb
+#endif
+
+   oStyle := HStyle():New( { nHeadBg, nSepColor } )
+
+   bRClick := {|o,nCol,nLine|
       LOCAL n := nLine, nRec := Eval( o:bRecno,o )
       IF n != nRec
          DO WHILE n != nRec
@@ -50,7 +83,6 @@ FUNCTION Main( cContainer )
       oMenuBrw:Show( HWindow():GetMain() )
       RETURN Nil
    }
-
 
    PREPARE FONT oMainFont NAME "Georgia" WIDTH 0 HEIGHT - 17 CHARSET 4
 

@@ -244,6 +244,8 @@ METHOD New( lType, oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, oFont,
       bInit, bSize, bPaint, bEnter, bGfocus, bLfocus, lNoVScroll, ;
       lNoBorder, lAppend, lAutoedit, bUpdate, bKeyDown, bPosChg, lMultiSelect, bRClick ) CLASS HBrowse
 
+   LOCAL aColors := hwg_GetThemeColors()
+
    /* GTK SCROLL FIX: Force both WS_VSCROLL and WS_HSCROLL to enable vertical
       and horizontal bars.  Behaviour is identical in GTK2/3/4. */
    nStyle := Hwg_BitOr( iif( nStyle == Nil,0,nStyle ), WS_CHILD + WS_VISIBLE +  ;
@@ -271,11 +273,13 @@ METHOD New( lType, oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, oFont,
       ::aSelected := {}
    ENDIF
 
-   ::tcolor := 0
-   ::bcolor := hwg_ColorC2N( "FFFFFF" )
-   ::tcolorSel := ::httColor := hwg_ColorC2N( "FFFFFF" )
-   ::bcolorSel := hwg_ColorC2N( "808080" )
-   ::htbColor := 2896388
+   ::tcolor     := aColors[2]   /* fg        */
+   ::bcolor     := aColors[1]   /* bg        */
+   ::tcolorSel  := aColors[5]   /* sel_fg    */
+   ::bcolorSel  := aColors[4]   /* sel_bg    */
+   ::htbColor   := aColors[6]   /* header_bg */
+   ::httColor   := aColors[7]   /* header_fg */
+   ::sepColor   := aColors[8]   /* separator */
 
    ::InitBrw()
    ::Activate()
