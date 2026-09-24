@@ -7,20 +7,30 @@
  * Copyright 2004 Alexander S.Kresin <alex@kresin.ru>
  * www - http://www.kresin.ru
  *
- * GTK4 port
+ * GTK4 port -- target: GTK 4.24+
  *
  * NOTES
  * -----
- *  - The focus events ("focus_in_event" / "focus_out_event") were removed
- *    from GTK4.  Focus is now tracked via notify::has-focus, installed
- *    automatically by HWG_CREATECOMBO in control.c.
+ *  - Focus tracking is done by the GtkEventControllerFocus installed
+ *    on the combo (and on its internal entry when editable) by
+ *    HWG_CREATECOMBO / hwg_install_widget_events() in control.c.
+ *    The legacy "focus_in_event" / "focus_out_event" signals no longer
+ *    exist in GTK4 and are not used here.
  *
- *  - GtkComboBox::changed was removed.  hwg_SetSignal("changed") is
- *    translated to notify::active inside set_signal() (window.c).
+ *  - GtkComboBox has no "changed" signal in GTK4.  hwg_SetSignal(
+ *    "changed") is translated inside set_signal() (window.c) to the
+ *    "notify::active" signal, which serves the same purpose.
  *
- *  - The internal GtkEntry of an editable combo receives focus, so
- *    HWG_CREATECOMBO installs the same focus controller on it and
- *    HWG_SETWINDOWOBJECT mirrors the Harbour object onto it.
+ *  - The internal GtkEntry of an editable combo receives focus; the
+ *    same focus controller is installed on it and HWG_SETWINDOWOBJECT
+ *    mirrors the Harbour object onto it so events propagate normally.
+ *
+ *  - DisplayCount: on GTK4 the dropdown popup is a GtkPopover that
+ *    contains a GtkScrolledWindow.  Setting its "max-content-height"
+ *    limits the number of visible rows, matching the Win32 behaviour.
+ *    See HWG_COMBOSETDISPLAYCOUNT in control.c.  The value is applied
+ *    on notify::popup-shown so it survives theme changes and popup
+ *    re-layouts.  GTK2 ignored this attribute; GTK4 now honours it.
  */
 
 #include "hbclass.ch"
@@ -41,9 +51,10 @@ CLASS HComboBox INHERIT HControl
    DATA  lText    INIT .F.
    DATA  lEdit    INIT .F.
    DATA  hEdit
+   DATA  DisplayCount INIT 0
 
    METHOD New( oWndParent, nId, vari, bSetGet, nStyle, nLeft, nTop, nWidth, nHeight, ;
-      aItems, oFont, bInit, bSize, bPaint, bChange, cToolt, lEdit, lText, bGFocus, tcolor, bcolor, bValid )
+      aItems, oFont, bInit, bSize, bPaint, bChange, cToolt, lEdit, lText, bGFocus, tcolor, bcolor, bValid, nDisplayCount )
    METHOD Activate()
    METHOD onEvent( msg, wParam, lParam )
    METHOD Init()
@@ -56,7 +67,7 @@ CLASS HComboBox INHERIT HControl
 ENDCLASS
 
 METHOD New( oWndParent, nId, vari, bSetGet, nStyle, nLeft, nTop, nWidth, nHeight, aItems, oFont, ;
-      bInit, bSize, bPaint, bChange, cToolt, lEdit, lText, bGFocus, tcolor, bcolor, bValid ) CLASS HComboBox
+      bInit, bSize, bPaint, bChange, cToolt, lEdit, lText, bGFocus, tcolor, bcolor, bValid, nDisplayCount ) CLASS HComboBox
 
    IF lEdit == Nil; lEdit := .F. ; ENDIF
    IF lText == Nil; lText := .F. ; ENDIF
@@ -84,15 +95,18 @@ METHOD New( oWndParent, nId, vari, bSetGet, nStyle, nLeft, nTop, nWidth, nHeight
 
    ::aItems  := aItems
 
+   /* GTK4 honours DisplayCount by sizing the popup scrolled window.
+      On Win32 the same attribute is honoured natively. */
+   ::DisplayCount := iif( nDisplayCount == Nil, 0, nDisplayCount )
+
    ::Activate()
    ::bValid := bValid
    ::bGetFocus := bGFocus
    ::bChangeSel := bChange
 
-   /* GTK4: focus events are installed automatically by HWG_CREATECOMBO
-      through hwg_install_widget_events().  Only the value-change signal
-      needs to be wired here — set_signal() translates "changed" to
-      notify::active on GtkComboBox. */
+   /* GTK4: focus is tracked by the event controller installed in
+      HWG_CREATECOMBO.  Only the value-change signal is wired here:
+      set_signal() translates "changed" to notify::active. */
    hwg_SetSignal( ::handle, "changed", CBN_SELCHANGE, 0, 0 )
 
    IF Left( ::oParent:ClassName(), 6 ) == "HPANEL" .AND. hwg_BitAnd( ::oParent:style, SS_OWNERDRAW ) != 0
@@ -167,6 +181,13 @@ METHOD Init() CLASS HComboBox
          IF ::bSetGet != Nil
             Eval( ::bSetGet, ::xValue, Self )
          ENDIF
+      ENDIF
+
+      /* GTK4: apply DisplayCount after the widget exists.  The C
+         helper hooks notify::popup-shown, so the popup is resized
+         every time it opens. */
+      IF ::DisplayCount > 0
+         hwg_ComboSetDisplayCount( ::handle, ::DisplayCount )
       ENDIF
    ENDIF
 

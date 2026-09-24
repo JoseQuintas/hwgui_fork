@@ -15,6 +15,17 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-24 01:48 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+ * hwgui/source/gtk4/control.c
+ * hwgui/source/gtk4/hcombo.prg
+   DisplayCount support for ComboBox on GTK4.
+   control.c: new HWG_COMBOSETDISPLAYCOUNT.  The dropdown popup is a
+   GtkPopover with a GtkScrolledWindow; setting "max-content-height"
+   gives the same behaviour as DisplayCount on Win32.  Applied on
+   notify::popup-shown so it survives theme changes and re-layouts.
+   hcombo.prg: new DATA DisplayCount, new parameter nDisplayCount in
+   New(), applied in Init().
+
 2026-09-24 01:26 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
  * hwgui/source/gtk4/control.c
  * hwgui/source/gtk4/window.c

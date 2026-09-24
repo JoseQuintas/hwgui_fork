@@ -923,6 +923,131 @@ HB_FUNC( HWG_COMBOPOPUP )
     gtk_combo_box_popup( GTK_COMBO_BOX( HB_PARHANDLE( 1 ) ) );
 }
 
+/* =====================================================================
+ *  Combo: limit the number of visible rows in the dropdown popup
+ *
+ *  Windows honours DisplayCount by sizing the dropdown to show only
+ *  the requested number of items; GTK2 ignored it entirely.  On GTK4
+ *  the combo's popup is a GtkPopover that contains a GtkScrolledWindow.
+ *  Setting its "max-content-height" is the exact equivalent.
+ * ===================================================================== */
+
+static GtkWidget *hwg_find_descendant( GtkWidget *parent, GType type )
+{
+    GtkWidget *child = gtk_widget_get_first_child( parent );
+
+    while( child )
+    {
+        if( G_TYPE_CHECK_INSTANCE_TYPE( child, type ) )
+            return child;
+
+        {
+            GtkWidget *found = hwg_find_descendant( child, type );
+            if( found )
+                return found;
+        }
+
+        child = gtk_widget_get_next_sibling( child );
+    }
+    return NULL;
+}
+
+static void hwg_combo_apply_display_count( GtkWidget *combo )
+{
+    int        count;
+    int        row_height;
+    GtkWidget *popover;
+    GtkWidget *scrolled;
+    GtkWidget *child;
+
+    if( !combo || !GTK_IS_COMBO_BOX( combo ) )
+        return;
+
+    count = GPOINTER_TO_INT( g_object_get_data( G_OBJECT( combo ),
+                                                "hwg_display_count" ) );
+    if( count <= 0 )
+        return;
+
+    /* The popup is a child of the combo box. */
+    popover = NULL;
+    child = gtk_widget_get_first_child( combo );
+    while( child )
+    {
+        if( GTK_IS_POPOVER( child ) )
+        {
+            popover = child;
+            break;
+        }
+        child = gtk_widget_get_next_sibling( child );
+    }
+    if( !popover )
+        return;
+
+    scrolled = hwg_find_descendant( popover, GTK_TYPE_SCROLLED_WINDOW );
+    if( !scrolled )
+        return;
+
+    /* Row height: use the combo's own height (the entry matches the
+     * list rows in GTK4), fall back to a sane default. */
+    row_height = gtk_widget_get_height( combo );
+    if( row_height <= 0 )
+        row_height = 28;
+
+    gtk_scrolled_window_set_propagate_natural_height(
+        GTK_SCROLLED_WINDOW( scrolled ), TRUE );
+    gtk_scrolled_window_set_max_content_height(
+        GTK_SCROLLED_WINDOW( scrolled ), row_height * count );
+}
+
+static gboolean hwg_combo_reapply_idle( gpointer data )
+{
+    hwg_combo_apply_display_count( GTK_WIDGET( data ) );
+    g_object_unref( data );
+    return G_SOURCE_REMOVE;
+}
+
+static void hwg_combo_popup_shown( GObject *obj, GParamSpec *pspec,
+                                   gpointer user_data )
+{
+    gboolean shown = FALSE;
+
+    HB_SYMBOL_UNUSED( pspec );
+    HB_SYMBOL_UNUSED( user_data );
+
+    /* GTK4: popup-shown is a read-only property.  There is no
+     * gtk_combo_box_get_popup_shown() function; read it via g_object_get(). */
+    g_object_get( obj, "popup-shown", &shown, NULL );
+
+    if( shown )
+    {
+        /* Apply once synchronously (to avoid a first-show flash) and
+         * again on the next idle (GTK may re-layout the popup after
+         * the notify handler). */
+        hwg_combo_apply_display_count( GTK_WIDGET( obj ) );
+        g_object_ref( obj );
+        g_idle_add( hwg_combo_reapply_idle, obj );
+    }
+}
+
+HB_FUNC( HWG_COMBOSETDISPLAYCOUNT )
+{
+    GtkWidget *combo = (GtkWidget*) HB_PARHANDLE( 1 );
+    int        count = hb_parni( 2 );
+
+    if( !combo || !GTK_IS_COMBO_BOX( combo ) )
+        return;
+
+    g_object_set_data( G_OBJECT( combo ), "hwg_display_count",
+                       GINT_TO_POINTER( count ) );
+
+    if( !g_object_get_data( G_OBJECT( combo ), "hwg_dc_hooked" ) )
+    {
+        g_signal_connect( combo, "notify::popup-shown",
+                          G_CALLBACK( hwg_combo_popup_shown ), NULL );
+        g_object_set_data( G_OBJECT( combo ), "hwg_dc_hooked",
+                           GINT_TO_POINTER( 1 ) );
+    }
+}
 
 /* =====================================================================
  *  HWG_CREATEUPDOWNCONTROL
