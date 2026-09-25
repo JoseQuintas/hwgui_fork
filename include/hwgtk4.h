@@ -37,6 +37,7 @@
 
 #ifndef HWGTK4_H_
 #define HWGTK4_H_
+void hwg_set_size_request( GtkWidget *w, int width, int height );
 
 #ifdef __cplusplus
 extern "C" {
