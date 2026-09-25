@@ -15,6 +15,40 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-25 15:17 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  Files: commond.c, control.c, draw.c, drawwidg.prg, hbrowse.prg,
+          herrsys.prg, menu_c.c, message.c, window.c
+  * NULL-handle crashes in fonts, brushes, bitmaps and DCs.
+  * Leaks in pixbuf loader, color providers and timers.
+  * Vertical scrollbar: visibility and step_increment.
+  * Context menu: pointer anchoring and actions not firing.
+  * UTF-8 / Latin-1 conversion in titles, messages and dialogs.
+  * HFont: missing New() and size calibration.
+  * Focus in modal dialogs.
+  * R/B swap in the color dialog.
+  * Toolbar at the top instead of the bottom.
+  * Assorted bounds, NULL-checks and consistency fixes.
+  * Browse: force full paint on GTK4 (no partial invalidation).
+  * Browse: extend last visible column in header/line/footer.
+  * Browse: background brush initialized before first paint.
+  * Scrollbars: theme-aware CSS (@theme_bg_color / @theme_fg_color).
+  * Scrollbars: adjustment range updated on horizontal scroll.
+  * MouseMove: reset resize cursor outside the header zone.
+
+2026-09-25 00:40 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  Files: commond.c, control.c, draw.c, drawwidg.prg, hbrowse.prg,
+          herrsys.prg, menu_c.c, message.c, window.c
+  * NULL-handle crashes in fonts, brushes, bitmaps and DCs.
+  * Leaks in pixbuf loader, color providers and timers.
+  * Vertical scrollbar: visibility and step_increment.
+  * Context menu: pointer anchoring and actions not firing.
+  * UTF-8 / Latin-1 conversion in titles, messages and dialogs.
+  * HFont: missing New() and size calibration.
+  * Focus in modal dialogs.
+  * R/B swap in the color dialog.
+  * Toolbar at the top instead of the bottom.
+  * Assorted bounds, NULL-checks and consistency fixes.
+
 2026-09-24 01:48 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
  * hwgui/source/gtk4/control.c
  * hwgui/source/gtk4/hcombo.prg
