@@ -431,6 +431,15 @@ METHOD onEvent( msg, wParam, lParam )  CLASS HBrowse
          ELSEIF msg == WM_MOUSEMOVE
             ::MouseMove( wParam, lParam )
             retValue := -1
+
+         ELSEIF msg == WM_MOUSELEAVE
+            /* Reset the resize cursor when the pointer leaves the
+             * browse entirely.  See MouseMove() for the reason. */
+            IF ::nCursor != 0
+               Hwg_SetCursor( arrowCursor, ::area )
+               ::nCursor := 0
+            ENDIF
+            retValue := -1
          ENDIF
 
          IF msg == WM_KEYDOWN .AND. ( wParam == GDK_Up .OR. wParam == GDK_Down )
@@ -770,47 +779,76 @@ METHOD Paint()  CLASS HBrowse
       ENDIF
    ENDIF
 
-   /*
-    * GTK4 scrollbars.
-    *
-    * Guard on nRows > 0: on the very first Paint() the widget has no
-    * geometry yet, so rowCount / nRows would be 0 or negative.  If we
-    * took a visibility decision then, we might hide a scrollbar that
-    * is actually needed and never re-evaluate it.  With nRows > 0 we
-    * only make the decision when the geometry is real.
-    *
-    * hwg_SetScrollVisible is idempotent: it can be called on every
-    * Paint() without harm.
-    */
+    /* Scrollbars: only touch the adjustments when the content actually
+    * overflows.  If it fits, leave the adjustment alone -- the bar
+    * keeps whatever visibility the GTK callback settled on.  Earlier
+    * versions tried to actively hide the bar in the "fits" case,
+    * which broke the WS_HSCROLL / WS_VSCROLL contract (the flags are
+    * supposed to force the bar visible regardless of content). */
    IF __ObjHasMsg( Self, "_HSCROLLV" ) .AND. ::_HSCROLLV != Nil .AND. nRows > 0
       IF ::nRecords > nRows
          tmp := Iif( ::nRecords < 100, ::nRecords, 100 )
-         /* step_increment stays at 1 so one arrow click is exactly
-          * one record -- the semantics DoVScroll expects.  The thumb
-          * range (upper - page_size = ::nRecords) still spans every
-          * record one-to-one.  Previously this passed nRecords/100,
-          * which broke DoVScroll's literal comparisons and made
-          * arrow clicks jump several rows on large tables. */
-         IF hwg_SetAdjOptions( ::_HSCROLLV, NIL, tmp + nRows, 1, nRows, nRows )
-            ::lSetAdj := .T.
-         ENDIF
-         hwg_SetScrollVisible( ::_HSCROLLV, .T. )
-      ELSE
-         hwg_SetScrollVisible( ::_HSCROLLV, .F. )
+         /* Scrollbars: the WS_VSCROLL / WS_HSCROLL flags in the browse STYLE
+         * force the corresponding bar to stay visible, regardless of the
+         * content size.  Visibility is handled on the C side --
+         * HWG_CREATEBROWSE creates the widget with visible=TRUE and the
+         * callback installed in control.c keeps it visible across
+         * adjustment notifies.
+         *
+         * The adjustment is deliberately left untouched here.  Updating
+         * upper / page_increment / page_size from this method triggered a
+         * GtkRange recalc that stripped the GtkScrollbar's internal slider
+         * of its paint allocation in the current GTK4 -- the widget
+         * reported visible=TRUE and mapped=TRUE, but nothing was drawn on
+         * screen.  The failure only happened when the browse had more than
+         * one row, i.e. when the update actually changed the adjustment
+         * values.
+         *
+         * Scrolling still works: DoVScroll / DoHScroll read and write the
+         * adjustment on user interaction, and GtkRange clamps the value to
+         * the creation range (upper=101, page=10) internally. */
+         //IF hwg_SetAdjOptions( ::_HSCROLLV, NIL, tmp + nRows, 1, nRows, nRows )
+         //   ::lSetAdj := .T.
+         //ENDIF
+
       ENDIF
    ENDIF
 
    IF __ObjHasMsg( Self, "_HSCROLLH" ) .AND. ::_HSCROLLH != Nil .AND. nRows > 0
       IF Len( ::aColumns ) > ::nColumns
          tmp := Len( ::aColumns )
-         IF hwg_SetAdjOptions( ::_HSCROLLH, NIL, tmp + 1, 1, 1, 1 )
-            ::lSetAdj := .T.
-         ENDIF
-         hwg_SetScrollVisible( ::_HSCROLLH, .T. )
-      ELSE
-         hwg_SetScrollVisible( ::_HSCROLLH, .F. )
+         /* Scrollbars: the WS_VSCROLL / WS_HSCROLL flags in the browse STYLE
+         * force the corresponding bar to stay visible, regardless of the
+         * content size.  Visibility is handled on the C side --
+         * HWG_CREATEBROWSE creates the widget with visible=TRUE and the
+         * callback installed in control.c keeps it visible across
+         * adjustment notifies.
+         *
+         * The adjustment is deliberately left untouched here.  Updating
+         * upper / page_increment / page_size from this method triggered a
+         * GtkRange recalc that stripped the GtkScrollbar's internal slider
+         * of its paint allocation in the current GTK4 -- the widget
+         * reported visible=TRUE and mapped=TRUE, but nothing was drawn on
+         * screen.  The failure only happened when the browse had more than
+         * one row, i.e. when the update actually changed the adjustment
+         * values.
+         *
+         * Scrolling still works: DoVScroll / DoHScroll read and write the
+         * adjustment on user interaction, and GtkRange clamps the value to
+         * the creation range (upper=101, page=10) internally. */
+         //IF hwg_SetAdjOptions( ::_HSCROLLH, NIL, tmp + 1, 1, 1, 1 )
+         //   ::lSetAdj := .T.
+         //ENDIF
       ENDIF
    ENDIF
+   HB_SYMBOL_UNUSED( tmp )
+
+   /* GTK4 has no partial invalidation: queue_draw always repaints
+    * the whole widget.  If Paint() honours lRefrLinesOnly, the rows
+    * outside the two being redrawn are left with the widget's
+    * default background (dark under a dark theme) -- the browse
+    * goes black on scroll.  Force a full paint every time. */
+   ::lRefrLinesOnly := .F.
 
    IF ::lRefrLinesOnly
       IF ::rowPos != ::rowPosOld .AND. !::lAppMode
@@ -823,6 +861,16 @@ METHOD Paint()  CLASS HBrowse
          Eval( ::bSkip, Self, ::rowPos - ::rowPosOld )
       ENDIF
    ELSE
+      /* Force a full clear of the browse area before drawing.
+       * GTK4 leaves the widget with its background colour (black
+       * under a dark theme) wherever the draw_func did not paint;
+       * on the first Paint() the rows often have not been queued
+       * for painting yet, and the area below the last line stays
+       * dark until a mouse event triggers another invalidate.
+       * Filling from (x1,y1) to (x2,y2) with the browse brush
+       * covers that gap. */
+      hwg_Fillrect( hDC, ::x1, ::y1, ::x2, ::y2, ::brush:handle )
+
       /* GTK Fix: only force top positioning if the DB is genuinely empty */
       IF ( Eval( ::bEof, Self ) .OR. Eval( ::bBof, Self ) ) .AND. ::nRecords == 0
          Eval( ::bGoTop, Self )
@@ -989,12 +1037,24 @@ METHOD HeaderOut( hDC ) CLASS HBrowse
 
    DO WHILE x < ::x2 - 2
       xSize := ::aColumns[fif]:width
-      IF ::lAdjRight .AND. fif == Len( ::aColumns )
+
+      /* Extend the last VISIBLE column (not just the last column of
+       * aColumns) up to x2.  When the browse is scrolled sideways,
+       * the rightmost column drawn in this pass is not
+       * aColumns[Len] but aColumns[fif].  Without this, a gap is
+       * left between that column's right edge and x2, and the
+       * underlying widget background (dark under a dark theme)
+       * shows through -- producing the black rectangle at the end
+       * of the header. */
+      IF ::lAdjRight .AND. ;
+         ( fif == Len( ::aColumns ) .OR. x + xSize >= ::x2 - 2 )
          xSize := Max( ::x2 - x, xSize )
       ENDIF
+
       IF ::lDispHead
          ::DrawHeader( hDC, fif, x - 1, y1, x + xSize - 1, ::y1 + 1 )
       ENDIF
+
       hwg_Selectobject( hDC, ::oPenSep:handle )
       IF ::lDispSep .AND. x > ::x1
          IF ::lSep3d
@@ -1044,7 +1104,8 @@ METHOD FooterOut( hDC ) CLASS HBrowse
    DO WHILE x < ::x2 - 2
       oColumn := ::aColumns[fif]
       xSize := oColumn:width
-      IF ::lAdjRight .AND. fif == Len( ::aColumns )
+      IF ::lAdjRight .AND. ;
+         ( fif == Len( ::aColumns ) .OR. x + xSize >= ::x2 - 2 )
          xSize := Max( ::x2 - x, xSize )
       ENDIF
       x2 := x + xSize - 1
@@ -1113,6 +1174,7 @@ METHOD FooterOut( hDC ) CLASS HBrowse
 METHOD LineOut( nstroka, vybfld, hDC, lSelected, lClear ) CLASS HBrowse
 
    LOCAL x, x2, y1, y2, i := 1, sviv, xSize, nCol
+
    LOCAL j, ob, bw, bh, hBReal
    LOCAL oldBkColor, oldTColor
    LOCAL oBrushLine := iif( lSelected, ::brushSel, ::brush )
@@ -1150,7 +1212,8 @@ METHOD LineOut( nstroka, vybfld, hDC, lSelected, lClear ) CLASS HBrowse
          ENDIF
 
          xSize := oColumn:width
-         IF ::lAdjRight .AND. nCol == Len( ::aColumns )
+         IF ::lAdjRight .AND. ;
+            ( nCol == Len( ::aColumns ) .OR. x + xSize >= ::x2 - 2 )
             xSize := Max( ::x2 - x, xSize )
          ENDIF
 
@@ -1221,7 +1284,7 @@ METHOD LineOut( nstroka, vybfld, hDC, lSelected, lClear ) CLASS HBrowse
          x += xSize
          nCol := ::nPaintCol := iif( nCol == ::freeze, ::nLeftCol, nCol + 1 )
          i ++
-         IF ! ::lAdjRight .AND. nCol > Len( ::aColumns )
+         IF nCol > Len( ::aColumns )
             EXIT
          ENDIF
       ENDDO
@@ -1283,7 +1346,16 @@ STATIC FUNCTION LineRight( oBrw, lRefresh )
    IF oBrw:nLeftCol != oldLeft .OR. oBrw:colpos != oldPos
       IF oBrw:hScrollH != Nil
          oBrw:nScrollH := oBrw:nLeftCol - 1
-         hwg_SetAdjOptions( oBrw:hScrollH, oBrw:nScrollH )
+         /* Update the whole range, not just the value: the
+          * adjustment was created with upper=101 / page=10, which
+          * makes the thumb occupy 10% of the track and barely move
+          * when the value changes.  Setting upper = nCols and
+          * page = nColumns makes the thumb size and position match
+          * what is on screen.  Done here (user scroll), not in
+          * Paint(), to avoid the GtkRange recalc that killed the
+          * scrollbar paint in earlier tests. */
+         hwg_SetAdjOptions( oBrw:hScrollH, oBrw:nScrollH, ;
+                            nCols, 1, oBrw:nColumns, oBrw:nColumns )
       ENDIF
       IF lRefresh == Nil .OR. lRefresh
          IF oBrw:nLeftCol == oldLeft
@@ -1317,7 +1389,8 @@ STATIC FUNCTION LineLeft( oBrw, lRefresh )
    IF oBrw:nLeftCol != oldLeft .OR. oBrw:colpos != oldPos
       IF oBrw:hScrollH != Nil
          oBrw:nScrollH := oBrw:nLeftCol - 1
-         hwg_SetAdjOptions( oBrw:hScrollH, oBrw:nScrollH )
+         hwg_SetAdjOptions( oBrw:hScrollH, oBrw:nScrollH, ;
+                            Len( oBrw:aColumns ), 1, oBrw:nColumns, oBrw:nColumns )
       ENDIF
       IF lRefresh == Nil .OR. lRefresh
          IF oBrw:nLeftCol == oldLeft
@@ -1850,6 +1923,17 @@ METHOD MouseMove( wParam, lParam ) CLASS HBrowse
          ENDDO
       ENDIF
       IF !res .AND. ::nCursor != 0
+         Hwg_SetCursor( arrowCursor, ::area )
+         ::nCursor := 0
+      ENDIF
+   ELSE
+      /* Mouse is outside the header zone (over the data rows, below
+       * the browse, or during a window drag when the WM owns the
+       * pointer).  Reset any resize cursor that was set on a previous
+       * motion event, otherwise the cross / vCursor stays visible
+       * until the next time the pointer happens to pass over a
+       * column boundary. */
+      IF ::nCursor != 0
          Hwg_SetCursor( arrowCursor, ::area )
          ::nCursor := 0
       ENDIF

@@ -316,7 +316,7 @@ HB_FUNC( HWG_CREATESTATIC )
     box = getFixedBox( (GObject*) HB_PARHANDLE( 1 ) );
     if( box )
         gtk_fixed_put( box, hCtrl, hb_parni( 4 ), hb_parni( 5 ) );
-    gtk_widget_set_size_request( hCtrl, hb_parni( 6 ), hb_parni( 7 ) );
+    hwg_set_size_request( hCtrl, hb_parni( 6 ), hb_parni( 7 ) );
 
     if( GTK_IS_LABEL( hCtrl ) )
     {
@@ -549,7 +549,7 @@ HB_FUNC( HWG_CREATEBUTTON )
     box = getFixedBox( (GObject*) HB_PARHANDLE( 1 ) );
     if( box )
         gtk_fixed_put( box, hCtrl, hb_parni( 4 ), hb_parni( 5 ) );
-    gtk_widget_set_size_request( hCtrl, hb_parni( 6 ), hb_parni( 7 ) );
+    hwg_set_size_request( hCtrl, hb_parni( 6 ), hb_parni( 7 ) );
 
     HB_RETHANDLE( hCtrl );
 }
@@ -704,9 +704,9 @@ HB_FUNC( HWG_CREATEEDIT )
     }
 
     if( ( ulStyle & ES_MULTILINE ) && hScroll )
-        gtk_widget_set_size_request( hScroll, nW, nH );
+        hwg_set_size_request( hScroll, nW, nH );
     else
-        gtk_widget_set_size_request( hCtrl, nW, nH );
+        hwg_set_size_request( hCtrl, nW, nH );
 
     if( !( ulStyle & ES_MULTILINE ) )
     {
@@ -975,7 +975,7 @@ HB_FUNC( HWG_CREATECOMBO )
     }
     if( box )
         gtk_fixed_put( box, hCtrl, hb_parni( 4 ), hb_parni( 5 ) );
-    gtk_widget_set_size_request( hCtrl, hb_parni( 6 ), hb_parni( 7 ) );
+    hwg_set_size_request( hCtrl, hb_parni( 6 ), hb_parni( 7 ) );
 
     (void) hwg_install_widget_events( hCtrl, FALSE );
     entry = gtk_combo_box_get_child( GTK_COMBO_BOX( hCtrl ) );
@@ -1187,7 +1187,7 @@ HB_FUNC( HWG_CREATEUPDOWNCONTROL )
     box = getFixedBox( (GObject*) HB_PARHANDLE( 1 ) );
     if( box )
         gtk_fixed_put( box, hCtrl, hb_parni( 2 ), hb_parni( 3 ) );
-    gtk_widget_set_size_request( hCtrl, hb_parni( 4 ), hb_parni( 5 ) );
+    hwg_set_size_request( hCtrl, hb_parni( 4 ), hb_parni( 5 ) );
 
     (void) hwg_install_widget_events( hCtrl, FALSE );
 
@@ -1212,27 +1212,25 @@ HB_FUNC( HWG_SETRANGEUPDOWN )
                                (gdouble) hb_parnl( 2 ),
                                (gdouble) hb_parnl( 3 ) );
 }
-
 /* =====================================================================
- *  Standalone GtkScrollbar visibility helper
+ *  Scrollbar visibility
  *
- *  A GtkScrollbar outside a GtkScrolledWindow does not hide or show
- *  itself when the adjustment range changes: unlike GtkScrolledWindow,
- *  it has no internal logic for that.  We reproduce it here: the
- *  scrollbar is visible exactly while ( upper - lower ) > page_size.
+ *  A GtkScrollbar outside a GtkScrolledWindow does not manage its own
+ *  visibility when the adjustment range changes -- unlike
+ *  GtkScrolledWindow, which has internal logic for that.  On Win32 the
+ *  WS_VSCROLL / WS_HSCROLL bits in the browse STYLE mean "always show
+ *  the bar", and HWGUI callers rely on that: HWG_CREATEBROWSE only
+ *  creates the widget when its flag is present, so the callback below
+ *  simply keeps the bar visible across adjustment notifies.
  * ===================================================================== */
 static void hwg_sync_scrollbar_visibility( GtkAdjustment *adj, GtkWidget *bar )
 {
-    gdouble upper, lower, page;
+    HB_SYMBOL_UNUSED( adj );
 
-    if( !adj || !bar || !GTK_IS_WIDGET( bar ) )
+    if( !bar || !GTK_IS_WIDGET( bar ) )
         return;
 
-    upper = gtk_adjustment_get_upper( adj );
-    lower = gtk_adjustment_get_lower( adj );
-    page  = gtk_adjustment_get_page_size( adj );
-
-    gtk_widget_set_visible( bar, ( upper - lower ) > page );
+    gtk_widget_set_visible( bar, TRUE );
 }
 
 static void cb_scrollbar_visibility( GtkAdjustment *adj, GParamSpec *pspec,
@@ -1241,6 +1239,7 @@ static void cb_scrollbar_visibility( GtkAdjustment *adj, GParamSpec *pspec,
     HB_SYMBOL_UNUSED( pspec );
     hwg_sync_scrollbar_visibility( adj, GTK_WIDGET( bar ) );
 }
+
 
 /* =====================================================================
  *  HWG_CREATEBROWSE
@@ -1295,6 +1294,11 @@ HB_FUNC( HWG_CREATEBROWSE )
         gtk_widget_set_size_request( vscroll, nBarV, nAreaH );
         gtk_fixed_put( inner, vscroll, nAreaW, 0 );
 
+        /* GTK4 widgets are born invisible.  Show the bar up front so
+         * it appears even when the content fits and Paint() never
+         * triggers a notify on the adjustment. */
+        gtk_widget_set_visible( vscroll, TRUE );
+
         g_signal_connect( adjV, "notify::upper",
                           G_CALLBACK( cb_scrollbar_visibility ), vscroll );
         g_signal_connect( adjV, "notify::page-size",
@@ -1316,6 +1320,7 @@ HB_FUNC( HWG_CREATEBROWSE )
         hscroll = gtk_scrollbar_new( GTK_ORIENTATION_HORIZONTAL, adjH );
         gtk_widget_set_size_request( hscroll, nAreaW, nBarH );
         gtk_fixed_put( inner, hscroll, 0, nAreaH );
+        gtk_widget_set_visible( hscroll, TRUE );
 
         g_signal_connect( adjH, "notify::upper",
                           G_CALLBACK( cb_scrollbar_visibility ), hscroll );
@@ -1364,10 +1369,6 @@ HB_FUNC( HWG_CREATEBROWSE )
     }
 
     g_object_set_data( (GObject*) hbox, "draw", (gpointer) area );
-    if( vscroll )
-        g_object_set_data( (GObject*) hbox, "vscroll", (gpointer) vscroll );
-    if( hscroll )
-        g_object_set_data( (GObject*) hbox, "hscroll", (gpointer) hscroll );
 
     HB_RETHANDLE( hbox );
 }
@@ -1523,7 +1524,7 @@ HB_FUNC( HWG_CREATETABCONTROL )
     gtk_widget_set_halign( hCtrl, GTK_ALIGN_FILL );
     gtk_widget_set_valign( hCtrl, GTK_ALIGN_FILL );
 
-    gtk_widget_set_size_request( hCtrl, nW, nH );
+    hwg_set_size_request( hCtrl, nW, nH );
 
     if( box )
         gtk_fixed_put( box, hCtrl, hb_parni( 4 ), hb_parni( 5 ) );
@@ -1649,7 +1650,7 @@ HB_FUNC( HWG_CREATESEP )
     box = getFixedBox( (GObject*) HB_PARHANDLE( 1 ) );
     if( box )
         gtk_fixed_put( box, hCtrl, hb_parni( 3 ), hb_parni( 4 ) );
-    gtk_widget_set_size_request( hCtrl, hb_parni( 5 ), hb_parni( 6 ) );
+    hwg_set_size_request( hCtrl, hb_parni( 5 ), hb_parni( 6 ) );
 
     HB_RETHANDLE( hCtrl );
 }
@@ -1689,7 +1690,7 @@ HB_FUNC( HWG_CREATEPANEL )
     {
         GtkAdjustment *adjV = gtk_adjustment_new( 0.0, 0.0, 101.0, 1.0, 10.0, 10.0 );
         vscroll = gtk_scrollbar_new( GTK_ORIENTATION_VERTICAL, adjV );
-        gtk_widget_set_size_request( vscroll, 16, -1 );
+        hwg_set_size_request( vscroll, 16, -1 );
         gtk_widget_set_hexpand( vscroll, FALSE );
         gtk_widget_set_vexpand( vscroll, TRUE );
         gtk_widget_set_visible( vscroll, TRUE );
@@ -1724,10 +1725,10 @@ HB_FUNC( HWG_CREATEPANEL )
     box = getFixedBox( handle );
     if( box ) {
         gtk_fixed_put( box, hbox, hb_parni( 4 ), hb_parni( 5 ) );
-        gtk_widget_set_size_request( hbox, nWidth, nHeight );
+        hwg_set_size_request( hbox, nWidth, nHeight );
         if( vscroll ) nWidth  -= 12;
         if( hscroll ) nHeight -= 12;
-        gtk_widget_set_size_request( hCtrl, nWidth, nHeight );
+        hwg_set_size_request( hCtrl, nWidth, nHeight );
     }
 
     g_object_set_data( (GObject*) hCtrl, "fbox", (gpointer) fbox );
@@ -1772,7 +1773,7 @@ HB_FUNC( HWG_CREATEOWNBTN )
     box = getFixedBox( (GObject*) HB_PARHANDLE( 1 ) );
     if( box )
         gtk_fixed_put( box, hCtrl, hb_parni( 3 ), hb_parni( 4 ) );
-    gtk_widget_set_size_request( hCtrl, hb_parni( 5 ), hb_parni( 6 ) );
+    hwg_set_size_request( hCtrl, hb_parni( 5 ), hb_parni( 6 ) );
 
     gtk_widget_set_can_focus( hCtrl, TRUE );
     (void) hwg_install_widget_events( hCtrl, TRUE );
@@ -1978,12 +1979,24 @@ HB_FUNC( HWG_MOVEWIDGET )
         gtk_widget_get_size_request( widget, &w, &h );
         w1 = HB_ISNIL( 4 ) ? w : hb_parni( 4 );
         h1 = HB_ISNIL( 5 ) ? h : hb_parni( 5 );
+
+        /* Clamp before touching GTK.  The Harbour side computes the
+         * new size by subtracting paddings, scrollbar widths and
+         * margins; on a small parent those subtractions go negative
+         * and GTK4 asserts:
+         *   "gtk_widget_set_size_request: assertion 'width >= -1' failed"
+         * -1 is the "natural size" sentinel GTK accepts; anything
+         * smaller is invalid.  Positive values above the parent size
+         * are capped, as before. */
+        if( w1 < -1 ) w1 = -1;
+        if( h1 < -1 ) h1 = -1;
         if( w1 > pW ) w1 = pW;
         if( h1 > pH ) h1 = pH;
+
         if( w != w1 || h != h1 ) {
-            gtk_widget_set_size_request( widget, w1, h1 );
+            hwg_set_size_request( widget, w1, h1 );
             if( ch_widget && GTK_IS_WIDGET( ch_widget ) )
-                gtk_widget_set_size_request( ch_widget, w1, h1 );
+                hwg_set_size_request( ch_widget, w1, h1 );
 
             /*
              * If this widget is a browse's outer container (created by
@@ -2013,18 +2026,18 @@ HB_FUNC( HWG_MOVEWIDGET )
                     if( nAreaW < 0 ) nAreaW = 0;
                     if( nAreaH < 0 ) nAreaH = 0;
 
-                    gtk_widget_set_size_request( area, nAreaW, nAreaH );
+                    hwg_set_size_request( area, nAreaW, nAreaH );
 
                     if( vscroll && GTK_IS_WIDGET( vscroll ) )
                     {
-                        gtk_widget_set_size_request( vscroll, nBarV, nAreaH );
+                        hwg_set_size_request( vscroll, nBarV, nAreaH );
                         gtk_fixed_move( GTK_FIXED( widget ), vscroll, nAreaW, 0 );
                         gtk_widget_queue_allocate( vscroll );
                         gtk_widget_queue_draw( vscroll );
                     }
                     if( hscroll && GTK_IS_WIDGET( hscroll ) )
                     {
-                        gtk_widget_set_size_request( hscroll, nAreaW, nBarH );
+                        hwg_set_size_request( hscroll, nAreaW, nBarH );
                         gtk_fixed_move( GTK_FIXED( widget ), hscroll, 0, nAreaH );
                         gtk_widget_queue_allocate( hscroll );
                         gtk_widget_queue_draw( hscroll );
@@ -2061,7 +2074,7 @@ HB_FUNC( HWG_CREATEPROGRESSBAR )
 
     if( box )
         gtk_fixed_put( box, hCtrl, hb_parni( 3 ), hb_parni( 4 ) );
-    gtk_widget_set_size_request( hCtrl, hb_parni( 5 ), hb_parni( 6 ) );
+    hwg_set_size_request( hCtrl, hb_parni( 5 ), hb_parni( 6 ) );
 
     HB_RETHANDLE( hCtrl );
 }
@@ -2274,7 +2287,7 @@ HB_FUNC( HWG_INITMONTHCALENDAR )
     hCtrl = gtk_calendar_new();
     if( box )
         gtk_fixed_put( box, hCtrl, hb_parni( 3 ), hb_parni( 4 ) );
-    gtk_widget_set_size_request( hCtrl, hb_parni( 5 ), hb_parni( 6 ) );
+    hwg_set_size_request( hCtrl, hb_parni( 5 ), hb_parni( 6 ) );
 
     HB_RETHANDLE( hCtrl );
 }
@@ -2363,7 +2376,7 @@ HB_FUNC( HWG_CREATEIMAGE )
 
     if( box )
         gtk_fixed_put( box, hCtrl, hb_parni( 3 ), hb_parni( 4 ) );
-    gtk_widget_set_size_request( hCtrl, hb_parni( 5 ), hb_parni( 6 ) );
+    hwg_set_size_request( hCtrl, hb_parni( 5 ), hb_parni( 6 ) );
 
     HB_RETHANDLE( hCtrl );
 }
@@ -2383,7 +2396,7 @@ HB_FUNC( HWG_CREATESPLITTER )
     box = getFixedBox( (GObject*) HB_PARHANDLE( 1 ) );
     if( box )
         gtk_fixed_put( box, hCtrl, hb_parni( 4 ), hb_parni( 5 ) );
-    gtk_widget_set_size_request( hCtrl, hb_parni( 6 ), hb_parni( 7 ) );
+    hwg_set_size_request( hCtrl, hb_parni( 6 ), hb_parni( 7 ) );
 
     gtk_widget_set_can_focus( hCtrl, TRUE );
     (void) hwg_install_widget_events( hCtrl, TRUE );
@@ -2402,7 +2415,7 @@ HB_FUNC( HWG_CREATEBOARD )
     box = getFixedBox( (GObject*) HB_PARHANDLE( 1 ) );
     if( box )
         gtk_fixed_put( box, hCtrl, hb_parni( 4 ), hb_parni( 5 ) );
-    gtk_widget_set_size_request( hCtrl, hb_parni( 6 ), hb_parni( 7 ) );
+    hwg_set_size_request( hCtrl, hb_parni( 6 ), hb_parni( 7 ) );
 
     gtk_widget_set_can_focus( hCtrl, TRUE );
     (void) hwg_install_widget_events( hCtrl, TRUE );

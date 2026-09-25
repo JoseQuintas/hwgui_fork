@@ -109,8 +109,29 @@ static guint    s_swallow_timeout_id        = 0;
 extern cairo_t   *hwg_current_cr;
 extern GtkWidget *hwg_current_widget;
 
-static gchar szAppLocale[] = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+/*
+ * Wrapper around gtk_widget_set_size_request() that clamps negative
+ * dimensions to -1 ("natural size").  GTK4 asserts on width < -1:
+ *   "gtk_widget_set_size_request: assertion 'width >= -1' failed"
+ * HWGUI callers compute sizes by subtracting paddings, scrollbar
+ * widths and similar; on small windows those subtractions go
+ * negative and the assert fires from inside the Harbour VM.
+ */
+void hwg_set_size_request( GtkWidget *w, int width, int height )
+{
+    if( !w || !GTK_IS_WIDGET( w ) )
+        return;
 
+    if( width  < -1 ) width  = -1;
+    if( height < -1 ) height = -1;
+
+    gtk_widget_set_size_request( w, width, height );
+}
+
+/* Locale charset that Harbour strings are assumed to be in.
+ * Default empty -> use the process locale from setlocale().  Can be
+ * overridden from .prg by calling HWG_SETAPPLOCALE(). */
+static gchar szAppLocale[] = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
 /*------------------------------------------------------------------
  * "hwg_dead" helpers
@@ -310,6 +331,17 @@ static void hwg_install_entry_css( void )
                                        "  border-radius: 4px;"
                                        "  box-shadow: none;"
                                        "  outline: none;"
+                                       "}"
+
+                                       /* SAY with WS_BORDER: visible frame and
+                                        * inner padding, matching the Win32 look.
+                                        * Uses currentColor so the border follows
+                                        * the theme (dark or light). */
+                                       ".hwg-static-border {"
+                                       "  border: 1px solid alpha(currentColor, 0.45);"
+                                       "  border-radius: 3px;"
+                                       "  padding: 2px 4px;"
+                                       "  background-clip: padding-box;"
                                        "}"
     );
 
@@ -1407,11 +1439,12 @@ static void hwg_install_scrollbar_css( void )
                                        "  min-height: 8px;"
                                        "}"
                                        "scrollbar trough {"
-                                       "  background-color: transparent;"
+                                       "  background-color: @theme_bg_color;"
                                        "  background-image: none;"
                                        "}"
                                        "scrollbar.vertical slider {"
-                                       "  background-color: #909090;"
+                                       "  background-color: @theme_fg_color;"
+                                       "  opacity: 0.35;"
                                        "  background-image: none;"
                                        "  border: none;"
                                        "  border-radius: 4px;"
@@ -1420,7 +1453,8 @@ static void hwg_install_scrollbar_css( void )
                                        "  margin: 1px;"
                                        "}"
                                        "scrollbar.horizontal slider {"
-                                       "  background-color: #909090;"
+                                       "  background-color: @theme_fg_color;"
+                                       "  opacity: 0.35;"
                                        "  background-image: none;"
                                        "  border: none;"
                                        "  border-radius: 4px;"
@@ -1429,19 +1463,23 @@ static void hwg_install_scrollbar_css( void )
                                        "  margin: 1px;"
                                        "}"
                                        "scrollbar.vertical slider:hover {"
-                                       "  background-color: #b0b0b0;"
+                                       "  background-color: @theme_fg_color;"
+                                       "  opacity: 0.55;"
                                        "  background-image: none;"
                                        "}"
                                        "scrollbar.horizontal slider:hover {"
-                                       "  background-color: #b0b0b0;"
+                                       "  background-color: @theme_fg_color;"
+                                       "  opacity: 0.55;"
                                        "  background-image: none;"
                                        "}"
                                        "scrollbar.vertical slider:active {"
-                                       "  background-color: #d0d0d0;"
+                                       "  background-color: @theme_fg_color;"
+                                       "  opacity: 0.75;"
                                        "  background-image: none;"
                                        "}"
                                        "scrollbar.horizontal slider:active {"
-                                       "  background-color: #d0d0d0;"
+                                       "  background-color: @theme_fg_color;"
+                                       "  opacity: 0.75;"
                                        "  background-image: none;"
                                        "}"
     );
@@ -1549,6 +1587,16 @@ HB_FUNC( HWG_INITMAINWINDOW )
                       G_CALLBACK( cb_window_default_size_notify ), NULL );
     g_signal_connect( G_OBJECT( hWnd ), "notify::default-height",
                       G_CALLBACK( cb_window_default_size_notify ), NULL );
+    /*
+     * Maximizing/unmaximizing changes the window's actual allocated
+     * size without touching its "default-width"/"default-height"
+     * properties (those just hold the restore size), so the notifies
+     * above never fire on maximize -- WM_SIZE was never dispatched to
+     * the .prg, and anything an ON SIZE handler repositions/resizes
+     * (like a browse's scrollbars) went stale.  Watch "maximized" too.
+     */
+    g_signal_connect( G_OBJECT( hWnd ), "notify::maximized",
+                      G_CALLBACK( cb_window_default_size_notify ), NULL );
 
     if( hMainWindow != NULL && hMainWindow != hWnd )
     {
@@ -1624,6 +1672,8 @@ HB_FUNC( HWG_CREATEDLG )
     g_signal_connect( G_OBJECT( hWnd ), "notify::default-width",
                       G_CALLBACK( cb_window_default_size_notify ), NULL );
     g_signal_connect( G_OBJECT( hWnd ), "notify::default-height",
+                      G_CALLBACK( cb_window_default_size_notify ), NULL );
+    g_signal_connect( G_OBJECT( hWnd ), "notify::maximized",
                       G_CALLBACK( cb_window_default_size_notify ), NULL );
 
     HB_RETHANDLE( hWnd );
@@ -1822,7 +1872,7 @@ HB_FUNC( HWG_MOVEWINDOW )
             gtk_widget_get_size_request( w, &curw, &curh );
             w1 = HB_ISNIL(4) ? curw : hb_parni(4);
             h1 = HB_ISNIL(5) ? curh : hb_parni(5);
-            gtk_widget_set_size_request( w, w1, h1 );
+            hwg_set_size_request( w, w1, h1 );
         }
     }
 }
@@ -2039,7 +2089,7 @@ HB_FUNC( HWG_WINDOWSETRESIZE )
 
     gtk_window_get_default_size( handle, &width, &height );
     if( width > 0 && height > 0 )
-        gtk_widget_set_size_request( (GtkWidget*) handle, width, height );
+        hwg_set_size_request( (GtkWidget*) handle, width, height );
 
     gtk_window_set_resizable( handle, bResize );
 }
@@ -2072,35 +2122,22 @@ HB_FUNC( HWG_GETWINDOWPOS )
     hb_itemRelease( hb_itemReturn( aMetr ) );
 }
 
-
 /*
- * Conversion between the encoding that Harbour hands us and the UTF-8
- * that GTK requires.
+ * String conversion for the GTK4 build.
  *
- * Background: this Harbour build delivers string bytes exactly as they
- * are stored in the .prg source (and in DBF tables), which is Latin-1 /
- * CP1252 on a Brazilian codebase.  GTK 4 requires valid UTF-8 in every
- * string API, so a real conversion is needed on the way in, and the
- * inverse on the way out.
+ * Reality check: on this Harbour build (3.2.1dev with -DUNICODE),
+ * literal .prg strings still reach the C side as single-byte
+ * Latin-1 / locale-charset data -- the "Vers\xe3o" in the window
+ * title proves it.  GTK4 requires valid UTF-8 in every API call
+ * that takes a string (g_variant_new_string, gdk_surface_set_title,
+ * pango_layout_set_text, ...), so a real conversion is still needed
+ * on the way in, and the inverse on the way out.
  *
- * The previous implementation relied on g_locale_to_utf8() and, on the
- * return path, on g_locale_from_utf8().  That works only when the
- * process locale charset actually matches the bytes: HWG_GTK_INIT
- * forces LC_CTYPE to "C.UTF-8", so g_locale_to_utf8() believes the
- * input is UTF-8, fails on the first accented byte, and the fallback
- * returns the raw Latin-1 bytes -- which GTK then rejects with
- * "Invalid utf8" warnings and renders as garbage.
- *
- * Use ISO-8859-1 as the source charset, explicitly.  It maps every byte
- * value 0x00-0xFF, so g_convert() never fails on a valid Latin-1 input,
- * unlike CP1252 (which leaves 0x81, 0x8D, 0x8F, 0x90, 0x9D undefined).
- * All the accented letters used in Portuguese share the same bytes in
- * ISO-8859-1 and CP1252, so the conversion is identical for the
- * characters that matter here.
- *
- * If the .prg / DBF files are ever migrated to UTF-8, the initial
- * g_utf8_validate() check on the input side will short-circuit and the
- * function becomes a cheap copy -- no build-time flag required.
+ * The function below is robust to both worlds: if the input already
+ * happens to be valid UTF-8, it passes through unchanged; otherwise
+ * it is treated as locale bytes and converted.  That covers the
+ * current 8-bit Harbour build and any future one that actually
+ * emits UTF-8, without requiring a rebuild-time decision.
  */
 gchar * hwg_convert_to_utf8( const char * szText )
 {
@@ -2110,23 +2147,23 @@ gchar * hwg_convert_to_utf8( const char * szText )
     if( !szText || !*szText )
         return g_strdup( "" );
 
-    /* Already valid UTF-8: nothing to do.  Covers the future case
-     * where the .prg files (or DBF content) are UTF-8. */
+    /* Already valid UTF-8: nothing to do.  Covers the future case. */
     if( g_utf8_validate( szText, -1, NULL ) )
         return g_strdup( szText );
 
-    /* Single-byte source: convert explicitly, ignoring the process
-     * locale (which is forced to UTF-8 and would give the wrong
-     * answer for Latin-1 input). */
+    /* Not UTF-8: treat as locale bytes (typically ISO-8859-1) and
+     * convert.  This is the path taken by the current Harbour build. */
     if( *szAppLocale )
         result = g_convert( szText, -1, "UTF-8", szAppLocale, NULL, NULL, &err );
     else
-        result = g_convert( szText, -1, "UTF-8", "ISO-8859-1", NULL, NULL, &err );
+        result = g_locale_to_utf8( szText, -1, NULL, NULL, &err );
 
     if( !result )
     {
         if( err )
             g_error_free( err );
+        /* Last resort: return the input as-is.  GTK will warn, but the
+         * alternative is dropping the string entirely. */
         return g_strdup( szText );
     }
 
@@ -2141,13 +2178,13 @@ gchar * hwg_convert_from_utf8( const char * szText )
     if( !szText || !*szText )
         return g_strdup( "" );
 
-    /* GTK gives us UTF-8 by construction.  Convert back to the
-     * single-byte charset that the .prg expects, so that Harbour
-     * gets the same byte representation it wrote. */
+    /* The input is UTF-8 by construction (GTK just gave it to us).
+     * Convert back to the locale charset so Harbour sees the bytes
+     * it expects. */
     if( *szAppLocale )
         result = g_convert( szText, -1, szAppLocale, "UTF-8", NULL, NULL, &err );
     else
-        result = g_convert( szText, -1, "ISO-8859-1", "UTF-8", NULL, NULL, &err );
+        result = g_locale_from_utf8( szText, -1, NULL, NULL, &err );
 
     if( !result )
     {
@@ -2161,14 +2198,21 @@ gchar * hwg_convert_from_utf8( const char * szText )
 
 HB_FUNC( HWG_SETAPPLOCALE )
 {
+    /* Remember the app locale so the conversion helpers know which
+     * charset Harbour strings are in.  Bounded by the size of the
+     * static buffer -- an oversized argument is silently ignored
+     * instead of overrunning it. */
     const char *szLocale = hb_parc( 1 );
     int iLen = hb_parclen( 1 );
 
     hb_retc( szAppLocale );
-    memcpy( szAppLocale, szLocale, iLen );
-    szAppLocale[iLen] = '\0';
-}
 
+    if( szLocale && iLen > 0 && iLen < (int) sizeof( szAppLocale ) )
+    {
+        memcpy( szAppLocale, szLocale, iLen );
+        szAppLocale[iLen] = '\0';
+    }
+}
 
 HB_FUNC( HWG_KEYTOUTF8 )
 {

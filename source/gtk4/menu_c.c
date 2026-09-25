@@ -557,7 +557,7 @@ HB_FUNC( HWG__SETMENU )
      * requesting a sensible height (>= 0) prevents the negative size
      * computation in the internal scrollbar.
      */
-    gtk_widget_set_size_request( menubar, -1, 30 );
+    hwg_set_size_request( menubar, -1, 30 );
 
     gtk_box_prepend( GTK_BOX( vbox ), menubar );
     gtk_widget_set_visible( menubar, TRUE );
@@ -778,6 +778,47 @@ HB_FUNC( HWG__ISENABLEDMENUITEM )
  *  In GTK4 we create a GtkPopoverMenu on the fly and pop it up on the
  *  active toplevel window, anchored at the current mouse position.
  * ===================================================================== */
+
+/*
+ * Destroy the popover once the user dismisses it.  HWG_TRACKMENU
+ * creates a fresh GtkPopoverMenu on every right-click; without this
+ * handler each one stays parented to the window for the rest of the
+ * session, and GTK complains at shutdown:
+ *   "Finalizing GtkWindow ... but it still has children left".
+ */
+/* Destroy the popover once the user dismisses it.  HWG_TRACKMENU
+ * creates a fresh GtkPopoverMenu on every right-click; without this
+ * handler each one stays parented to the window for the rest of the
+ * session, and GTK complains at shutdown:
+ *   "Finalizing GtkWindow ... but it still has children left".
+ *
+ * The unparent is deferred to an idle callback because "closed" fires
+ * BEFORE the item's GAction activation.  Destroying the popover
+ * synchronously here would tear it down mid-dispatch, and the click
+ * on the item would be lost.  g_idle_add schedules the unparent for
+ * the next main loop iteration, by which time the action has already
+ * been delivered to cb_signal(). */
+static gboolean hwg_popover_unparent_idle( gpointer data )
+{
+    GtkWidget *popover = GTK_WIDGET( data );
+
+    if( popover && GTK_IS_WIDGET( popover ) )
+        gtk_widget_unparent( popover );
+
+    return G_SOURCE_REMOVE;
+}
+
+static void hwg_popover_closed_cb( GtkPopover *popover, gpointer user_data )
+{
+    HB_SYMBOL_UNUSED( user_data );
+
+    if( !popover || !GTK_IS_WIDGET( popover ) )
+        return;
+
+    g_object_ref( popover );
+    g_idle_add( hwg_popover_unparent_idle, popover );
+}
+
 HB_FUNC( HWG_TRACKMENU )
 {
     GMenuModel  *model = (GMenuModel *) HB_PARHANDLE(1);
@@ -844,6 +885,15 @@ HB_FUNC( HWG_TRACKMENU )
             gtk_popover_set_pointing_to( GTK_POPOVER( popover ), &rect );
         }
     }
+
+    /*
+     * Destroy the popover when the user dismisses it, so repeated
+     * right-clicks do not accumulate child widgets on the toplevel
+     * window (which triggers the "Finalizing GtkWindow ... still has
+     * children left" warning at shutdown).
+     */
+    g_signal_connect( popover, "closed",
+                      G_CALLBACK( hwg_popover_closed_cb ), NULL );
 
     gtk_popover_popup( GTK_POPOVER( popover ) );
 }
