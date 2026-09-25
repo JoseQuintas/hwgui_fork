@@ -55,30 +55,41 @@ GtkWidget *hwg_current_widget = NULL;
 
 /* =====================================================================
  *  Color helpers — GdkRGBA (GdkColor was removed in GTK4)
+ *
+ *  HWGUI colours follow the Windows COLORREF layout (0x00BBGGRR):
+ *  R in the low byte, G in the middle, B in the high byte.  The same
+ *  convention is used by hwg_setcolor() and hwg_ColorC2N(), so all
+ *  the conversions below must agree on it -- otherwise every
+ *  round-trip through a colour chooser swaps red and blue.
  * ===================================================================== */
 void hwg_parse_color( HB_ULONG ncolor, GdkRGBA *pColor )
 {
-    pColor->red   = ( ( ncolor >> 16 ) & 0xff ) / 255.0;
+    pColor->blue  = ( ( ncolor >> 16 ) & 0xff ) / 255.0;
     pColor->green = ( ( ncolor >>  8 ) & 0xff ) / 255.0;
-    pColor->blue  = (   ncolor        & 0xff ) / 255.0;
+    pColor->red   = (   ncolor        & 0xff ) / 255.0;
     pColor->alpha = 1.0;
 }
 
 HB_ULONG hwg_gdk_color( const GdkRGBA *pColor )
 {
-    return ( ( (HB_ULONG)( pColor->red   * 255.0 ) & 0xff ) << 16 ) |
+    /* Inverse of hwg_parse_color(): produce the HWGUI COLORREF
+     * layout, not the RGB layout that GdkRGBA uses natively. */
+    return ( ( (HB_ULONG)( pColor->blue  * 255.0 ) & 0xff ) << 16 ) |
     ( ( (HB_ULONG)( pColor->green * 255.0 ) & 0xff ) <<  8 ) |
-    (   (HB_ULONG)( pColor->blue  * 255.0 ) & 0xff );
+    (   (HB_ULONG)( pColor->red   * 255.0 ) & 0xff );
 }
 
 void hwg_setcolor( cairo_t *cr, long int nColor )
 {
-    short int r, g, b;
-
-    nColor %= ( 65536 * 256 );
-    r = nColor % 256;
-    g = ( ( nColor - r ) % 65536 ) / 256;
-    b = ( nColor - g - r ) / 65536;
+    /* Mask instead of %: a negative long int in C gives a negative
+     * remainder, which would then propagate through r/g/b and be
+     * clamped to black by cairo_set_source_rgb().  The mask keeps
+     * the low 24 bits of a two's-complement negative value as a
+     * positive COLORREF, same as the classic Windows behaviour. */
+    unsigned long int uColor = ( (unsigned long int) nColor ) & 0x00FFFFFFu;
+    int r = (int)(   uColor        & 0xff );
+    int g = (int)( ( uColor >>  8 ) & 0xff );
+    int b = (int)( ( uColor >> 16 ) & 0xff );
 
     cairo_set_source_rgb( cr,
                           ( (double) r ) / 255.,
@@ -677,10 +688,25 @@ HB_FUNC( HWG_DRAWBITMAP )
     PHWGUI_PIXBUF obj = (PHWGUI_PIXBUF) HB_PARHANDLE(2);
     GdkPixbuf *pixbuf;
     gint x = hb_parni(4), y = hb_parni(5);
-    gint srcWidth  = gdk_pixbuf_get_width(  obj->handle );
-    gint srcHeight = gdk_pixbuf_get_height( obj->handle );
-    gint destWidth  = ( hb_pcount() >= 5 && !HB_ISNIL(6) ) ? hb_parni(6) : srcWidth;
-    gint destHeight = ( hb_pcount() >= 6 && !HB_ISNIL(7) ) ? hb_parni(7) : srcHeight;
+    gint srcWidth, srcHeight;
+    gint destWidth, destHeight;
+
+    /* Harbour passes Nil when HWG_OPENBITMAP failed (missing file,
+     * bad path, unsupported format); HB_PARHANDLE() then yields NULL
+     * and gdk_pixbuf_get_width(NULL) aborts the process.  Silently
+     * skip the draw instead -- the caller cannot tell the difference
+     * between "image not drawn" and "image drawn transparent".
+     *
+     * GDK_IS_PIXBUF also catches the case where obj->handle was
+     * freed by HWG_DELETEOBJECT and the caller still holds the
+     * PHWGUI_PIXBUF. */
+    if( !hDC || !obj || !obj->handle || !GDK_IS_PIXBUF( obj->handle ) )
+        return;
+
+    srcWidth  = gdk_pixbuf_get_width(  obj->handle );
+    srcHeight = gdk_pixbuf_get_height( obj->handle );
+    destWidth  = ( hb_pcount() >= 5 && !HB_ISNIL(6) ) ? hb_parni(6) : srcWidth;
+    destHeight = ( hb_pcount() >= 6 && !HB_ISNIL(7) ) ? hb_parni(7) : srcHeight;
 
     if( srcWidth == destWidth && srcHeight == destHeight ) {
         gdk_cairo_set_source_pixbuf( hDC->cr, obj->handle, x, y );
@@ -700,17 +726,33 @@ HB_FUNC( HWG_DRAWTRANSPARENTBITMAP )
     GdkPixbuf *pixbuf;
     gint x = hb_parni(3), y = hb_parni(4);
     long int nColor = hb_parnl(5);
-    gint srcWidth  = gdk_pixbuf_get_width(  obj->handle );
-    gint srcHeight = gdk_pixbuf_get_height( obj->handle );
-    gint destWidth  = ( hb_pcount() >= 5 && !HB_ISNIL(6) ) ? hb_parni(6) : srcWidth;
-    gint destHeight = ( hb_pcount() >= 6 && !HB_ISNIL(7) ) ? hb_parni(7) : srcHeight;
+    gint srcWidth, srcHeight;
+    gint destWidth, destHeight;
 
+    /* Harbour passes Nil when HWG_OPENBITMAP failed (missing file,
+     * bad path, unsupported format); HB_PARHANDLE() then yields NULL
+     * and gdk_pixbuf_get_width(NULL) aborts the process.  GDK_IS_PIXBUF
+     * also catches a stale handle left over after HWG_DELETEOBJECT. */
+    if( !hDC || !obj || !obj->handle || !GDK_IS_PIXBUF( obj->handle ) )
+        return;
+
+    /* The trcolor swap goes first: alpha2pixbuf() returns a NEW
+     * pixbuf and leaves the input intact, so reading the dimensions
+     * after the swap guarantees they come from the pixbuf that will
+     * actually be drawn.  (gdk_pixbuf_add_alpha preserves dimensions,
+     * so the numbers are the same either way today, but this keeps
+     * the code robust against future changes to alpha2pixbuf.) */
     if( obj->trcolor != nColor ) {
         pixbuf = alpha2pixbuf( obj->handle, nColor );
         g_object_unref( (GObject*) obj->handle );
         obj->handle  = pixbuf;
         obj->trcolor = nColor;
     }
+
+    srcWidth  = gdk_pixbuf_get_width(  obj->handle );
+    srcHeight = gdk_pixbuf_get_height( obj->handle );
+    destWidth  = ( hb_pcount() >= 5 && !HB_ISNIL(6) ) ? hb_parni(6) : srcWidth;
+    destHeight = ( hb_pcount() >= 6 && !HB_ISNIL(7) ) ? hb_parni(7) : srcHeight;
 
     if( srcWidth == destWidth && srcHeight == destHeight ) {
         gdk_cairo_set_source_pixbuf( hDC->cr, obj->handle, x, y );
@@ -727,13 +769,22 @@ HB_FUNC( HWG_SPREADBITMAP )
 {
     PHWGUI_HDC    hDC = (PHWGUI_HDC) HB_PARHANDLE(1);
     PHWGUI_PIXBUF obj = (PHWGUI_PIXBUF) HB_PARHANDLE(2);
-    GtkWidget    *widget = hDC->widget;
+    GtkWidget    *widget;
     GdkPixbuf *pixbuf;
     int nWidth, nHeight, x1, x2, y1, y2, nw, nh;
     int nLeft   = HB_ISNUM(3) ? hb_parni(3) : 0;
     int nTop    = HB_ISNUM(4) ? hb_parni(4) : 0;
     int nRight  = HB_ISNUM(5) ? hb_parni(5) : 0;
     int nBottom = HB_ISNUM(6) ? hb_parni(6) : 0;
+
+    /* Harbour passes Nil when HWG_OPENBITMAP failed; HB_PARHANDLE()
+     * then yields NULL and the dereferences below would abort the
+     * process.  GDK_IS_PIXBUF also catches a stale handle left over
+     * after HWG_DELETEOBJECT. */
+    if( !hDC || !obj || !obj->handle || !GDK_IS_PIXBUF( obj->handle ) )
+        return;
+
+    widget = hDC->widget;
 
     if( nLeft == 0 && nRight == 0 ) {
         nLeft = nTop = 0;
@@ -745,8 +796,15 @@ HB_FUNC( HWG_SPREADBITMAP )
     x2 = nRight  - nLeft + 1;
     y2 = nBottom - nTop  + 1;
 
-    pixbuf = gdk_pixbuf_new( GDK_COLORSPACE_RGB, 0,
-                             gdk_pixbuf_get_bits_per_sample( obj->handle ), x2-x1+1, y2-y1+1 );
+    /* Match the alpha channel of the source.  PNGs are loaded with
+     * has_alpha = TRUE by default, and gdk_pixbuf_copy_area() refuses
+     * to copy from an alpha source into a non-alpha destination -- it
+     * silently returns without writing, leaving the destination blank.
+     * Aligning the two lets the copy proceed as expected. */
+    pixbuf = gdk_pixbuf_new( GDK_COLORSPACE_RGB,
+                             gdk_pixbuf_get_has_alpha( obj->handle ),
+                             gdk_pixbuf_get_bits_per_sample( obj->handle ),
+                             x2-x1+1, y2-y1+1 );
 
     nWidth  = gdk_pixbuf_get_width(  obj->handle );
     nHeight = gdk_pixbuf_get_height( obj->handle );
@@ -770,8 +828,27 @@ HB_FUNC( HWG_SPREADBITMAP )
 HB_FUNC( HWG_GETBITMAPSIZE )
 {
     PHWGUI_PIXBUF obj = (PHWGUI_PIXBUF) HB_PARHANDLE(1);
-    PHB_ITEM aMetr = hb_itemArrayNew( 2 );
+    PHB_ITEM aMetr;
     PHB_ITEM temp;
+
+    /* Return {0,0} instead of Nil when the pixbuf is missing, so
+     * PRG code that reads a[1]/a[2] unconditionally keeps working.
+     * HB_OPENBITMAP returns no value on failure; the caller side
+     * then holds Nil, and passing that into hb_itemArrayPut() would
+     * trigger a Harbour "no value" error instead of a graceful
+     * zero-size result. */
+    if( !obj || !obj->handle || !GDK_IS_PIXBUF( obj->handle ) )
+    {
+        aMetr = hb_itemArrayNew( 2 );
+        temp = hb_itemPutNL( NULL, 0 );
+        hb_itemArrayPut( aMetr, 1, temp ); hb_itemRelease( temp );
+        temp = hb_itemPutNL( NULL, 0 );
+        hb_itemArrayPut( aMetr, 2, temp ); hb_itemRelease( temp );
+        hb_itemRelease( hb_itemReturn( aMetr ) );
+        return;
+    }
+
+    aMetr = hb_itemArrayNew( 2 );
 
     temp = hb_itemPutNL( NULL, gdk_pixbuf_get_width(  obj->handle ) );
     hb_itemArrayPut( aMetr, 1, temp ); hb_itemRelease( temp );
@@ -817,12 +894,30 @@ HB_FUNC( HWG_OPENIMAGE )
     int height = HB_ISNIL(4) ? 0 : hb_parni(4);
 
     if( iString ) {
-        guint8 *buf = (guint8*) hb_parc(1);
-        short int iOk;
-        GdkPixbufLoader *loader = gdk_pixbuf_loader_new();
-        iOk = gdk_pixbuf_loader_write( loader, buf, hb_parclen(1), NULL );
-        gdk_pixbuf_loader_close( loader, NULL );
-        if( iOk ) handle = gdk_pixbuf_loader_get_pixbuf( loader );
+        guint8          *buf = (guint8*) hb_parc(1);
+        GdkPixbufLoader *loader;
+        GdkPixbuf       *loaded;
+
+        if( !buf ) {
+            hb_ret();
+            return;
+        }
+
+        loader = gdk_pixbuf_loader_new();
+        gdk_pixbuf_loader_write( loader, buf, (gsize) hb_parclen(1), NULL );
+
+        /* gdk_pixbuf_loader_close() reports errors that only surface
+         * during the final decode step (PNG CRC, JPEG EOI, etc.),
+         * which gdk_pixbuf_loader_write() alone does not catch. */
+        if( gdk_pixbuf_loader_close( loader, NULL ) ) {
+            loaded = gdk_pixbuf_loader_get_pixbuf( loader );
+            if( loaded && GDK_IS_PIXBUF( loaded ) )
+                /* get_pixbuf() is transfer-none: the pixbuf is owned
+                 * by the loader.  Take our own reference before the
+                 * loader is unref'd below. */
+                handle = GDK_PIXBUF( g_object_ref( loaded ) );
+        }
+        g_object_unref( loader );
     } else {
         if( width > 0 && height > 0 )
             handle = gdk_pixbuf_new_from_file_at_scale( hb_parc(1), width, height, TRUE, NULL );
@@ -869,9 +964,13 @@ HB_FUNC( HWG_CREATESOLIDBRUSH )
 
 HB_FUNC( HWG_SELECTOBJECT )
 {
+    PHWGUI_HDC       hDC = (PHWGUI_HDC) HB_PARHANDLE(1);
     HWGUI_HDC_OBJECT *obj = (HWGUI_HDC_OBJECT*) HB_PARHANDLE(2);
 
-    hwg_SelectObject( (PHWGUI_HDC) HB_PARHANDLE(1), obj );
+    if( !hDC || !obj )
+        return;
+
+    hwg_SelectObject( hDC, obj );
 
     if( obj->type == HWGUI_OBJECT_PEN )
         nCurrPenClr = ((PHWGUI_PEN)obj)->color;
@@ -1508,7 +1607,7 @@ void *hwg_BMPNewImageC( int pbmp_width, int pbmp_height, int pbmp_bit_depth,
                 for( j = 0; j < bmp_width; j += 2 ) {
                     tmp = 0;
                     tmp |= pbitmap.pixel_data[i][j].i << 4;
-                    if( j + 1 < bmp_height )
+                    if( j + 1 < bmp_width )
                         tmp |= pbitmap.pixel_data[i][j+1].i & mask4[LO_NIBBLE];
                     *buf++ = tmp;
                 }

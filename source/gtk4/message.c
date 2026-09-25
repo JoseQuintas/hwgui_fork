@@ -33,6 +33,13 @@
  *   label on presentation, which paints it with the theme's selection
  *   colours.  Focus goes to the first button, which is also set as
  *   the default widget so Enter activates it.
+ *
+ *   Both the message body and the window title arrive from Harbour as
+ *   single-byte Latin-1 data (see hwg_convert_to_utf8 in window.c).
+ *   GTK requires valid UTF-8 in every string API, so both are passed
+ *   through the converter before touching GTK.  Without that, the
+ *   title bar shows mojibake and pango prints "Invalid UTF-8 string
+ *   passed to pango_layout_set_text()" warnings on any accented text.
  */
 
 #include "guilib.h"
@@ -47,6 +54,7 @@
 #include "warnings.h"
 
 extern GtkWidget *GetActiveWindow( void );
+extern gchar     *hwg_convert_to_utf8( const char * szText );
 
 /* Response ids exposed to Harbour (Win32-compatible). */
 #define IDCANCEL   2
@@ -204,6 +212,7 @@ static int hwg_message_box( const char *cMsg, const char *cTitle,
     GtkWindow      *parent;
     HWG_DIALOG_CTX  ctx;
     gchar          *gcptr;
+    gchar          *gcTitle;
     const char     *icon_name;
     const char     *title;
     int             i;
@@ -212,9 +221,23 @@ static int hwg_message_box( const char *cMsg, const char *cTitle,
     icon_name = hwg_icon_name( message_type );
     title     = ( cTitle && *cTitle ) ? cTitle : hwg_default_title( message_type );
 
+    /*
+     * The title arrives from Harbour as Latin-1 bytes (see
+     * hwg_convert_to_utf8 in window.c).  GTK requires valid UTF-8 in
+     * every string API, so without this conversion the window manager
+     * prints "Invalid utf8 passed to gdk_surface_set_title" and the
+     * title bar shows mojibake for any accented character.
+     *
+     * hwg_default_title() returns a string from the GTK catalogue,
+     * which is already UTF-8; passing it through the converter is
+     * harmless because hwg_convert_to_utf8() short-circuits on valid
+     * input.  gcTitle is freed at the end of this function.
+     */
+    gcTitle = hwg_convert_to_utf8( title );
+
     /* ---- window -------------------------------------------------- */
     dialog = gtk_window_new();
-    gtk_window_set_title( GTK_WINDOW( dialog ), title );
+    gtk_window_set_title( GTK_WINDOW( dialog ), gcTitle );
     gtk_window_set_modal( GTK_WINDOW( dialog ), TRUE );
     gtk_window_set_resizable( GTK_WINDOW( dialog ), FALSE );
     gtk_window_set_icon_name( GTK_WINDOW( dialog ), icon_name );
@@ -330,6 +353,8 @@ static int hwg_message_box( const char *cMsg, const char *cTitle,
      */
     if( GTK_IS_WINDOW( dialog ) )
         gtk_window_destroy( GTK_WINDOW( dialog ) );
+
+    g_free( gcTitle );
 
     return ctx.response;
 }

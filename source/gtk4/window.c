@@ -281,10 +281,7 @@ static void hwg_install_entry_css( void )
     gtk_css_provider_load_from_string( s_EntryCss,
                                        /*
                                         * Geometry only -- no colours.  Colours come from the current
-                                        * GTK theme (light or dark, as the OS dictates).  This way the
-                                        * entry matches the rest of the window and the popovers, and
-                                        * any application theme.css loaded later (priority 801) can
-                                        * override everything.
+                                        * GTK theme (light or dark, as the OS dictates).
                                         */
                                        "entry,"
                                        "entry.entry,"
@@ -1376,6 +1373,84 @@ HB_FUNC( HWG_GETACTIVEWINDOW )
     HB_RETHANDLE( GetActiveWindow() );
 }
 
+/* =====================================================================
+ *  Scrollbar style
+ *
+ *  Give GTK4 scrollbars a visible, thin, Windows-like appearance.
+ *  Track is transparent; only the slider is drawn, with a fixed grey
+ *  colour so it works regardless of the current theme.
+ *
+ *  Applied once per process from HWG_GTK_INIT.
+ * ===================================================================== */
+static GtkCssProvider *s_ScrollbarCss = NULL;
+
+static void hwg_install_scrollbar_css( void )
+{
+    if( s_ScrollbarCss )
+        return;
+
+    s_ScrollbarCss = gtk_css_provider_new();
+
+    gtk_css_provider_load_from_string( s_ScrollbarCss,
+                                       "scrollbar {"
+                                       "  background-color: transparent;"
+                                       "  background-image: none;"
+                                       "  border: none;"
+                                       "  padding: 0;"
+                                       "  min-width: 8px;"
+                                       "  min-height: 8px;"
+                                       "}"
+                                       "scrollbar.vertical {"
+                                       "  min-width: 8px;"
+                                       "}"
+                                       "scrollbar.horizontal {"
+                                       "  min-height: 8px;"
+                                       "}"
+                                       "scrollbar trough {"
+                                       "  background-color: transparent;"
+                                       "  background-image: none;"
+                                       "}"
+                                       "scrollbar.vertical slider {"
+                                       "  background-color: #909090;"
+                                       "  background-image: none;"
+                                       "  border: none;"
+                                       "  border-radius: 4px;"
+                                       "  min-width: 6px;"
+                                       "  min-height: 30px;"
+                                       "  margin: 1px;"
+                                       "}"
+                                       "scrollbar.horizontal slider {"
+                                       "  background-color: #909090;"
+                                       "  background-image: none;"
+                                       "  border: none;"
+                                       "  border-radius: 4px;"
+                                       "  min-width: 30px;"
+                                       "  min-height: 6px;"
+                                       "  margin: 1px;"
+                                       "}"
+                                       "scrollbar.vertical slider:hover {"
+                                       "  background-color: #b0b0b0;"
+                                       "  background-image: none;"
+                                       "}"
+                                       "scrollbar.horizontal slider:hover {"
+                                       "  background-color: #b0b0b0;"
+                                       "  background-image: none;"
+                                       "}"
+                                       "scrollbar.vertical slider:active {"
+                                       "  background-color: #d0d0d0;"
+                                       "  background-image: none;"
+                                       "}"
+                                       "scrollbar.horizontal slider:active {"
+                                       "  background-color: #d0d0d0;"
+                                       "  background-image: none;"
+                                       "}"
+    );
+
+    gtk_style_context_add_provider_for_display(
+        gdk_display_get_default(),
+                                               GTK_STYLE_PROVIDER( s_ScrollbarCss ),
+                                               GTK_STYLE_PROVIDER_PRIORITY_USER );
+}
 
 HB_FUNC( HWG_GTK_INIT )
 {
@@ -1398,6 +1473,7 @@ HB_FUNC( HWG_GTK_INIT )
     gtk_init();
 
     hwg_install_entry_css();
+    hwg_install_scrollbar_css();
 }
 
 HB_FUNC( HWG_GTK_EXIT )
@@ -1997,6 +2073,35 @@ HB_FUNC( HWG_GETWINDOWPOS )
 }
 
 
+/*
+ * Conversion between the encoding that Harbour hands us and the UTF-8
+ * that GTK requires.
+ *
+ * Background: this Harbour build delivers string bytes exactly as they
+ * are stored in the .prg source (and in DBF tables), which is Latin-1 /
+ * CP1252 on a Brazilian codebase.  GTK 4 requires valid UTF-8 in every
+ * string API, so a real conversion is needed on the way in, and the
+ * inverse on the way out.
+ *
+ * The previous implementation relied on g_locale_to_utf8() and, on the
+ * return path, on g_locale_from_utf8().  That works only when the
+ * process locale charset actually matches the bytes: HWG_GTK_INIT
+ * forces LC_CTYPE to "C.UTF-8", so g_locale_to_utf8() believes the
+ * input is UTF-8, fails on the first accented byte, and the fallback
+ * returns the raw Latin-1 bytes -- which GTK then rejects with
+ * "Invalid utf8" warnings and renders as garbage.
+ *
+ * Use ISO-8859-1 as the source charset, explicitly.  It maps every byte
+ * value 0x00-0xFF, so g_convert() never fails on a valid Latin-1 input,
+ * unlike CP1252 (which leaves 0x81, 0x8D, 0x8F, 0x90, 0x9D undefined).
+ * All the accented letters used in Portuguese share the same bytes in
+ * ISO-8859-1 and CP1252, so the conversion is identical for the
+ * characters that matter here.
+ *
+ * If the .prg / DBF files are ever migrated to UTF-8, the initial
+ * g_utf8_validate() check on the input side will short-circuit and the
+ * function becomes a cheap copy -- no build-time flag required.
+ */
 gchar * hwg_convert_to_utf8( const char * szText )
 {
     gchar  *result = NULL;
@@ -2005,21 +2110,23 @@ gchar * hwg_convert_to_utf8( const char * szText )
     if( !szText || !*szText )
         return g_strdup( "" );
 
+    /* Already valid UTF-8: nothing to do.  Covers the future case
+     * where the .prg files (or DBF content) are UTF-8. */
+    if( g_utf8_validate( szText, -1, NULL ) )
+        return g_strdup( szText );
+
+    /* Single-byte source: convert explicitly, ignoring the process
+     * locale (which is forced to UTF-8 and would give the wrong
+     * answer for Latin-1 input). */
     if( *szAppLocale )
         result = g_convert( szText, -1, "UTF-8", szAppLocale, NULL, NULL, &err );
     else
-        result = g_locale_to_utf8( szText, -1, NULL, NULL, &err );
+        result = g_convert( szText, -1, "UTF-8", "ISO-8859-1", NULL, NULL, &err );
 
     if( !result )
     {
         if( err )
             g_error_free( err );
-        return g_strdup( szText );
-    }
-
-    if( !g_utf8_validate( result, -1, NULL ) )
-    {
-        g_free( result );
         return g_strdup( szText );
     }
 
@@ -2034,10 +2141,13 @@ gchar * hwg_convert_from_utf8( const char * szText )
     if( !szText || !*szText )
         return g_strdup( "" );
 
+    /* GTK gives us UTF-8 by construction.  Convert back to the
+     * single-byte charset that the .prg expects, so that Harbour
+     * gets the same byte representation it wrote. */
     if( *szAppLocale )
         result = g_convert( szText, -1, szAppLocale, "UTF-8", NULL, NULL, &err );
     else
-        result = g_locale_from_utf8( szText, -1, NULL, NULL, &err );
+        result = g_convert( szText, -1, "ISO-8859-1", "UTF-8", NULL, NULL, &err );
 
     if( !result )
     {

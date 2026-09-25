@@ -17,19 +17,16 @@
  *  - The critical GTK4 change is *outside* this file: hwg_Getdc() must
  *    return the live cairo_t when it is called from inside a
  *    GtkDrawingArea draw_func (which is the case for HBrowse:Paint()).
- *    See draw.c for HWG_GETDC / HWG_RELEASEDC adjustments.
  *
  *  - hwg_Invalidaterect() in GTK4 ignores the rectangle and always
  *    redraws the whole widget (partial redraws were removed from GTK4).
- *    The behavioural consequence is that a scroll that used to repaint
- *    just two rows now repaints the entire browse. The visible result
- *    is the same.
  *
  *  - hwg_Redrawwindow() in GTK4 ignores the RDW_* flags.
  *
- *  - The "GTK2 SCROLL FIX" comments inherited from the previous port are
- *    still valid: the underlying issue (scrollbar allocation timing) is
- *    a property of GTK2/3/4 alike.
+ *  - Scrollbar visibility: the GTK4 GtkAdjustment must keep
+ *    upper > page_size to be shown.  The Paint() method drives both
+ *    scrollbars directly, guarding on nRows > 0 so the decision is
+ *    only taken after the widget has a real geometry.
  */
 
 #include "hwgui.ch"
@@ -244,10 +241,8 @@ METHOD New( lType, oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, oFont,
       bInit, bSize, bPaint, bEnter, bGfocus, bLfocus, lNoVScroll, ;
       lNoBorder, lAppend, lAutoedit, bUpdate, bKeyDown, bPosChg, lMultiSelect, bRClick ) CLASS HBrowse
 
-   LOCAL aColors := hwg_GetThemeColors()
-
    /* GTK SCROLL FIX: Force both WS_VSCROLL and WS_HSCROLL to enable vertical
-      and horizontal bars.  Behaviour is identical in GTK2/3/4. */
+      and horizontal bars. */
    nStyle := Hwg_BitOr( iif( nStyle == Nil,0,nStyle ), WS_CHILD + WS_VISIBLE +  ;
       iif( lNoBorder = Nil .OR. !lNoBorder, WS_BORDER, 0 ) +            ;
       iif( lNoVScroll = Nil .OR. !lNoVScroll, WS_VSCROLL + WS_HSCROLL, WS_HSCROLL ) )
@@ -273,13 +268,11 @@ METHOD New( lType, oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, oFont,
       ::aSelected := {}
    ENDIF
 
-   ::tcolor     := aColors[2]   /* fg        */
-   ::bcolor     := aColors[1]   /* bg        */
-   ::tcolorSel  := aColors[5]   /* sel_fg    */
-   ::bcolorSel  := aColors[4]   /* sel_bg    */
-   ::htbColor   := aColors[6]   /* header_bg */
-   ::httColor   := aColors[7]   /* header_fg */
-   ::sepColor   := aColors[8]   /* separator */
+   ::tcolor := 0
+   ::bcolor := hwg_ColorC2N( "FFFFFF" )
+   ::tcolorSel := ::httColor := hwg_ColorC2N( "FFFFFF" )
+   ::bcolorSel := hwg_ColorC2N( "808080" )
+   ::htbColor := 2896388
 
    ::InitBrw()
    ::Activate()
@@ -324,11 +317,6 @@ METHOD onEvent( msg, wParam, lParam )  CLASS HBrowse
 
       IF msg == WM_PAINT
          ::Paint()
-         /*
-          * GTK4 note: cb_event returns this value straight to the
-          * GtkDrawingArea draw_func caller.  0 == "keep going",
-          * nonzero == "stop signal chain".  Returning 0 is correct.
-          */
          retValue := 0
 
       ELSEIF msg == WM_ERASEBKGND
@@ -445,7 +433,7 @@ METHOD onEvent( msg, wParam, lParam )  CLASS HBrowse
             retValue := -1
          ENDIF
 
-         IF msg == WM_KEYDOWN .and. wParam == GDK_Up .or. wParam == GDK_Down
+         IF msg == WM_KEYDOWN .AND. ( wParam == GDK_Up .OR. wParam == GDK_Down )
             ::MouseWheel()
          ENDIF
       ENDIF
@@ -461,9 +449,8 @@ METHOD Init() CLASS HBrowse
 
       /*
        * GTK SCROLL POINTER BRIDGE: Force the original class pointers
-       * (hScrollV/hScrollH) to safely inherit the active dynamic adjustment
-       * instances created by control.c (_HSCROLLV/_HSCROLLH).
-       * Same pattern in GTK2/3/4.
+       * (hScrollV/hScrollH) to safely inherit the active dynamic
+       * adjustment instances created by control.c (_HSCROLLV/_HSCROLLH).
        */
       IF __ObjHasMsg( Self, "_HSCROLLV" ) .AND. ::_HSCROLLV != Nil
          ::hScrollV := ::_HSCROLLV
@@ -584,11 +571,6 @@ METHOD InitBrw( nType )  CLASS HBrowse
       ::aArray   := Nil
       ::freeze := ::height := 0
 
-      /*
-       * GTK4: cursor creation via gdk_cursor_new_from_name() in control.c.
-       * The legacy GDK_* numeric constants are mapped to CSS cursor names
-       * inside HWG_LOADCURSOR.
-       */
       IF Empty( crossCursor )
          crossCursor := hwg_Loadcursor( GDK_CROSS )
          arrowCursor := hwg_Loadcursor( GDK_LEFT_PTR )
@@ -723,7 +705,6 @@ METHOD Rebuild( hDC ) CLASS HBrowse
    ::lChanged := .F.
 
    IF ::handle != Nil
-      /* GTK GEOMETRY FIX: skip hwg_Showall to avoid collapsing scrollbars. */
       hwg_RedrawWindow( ::handle )
    ENDIF
 
@@ -740,10 +721,6 @@ METHOD Paint()  CLASS HBrowse
       RETURN Nil
    ENDIF
 
-   /*
-    * GTK4: hwg_Getdc() detects that we are inside the ::area draw_func and
-    * returns the live cairo_t instead of an offscreen surface.
-    */
    hDC := hwg_Getdc( ::area )
 
    IF ::oFont != Nil
@@ -793,18 +770,46 @@ METHOD Paint()  CLASS HBrowse
       ENDIF
    ENDIF
 
-   /* GTK SCROLL FIX: read dynamic adjustment properties set by control.c */
-   IF __ObjHasMsg( Self, "_HSCROLLV" ) .AND. ::_HSCROLLV != Nil
-      tmp := Iif( ::nRecords < 100, ::nRecords, 100 )
-      i := Iif( ::nRecords < 100, 1, ::nRecords/100 )
-      IF hwg_SetAdjOptions( ::_HSCROLLV, , tmp + nRows, i, nRows, nRows )
-         ::lSetAdj := .T.
+   /*
+    * GTK4 scrollbars.
+    *
+    * Guard on nRows > 0: on the very first Paint() the widget has no
+    * geometry yet, so rowCount / nRows would be 0 or negative.  If we
+    * took a visibility decision then, we might hide a scrollbar that
+    * is actually needed and never re-evaluate it.  With nRows > 0 we
+    * only make the decision when the geometry is real.
+    *
+    * hwg_SetScrollVisible is idempotent: it can be called on every
+    * Paint() without harm.
+    */
+   IF __ObjHasMsg( Self, "_HSCROLLV" ) .AND. ::_HSCROLLV != Nil .AND. nRows > 0
+      IF ::nRecords > nRows
+         tmp := Iif( ::nRecords < 100, ::nRecords, 100 )
+         /* step_increment stays at 1 so one arrow click is exactly
+          * one record -- the semantics DoVScroll expects.  The thumb
+          * range (upper - page_size = ::nRecords) still spans every
+          * record one-to-one.  Previously this passed nRecords/100,
+          * which broke DoVScroll's literal comparisons and made
+          * arrow clicks jump several rows on large tables. */
+         IF hwg_SetAdjOptions( ::_HSCROLLV, NIL, tmp + nRows, 1, nRows, nRows )
+            ::lSetAdj := .T.
+         ENDIF
+         hwg_SetScrollVisible( ::_HSCROLLV, .T. )
+      ELSE
+         hwg_SetScrollVisible( ::_HSCROLLV, .F. )
       ENDIF
    ENDIF
 
-   IF __ObjHasMsg( Self, "_HSCROLLH" ) .AND. ::_HSCROLLH != Nil
-      tmp := Len( ::aColumns )
-      hwg_SetAdjOptions( ::_HSCROLLH, , tmp + 1, 1, 1, 1 )
+   IF __ObjHasMsg( Self, "_HSCROLLH" ) .AND. ::_HSCROLLH != Nil .AND. nRows > 0
+      IF Len( ::aColumns ) > ::nColumns
+         tmp := Len( ::aColumns )
+         IF hwg_SetAdjOptions( ::_HSCROLLH, NIL, tmp + 1, 1, 1, 1 )
+            ::lSetAdj := .T.
+         ENDIF
+         hwg_SetScrollVisible( ::_HSCROLLH, .T. )
+      ELSE
+         hwg_SetScrollVisible( ::_HSCROLLH, .F. )
+      ENDIF
    ENDIF
 
    IF ::lRefrLinesOnly
@@ -1328,7 +1333,7 @@ RETURN Nil
 
 METHOD DoVScroll( wParam ) CLASS HBrowse
 
-   LOCAL nScrollV
+   LOCAL nScrollV, nStep, nPage, nDelta
 
    IF ::hScrollV == Nil
       RETURN 0
@@ -1343,13 +1348,22 @@ METHOD DoVScroll( wParam ) CLASS HBrowse
       RETURN 0
    ENDIF
 
-   IF nScrollV - ::nScrollV == 1
+   /* Read the live increments from the GtkAdjustment.  Paint() sets
+    * them (step = 1, page = nRows); using the actual values means a
+    * future change in Paint() does not require touching this method.
+    * The previous literal comparisons (1 and 10) silently failed on
+    * large tables because step_increment was set to nRecords/100. */
+   nStep  := hwg_getAdjValue( ::hScrollV, 2 )   /* step_increment */
+   nPage  := hwg_getAdjValue( ::hScrollV, 3 )   /* page_increment */
+   nDelta := nScrollV - ::nScrollV
+
+   IF nStep > 0 .AND. nDelta == nStep
       ::LINEDOWN( .T. )
-   ELSEIF nScrollV - ::nScrollV == - 1
+   ELSEIF nStep > 0 .AND. nDelta == - nStep
       ::LINEUP( .T. )
-   ELSEIF nScrollV - ::nScrollV == 10
+   ELSEIF nPage > 0 .AND. nDelta == nPage
       ::PAGEDOWN( .T. )
-   ELSEIF nScrollV - ::nScrollV == - 10
+   ELSEIF nPage > 0 .AND. nDelta == - nPage
       ::PAGEUP( .T. )
    ELSE
       IF ::bScrollPos != Nil
@@ -1573,9 +1587,19 @@ METHOD BOTTOM( lPaint ) CLASS HBrowse
 
    LOCAL nPos
 
-   ::rowPos := LastRec()
+   /* LastRec() is DBF-only.  For BRW_ARRAY it reads from whatever
+    * workarea happens to be open -- unrelated to the browse, and
+    * possibly closed.  The value was overwritten two lines below
+    * anyway, so removing the call leaves the outcome identical for
+    * DBF browses and stops touching unrelated state for array
+    * browses.
+    *
+    * The Min() clamp keeps rowPos inside the visible rows, but the
+    * floor of 1 is required for the case where rowCount is still 0
+    * (BOTTOM called before the first Paint(): geometry not yet
+    * negotiated).  Every drawing routine assumes rowPos >= 1. */
    Eval( ::bGoBot, Self )
-   ::rowPos := Min( ::nRecords, ::rowCount )
+   ::rowPos := Max( 1, Min( ::nRecords, ::rowCount ) )
 
    IF ::hScrollV != Nil
       nPos := hwg_getAdjValue( ::hScrollV, 1 ) - hwg_getAdjValue( ::hScrollV, 4 )
@@ -1706,10 +1730,29 @@ METHOD ButtonRDown( lParam ) CLASS HBrowse
    x1  := ::x1
    fif := iif( ::freeze > 0, 1, ::nLeftCol )
 
-   DO WHILE fif < ( ::nLeftCol + ::nColumns ) .AND. x1 + ::aColumns[ fif ]:width < xm
+   /* Bounded traversal: without the fif <= Len(::aColumns) check the
+    * loop runs past the last column whenever the user right-clicks
+    * outside the table area (border, padding, empty space to the
+    * right of the data).  That would call bRClick with an invalid
+    * column index, and the handler typically indexes aColumns[fif]
+    * directly -- aborting or, worse, reading into the wrong slot.
+    * ButtonDown (left button) already has this guard; this method
+    * was missing it. */
+   DO WHILE fif < ( ::nLeftCol + ::nColumns ) .AND. ;
+            fif <= Len( ::aColumns ) .AND. ;
+            x1 + ::aColumns[ fif ]:width < xm
       x1 += ::aColumns[ fif ]:width
       fif := iif( fif == ::freeze, ::nLeftCol, fif + 1 )
    ENDDO
+
+   /* Clamp into the valid range before dispatching, in case the
+    * caller's bRClick relies on fif being a real column index. */
+   IF fif > Len( ::aColumns )
+      fif := Len( ::aColumns )
+   ENDIF
+   IF fif < 1
+      fif := 1
+   ENDIF
 
    Eval( ::bRClick, Self, fif, nLine - ::rowPos + ::nCurrent )
 
@@ -1840,7 +1883,7 @@ METHOD Edit( wParam ) CLASS HBrowse
          RETURN Nil
       ENDIF
       IF ::type == BRW_DATABASE
-         IF ( ::alias ) -> (Dbinfo(DBI_ISREADONLY)) == .T.
+         IF ( ::alias ) -> ( Dbinfo(DBI_ISREADONLY)) == .T.
             RETURN Nil
          ENDIF
          ::varbuf := ( ::alias ) -> ( Eval( oColumn:block,,Self,fipos ) )
@@ -1947,19 +1990,6 @@ STATIC FUNCTION GetEventHandler( oBrw, msg, cod )
 
    IF msg == WM_KEYDOWN .AND. cod == GDK_Escape
 
-      /*
-       * GTK4 note: in GTK2 and Win32, moving focus away from a
-       * GtkEntry used to run the get's VALID automatically, and
-       * VldBrwEdit was what removed the entry from the parent's
-       * GetList.  On GTK4 the WM_KILLFOCUS path is delivered to
-       * HEdit:onEvent -> __Valid(), which sees oDlg:nLastKey == 27
-       * and intentionally SKIPS the save -- but __Valid does NOT
-       * remove the control.  Only VldBrwEdit does that.
-       *
-       * So we call VldBrwEdit ourselves.  It detects the ESC
-       * (bESCkey = .T.), skips the save, calls DelControl() and
-       * clears ::oGet, then gives focus back to the browse area.
-       */
       oBrw:oGet:nLastKey := GDK_Escape
       oBrw:lEditing := .F.
 
@@ -1987,16 +2017,6 @@ STATIC FUNCTION VldBrwEdit( oBrw, fipos, lAppM, lMemo )
 
    /*
     * Reentrancy guard.
-    *
-    * DelControl() below destroys the GtkEntry; on GTK4 that emits
-    * another focus-out synchronously, which re-enters HEdit:onEvent
-    * (WM_KILLFOCUS) and calls this function a second time.  By then
-    * oBrw:oGet (or oBrw:oEdit) is already Nil, and reading
-    * :nLastKey raises "BASE/1004 Method not exported: NLASTKEY",
-    * whose error dialog itself runs inside the focus handler and
-    * freezes the UI.
-    *
-    * If the get/edit is already gone, there is nothing left to do.
     */
    IF lMemo
       IF oBrw:oEdit == Nil
@@ -2008,27 +2028,17 @@ STATIC FUNCTION VldBrwEdit( oBrw, fipos, lAppM, lMemo )
       ENDIF
    ENDIF
 
-   /* Mysterious behavior of Harbour on Ubuntu and LinuxMINT:
-      Not ever found, that  ::cTextLockRec is not here
-      reachable, this function not member of HBROWSE class */
-     cErrMsgRecLock := oBrw:cTextLockRec
+   cErrMsgRecLock := oBrw:cTextLockRec
 
    // ESC key pressed ?
    IF lMemo
-      bESCkey := iif( oBrw:oEdit:nLastKey != GDK_Escape , .F. , .T. ) /* Memo edit */
+      bESCkey := iif( oBrw:oEdit:nLastKey != GDK_Escape , .F. , .T. )
    ELSE
-      bESCkey := iif( oBrw:oGet:nLastKey  != GDK_Escape , .F. , .T. ) /* GET */
+      bESCkey := iif( oBrw:oGet:nLastKey  != GDK_Escape , .F. , .T. )
    ENDIF
 
    IF .NOT. bESCkey
 
-      /*
-       * Windows and GTK2 tolerated any non-.F. return value from a
-       * column VALID block (Nil, string, number were all accepted).
-       * The GTK4 port used "!Eval(...)" which requires strictly
-       * logical and raises BASE/1066 otherwise.  Restoring the
-       * older semantic: only an explicit .F. vetoes the edit.
-       */
       IF !Empty( oColumn:bValid )
          xRet := Eval( oColumn:bValid, oBrw:varbuf, oBrw:oGet )
          IF ValType( xRet ) == "L" .AND. !xRet
@@ -2097,7 +2107,6 @@ STATIC FUNCTION VldBrwEdit( oBrw, fipos, lAppM, lMemo )
    ENDIF
 
    IF lMemo
-     //oBrw:oParent:DelControl( oBrw:oEdit ) //Here Crash on GTK! Itamar Lins
      oBrw:oEdit := Nil
    ELSE
      oBrw:oParent:DelControl( oBrw:oGet )
@@ -2119,7 +2128,6 @@ METHOD Refresh( lFull ) CLASS HBrowse
    IF lFull == Nil .OR. lFull
       ::lRefrHead := .T.
       ::lRefrLinesOnly := .F.
-      /* GTK4: RDW_* flags are ignored by HWG_REDRAWWINDOW. */
       hwg_Redrawwindow( ::area, RDW_ERASE + RDW_INVALIDATE + RDW_INTERNALPAINT + RDW_UPDATENOW )
    ELSE
       ::lRefrHead := .F.

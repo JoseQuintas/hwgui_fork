@@ -133,6 +133,49 @@ static GSimpleActionGroup *hwg_get_action_group( GtkWidget *hWnd )
     return group;
 }
 
+/* Actions for menu items whose owning window is not known at build
+ * time (context / popup menus are built before any window is chosen
+ * to host them).  HWG_TRACKMENU moves them into the active window's
+ * action group when the popup is actually shown.  Without this, the
+ * GSimpleAction for a popup item has no GActionMap to live in, and
+ * the popover menu -- which resolves items by action name -- invokes
+ * nothing when the user clicks. */
+static GSimpleActionGroup *s_pending_group = NULL;
+
+static GSimpleActionGroup *hwg_pending_group( void )
+{
+    if( !s_pending_group )
+        s_pending_group = g_simple_action_group_new();
+    return s_pending_group;
+}
+
+static void hwg_transfer_pending_actions( GtkWidget *parent )
+{
+    GSimpleActionGroup *wnd_group;
+    gchar **names;
+    gsize   i;
+
+    if( !s_pending_group || !parent || !GTK_IS_WIDGET( parent ) )
+        return;
+
+    wnd_group = hwg_get_action_group( parent );
+    if( !wnd_group )
+        return;
+
+    names = g_action_group_list_actions( G_ACTION_GROUP( s_pending_group ) );
+    for( i = 0; names && names[i]; i++ )
+    {
+        GAction *a = g_action_map_lookup_action( G_ACTION_MAP( s_pending_group ),
+                                                 names[i] );
+        if( a )
+            g_action_map_add_action( G_ACTION_MAP( wnd_group ), a );
+    }
+    g_strfreev( names );
+
+    g_object_unref( s_pending_group );
+    s_pending_group = NULL;
+}
+
 
 /* =====================================================================
  *  Action activation -> cb_signal (legacy bridge)
@@ -321,6 +364,9 @@ HB_FUNC( HWG__ADDMENUITEM )
             if( group )
                 g_action_map_add_action( G_ACTION_MAP( group ),
                                          G_ACTION( action ) );
+        } else {
+            group = hwg_pending_group();
+            g_action_map_add_action( G_ACTION_MAP( group ), G_ACTION( action ) );
         }
         g_object_unref( action );
 
@@ -380,6 +426,16 @@ HB_FUNC( HWG__ADDMENUITEM )
         if( group )
             g_action_map_add_action( G_ACTION_MAP( group ),
                                      G_ACTION( action ) );
+    }
+    else
+    {
+        /* No owning window yet -- context / popup menu item.  Stash
+         * the action in a pending group; HWG_TRACKMENU moves it into
+         * the active window's group when the popup is shown.  Without
+         * this the action has no GActionMap, and the popover menu
+         * silently invokes nothing on click. */
+        group = hwg_pending_group();
+        g_action_map_add_action( G_ACTION_MAP( group ), G_ACTION( action ) );
     }
     g_object_unref( action );
 
@@ -720,24 +776,77 @@ HB_FUNC( HWG__ISENABLEDMENUITEM )
  *
  *  Original GTK2 code used gtk_menu_popup() with the current event.
  *  In GTK4 we create a GtkPopoverMenu on the fly and pop it up on the
- *  active toplevel window.
+ *  active toplevel window, anchored at the current mouse position.
  * ===================================================================== */
 HB_FUNC( HWG_TRACKMENU )
 {
-    GMenuModel *model = (GMenuModel *) HB_PARHANDLE(1);
-    GtkWidget  *parent;
-    GtkWidget  *popover;
+    GMenuModel  *model = (GMenuModel *) HB_PARHANDLE(1);
+    GtkWidget   *parent;
+    GtkWidget   *popover;
+    GdkSurface  *surface;
+    GdkDisplay  *display;
+    GdkSeat     *seat;
+    GdkDevice   *device;
+    double       x = 0, y = 0;
+    GdkRectangle rect;
 
     if( !model || !G_IS_MENU_MODEL( model ) ) return;
 
     parent = GetActiveWindow();
     if( !parent ) return;
 
+    /* Install any actions that were stashed while the popup menu was
+     * being built (see HWG__ADDMENUITEM) into the active window's
+     * action group.  The popover resolves each item by its action
+     * name, so without this step a click on any popup item is a
+     * no-op -- the action exists but lives nowhere the menu can find. */
+    hwg_transfer_pending_actions( parent );
+
     popover = gtk_popover_menu_new_from_model( model );
     gtk_widget_set_parent( popover, parent );
+
+    /*
+     * Anchor the popover at the mouse pointer.
+     *
+     * GTK4 needs two things to place a popover correctly:
+     *   1. a parent widget (done above), and
+     *   2. a "pointing_to" rect expressed in coordinates relative to
+     *      that parent.
+     *
+     * Without (2), GtkPopover has no reference point and falls back to
+     * an arbitrary position -- in practice it appears near the bottom
+     * of the window, disconnected from the click.  That is the bug
+     * this fixes.
+     *
+     * We query the seat's pointer device for its position on the
+     * anchor's surface.  gdk_surface_get_device_position() returns
+     * coordinates already relative to the surface, which for a
+     * top-level GtkWindow (fully covering its own surface) are the
+     * same as coordinates relative to the widget itself -- so the rect
+     * lines up without further conversion.
+     */
+    surface = gtk_native_get_surface( GTK_NATIVE( parent ) );
+    if( surface )
+    {
+        display = gtk_widget_get_display( parent );
+        seat    = gdk_display_get_default_seat( display );
+        device  = gdk_seat_get_pointer( seat );
+
+        if( device )
+        {
+            gdk_surface_get_device_position( surface, device, &x, &y, NULL );
+
+            rect.x      = (int) x;
+            rect.y      = (int) y;
+            rect.width  = 1;
+            rect.height = 1;
+
+            gtk_popover_set_pointing_to( GTK_POPOVER( popover ), &rect );
+        }
+    }
+
     gtk_popover_popup( GTK_POPOVER( popover ) );
 }
-
 
 HB_FUNC( HWG_DESTROYMENU )
 {

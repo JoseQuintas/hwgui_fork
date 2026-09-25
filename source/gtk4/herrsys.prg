@@ -145,81 +145,93 @@ FUNCTION hwg_WriteLog( cText, fname )
    #undef HB_DEPRECATED
 #endif
 #include <gtk/gtk.h>
-
+extern gchar     *hwg_convert_to_utf8( const char * szText );
+extern GtkWidget *GetActiveWindow( void );
 /*
- * GTK4 callback: fired when the dialog receives a close request, which
- * happens when any GtkMessageDialog button is pressed OR when the user
- * clicks the window's X button.
+ * GTK4: GtkMessageDialog exposes TWO separate dismissal paths, and
+ * the original code only hooked one of them:
  *
- * GTK4 removed GtkDialog::response — close-request is the new entry
- * point for "the user dismissed this dialog".
+ *   - Click on the window decoration (X) or press Escape
+ *         -> emits "close-request"  (GtkWindow signal)
+ *   - Click on any dialog button (Close, OK, Yes, ...)
+ *         -> emits "response"       (GtkDialog signal)
  *
- * _exit(0) bypasses atexit handlers and the Harbour engine, exactly as
- * the original implementation did.  It is marked noreturn so GCC does
- * not warn about the missing return.
+ * Hook only "close-request" and the Close button appears to do
+ * nothing: the dialog is hidden by the default handler, the C loop
+ * in HWG_NATIVEERRORSHOW exits, the Harbour error handler returns,
+ * and the process keeps running in a broken state.  Both signals
+ * must be wired to the same killer action.
+ *
+ * _exit(0) bypasses atexit handlers and the Harbour engine, exactly
+ * as the original implementation did.
  */
-static gboolean native_kill_callback( GtkWindow *window, gpointer data )
+static gboolean native_close_request_cb( GtkWindow *window, gpointer data )
 {
    (void)window;
    (void)data;
 
-   /* Absolute hardware-level exit bypasses all pending GTK/Harbour events */
    _exit( 0 );
 
    return FALSE; /* unreachable */
 }
 
+static void native_response_cb( GtkDialog *dialog, gint response_id,
+                                gpointer data )
+{
+   (void)dialog;
+   (void)response_id;
+   (void)data;
+
+   _exit( 0 );
+}
+
 HB_FUNC( HWG_NATIVEERRORSHOW )
 {
-   const char *acMessage = hb_parc( 1 );
+    const char *acMessage = hb_parc( 1 );
 
-   if( acMessage )
-   {
-      GtkWidget *pDialog;
+    if( acMessage )
+    {
+        GtkWidget *pDialog;
+        GtkWidget *pParent;
+        gchar     *gcMessage;
 
-      /*
-       * GTK4: GTK_DIALOG_DESTROY_WITH_PARENT is deprecated (4.10); the
-       * destroy-with-parent behaviour is now the default.  We only pass
-       * GTK_DIALOG_MODAL.
-       */
-      pDialog = gtk_message_dialog_new( NULL,
-                                        GTK_DIALOG_MODAL,
-                                        GTK_MESSAGE_ERROR,
-                                        GTK_BUTTONS_CLOSE,
-                                        "%s", acMessage );
+        /* acMessage comes from Harbour as single-byte locale data
+         * (see hwg_convert_to_utf8 in window.c).  GTK requires valid
+         * UTF-8 in every string API; pass it through the converter
+         * first, otherwise pango_layout_set_text() warns and the
+         * message is rendered as garbage. */
+        gcMessage = hwg_convert_to_utf8( acMessage );
 
-      gtk_window_set_title( GTK_WINDOW( pDialog ),
-                            "HwGUI - Critical Engine Exception" );
+        /* Prefer the active toplevel as parent.  A NULL parent makes
+         * GTK emit "GtkDialog mapped without a transient parent";
+         * passing the active window also centres the dialog on it
+         * and makes it modal in practice. */
+        pParent = GetActiveWindow();
 
-      /*
-       * SUPREME BLINDAGE: connect close-request (GTK4 replacement for
-       * the removed "response" signal) to our killer callback.  The
-       * exact millisecond any button or the window close icon is
-       * pressed, the application terminates inside C, avoiding the
-       * broken Harbour engine loop.
-       */
-      g_signal_connect( pDialog, "close-request",
-                        G_CALLBACK( native_kill_callback ), NULL );
+        pDialog = gtk_message_dialog_new(
+            pParent && GTK_IS_WINDOW( pParent ) ? GTK_WINDOW( pParent ) : NULL,
+            GTK_DIALOG_MODAL,
+            GTK_MESSAGE_ERROR,
+            GTK_BUTTONS_CLOSE,
+            "%s", gcMessage );
 
-      /*
-       * GTK4: gtk_widget_show_all() was removed.  gtk_window_present()
-       * handles both showing the dialog and giving it focus.
-       */
-      gtk_window_present( GTK_WINDOW( pDialog ) );
+        g_free( gcMessage );
 
-      /*
-       * Run a clean, isolated iteration loop to hold the window visible.
-       * GTK4: gtk_main_iteration() was removed; g_main_context_iteration()
-       * is the equivalent primitive.
-       *
-       * The loop normally never terminates on its own: the close-request
-       * handler calls _exit(0) as soon as the user dismisses the dialog.
-       */
-      while( gtk_widget_get_visible( pDialog ) )
-      {
-         g_main_context_iteration( NULL, TRUE );
-      }
-   }
+        gtk_window_set_title( GTK_WINDOW( pDialog ),
+                              "HwGUI - Critical Engine Exception" );
+
+        g_signal_connect( pDialog, "close-request",
+                          G_CALLBACK( native_close_request_cb ), NULL );
+        g_signal_connect( pDialog, "response",
+                          G_CALLBACK( native_response_cb ), NULL );
+
+        gtk_window_present( GTK_WINDOW( pDialog ) );
+
+        while( gtk_widget_get_visible( pDialog ) )
+        {
+            g_main_context_iteration( NULL, TRUE );
+        }
+    }
 }
 
 #pragma ENDDUMP

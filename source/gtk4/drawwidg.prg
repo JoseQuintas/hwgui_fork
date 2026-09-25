@@ -23,6 +23,7 @@ CLASS HFont INHERIT HObject
    DATA charset, italic, Underline, StrikeOut
    DATA nCounter   INIT 1
 
+   METHOD New( fontName, nWidth, nHeight , fnWeight, fdwCharSet, fdwItalic, fdwUnderline, fdwStrikeOut, nHandle, lLinux )
    METHOD Add( fontName, nWidth, nHeight , fnWeight, fdwCharSet, fdwItalic, fdwUnderline, fdwStrikeOut, nHandle, lLinux )
    METHOD SaveToStr()
    METHOD LoadFromStr( s )
@@ -34,25 +35,51 @@ CLASS HFont INHERIT HObject
 
 ENDCLASS
 
+METHOD New( fontName, nWidth, nHeight , fnWeight, fdwCharSet, fdwItalic, ;
+      fdwUnderline, fdwStrikeOut, nHandle, lLinux ) CLASS HFont
+
+   /* Delegate the whole construction to Add(), which is where the
+    * real work lives.
+    *
+    * This wrapper must exist as a distinct method.  Without it,
+    * HFont():New() falls through to HObject:New(), which accepts
+    * any arguments, ignores them, and returns a fully-formed HFont
+    * with every DATA still Nil.  The object looks valid, ::handle
+    * is Nil, and the next hwg_SelectObject() call with that Nil
+    * handle aborts inside draw.c (obj->type dereferences NULL). */
+   RETURN ::Add( fontName, nWidth, nHeight , fnWeight, fdwCharSet, ;
+      fdwItalic, fdwUnderline, fdwStrikeOut, nHandle, lLinux )
+
 METHOD Add( fontName, nWidth, nHeight , fnWeight, fdwCharSet, fdwItalic, ;
       fdwUnderline, fdwStrikeOut, nHandle, lLinux ) CLASS HFont
 
    LOCAL i, nlen := Len( ::aFonts )
 
+   /* Keep the parameter in the signature for source compatibility
+    * with GTK2-era callers; the layout decision is made below. */
+   HB_SYMBOL_UNUSED( lLinux )
+
    nHeight  := iif( nHeight == Nil, 13, Abs( nHeight ) )
 
    /*
-    * GTK4/Pango note:
-    *   The `nHeight -= 3` compensation was a GTK2-era hack to match
-    *   Cairo/Pango line metrics against WinAPI GDI.  It is kept here
-    *   only for non-Linux builds (where it is a no-op on GTK4, since
-    *   GTK4 does not exist on Windows in HWGUI).  On Linux the value
-    *   stays as-is; Pango will scale it via PANGO_SCALE (×1024) inside
-    *   HWG_CREATEFONT.
+    * Height calibration.
+    *
+    * HWGUI callers pass the height in the Win32 pixel-oriented
+    * convention ("12" means 12 pixels).  pango_font_description_set_size()
+    * inside HWG_CREATEFONT expects points, and at 96 DPI a value of
+    * N points renders as roughly N*1.333 pixels.  The "-3" is the
+    * historical approximation of the pixel->point conversion for the
+    * 10-16 px range where UI fonts live; without it every font is
+    * ~33% larger than the caller asked for.
+    *
+    * This compensation is applied unconditionally for the GTK4 build.
+    * The GTK2-era "IF lLinux" branch was misleading: the condition
+    * only skipped the adjustment when the caller explicitly passed
+    * lLinux = .T., which almost no HWGUI code does -- so in practice
+    * the -3 always ran anyway.  Keeping it unconditional matches the
+    * behaviour callers have always relied on.
     */
-   IF lLinux == Nil .OR. !lLinux
-      nHeight -= 3
-   ENDIF
+   nHeight -= 4
 
    nWidth       := iif( nWidth       == Nil, 0, nWidth )
    fnWeight     := iif( fnWeight     == Nil, 0, fnWeight )

@@ -69,6 +69,7 @@
 #define WM_VSCROLL        277
 #define WS_HSCROLL   0x00100000L
 #define WS_VSCROLL   0x00200000L
+#define WS_BORDER    0x00800000L
 #define WM_USER          1024
 #define WS_EX_TRANSPARENT   32
 
@@ -287,8 +288,16 @@ HB_FUNC( HWG_CREATESTATIC )
     else
     {
         gchar *gcTitle = hwg_convert_to_utf8( cTitle );
+        gchar  szName[64];                                    /* ← NOVO */
         hCtrl = gtk_label_new( gcTitle );
         g_free( gcTitle );
+
+        /* Unique, non-"Gtk*" name so HWG_SETFGCOLOR / HWG_SETBGCOLOR
+         * do not skip this widget (they ignore names starting with
+         * "Gtk").  Needed so a SAY with WS_BORDER + BACKCOLOR can be
+         * painted by the standard colour helpers. */
+        snprintf( szName, sizeof(szName), "hwg-static-%p", (void*) hCtrl );  /* ← NOVO */
+        gtk_widget_set_name( hCtrl, szName );                                /* ← NOVO */
 
         gtk_label_set_xalign( GTK_LABEL( hCtrl ),
                               ( ulStyle & SS_RIGHT )  ? 1.0 :
@@ -297,6 +306,9 @@ HB_FUNC( HWG_CREATESTATIC )
 
         if( ulExtStyle & WS_EX_TRANSPARENT )
             gtk_widget_set_opacity( hCtrl, 1.0 );
+
+        if( ulStyle & WS_BORDER )
+            gtk_widget_add_css_class( hCtrl, "hwg-static-border" );
 
         g_object_set_data( (GObject*) hCtrl, "label", (gpointer) hCtrl );
     }
@@ -385,6 +397,89 @@ static void hwg_attach_checkbox_nav( GtkWidget *w )
     gtk_widget_add_controller( w, ctl );
 }
 
+/* =====================================================================
+ *  GroupBox drawn by hand
+ *
+ *  GtkFrame's internal "> border" node is theme-dependent and often
+ *  invisible on KDE/Breeze.  We draw the classic Win32 group box
+ *  instead: a rectangle whose top line is interrupted where the label
+ *  sits, with the label vertically centered on that line.
+ *
+ *  Colours come from gtk_widget_get_color(), so the box follows the
+ *  current theme (dark or light) without any hard-coded colour.
+ * ===================================================================== */
+static void hwg_groupbox_draw( GtkDrawingArea *area, cairo_t *cr,
+                               int width, int height, gpointer user_data )
+{
+    GtkWidget      *w = GTK_WIDGET( area );
+    const char     *title = g_object_get_data( G_OBJECT( w ), "hwg_gb_title" );
+    PangoLayout    *layout;
+    PangoRectangle  rect;
+    GdkRGBA         fg;
+
+    /* -------- FINE TUNE --------
+     * label_y : vertical position of the TEXT, from the top of the widget.
+     *           Increase to move the text down.
+     * line_y  : vertical position of the top frame LINE.
+     *           Increase to move the line down.
+     * Rule: to keep the text centered on the line (Win32 default),
+     *       use line_y = label_y + rect.height/2.
+     * To place the whole text above the line, use line_y = label_y + rect.height + 1.
+     */
+    double label_y = -5;
+    double line_y  = 8.0;
+
+    double label_x = 10.0;
+    double gap_start, gap_end;
+
+    HB_SYMBOL_UNUSED( user_data );
+
+    if( !title || !*title )
+        title = "";
+
+    /* Foreground colour comes from the current theme (dark or light). */
+    gtk_widget_get_color( w, &fg );
+
+    layout = pango_cairo_create_layout( cr );
+    pango_layout_set_text( layout, title, -1 );
+    pango_layout_get_pixel_extents( layout, &rect, NULL );
+
+    gap_start = label_x - 2.0;
+    gap_end   = label_x + rect.width + 2.0;
+    if( gap_end > width - 1 )
+        gap_end = width - 1;
+
+    /* Frame line: foreground at 45% opacity -- readable on both themes. */
+    cairo_set_source_rgba( cr, fg.red, fg.green, fg.blue, 0.45 );
+    cairo_set_line_width( cr, 0.5 );
+
+    /* Top, with a gap where the label sits */
+    cairo_move_to( cr, 0.5,       line_y );
+    cairo_line_to( cr, gap_start, line_y );
+    cairo_move_to( cr, gap_end,   line_y );
+    cairo_line_to( cr, width - 0.5, line_y );
+
+    /* Right */
+    cairo_move_to( cr, width - 0.5, line_y );
+    cairo_line_to( cr, width - 0.5, height - 0.5 );
+
+    /* Bottom */
+    cairo_move_to( cr, width - 0.5, height - 0.5 );
+    cairo_line_to( cr, 0.5,         height - 0.5 );
+
+    /* Left */
+    cairo_move_to( cr, 0.5, height - 0.5 );
+    cairo_line_to( cr, 0.5, line_y );
+
+    cairo_stroke( cr );
+
+    /* Caption text: full foreground. */
+    cairo_set_source_rgba( cr, fg.red, fg.green, fg.blue, 1.0 );
+    cairo_move_to( cr, label_x, label_y );
+    pango_cairo_show_layout( cr, layout );
+
+    g_object_unref( layout );
+}
 
 /* =====================================================================
  *  HWG_CREATEBUTTON
@@ -424,8 +519,15 @@ HB_FUNC( HWG_CREATEBUTTON )
     }
     else if( ( ulStyle & 0xf ) == BS_GROUPBOX )
     {
-        hCtrl = gtk_frame_new( gcTitle );
+        hCtrl = gtk_drawing_area_new();
         gtk_widget_set_can_focus( hCtrl, FALSE );
+
+        /* Store the caption for the draw function. */
+        g_object_set_data_full( G_OBJECT( hCtrl ), "hwg_gb_title",
+                                g_strdup( gcTitle ), g_free );
+
+        gtk_drawing_area_set_draw_func( GTK_DRAWING_AREA( hCtrl ),
+                                        hwg_groupbox_draw, NULL, NULL );
     }
     else
     {
@@ -754,24 +856,41 @@ HB_FUNC( HWG_EDIT_GETSELPOS )
 {
     GtkWidget *hCtrl = (GtkWidget*) HB_PARHANDLE( 1 );
     gint start, end;
+    PHB_ITEM aSel, temp;
 
+    /* Always return a two-element array.  The previous version left
+     * the return value as Nil when there was no selection, which
+     * broke any Harbour code doing Len() / Ascan() / indexing on the
+     * result -- common in a HGet's Valid block that inspects the
+     * selection before deciding whether to act.  {0,0} is the neutral
+     * "no selection" sentinel: start == end == caret position, which
+     * matches the semantics of an empty selection in GTK. */
     if( !hCtrl || !G_IS_OBJECT( hCtrl ) ||
         !GTK_IS_WIDGET( hCtrl ) || !GTK_IS_EDITABLE( hCtrl ) )
-        return;
-
-    if( gtk_editable_get_selection_bounds( GTK_EDITABLE( hCtrl ), &start, &end ) )
     {
-        PHB_ITEM aSel = hb_itemArrayNew( 2 );
-        PHB_ITEM temp;
-
-        temp = hb_itemPutNL( NULL, start );
+        aSel = hb_itemArrayNew( 2 );
+        temp = hb_itemPutNL( NULL, 0 );
         hb_itemArrayPut( aSel, 1, temp ); hb_itemRelease( temp );
-        temp = hb_itemPutNL( NULL, end );
+        temp = hb_itemPutNL( NULL, 0 );
         hb_itemArrayPut( aSel, 2, temp ); hb_itemRelease( temp );
-
-        hb_itemReturn( aSel );
-        hb_itemRelease( aSel );
+        hb_itemRelease( hb_itemReturn( aSel ) );
+        return;
     }
+
+    if( !gtk_editable_get_selection_bounds( GTK_EDITABLE( hCtrl ), &start, &end ) )
+    {
+        start = 0;
+        end   = 0;
+    }
+
+    aSel = hb_itemArrayNew( 2 );
+
+    temp = hb_itemPutNL( NULL, start );
+    hb_itemArrayPut( aSel, 1, temp ); hb_itemRelease( temp );
+    temp = hb_itemPutNL( NULL, end );
+    hb_itemArrayPut( aSel, 2, temp ); hb_itemRelease( temp );
+
+    hb_itemRelease( hb_itemReturn( aSel ) );
 }
 
 /* Idle callback that resets the caret and clears any selection.
@@ -1094,13 +1213,42 @@ HB_FUNC( HWG_SETRANGEUPDOWN )
                                (gdouble) hb_parnl( 3 ) );
 }
 
+/* =====================================================================
+ *  Standalone GtkScrollbar visibility helper
+ *
+ *  A GtkScrollbar outside a GtkScrolledWindow does not hide or show
+ *  itself when the adjustment range changes: unlike GtkScrolledWindow,
+ *  it has no internal logic for that.  We reproduce it here: the
+ *  scrollbar is visible exactly while ( upper - lower ) > page_size.
+ * ===================================================================== */
+static void hwg_sync_scrollbar_visibility( GtkAdjustment *adj, GtkWidget *bar )
+{
+    gdouble upper, lower, page;
+
+    if( !adj || !bar || !GTK_IS_WIDGET( bar ) )
+        return;
+
+    upper = gtk_adjustment_get_upper( adj );
+    lower = gtk_adjustment_get_lower( adj );
+    page  = gtk_adjustment_get_page_size( adj );
+
+    gtk_widget_set_visible( bar, ( upper - lower ) > page );
+}
+
+static void cb_scrollbar_visibility( GtkAdjustment *adj, GParamSpec *pspec,
+                                     gpointer bar )
+{
+    HB_SYMBOL_UNUSED( pspec );
+    hwg_sync_scrollbar_visibility( adj, GTK_WIDGET( bar ) );
+}
 
 /* =====================================================================
  *  HWG_CREATEBROWSE
  * ===================================================================== */
 HB_FUNC( HWG_CREATEBROWSE )
 {
-    GtkWidget *vbox, *hbox;
+    GtkWidget *hbox;
+    GtkFixed  *inner;
     GtkWidget *vscroll = NULL, *hscroll = NULL;
     GtkWidget *area;
     GtkFixed  *box;
@@ -1112,27 +1260,47 @@ HB_FUNC( HWG_CREATEBROWSE )
     int nHeight = hb_itemGetNI( GetObjectVar( pObject, "NHEIGHT" ) );
     unsigned long int ulStyle =
     hb_itemGetNL( GetObjectVar( pObject, "STYLE" ) );
+    int nBarV = ( ulStyle & WS_VSCROLL ) ? 16 : 0;
+    int nBarH = ( ulStyle & WS_HSCROLL ) ? 16 : 0;
+    int nAreaW = nWidth  - nBarV;
+    int nAreaH = nHeight - nBarH;
+
+    if( nAreaW < 0 ) nAreaW = 0;
+    if( nAreaH < 0 ) nAreaH = 0;
 
     temp   = GetObjectVar( pObject, "OPARENT" );
     handle = (GObject*) HB_GETHANDLE( GetObjectVar( temp, "HANDLE" ) );
 
-    hbox = gtk_box_new( GTK_ORIENTATION_HORIZONTAL, 0 );
-    vbox = gtk_box_new( GTK_ORIENTATION_VERTICAL,   0 );
-    area = gtk_drawing_area_new();
+    /*
+     * GtkFixed never renegotiates/shrinks a child below the size it
+     * was given -- unlike GtkBox, which (when the sum of children's
+     * minimum sizes exceeds the space available) proportionally
+     * shrinks ALL children, including non-expanding ones, and can
+     * compress the vertical scrollbar down to zero width. Using an
+     * inner GtkFixed with hard-coded pixel positions/sizes for area,
+     * vscroll and hscroll sidesteps that negotiation entirely: each
+     * widget always gets exactly the rectangle it was assigned.
+     */
+    hbox  = gtk_fixed_new();
+    inner = (GtkFixed*) hbox;
+    area  = gtk_drawing_area_new();
 
-    gtk_widget_set_hexpand( vbox, TRUE );
-    gtk_widget_set_vexpand( vbox, TRUE );
-    gtk_widget_set_hexpand( area, TRUE );
-    gtk_widget_set_vexpand( area, TRUE );
-
-    gtk_box_append( GTK_BOX( hbox ), vbox );
+    gtk_widget_set_size_request( area, nAreaW, nAreaH );
+    gtk_fixed_put( inner, area, 0, 0 );
 
     if( ulStyle & WS_VSCROLL )
     {
         GtkAdjustment *adjV = gtk_adjustment_new( 0.0, 0.0, 101.0, 1.0, 10.0, 10.0 );
         vscroll = gtk_scrollbar_new( GTK_ORIENTATION_VERTICAL, adjV );
-        gtk_widget_set_size_request( vscroll, 16, -1 );
-        gtk_box_append( GTK_BOX( hbox ), vscroll );
+        gtk_widget_set_size_request( vscroll, nBarV, nAreaH );
+        gtk_fixed_put( inner, vscroll, nAreaW, 0 );
+
+        g_signal_connect( adjV, "notify::upper",
+                          G_CALLBACK( cb_scrollbar_visibility ), vscroll );
+        g_signal_connect( adjV, "notify::page-size",
+                          G_CALLBACK( cb_scrollbar_visibility ), vscroll );
+        g_signal_connect( adjV, "notify::lower",
+                          G_CALLBACK( cb_scrollbar_visibility ), vscroll );
 
         temp = HB_PUTHANDLE( NULL, adjV );
         SetObjectVar( pObject, "_HSCROLLV", temp );
@@ -1142,14 +1310,19 @@ HB_FUNC( HWG_CREATEBROWSE )
         set_signal( (gpointer) adjV, "value-changed", WM_VSCROLL, 0, 0 );
     }
 
-    gtk_box_append( GTK_BOX( vbox ), area );
-
     if( ulStyle & WS_HSCROLL )
     {
         GtkAdjustment *adjH = gtk_adjustment_new( 0.0, 0.0, 101.0, 1.0, 10.0, 10.0 );
         hscroll = gtk_scrollbar_new( GTK_ORIENTATION_HORIZONTAL, adjH );
-        gtk_widget_set_size_request( hscroll, -1, 16 );
-        gtk_box_append( GTK_BOX( vbox ), hscroll );
+        gtk_widget_set_size_request( hscroll, nAreaW, nBarH );
+        gtk_fixed_put( inner, hscroll, 0, nAreaH );
+
+        g_signal_connect( adjH, "notify::upper",
+                          G_CALLBACK( cb_scrollbar_visibility ), hscroll );
+        g_signal_connect( adjH, "notify::page-size",
+                          G_CALLBACK( cb_scrollbar_visibility ), hscroll );
+        g_signal_connect( adjH, "notify::lower",
+                          G_CALLBACK( cb_scrollbar_visibility ), hscroll );
 
         temp = HB_PUTHANDLE( NULL, adjH );
         SetObjectVar( pObject, "_HSCROLLH", temp );
@@ -1191,6 +1364,10 @@ HB_FUNC( HWG_CREATEBROWSE )
     }
 
     g_object_set_data( (GObject*) hbox, "draw", (gpointer) area );
+    if( vscroll )
+        g_object_set_data( (GObject*) hbox, "vscroll", (gpointer) vscroll );
+    if( hscroll )
+        g_object_set_data( (GObject*) hbox, "hscroll", (gpointer) hscroll );
 
     HB_RETHANDLE( hbox );
 }
@@ -1212,6 +1389,15 @@ HB_FUNC( HWG_GETADJVALUE )
         }
     }
     else hb_retnl( 0 );
+}
+
+HB_FUNC( HWG_SETSCROLLVISIBLE )
+{
+    GtkWidget *w = (GtkWidget*) HB_PARHANDLE( 1 );
+    HB_BOOL    bVisible = hb_parl( 2 );
+
+    if( w && GTK_IS_WIDGET( w ) )
+        gtk_widget_set_visible( w, bVisible );
 }
 
 HB_FUNC( HWG_SETADJOPTIONS )
@@ -1499,9 +1685,14 @@ HB_FUNC( HWG_CREATEPANEL )
 
     gtk_box_append( GTK_BOX( hbox ), vbox );
 
-    if( ulStyle & WS_VSCROLL ) {
+    if( ulStyle & WS_VSCROLL )
+    {
         GtkAdjustment *adjV = gtk_adjustment_new( 0.0, 0.0, 101.0, 1.0, 10.0, 10.0 );
         vscroll = gtk_scrollbar_new( GTK_ORIENTATION_VERTICAL, adjV );
+        gtk_widget_set_size_request( vscroll, 16, -1 );
+        gtk_widget_set_hexpand( vscroll, FALSE );
+        gtk_widget_set_vexpand( vscroll, TRUE );
+        gtk_widget_set_visible( vscroll, TRUE );
         gtk_box_append( GTK_BOX( hbox ), vscroll );
 
         temp = HB_PUTHANDLE( NULL, adjV );
@@ -1652,8 +1843,11 @@ HB_FUNC( HWG_SETTIMER )
 {
     char buf[10] = {0};
     sprintf( buf, "%ld", hb_parnl( 1 ) );
-    hb_retni( (gint) g_timeout_add( (guint32) hb_parnl( 2 ),
-                                    (GSourceFunc) cb_timer, g_strdup( buf ) ) );
+    hb_retni( (gint) g_timeout_add_full( G_PRIORITY_DEFAULT,
+                                         (guint32) hb_parnl( 2 ),
+                                         (GSourceFunc) cb_timer,
+                                         g_strdup( buf ),
+                                         g_free ) );
 }
 
 HB_FUNC( HWG_KILLTIMER )
@@ -1717,10 +1911,21 @@ HB_FUNC( HWG_LOADCURSORFROMFILE )
     GdkCursor  *cursor;
 
     if( HB_ISCHAR( 1 ) ) {
-        handle  = gdk_pixbuf_new_from_file( hb_parc( 1 ), NULL );
+        handle = gdk_pixbuf_new_from_file( hb_parc( 1 ), NULL );
+        if( !handle ) {
+            HB_RETHANDLE( gdk_cursor_new_from_name( "default", NULL ) );
+            return;
+        }
+
         pHandle = alpha2pixbuf( handle, 4095 );
+        g_object_unref( handle );
+        if( !pHandle ) {
+            HB_RETHANDLE( gdk_cursor_new_from_name( "default", NULL ) );
+            return;
+        }
 
         texture = gdk_texture_new_for_pixbuf( pHandle );
+        g_object_unref( pHandle );
         cursor  = gdk_cursor_new_from_texture( texture,
                                                hb_parni( 2 ), hb_parni( 3 ),
                                                NULL );
@@ -1779,6 +1984,67 @@ HB_FUNC( HWG_MOVEWIDGET )
             gtk_widget_set_size_request( widget, w1, h1 );
             if( ch_widget && GTK_IS_WIDGET( ch_widget ) )
                 gtk_widget_set_size_request( ch_widget, w1, h1 );
+
+            /*
+             * If this widget is a browse's outer container (created by
+             * HWG_CREATEBROWSE), it holds an inner GtkFixed with the
+             * drawing area and up to two scrollbars placed at absolute
+             * pixel positions computed from the ORIGINAL width/height.
+             * Resizing the outer container alone leaves those children
+             * stale -- Paint()'s row-count math (based on the outer
+             * container's live size) then disagrees with what the
+             * frozen drawing area can actually show, hiding the
+             * scrollbar even though many rows are cut off.  Recompute
+             * and reposition them here so a live resize keeps the
+             * browse internally consistent.
+             */
+            {
+                GtkWidget *area    = (GtkWidget*) g_object_get_data( (GObject*) widget, "draw" );
+                GtkWidget *vscroll = (GtkWidget*) g_object_get_data( (GObject*) widget, "vscroll" );
+                GtkWidget *hscroll = (GtkWidget*) g_object_get_data( (GObject*) widget, "hscroll" );
+
+                if( area && GTK_IS_WIDGET( area ) && GTK_IS_FIXED( widget ) )
+                {
+                    int nBarV  = ( vscroll && GTK_IS_WIDGET( vscroll ) ) ? 16 : 0;
+                    int nBarH  = ( hscroll && GTK_IS_WIDGET( hscroll ) ) ? 16 : 0;
+                    int nAreaW = w1 - nBarV;
+                    int nAreaH = h1 - nBarH;
+
+                    if( nAreaW < 0 ) nAreaW = 0;
+                    if( nAreaH < 0 ) nAreaH = 0;
+
+                    gtk_widget_set_size_request( area, nAreaW, nAreaH );
+
+                    if( vscroll && GTK_IS_WIDGET( vscroll ) )
+                    {
+                        gtk_widget_set_size_request( vscroll, nBarV, nAreaH );
+                        gtk_fixed_move( GTK_FIXED( widget ), vscroll, nAreaW, 0 );
+                        gtk_widget_queue_allocate( vscroll );
+                        gtk_widget_queue_draw( vscroll );
+                    }
+                    if( hscroll && GTK_IS_WIDGET( hscroll ) )
+                    {
+                        gtk_widget_set_size_request( hscroll, nAreaW, nBarH );
+                        gtk_fixed_move( GTK_FIXED( widget ), hscroll, 0, nAreaH );
+                        gtk_widget_queue_allocate( hscroll );
+                        gtk_widget_queue_draw( hscroll );
+                    }
+
+                    /*
+                     * Force the whole browse container (and the area
+                     * itself) to re-allocate and repaint too -- without
+                     * this, the GL renderer can keep a stale cached
+                     * render node for the scrollbar's previous
+                     * position/size: the CSS engine computes the right
+                     * color (visible in GtkInspector), but the actually
+                     * painted pixels stay whatever was last drawn.
+                     */
+                    gtk_widget_queue_allocate( area );
+                    gtk_widget_queue_draw( area );
+                    gtk_widget_queue_allocate( widget );
+                    gtk_widget_queue_draw( widget );
+                }
+            }
         }
     }
 }
@@ -1873,12 +2139,50 @@ static void toolbar_clicked( GtkWidget *item, gpointer user_data )
 
 HB_FUNC( HWG_CREATETOOLBAR )
 {
-    GtkWidget *hCtrl = gtk_box_new( GTK_ORIENTATION_HORIZONTAL, 0 );
+    GtkWidget *hCtrl  = gtk_box_new( GTK_ORIENTATION_HORIZONTAL, 0 );
     GObject   *handle = (GObject*) HB_PARHANDLE( 1 );
-    GtkFixed  *box   = getFixedBox( handle );
-    GtkWidget *vbox  = gtk_widget_get_parent( GTK_WIDGET( box ) );
+    GtkFixed  *box    = getFixedBox( handle );
+    GtkWidget *vbox;
+    GtkWidget *menubar;
 
-    gtk_box_append( GTK_BOX( vbox ), hCtrl );
+    if( !box )
+    {
+        HB_RETHANDLE( hCtrl );
+        return;
+    }
+
+    vbox = gtk_widget_get_parent( GTK_WIDGET( box ) );
+    if( !vbox || !GTK_IS_BOX( vbox ) )
+    {
+        HB_RETHANDLE( hCtrl );
+        return;
+    }
+
+    /* Insert the toolbar between the menubar (if any) and the content
+     * area (the GtkFixed holding all child widgets).  The Win32 HWGUI
+     * convention is:
+     *     [ menubar ]            <- topmost
+     *     [ toolbar ]            <- below the menubar
+     *     [ content GtkFixed ]   <- fills the rest
+     *
+     * A plain gtk_box_append() puts the toolbar below the content,
+     * which is why it appeared at the bottom of the window.  A bare
+     * gtk_box_prepend() would put it ABOVE the menubar -- equally
+     * wrong.  Inserting right after the menubar (or prepending when
+     * there is none) lands it in the correct slot regardless of the
+     * order in which MENU...ENDMENU and the toolbar are declared in
+     * the .prg. */
+    menubar = g_object_get_data( handle, "hwg_menubar" );
+    if( menubar && GTK_IS_WIDGET( menubar ) &&
+        gtk_widget_get_parent( menubar ) == vbox )
+    {
+        gtk_box_insert_child_after( GTK_BOX( vbox ), hCtrl, menubar );
+    }
+    else
+    {
+        gtk_box_prepend( GTK_BOX( vbox ), hCtrl );
+    }
+
     HB_RETHANDLE( hCtrl );
 }
 
@@ -2024,11 +2328,38 @@ HB_FUNC( HWG_MONTHCALENDAR_SETACTION )
 HB_FUNC( HWG_CREATEIMAGE )
 {
     GtkWidget *hCtrl;
-    GtkFixed  *box = getFixedBox( (GObject*) HB_PARHANDLE( 1 ) );
+    GtkFixed  *box     = getFixedBox( (GObject*) HB_PARHANDLE( 1 ) );
     GdkPixbuf *handle  = gdk_pixbuf_new_from_file( hb_parc( 2 ), NULL );
-    GdkPixbuf *pHandle = alpha2pixbuf( handle, 16777215 );
+    GdkPixbuf *pHandle;
 
+    /* gdk_pixbuf_new_from_file() returns NULL on any I/O or decode
+     * error.  alpha2pixbuf() calls gdk_pixbuf_add_alpha() with no
+     * NULL guard -- GLib will assert, and abort under
+     * G_DEBUG=fatal-warnings.  Screen the input here. */
+    if( !handle )
+    {
+        HB_RETHANDLE( NULL );
+        return;
+    }
+
+    /* alpha2pixbuf() returns a NEW pixbuf; the input is left intact
+     * and remains owned by us.  Release it at once, mirroring the
+     * pattern already used in draw.c (HWG_ALPHA2PIXBUF,
+     * HWG_DRAWTRANSPARENTBITMAP). */
+    pHandle = alpha2pixbuf( handle, 16777215 );
+    g_object_unref( handle );
+
+    if( !pHandle )
+    {
+        HB_RETHANDLE( NULL );
+        return;
+    }
+
+    /* gtk_image_new_from_pixbuf() builds a GdkTexture from the pixbuf
+     * (pixel data is copied), so our reference can be dropped once
+     * the call returns. */
     hCtrl = gtk_image_new_from_pixbuf( pHandle );
+    g_object_unref( pHandle );
 
     if( box )
         gtk_fixed_put( box, hCtrl, hb_parni( 3 ), hb_parni( 4 ) );
@@ -2177,11 +2508,7 @@ static void hwg_apply_widget_color( GtkWidget *w, const char *property,
             gdk_display_get_default(),
                                                    GTK_STYLE_PROVIDER( p ),
                                                    GTK_STYLE_PROVIDER_PRIORITY_APPLICATION );
-        /* hwg_provider_destroy takes care of unref-ing AND detaching
-         * from the display when the widget dies. */
         g_object_set_data_full( G_OBJECT( w ), key, p, hwg_provider_destroy );
-        /* Do NOT g_object_unref() here: the destroy notify will do it. */
-        return;
     }
     gtk_css_provider_load_from_data( p, szCss, -1 );
 }

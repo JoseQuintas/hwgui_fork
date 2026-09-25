@@ -48,6 +48,23 @@ extern PHB_ITEM   GetObjectVar( PHB_ITEM pObject, const char *varname );
 /* =====================================================================
  *  Helpers
  * ===================================================================== */
+
+/* Read a numeric property from a Harbour object and release the
+ * temporary PHB_ITEM returned by the VM.  GetObjectVar() wraps
+ * hb_objSendMsg(), which hands out a fresh item on every call;
+ * without this wrapper every accessor leaks one item, and
+ * HWG_SELECTFONT alone would leak three per invocation. */
+static HB_LONG hwg_get_obj_num( PHB_ITEM pObject, const char *varname )
+{
+    PHB_ITEM pItem = GetObjectVar( pObject, varname );
+    HB_LONG  value = pItem ? hb_itemGetNL( pItem ) : 0;
+
+    if( pItem )
+        hb_itemRelease( pItem );
+
+    return value;
+}
+
 static GtkWindow *hwg_get_parent_window( void )
 {
     GtkWidget *parent = GetActiveWindow();
@@ -108,23 +125,35 @@ HB_FUNC( HWG_SELECTFONT )
     const char           *cTitle = ( hb_pcount() > 1 && HB_ISCHAR(2) )
     ? hb_parc(2) : "Select Font";
 
-    /* Pre-populate from the passed HFont object, if any. */
+    /* Pre-populate from the passed HFont object, if any.
+     *
+     * GetObjectVar() returns a fresh PHB_ITEM on each call; the name
+     * property in particular must be copied out before releasing the
+     * item, because hb_itemGetCPtr() hands back an interior pointer
+     * into the item's buffer.  The three numeric accessors go through
+     * hwg_get_obj_num(), which releases its own item internally. */
     if( hb_pcount() > 0 && !HB_ISNIL(1) )
     {
         PHB_ITEM pObj = hb_param( 1, HB_IT_OBJECT );
         if( pObj )
         {
-            const char *ptr    = hb_itemGetCPtr( GetObjectVar( pObj, "NAME" ) );
-            int         height = hb_itemGetNI( GetObjectVar( pObj, "HEIGHT" ) );
-            int         weight = hb_itemGetNI( GetObjectVar( pObj, "WEIGHT" ) );
-            int         italic = hb_itemGetNI( GetObjectVar( pObj, "ITALIC" ) );
-            char        szFont[256];
+            PHB_ITEM pName = GetObjectVar( pObj, "NAME" );
+            const char *ptr = pName ? hb_itemGetCPtr( pName ) : "sans";
+            char *cName = g_strdup( ptr ? ptr : "sans" );
+
+            int height = (int) hwg_get_obj_num( pObj, "HEIGHT" );
+            int weight = (int) hwg_get_obj_num( pObj, "WEIGHT" );
+            int italic = (int) hwg_get_obj_num( pObj, "ITALIC" );
+            char szFont[256];
+
+            if( pName ) hb_itemRelease( pName );
 
             snprintf( szFont, sizeof(szFont), "%s %s %s %d",
-                      ptr ? ptr : "sans",
+                      cName,
                       ( weight >= 700 ) ? "Bold"   : "",
                       ( italic != 0   ) ? "Italic" : "",
                       height );
+            g_free( cName );
 
             initial = pango_font_description_from_string( szFont );
         }
@@ -171,15 +200,30 @@ HB_FUNC( HWG_SELECTFONT )
         temp = HB_PUTHANDLE( NULL, h );
         hb_itemArrayPut( aMetr, 1, temp ); hb_itemRelease( temp );
 
-        temp = hb_itemPutC( NULL,
-                            (char*) pango_font_description_get_family( hFont ) );
+        /* get_family() returns NULL when the description carries no
+         * explicit family; hand an empty string to Harbour rather than
+         * letting hb_itemPutC() see a NULL pointer. */
+        {
+            const char *fam = pango_font_description_get_family( hFont );
+            temp = hb_itemPutC( NULL, fam ? (char*) fam : "" );
+        }
         hb_itemArrayPut( aMetr, 2, temp ); hb_itemRelease( temp );
 
         temp = hb_itemPutNL( NULL, 0 );
         hb_itemArrayPut( aMetr, 3, temp ); hb_itemRelease( temp );
 
-        temp = hb_itemPutNL( NULL,
-                             (HB_LONG) pango_font_description_get_size( hFont ) );
+        /* pango_font_description_get_size() reports the size in
+         * PANGO_SCALE units (points * 1024).  HFont:HEIGHT on the
+         * Harbour side is expressed in points -- the same unit that
+         * pango_font_description_from_string() expects when parsing
+         * the "sans Bold 12" style string built above.  Divide here
+         * so the round-trip through HWG_SELECTFONT stays in points;
+         * without this, the second invocation would feed 12288 back
+         * into the dialog and the font size would explode. */
+        {
+            int size_pt = pango_font_description_get_size( hFont ) / PANGO_SCALE;
+            temp = hb_itemPutNL( NULL, (HB_LONG) size_pt );
+        }
         hb_itemArrayPut( aMetr, 4, temp ); hb_itemRelease( temp );
 
         temp = hb_itemPutNL( NULL,
@@ -224,8 +268,12 @@ typedef struct {
 } HWG_FILE_CTX;
 
 /* Wrap a single GFile into a GListModel so the rest of the code can
- * treat single and multiple results uniformly. */
-static GListModel *hwg_file_wrap_single( GFile *file )
+ * treat single and multiple results uniformly.
+ *
+ * NOTE: this function TAKES OWNERSHIP of `file` — it consumes one
+ * reference from the caller.  Callers must not use `file` after the
+ * call.  Passing NULL is safe and yields NULL. */
+static GListModel *hwg_file_store_single( GFile *file )
 {
     GListStore *store;
 
@@ -255,14 +303,14 @@ static void hwg_file_open_cb( GObject *source, GAsyncResult *res, gpointer user_
         /* Select folder */
         GFile *file = gtk_file_dialog_select_folder_finish(
             GTK_FILE_DIALOG( source ), res, &error );
-        ctx->files = hwg_file_wrap_single( file );
+        ctx->files = hwg_file_store_single( file );
     }
     else
     {
         /* Open single */
         GFile *file = gtk_file_dialog_open_finish(
             GTK_FILE_DIALOG( source ), res, &error );
-        ctx->files = hwg_file_wrap_single( file );
+        ctx->files = hwg_file_store_single( file );
     }
 
     if( error )
@@ -458,6 +506,10 @@ static HB_ULONG hwg_rgba_to_hbcolor( const GdkRGBA *c )
     guchar g = (guchar)( c->green * 255.0 );
     guchar b = (guchar)( c->blue  * 255.0 );
 
+    /* HWGUI colours follow the Windows COLORREF layout (0x00BBGGRR):
+     * R in the low byte, G in the middle, B in the high byte.  This
+     * is the inverse of hwg_parse_color() and matches the convention
+     * used by hwg_setcolor() and hwg_ColorC2N(). */
     return ( (HB_ULONG) r ) |
     ( (HB_ULONG) g << 8 ) |
     ( (HB_ULONG) b << 16 );
