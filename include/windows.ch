@@ -1779,4 +1779,13 @@ ComboBox
 
 #define HDM_GETITEMCOUNT    4608
 
+/*
+ * HCheckList internal notification.  Fired by the C side of the
+ * check list when the user toggles a checkbox row:
+ *   wParam = 1-based row index
+ *   lParam = 1 (checked) or 0 (unchecked)
+ * See HCheckList:onEvent and cb_checklist_toggle in control.c.
+ */
+#define HWG_MSGLIST_CHECKED     ( WM_USER + 1 )
+
 /* ======================= EOF of windows.ch ======================= */

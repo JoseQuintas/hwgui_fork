@@ -2,7 +2,7 @@
  * HWGUI - Harbour Linux (GTK) GUI library source code:
  * HCheckList class
  *
- * GTK4 port
+ * GTK4 port — target: GTK 4.24+
  *
  * NOTES
  * -----
@@ -15,17 +15,16 @@
  *  form { cLabel, lChecked, xUserValue }.  xUserValue is an opaque
  *  value (index, code, object) the caller wants to retrieve later
  *  through GetCheckedValues().
+ *
+ *  The internal notification HWG_MSGLIST_CHECKED is defined in
+ *  windows.ch; it fires on the scrolled window when the user toggles
+ *  a row, with wParam = 1-based row index and lParam = 1 (checked)
+ *  or 0 (unchecked).  See HCheckList:onEvent below and
+ *  cb_checklist_toggle in control.c.
  */
 
 #include "hbclass.ch"
 #include "hwgui.ch"
-
-#ifndef WM_USER
-#define WM_USER  1024
-#endif
-#ifndef HWG_MSGLIST_CHECKED
-#define HWG_MSGLIST_CHECKED  ( WM_USER + 1 )
-#endif
 
 CLASS HCheckList INHERIT HControl
 

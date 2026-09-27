@@ -1305,6 +1305,27 @@
                     <aItems>,<oFont>,,,,<bChange>,<ctoolt>, <bWhen> );
     [; hwg_SetCtrlName( <oCombo>,<(oCombo)> )]
 
+#xcommand @ <x>,<y> CHECKLIST [ <oChk> ] ;
+            [ ITEMS <aItems> ]           ;
+            [ OF <oWnd> ]                ;
+            [ ID <nId> ]                 ;
+            [ SIZE <width>, <height> ]   ;
+            [ COLOR <color> ]            ;
+            [ BACKCOLOR <bcolor> ]       ;
+            [ ON INIT <bInit> ]          ;
+            [ ON SIZE <bSize> ]          ;
+            [ ON CHANGE <bChange> ]      ;
+            [ STYLE <nStyle> ]           ;
+            [ FONT <oFont> ]             ;
+            [ TOOLTIP <ctoolt> ]         ;
+            [ VALID <bValid> ]           ;
+          => ;
+    [<oChk> := ] HCheckList():New( <oWnd>,<nId>,<nStyle>,    ;
+                    <x>,<y>,<width>,<height>,                ;
+                    <aItems>,<oFont>,<bInit>,<bSize>,,       ;
+                    <bChange>,<ctoolt>,<color>,<bcolor>,<bValid> );
+    [; hwg_SetCtrlName( <oChk>, <(oChk)> )]
+
 #xcommand @ <x>,<y> GET UPDOWN [ <oUpd> VAR ]  <vari>  ;
             RANGE <nLower>,<nUpper>    ;
             [ OF <oWnd> ]              ;
