@@ -144,6 +144,9 @@
 {unix}source/gtk4/hmisc.prg
 {unix}source/gtk4/initools.prg
 {unix}source/gtk4/menu.prg
+{unix}source/gtk4/hchart.prg
+{unix}source/gtk4/hwebview.prg
+{unix}source/gtk4/hwebchart.prg
 
 # ---------------- EOF of hwgui.hbm ------------------------------
 

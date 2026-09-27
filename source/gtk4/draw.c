@@ -79,6 +79,27 @@ HB_ULONG hwg_gdk_color( const GdkRGBA *pColor )
     (   (HB_ULONG)( pColor->red   * 255.0 ) & 0xff );
 }
 
+/*
+ * Return the CSS-resolved foreground color of a widget, in the HWGUI
+ * COLORREF layout (0x00BBGGRR).  GTK4 resolves the theme's "color"
+ * property for the widget, so the result follows the current
+ * light/dark palette without needing a lookup table.
+ */
+HB_FUNC( HWG_GETWIDGETCOLOR )
+{
+    GtkWidget *w = (GtkWidget*) HB_PARHANDLE( 1 );
+    GdkRGBA    color;
+
+    if( !w || !GTK_IS_WIDGET( w ) )
+    {
+        hb_retnl( 0 );
+        return;
+    }
+
+    gtk_widget_get_color( w, &color );
+    hb_retnl( (HB_LONG) hwg_gdk_color( &color ) );
+}
+
 void hwg_setcolor( cairo_t *cr, long int nColor )
 {
     /* Mask instead of %: a negative long int in C gives a negative
@@ -158,15 +179,27 @@ HB_FUNC( HWG_ALPHA2PIXBUF )
 HB_FUNC( HWG_INVALIDATERECT )
 {
     GtkWidget *widget = (GtkWidget*) HB_PARHANDLE(1);
-    if( widget && GTK_IS_WIDGET( widget ) )
-        gtk_widget_queue_draw( widget );
+
+    if( !widget || !GTK_IS_WIDGET( widget ) )
+        return;
+
+    if( !gtk_widget_get_mapped( widget ) || !gtk_widget_get_visible( widget ) )
+        return;
+
+    gtk_widget_queue_draw( widget );
 }
 
 HB_FUNC( HWG_REDRAWWINDOW )
 {
     GtkWidget *widget = (GtkWidget*) HB_PARHANDLE(1);
-    if( widget && GTK_IS_WIDGET( widget ) )
-        gtk_widget_queue_draw( widget );
+
+    if( !widget || !GTK_IS_WIDGET( widget ) )
+        return;
+
+    if( !gtk_widget_get_mapped( widget ) || !gtk_widget_get_visible( widget ) )
+        return;
+
+    gtk_widget_queue_draw( widget );
 }
 
 
@@ -463,6 +496,190 @@ HB_FUNC( HWG_FILLRECT )
     hwg_setcolor( hDC->cr, brush->color );
     cairo_rectangle( hDC->cr, x1, y1,
                      (double)(hb_parni(4)-x1+1), (double)(hb_parni(5)-y1+1) );
+    cairo_fill( hDC->cr );
+}
+
+/*
+ * Fill a rectangle with a semi-transparent colour.  The plain
+ * HWG_FILLRECT goes through hwg_setcolor(), which only sets the RGB
+ * channels; alpha stays at 1.0.  This variant paints with an
+ * explicit alpha, so bars, pie slices and grid lines can be drawn
+ * with a soft shadow or a translucent overlay.
+ */
+HB_FUNC( HWG_FILLRECTALPHA )
+{
+    PHWGUI_HDC hDC  = (PHWGUI_HDC) HB_PARHANDLE( 1 );
+    int        x1   = hb_parni( 2 );
+    int        y1   = hb_parni( 3 );
+    int        x2   = hb_parni( 4 );
+    int        y2   = hb_parni( 5 );
+    long int   nCol = hb_parnl( 6 );
+    double     nA   = hb_parnd( 7 );
+    int r, g, b;
+
+    if( !hDC || !hDC->cr )
+        return;
+
+    if( nA < 0.0 ) nA = 0.0;
+    if( nA > 1.0 ) nA = 1.0;
+
+    r = nCol & 0xff;
+    g = ( nCol >> 8 ) & 0xff;
+    b = ( nCol >> 16 ) & 0xff;
+
+    cairo_set_source_rgba( hDC->cr, r / 255.0, g / 255.0, b / 255.0, nA );
+    cairo_rectangle( hDC->cr, x1, y1, x2 - x1 + 1, y2 - y1 + 1 );
+    cairo_fill( hDC->cr );
+}
+
+/*
+ * Draw a filled ellipse with a semi-transparent colour.  Used to paint
+ * soft drop shadows: the shape is drawn behind the actual content in
+ * a translucent black, so the content stays crisp and the shadow
+ * shows around the edges.
+ */
+HB_FUNC( HWG_ELLIPSEALPHA )
+{
+    PHWGUI_HDC hDC  = (PHWGUI_HDC) HB_PARHANDLE( 1 );
+    int        x1   = hb_parni( 2 );
+    int        y1   = hb_parni( 3 );
+    int        x2   = hb_parni( 4 );
+    int        y2   = hb_parni( 5 );
+    long int   nCol = hb_parnl( 6 );
+    double     nA   = hb_parnd( 7 );
+    int        r, g, b;
+
+    if( !hDC || !hDC->cr )
+        return;
+
+    if( nA < 0.0 ) nA = 0.0;
+    if( nA > 1.0 ) nA = 1.0;
+
+    r = nCol & 0xff;
+    g = ( nCol >> 8 ) & 0xff;
+    b = ( nCol >> 16 ) & 0xff;
+
+    cairo_set_source_rgba( hDC->cr,
+                           r / 255.0, g / 255.0, b / 255.0, nA );
+    cairo_arc( hDC->cr,
+               ( x1 + x2 ) / 2.0, ( y1 + y2 ) / 2.0,
+               ( x2 - x1 ) / 2.0,
+               0, 6.283185307 );
+    cairo_fill( hDC->cr );
+}
+
+/*
+ * Fill a polygon with a vertical linear gradient.  aPoints is an
+ * array of { x, y } pairs (Harbour arrays of two numbers each).
+ *
+ * The gradient runs from the topmost Y of the polygon down to the
+ * bottommost Y: topColor at the top, bottomColor at the bottom.  This
+ * is what a line chart needs for a soft area fill under the curve --
+ * the whole region is one Cairo path, so there are no seams between
+ * adjacent segments.
+ */
+HB_FUNC( HWG_FILLPOLYGONGRADIENT )
+{
+    PHWGUI_HDC hDC   = (PHWGUI_HDC) HB_PARHANDLE( 1 );
+    PHB_ITEM   pPts  = hb_param( 2, HB_IT_ARRAY );
+    long int   nTop  = hb_parnl( 3 );
+    long int   nBot  = hb_parnl( 4 );
+    HB_SIZE    ulLen, i;
+    gdouble    y;
+    gdouble    yMin = 0, yMax = 0;
+    gdouble    r1, g1, b1, r2, g2, b2;
+    cairo_pattern_t *pat;
+    PHB_ITEM   pPair;
+
+    if( !hDC || !hDC->cr || !pPts )
+        return;
+
+    ulLen = hb_arrayLen( pPts );
+    if( ulLen < 3 )
+        return;
+
+    /* First pass: find the y extremes for the gradient. */
+    for( i = 1; i <= ulLen; i++ )
+    {
+        pPair = hb_arrayGetItemPtr( pPts, i );
+        if( pPair && hb_arrayLen( pPair ) >= 2 )
+        {
+            y = hb_arrayGetND( pPair, 2 );
+            if( i == 1 )
+            {
+                yMin = y;
+                yMax = y;
+            }
+            else
+            {
+                if( y < yMin ) yMin = y;
+                if( y > yMax ) yMax = y;
+            }
+        }
+    }
+
+    if( yMax - yMin < 1.0 )
+        yMax = yMin + 1.0;
+
+    /* Build the Cairo path from the polygon points and close it. */
+    pPair = hb_arrayGetItemPtr( pPts, 1 );
+    cairo_move_to( hDC->cr, hb_arrayGetND( pPair, 1 ), hb_arrayGetND( pPair, 2 ) );
+
+    for( i = 2; i <= ulLen; i++ )
+    {
+        pPair = hb_arrayGetItemPtr( pPts, i );
+        if( pPair && hb_arrayLen( pPair ) >= 2 )
+            cairo_line_to( hDC->cr, hb_arrayGetND( pPair, 1 ), hb_arrayGetND( pPair, 2 ) );
+    }
+
+    cairo_close_path( hDC->cr );
+
+    /* Vertical linear gradient from yMin to yMax. */
+    pat = cairo_pattern_create_linear( 0, yMin, 0, yMax );
+
+    r1 = (   nTop        & 0xff ) / 255.0;
+    g1 = ( ( nTop >>  8 ) & 0xff ) / 255.0;
+    b1 = ( ( nTop >> 16 ) & 0xff ) / 255.0;
+
+    r2 = (   nBot        & 0xff ) / 255.0;
+    g2 = ( ( nBot >>  8 ) & 0xff ) / 255.0;
+    b2 = ( ( nBot >> 16 ) & 0xff ) / 255.0;
+
+    cairo_pattern_add_color_stop_rgb( pat, 0.0, r1, g1, b1 );
+    cairo_pattern_add_color_stop_rgb( pat, 1.0, r2, g2, b2 );
+
+    cairo_set_source( hDC->cr, pat );
+    cairo_fill( hDC->cr );
+
+    cairo_pattern_destroy( pat );
+}
+
+/*
+ * Draw a filled pie slice.  Cairo has no single call for this: a pie
+ * slice is a path that starts at the centre, arcs along the circle
+ * to the end angle, and closes back to the centre.  Angles are in
+ * degrees, 0 at 3 o'clock, positive clockwise, matching the
+ * convention used by HChart:DrawPie in hchart.prg.
+ */
+HB_FUNC( HWG_DRAWPIE )
+{
+    PHWGUI_HDC    hDC    = (PHWGUI_HDC) HB_PARHANDLE( 1 );
+    gdouble       cx     = hb_parnd( 2 );
+    gdouble       cy     = hb_parnd( 3 );
+    gdouble       radius = hb_parnd( 4 );
+    gdouble       start  = hb_parnd( 5 );
+    gdouble       end    = hb_parnd( 6 );
+    PHWGUI_BRUSH  brush  = HB_ISNIL( 7 ) ? NULL : (PHWGUI_BRUSH) HB_PARHANDLE( 7 );
+    gdouble       rad    = M_PI / 180.0;
+
+    if( !hDC || !hDC->cr )
+        return;
+
+    hwg_setcolor( hDC->cr, brush ? brush->color : nCurrBrushClr );
+
+    cairo_move_to( hDC->cr, cx, cy );
+    cairo_arc( hDC->cr, cx, cy, radius, start * rad, end * rad );
+    cairo_close_path( hDC->cr );
     cairo_fill( hDC->cr );
 }
 

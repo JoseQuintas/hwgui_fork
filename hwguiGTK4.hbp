@@ -15,9 +15,11 @@ hwguiGTK4.hbc
 # Uncomment these two lines to build HwGUI in Unicode mode
 -prgflag=-DUNICODE
 -cflag=-DUNICODE
-
+#
 -cflag=-DHWG_USE_POINTER_ITEM
 "{unix}-cflag=`pkg-config --cflags gtk4`"
+"{unix}-cflag=`pkg-config --cflags webkitgtk-6.0`"
+"{unix}-lflag=`pkg-config --libs webkitgtk-6.0"
 
 @hwguiGTK4.hbm
 

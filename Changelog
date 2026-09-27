@@ -16,6 +16,54 @@
 */
 
 2026-09-27 08:00 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  + source/gtk4/hwebview.prg add new prg
+  + source/gtk4/hwebchart.prg add new prg
+  + source/gtk4/hchart.prg add new prg
+  * source/gtk4/draw.c, source/gtk4/window.c, hwgui/hwguiGTK4.hbp,
+    hwgui/hwguiGTK4.hbc, hwgui/hwguiGTK4.hbm: WebKitGTK 6.0 webview,
+    HTML charts, new Cairo primitives
+    hwebview.prg:
+      * HWebView — wraps WebKitWebView (webkitgtk-6.0); packed into
+        the parent GtkFixed/GtkBox of the HWGUI window.
+    hwebchart.prg:
+      * HWebChart — renders charts as HTML/JS through HWebView.
+    hchart.prg:
+      * HChart — native Cairo backend; fallback when WebKitGTK is
+        not available.
+    draw.c:
+      * HWG_FILLRECTALPHA / HWG_ELLIPSEALPHA — filled shapes with
+        explicit alpha, for translucent overlays and soft shadows.
+      * HWG_FILLPOLYGONGRADIENT — vertical linear gradient polygon,
+        single Cairo path, for the area under a line chart.
+      * HWG_DRAWPIE — filled pie slice, angles in degrees, 0 at
+        3 o'clock, positive clockwise, matching HChart:DrawPie.
+      * HWG_PIE — empty stub, functionally replaced by HWG_DRAWPIE.
+    window.c:
+      * Update
+    hwguiGTK4.hbp / .hbc:
+      * Added hwebview.prg, hwebchart.prg, hchart.prg.
+      * Link against webkitgtk-6.0 (Linux only; Windows falls back
+        to HChart / Cairo).
+
+2026-09-27 09:43 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  * include/guilib.ch, include/windows.ch: HCheckList wiring
+
+    * hwgui/include/windows.ch: define HWG_MSGLIST_CHECKED (WM_USER + 1), the
+      notification fired by the control when a checkbox row is
+      toggled.  wParam = 1-based row index, lParam = 1 checked /
+      0 unchecked.
+
+    * hwgui/include/guilib.ch: @ <x>,<y> CHECKLIST <oChk> command, mirroring the
+      HComboBox syntax.  ITEMS / OF / SIZE / STYLE / ON CHANGE /
+      FONT / TOOLTIP / COLOR / BACKCOLOR / VALID.
+
+    * hwgui/samples/testchklst.prg: new sample using the high-level
+      command.  Comments and UI labels in English.
+
+    * hwgui/source/gtk4/hchecklist.prg: use the shared HWG_MSGLIST_CHECKED
+      constant; drop the local #ifndef block.
+
+2026-09-27 08:00 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
   + source/gtk4/hchecklist.prg add new prg
   * source/gtk4/control.c, hwgui/hwguiGTK4.hbm: new HCheckList control
 

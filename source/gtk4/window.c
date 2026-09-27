@@ -343,6 +343,17 @@ static void hwg_install_entry_css( void )
                                        "  padding: 2px 4px;"
                                        "  background-clip: padding-box;"
                                        "}"
+
+                                       /* HChart frame: rounded border,
+                                        * base-colour background, inner
+                                        * padding.  The class is set by
+                                        * HChart:New() in hchart.prg. */
+                                       ".hwg-chart {"
+                                       "  background-color: @theme_base_color;"
+                                       "  border: 1px solid alpha(currentColor, 0.18);"
+                                       "  border-radius: 6px;"
+                                       "  padding: 6px;"
+                                       "}"
     );
 
     gtk_style_context_add_provider_for_display(
@@ -2340,6 +2351,102 @@ HB_FUNC( HWG_PAINTWINDOW )
     GtkWidget *widget = (GtkWidget*) hb_parptr( 1 );
     if( widget && GTK_IS_WIDGET( widget ) && !hwg_is_dead( (GObject*) widget ) )
         gtk_widget_queue_draw( widget );
+}
+
+/* =====================================================================
+ *  HWG_POSTMESSAGE
+ *
+ *  Win32-style asynchronous message posting.  The message is queued
+ *  and dispatched later through the widget's ONEVENT handler, exactly
+ *  as if a real GTK event had triggered it.  Main use case:
+ *
+ *      hwg_Postmessage( ::area, WM_PAINT, 0, 0 )
+ *
+ *  Without it, calling Paint() directly from inside another event
+ *  handler would be synchronous and could recurse into the caller's
+ *  stack.  PostMessage queues the work and returns immediately.
+ *
+ *  GTK4 has no message queue of its own; g_idle_add() is the closest
+ *  equivalent -- the callback runs on the next main-loop iteration,
+ *  after the current signal handler returns.
+ * ===================================================================== */
+typedef struct {
+    GtkWidget *widget;
+    HB_LONG    p1;    /* msg    */
+    HB_LONG    p2;    /* wParam */
+    HB_LONG    p3;    /* lParam */
+} HWG_POSTMSG_CTX;
+
+static gboolean hwg_postmessage_idle( gpointer data )
+{
+    HWG_POSTMSG_CTX *ctx = (HWG_POSTMSG_CTX *) data;
+
+    /* The widget may have been destroyed between the PostMessage()
+     * call and the idle firing; the "dead" flag is set by
+     * cb_window_destroyed() and HWG_DESTROYWINDOW, so we can safely
+     * skip the dispatch in that case. */
+    if( ctx->widget && G_IS_OBJECT( ctx->widget ) &&
+        GTK_IS_WIDGET( ctx->widget ) &&
+        !hwg_is_dead( (GObject*) ctx->widget ) )
+    {
+        char key[48];
+        g_snprintf( key, sizeof( key ), "hwg-pending-msg-%ld", (long) ctx->p1 );
+        /* Clear the pending flag BEFORE dispatching: if the handler
+         * itself posts the same message again (Paint() re-arming a
+         * follow-up WM_PAINT, say), that new post must not be
+         * silently dropped as a false duplicate of this one. */
+        g_object_set_data( (GObject*) ctx->widget, key, NULL );
+
+        hwg_dispatch_onevent( ctx->widget, ctx->p1, ctx->p2, ctx->p3 );
+    }
+
+    g_free( ctx );
+    return G_SOURCE_REMOVE;
+}
+
+HB_FUNC( HWG_POSTMESSAGE )
+{
+    GtkWidget       *widget = (GtkWidget *) HB_PARHANDLE( 1 );
+    HWG_POSTMSG_CTX *ctx;
+    HB_LONG          p1;
+    char             key[48];
+
+    if( !widget || !GTK_IS_WIDGET( widget ) )
+    {
+        hb_retl( FALSE );
+        return;
+    }
+
+    p1 = hb_parnl( 2 );
+
+    /*
+     * Coalesce repeated posts of the SAME message to the SAME widget.
+     * A burst of input -- mouse wheel firing many scroll events in a
+     * fraction of a second is the typical case here -- would otherwise
+     * queue one idle callback per event, each running a full Paint()
+     * back-to-back once the main loop goes idle: a redraw storm
+     * dense enough to visibly glitch a frame (looks like a flash or
+     * a momentary "shrink" of the window). Only one pending post per
+     * (widget, message) is ever useful, since whichever handler runs
+     * first will read whatever is current by the time it fires.
+     */
+    g_snprintf( key, sizeof( key ), "hwg-pending-msg-%ld", (long) p1 );
+    if( g_object_get_data( (GObject*) widget, key ) != NULL )
+    {
+        hb_retl( TRUE );
+        return;
+    }
+    g_object_set_data( (GObject*) widget, key, GINT_TO_POINTER( 1 ) );
+
+    ctx = g_new0( HWG_POSTMSG_CTX, 1 );
+    ctx->widget = widget;
+    ctx->p1     = p1;
+    ctx->p2     = hb_parnl( 3 );
+    ctx->p3     = hb_parnl( 4 );
+
+    g_idle_add( hwg_postmessage_idle, ctx );
+
+    hb_retl( TRUE );
 }
 
 /* ================== EOF of window.c ========================== */

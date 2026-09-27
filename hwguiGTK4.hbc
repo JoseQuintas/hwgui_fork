@@ -1,5 +1,5 @@
 #
-# $Id: hwgui.hbc 3256 2023-07-26 09:53:25Z alkresin $
+# $Id: hwguiGTK4.hbc 3256 2023-07-26 09:53:25Z alkresin $
 #
 # GTK4 port
 #
@@ -27,12 +27,14 @@ libpaths=lib
 #{win&!allmingw&!watcom&!hblib}libs=hbactivex hwg_extctrl hwg_qhtm
 
 {unix}ldflags+="`pkg-config --libs gtk4`"
+{unix}ldflags+="`pkg-config --libs webkitgtk-6.0`"
 
 # Change 3 lines to build HwGUI in Unicode mode
 
 PRGFLAGS=-DUNICODE -q -m -n -es2
 {win}CFLAGS=-DUNICODE -DHWG_USE_POINTER_ITEM
 {unix}CFLAGS=-DUNICODE -DHWG_USE_POINTER_ITEM "`pkg-config --cflags gtk4`"
+{unix}CFLAGS=-DHWG_HAS_WEBKIT "`pkg-config --cflags webkitgtk-6.0`"
 
 PRGFLAGS=-q -m -n -es2
 {win}CFLAGS=-DHWG_USE_POINTER_ITEM
