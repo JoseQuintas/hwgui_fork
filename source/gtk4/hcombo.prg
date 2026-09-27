@@ -61,6 +61,7 @@ CLASS HComboBox INHERIT HControl
    METHOD Refresh( xVal )
    METHOD Setitem( nPos )
    METHOD GetValue( nItem )
+   METHOD GetText() INLINE iif( ::lEdit, hwg_ComboGetText( ::handle ), ::GetValue() )
    METHOD Value ( xValue ) SETGET
    METHOD End()
 

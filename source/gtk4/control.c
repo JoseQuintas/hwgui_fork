@@ -88,6 +88,8 @@ extern void      set_event ( gpointer handle, char *cSignal, long p1, long p2, l
 extern void      cb_signal ( GtkWidget *widget, gchar *data );
 extern void      cb_signal_size( GtkWidget *widget, int w, int h, gpointer data );
 extern void      all_signal_connect( gpointer hWnd );
+extern gchar *hwg_convert_from_utf8( const char * szText );
+
 extern GtkWidget *GetActiveWindow( void );
 extern GdkPixbuf *alpha2pixbuf( GdkPixbuf *hPixIn, long int nColor );
 
@@ -1035,6 +1037,49 @@ HB_FUNC( HWG_COMBOGET )
     gint i = gtk_combo_box_get_active( GTK_COMBO_BOX( HB_PARHANDLE( 1 ) ) ) + 1;
     if( i <= 0 ) i = 1;
     hb_retni( i );
+}
+
+/*
+ * Read the text from the internal GtkEntry of an editable combo.
+ *
+ * The public GtkComboBoxText API returns the active item index, not
+ * the text the user typed into the entry.  In an editable combo the
+ * two can diverge: typing over a pre-selected item does not change
+ * the active index.  This helper reaches into the combo's child
+ * (which for a combo created with gtk_combo_box_text_new_with_entry()
+ * is a GtkEntry) and reads what is actually on screen.
+ */
+HB_FUNC( HWG_COMBOGETTEXT )
+{
+    GtkWidget   *combo = (GtkWidget*) HB_PARHANDLE( 1 );
+    GtkWidget   *entry;
+    const gchar *text;
+
+    if( !combo || !GTK_IS_COMBO_BOX( combo ) )
+    {
+        hb_retc( "" );
+        return;
+    }
+
+    entry = gtk_combo_box_get_child( GTK_COMBO_BOX( combo ) );
+    if( !entry || !GTK_IS_EDITABLE( entry ) )
+    {
+        hb_retc( "" );
+        return;
+    }
+
+    text = gtk_editable_get_text( GTK_EDITABLE( entry ) );
+
+    if( text && *text )
+    {
+        char *cptr = hwg_convert_from_utf8( text );
+        hb_retc( cptr );
+        g_free( cptr );
+    }
+    else
+    {
+        hb_retc( "" );
+    }
 }
 
 HB_FUNC( HWG_COMBOPOPUP )
@@ -2032,14 +2077,14 @@ HB_FUNC( HWG_MOVEWIDGET )
                     {
                         hwg_set_size_request( vscroll, nBarV, nAreaH );
                         gtk_fixed_move( GTK_FIXED( widget ), vscroll, nAreaW, 0 );
-                        gtk_widget_queue_allocate( vscroll );
+                        //gtk_widget_queue_allocate( vscroll );
                         gtk_widget_queue_draw( vscroll );
                     }
                     if( hscroll && GTK_IS_WIDGET( hscroll ) )
                     {
                         hwg_set_size_request( hscroll, nAreaW, nBarH );
                         gtk_fixed_move( GTK_FIXED( widget ), hscroll, 0, nAreaH );
-                        gtk_widget_queue_allocate( hscroll );
+                        //gtk_widget_queue_allocate( hscroll );
                         gtk_widget_queue_draw( hscroll );
                     }
 
@@ -2052,10 +2097,16 @@ HB_FUNC( HWG_MOVEWIDGET )
                      * color (visible in GtkInspector), but the actually
                      * painted pixels stay whatever was last drawn.
                      */
-                    gtk_widget_queue_allocate( area );
+                    /* Drop the queue_allocate calls: they force a
+                     * re-allocation pass that climbs the entire
+                     * parent chain up to the GtkNotebook, and the
+                     * notebook redraws its tab strip every time.
+                     * The set_size_request above already tells GTK
+                     * that the widget's preferred size changed;
+                     * GTK will revalidate on its own. */
                     gtk_widget_queue_draw( area );
-                    gtk_widget_queue_allocate( widget );
                     gtk_widget_queue_draw( widget );
+
                 }
             }
         }
