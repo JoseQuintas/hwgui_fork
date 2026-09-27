@@ -120,6 +120,7 @@
 {unix}source/gtk4/hbrowse.prg
 {unix}source/gtk4/hcwindow.prg
 {unix}source/gtk4/hcheck.prg
+{unix}source/gtk4/hchecklist.prg
 {unix}source/gtk4/hcombo.prg
 {unix}source/gtk4/hcontrol.prg
 {unix}source/gtk4/hdialog.prg

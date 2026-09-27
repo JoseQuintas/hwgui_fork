@@ -3088,4 +3088,276 @@ HB_FUNC( HWG_SETCSSCLASS )
     }
 }
 
+/* =====================================================================
+ *  CheckList
+ *
+ *  A vertical list of GtkCheckButton rows inside a GtkScrolledWindow.
+ *  Replaces the Win32 pattern of a ListView with LVS_EX_CHECKBOXES
+ *  for cases where each row is just a label and an independent
+ *  boolean.
+ *
+ *  Handle returned to Harbour: the outer GtkScrolledWindow.  Its
+ *  child is the GtkListBox; each GtkListBoxRow's child is a
+ *  GtkCheckButton carrying its 1-based row index under the
+ *  "hwg_checklist_row" data key.
+ *
+ *  Every "toggled" fires a WM_USER+1 message on the scrolled window,
+ *  so HCheckList:onEvent can run bChange / bSetGet.  wParam carries
+ *  the 1-based row index, lParam carries 1 (checked) or 0 (unchecked).
+ * ===================================================================== */
+
+#define HWG_MSGLIST_CHECKED  ( WM_USER + 1 )
+
+static void cb_checklist_toggle( GtkCheckButton *btn, gpointer user_data )
+{
+    GtkWidget *scroll = GTK_WIDGET( user_data );
+    gint       row;
+    gboolean   active;
+
+    /* Ignore the signal when the change came from
+     * HWG_CHECKLIST_SETCHECKED, not from the user. */
+    if( g_object_get_data( G_OBJECT( btn ), "hwg_checklist_busy" ) )
+        return;
+
+    if( !scroll || !GTK_IS_WIDGET( scroll ) )
+        return;
+
+    row    = GPOINTER_TO_INT( g_object_get_data( G_OBJECT( btn ),
+                                                 "hwg_checklist_row" ) );
+    active = gtk_check_button_get_active( btn );
+
+    hwg_dispatch_onevent( scroll, HWG_MSGLIST_CHECKED,
+                          (HB_LONG) row, (HB_LONG) ( active ? 1 : 0 ) );
+}
+
+static GtkWidget *hwg_checklist_get_listbox( GtkWidget *scroll )
+{
+    if( !scroll || !GTK_IS_SCROLLED_WINDOW( scroll ) )
+        return NULL;
+
+    return (GtkWidget*) g_object_get_data( (GObject*) scroll,
+                                           "hwg_checklist_list" );
+}
+
+static GtkWidget *hwg_checklist_get_row_button( GtkWidget *listbox, gint idx )
+{
+    GtkListBoxRow *row;
+    GtkWidget     *btn;
+
+    if( !listbox || !GTK_IS_LIST_BOX( listbox ) || idx < 1 )
+        return NULL;
+
+    row = gtk_list_box_get_row_at_index( GTK_LIST_BOX( listbox ), idx - 1 );
+    if( !row )
+        return NULL;
+
+    btn = gtk_list_box_row_get_child( row );
+    return ( btn && GTK_IS_CHECK_BUTTON( btn ) ) ? btn : NULL;
+}
+
+static gint hwg_checklist_count( GtkWidget *listbox )
+{
+    gint n = 0;
+
+    if( !listbox || !GTK_IS_LIST_BOX( listbox ) )
+        return 0;
+
+    /* GTK4: GtkListBox does not expose its rows through
+     * gtk_widget_get_first_child().  Use the canonical index-based
+     * accessor instead; iterate until it returns NULL. */
+    while( gtk_list_box_get_row_at_index( GTK_LIST_BOX( listbox ), n ) != NULL )
+        n++;
+
+    return n;
+}
+
+HB_FUNC( HWG_CREATECHECKLIST )
+{
+    GtkWidget    *scroll;
+    GtkWidget    *listbox;
+    GtkFixed     *box    = getFixedBox( (GObject*) HB_PARHANDLE( 1 ) );
+    unsigned long ulStyle = (unsigned long) hb_parnl( 3 );
+
+    scroll  = gtk_scrolled_window_new();
+    listbox = gtk_list_box_new();
+
+    gtk_list_box_set_selection_mode( GTK_LIST_BOX( listbox ),
+                                     GTK_SELECTION_NONE );
+
+    gtk_scrolled_window_set_policy( GTK_SCROLLED_WINDOW( scroll ),
+                                    GTK_POLICY_AUTOMATIC,
+                                    ( ulStyle & WS_VSCROLL ) ? GTK_POLICY_ALWAYS
+                                    : GTK_POLICY_AUTOMATIC );
+
+    if( ulStyle & WS_BORDER )
+        gtk_scrolled_window_set_has_frame( GTK_SCROLLED_WINDOW( scroll ), TRUE );
+
+    gtk_scrolled_window_set_child( GTK_SCROLLED_WINDOW( scroll ), listbox );
+
+    if( box )
+        gtk_fixed_put( box, scroll, hb_parni( 4 ), hb_parni( 5 ) );
+
+    hwg_set_size_request( scroll, hb_parni( 6 ), hb_parni( 7 ) );
+
+    g_object_set_data( (GObject*) scroll, "hwg_checklist_list",
+                       (gpointer) listbox );
+
+    HB_RETHANDLE( scroll );
+}
+
+HB_FUNC( HWG_CHECKLISTADDITEM )
+{
+    GtkWidget *scroll  = (GtkWidget*) HB_PARHANDLE( 1 );
+    gchar     *cLabel  = hwg_convert_to_utf8( hb_parc( 2 ) );
+    gboolean   checked = HB_ISLOG( 3 ) ? hb_parl( 3 ) : FALSE;
+    GtkWidget *listbox = hwg_checklist_get_listbox( scroll );
+    GtkWidget *row;
+    GtkWidget *btn;
+    gint       idx;
+
+    if( !listbox )
+    {
+        g_free( cLabel );
+        hb_retni( 0 );
+        return;
+    }
+
+    btn = gtk_check_button_new_with_label( cLabel );
+    gtk_check_button_set_active( GTK_CHECK_BUTTON( btn ), checked );
+    gtk_widget_set_margin_start( btn, 6 );
+    gtk_widget_set_margin_end( btn, 6 );
+    gtk_widget_set_margin_top( btn, 2 );
+    gtk_widget_set_margin_bottom( btn, 2 );
+
+    row = gtk_list_box_row_new();
+    gtk_list_box_row_set_child( GTK_LIST_BOX_ROW( row ), btn );
+    gtk_list_box_row_set_activatable( GTK_LIST_BOX_ROW( row ), FALSE );
+
+    gtk_list_box_append( GTK_LIST_BOX( listbox ), row );
+
+    idx = hwg_checklist_count( listbox );
+    g_object_set_data( G_OBJECT( btn ), "hwg_checklist_row",
+                       GINT_TO_POINTER( idx ) );
+
+    g_signal_connect( btn, "toggled",
+                      G_CALLBACK( cb_checklist_toggle ), scroll );
+
+    g_free( cLabel );
+    hb_retni( idx );
+}
+
+HB_FUNC( HWG_CHECKLISTCLEAR )
+{
+    GtkWidget *listbox = hwg_checklist_get_listbox( (GtkWidget*) HB_PARHANDLE( 1 ) );
+    gint       total, i;
+
+    if( !listbox )
+        return;
+
+    total = hwg_checklist_count( listbox );
+
+    /* Remove from the end so the indexes of the remaining rows do
+     * not shift while we iterate.  GtkListBox has no "remove all"
+     * call; gtk_list_box_remove() takes the row by pointer and the
+     * row we grabbed from get_row_at_index is valid until removed. */
+    for( i = total - 1; i >= 0; i-- )
+    {
+        GtkListBoxRow *row = gtk_list_box_get_row_at_index( GTK_LIST_BOX( listbox ), i );
+        if( row )
+            gtk_list_box_remove( GTK_LIST_BOX( listbox ), GTK_WIDGET( row ) );
+    }
+}
+
+HB_FUNC( HWG_CHECKLISTGETCOUNT )
+{
+    GtkWidget *listbox = hwg_checklist_get_listbox( (GtkWidget*) HB_PARHANDLE( 1 ) );
+    hb_retni( hwg_checklist_count( listbox ) );
+}
+
+HB_FUNC( HWG_CHECKLISTISCHECKED )
+{
+    GtkWidget *listbox = hwg_checklist_get_listbox( (GtkWidget*) HB_PARHANDLE( 1 ) );
+    GtkWidget *btn     = hwg_checklist_get_row_button( listbox, hb_parni( 2 ) );
+
+    if( !btn )
+    {
+        hb_retl( FALSE );
+        return;
+    }
+
+    hb_retl( gtk_check_button_get_active( GTK_CHECK_BUTTON( btn ) ) );
+}
+
+HB_FUNC( HWG_CHECKLISTSETCHECKED )
+{
+    GtkWidget *listbox = hwg_checklist_get_listbox( (GtkWidget*) HB_PARHANDLE( 1 ) );
+    GtkWidget *btn     = hwg_checklist_get_row_button( listbox, hb_parni( 2 ) );
+
+    if( !btn )
+        return;
+
+    /* Mark as programmatic so cb_checklist_toggle ignores the
+     * resulting "toggled".  SetChecked from Harbour must not fire
+     * HCheckList:bChange. */
+    g_object_set_data( G_OBJECT( btn ), "hwg_checklist_busy",
+                       GINT_TO_POINTER( 1 ) );
+    gtk_check_button_set_active( GTK_CHECK_BUTTON( btn ), hb_parl( 3 ) );
+    g_object_set_data( G_OBJECT( btn ), "hwg_checklist_busy", NULL );
+}
+
+HB_FUNC( HWG_CHECKLISTGETCHECKED )
+{
+    GtkWidget *listbox = hwg_checklist_get_listbox( (GtkWidget*) HB_PARHANDLE( 1 ) );
+    PHB_ITEM   aIdx;
+    gint       total, i, n;
+
+    if( !listbox )
+    {
+        hb_reta( 0 );
+        return;
+    }
+
+    total = hwg_checklist_count( listbox );
+
+    /* First pass: count how many are checked. */
+    n = 0;
+    for( i = 0; i < total; i++ )
+    {
+        GtkListBoxRow *row = gtk_list_box_get_row_at_index( GTK_LIST_BOX( listbox ), i );
+        GtkWidget     *btn;
+
+        if( !row )
+            continue;
+
+        btn = gtk_list_box_row_get_child( row );
+        if( btn && GTK_IS_CHECK_BUTTON( btn ) &&
+            gtk_check_button_get_active( GTK_CHECK_BUTTON( btn ) ) )
+            n++;
+    }
+
+    aIdx = hb_itemArrayNew( n );
+
+    /* Second pass: fill with 1-based indexes. */
+    n = 0;
+    for( i = 0; i < total; i++ )
+    {
+        GtkListBoxRow *row = gtk_list_box_get_row_at_index( GTK_LIST_BOX( listbox ), i );
+        GtkWidget     *btn;
+
+        if( !row )
+            continue;
+
+        btn = gtk_list_box_row_get_child( row );
+        if( btn && GTK_IS_CHECK_BUTTON( btn ) &&
+            gtk_check_button_get_active( GTK_CHECK_BUTTON( btn ) ) )
+        {
+            PHB_ITEM tmp = hb_itemPutNI( NULL, i + 1 );
+            hb_itemArrayPut( aIdx, ++n, tmp );
+            hb_itemRelease( tmp );
+        }
+    }
+
+    hb_itemReturnRelease( aIdx );
+}
+
 /* ====================== EOF of control.c ======================= */

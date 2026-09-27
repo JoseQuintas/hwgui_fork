@@ -15,6 +15,101 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-27 08:00 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  + source/gtk4/hchecklist.prg add new prg
+  * source/gtk4/control.c, hwgui/hwguiGTK4.hbm: new HCheckList control
+
+    Vertical list of independently toggled checkboxes, replacing the
+    Win32 ListView + LVS_EX_CHECKBOXES pattern for label/boolean rows.
+
+    control.c:
+      * HWG_CREATECHECKLIST: GtkScrolledWindow + GtkListBox
+        (GTK_SELECTION_NONE).  Handle returned is the scrolled window.
+      * HWG_CHECKLISTADDITEM: appends a GtkListBoxRow containing a
+        GtkCheckButton.  Row index stashed on the button; "toggled"
+        fires WM_USER+1 to the Harbour object.
+      * HWG_CHECKLISTCLEAR / GETCOUNT / ISCHECKED / SETCHECKED /
+        GETCHECKED (returns 1-based indexes).
+      * Rows accessed via gtk_list_box_get_row_at_index; GTK4 does
+        not expose them through gtk_widget_get_first_child.
+      * SETCHECKED marks the button "busy" so the programmatic change
+        does not fire HCheckList:bChange.
+
+    hchecklist.prg:
+      * HCheckList class with New / AddItem / SetItems / Clear /
+        GetCount / IsChecked / SetChecked / GetChecked /
+        GetCheckedItems / GetCheckedValues / End.
+      * aItems entries: { cLabel, lChecked, xUserValue }.
+    + /samples/testchklst.prg add sample checklist
+
+2026-09-27 02:00 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  * source/gtk4/hcombo.prg, source/gtk4/control.c: HComboBox fixes
+
+  * onEvent: use WM_SETFOCUS/WM_KILLFOCUS instead of EN_SETFOCUS/
+      EN_KILLFOCUS (256/512 collide with WM_KEYDOWN/WM_MOUSEMOVE in
+      windows.ch, so keystrokes and mouse moves were hitting the
+      focus branches).
+
+    * onEvent: WM_KEYDOWN for GDK_Return/GDK_KP_Enter calls
+      hwg_GetSkip( ::oParent, ::handle, 1, .T. ) to run Valid before
+      advancing focus.  Matches HEdit.
+
+    * GetText(): new hwg_ComboGetText reads the internal GtkEntry;
+      combo GetValue() only returns the active index.
+
+    * ES_UPPERCASE: rewrite entry in uppercase via g_utf8_strup,
+      deferred to idle (set_text from "changed" triggers GTK4's
+      "Cannot begin irreversible action while in user action").
+
+    * Type-ahead: new HWG_COMBOENTRY + HWG_COMBOSEEKPREFIX; CAPTURE
+      key controller on the entry skips the seek on Backspace/Delete.
+
+2026-09-27 00:05 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  * hcombo.prg, control.c: HComboBox: add GetText()
+    * hcombo.prg: GetText() INLINE iif( ::lEdit, hwg_ComboGetText(),
+      ::GetValue() ) -- typed text for editable combos, selected item
+      otherwise.
+    * control.c: new HWG_COMBOGETTEXT reads the internal GtkEntry of
+      the combo.  GetValue() alone returns the active index, which
+      does not change when the user types over a selected item.
+
+2026-09-26 23:12 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  * source/gtk4/drawtext.c: HWG_CREATEFONT: skip weight=0
+    (was rendering every font as Thin)
+
+    Enable the WEIGHT flag on GTK4:
+      PREPARE FONT oFont NAME "Noto Sans" WIDTH 0 HEIGHT -12 WEIGHT 500
+
+    Only call pango_font_description_set_weight() when the caller
+    passed a value > 0.  HWGUI callers send 0 to mean "default
+    weight" (Win32 fnWeight = 0 == FW_REGULAR), but Pango interprets
+    0 as thinner than Thin and asks fontconfig for the lightest face
+    available, so every font without an explicit WEIGHT rendered as
+    Thin.  Skipping the call leaves Pango's own default (Normal = 400)
+    in place.
+
+    WEIGHT values accepted by PREPARE FONT / HFont:Add on GTK4
+    (numeric typographic weight, 100..900):
+
+      Value  Pango name                    Meaning
+      -----  ---------------------------   ------------------------
+        100  PANGO_WEIGHT_THIN             Very thin
+        200  PANGO_WEIGHT_ULTRALIGHT       Ultra light
+        300  PANGO_WEIGHT_LIGHT            Light
+        400  PANGO_WEIGHT_NORMAL           Regular (default)
+        500  PANGO_WEIGHT_MEDIUM           Medium
+        600  PANGO_WEIGHT_SEMIBOLD         Semi-bold
+        700  PANGO_WEIGHT_BOLD             Bold (default for "Bold")
+        800  PANGO_WEIGHT_ULTRABOLD        Ultra bold
+        900  PANGO_WEIGHT_HEAVY            Heavy / Black
+
+    The value is passed straight through to Pango; the fontconfig
+    layer then picks the closest available face in the installed
+    family.  If the family does not ship a face at the requested
+    weight (Noto Sans, for example, only ships Regular/Bold/Italic/
+    Bold-Italic), the request silently falls back to the nearest
+    existing weight.
+
 2026-09-26 11:10 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
   * utils\bincnt\bincnt.hbp add -lgdiplus {win} OS
 
