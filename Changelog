@@ -15,7 +15,13 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2026-09-27 08:00 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+2026-09-27 16:51 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  Add chart samples
+  + samples/chartdemo.prg add sample chart
+  + samples/chartweb3d.prg add sample chart web 3d
+  + samples/chartwebkit.prg add sample chart webkit
+
+2026-09-27 16:40 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
   + source/gtk4/hwebview.prg add new prg
   + source/gtk4/hwebchart.prg add new prg
   + source/gtk4/hchart.prg add new prg
