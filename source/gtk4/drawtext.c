@@ -286,7 +286,14 @@ HB_FUNC( HWG_CREATEFONT )
 
     pango_font_description_set_size( hFont, hb_parni(3) );
 
-    if( !HB_ISNIL(4) )
+    /* Pango weights live in 100..900 (400 = Regular).  HWGUI callers
+     * pass 0 to mean "use the default weight" -- that came from Win32,
+     * where fnWeight = 0 was equivalent to FW_REGULAR.  Feeding 0 to
+     * pango_font_description_set_weight() makes fontconfig look for
+     * the thinnest available, rendering every font as Thin.  Skip the
+     * call entirely when the value is 0, leaving Pango's own default
+     * (Normal = 400) in place. */
+    if( !HB_ISNIL(4) && hb_parni(4) > 0 )
     {
         pango_font_description_set_weight( hFont, hb_parni(4) );
     }
