@@ -39,6 +39,9 @@
 #ifndef CBN_SELCHANGE
 #define CBN_SELCHANGE       1
 #endif
+#ifndef CBN_EDITCHANGE
+#define CBN_EDITCHANGE      5
+#endif
 
 CLASS HComboBox INHERIT HControl
 
@@ -132,11 +135,9 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HComboBox
 
    LOCAL i
 
-   * Parameters not used
-   HB_SYMBOL_UNUSED(wParam)
    HB_SYMBOL_UNUSED(lParam)
 
-   IF msg == EN_SETFOCUS
+   IF msg == WM_SETFOCUS
       IF ::bSetGet == Nil
          IF ::bGetFocus != Nil
             i := hwg_ComboGet( ::handle )
@@ -145,7 +146,7 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HComboBox
       ELSE
          __When( Self )
       ENDIF
-   ELSEIF msg == EN_KILLFOCUS
+   ELSEIF msg == WM_KILLFOCUS
       IF ::bSetGet == Nil
          IF ::bLostFocus != Nil
             i := hwg_ComboGet( ::handle )
@@ -155,12 +156,25 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HComboBox
          __Valid( Self )
       ENDIF
 
+   ELSEIF msg == WM_KEYDOWN
+      IF wParam == GDK_Return .OR. wParam == GDK_KP_Enter
+         /* ENTER advances focus to the next control, matching the
+          * HEdit behaviour (see hedit.prg).  The trailing .T. asks
+          * hwg_GetSkip to run the control's Valid chain before
+          * moving; if Valid returns .F., the focus stays put. */
+         hwg_GetSkip( ::oParent, ::handle, 1, .T. )
+         RETURN 0
+      ENDIF
+
    ELSEIF msg == CBN_SELCHANGE
       ::GetValue()
       IF ::bChangeSel != Nil
          Eval( ::bChangeSel, ::xValue, Self )
       ENDIF
-
+   ELSEIF msg == CBN_EDITCHANGE
+      IF ::lEdit
+         hwg_ComboSeekPrefix( ::handle, hwg_ComboGetText( ::handle ) )
+      ENDIF
    ENDIF
 
    RETURN 0
@@ -184,11 +198,16 @@ METHOD Init() CLASS HComboBox
          ENDIF
       ENDIF
 
-      /* GTK4: apply DisplayCount after the widget exists.  The C
-         helper hooks notify::popup-shown, so the popup is resized
-         every time it opens. */
       IF ::DisplayCount > 0
          hwg_ComboSetDisplayCount( ::handle, ::DisplayCount )
+      ENDIF
+
+      /* GTK4 type-ahead.  Hook the internal entry's "changed" so that
+       * as the user types, the active item jumps to the first list
+       * entry that starts with the typed prefix -- Win32 behaviour.
+       * Only makes sense for editable combos. */
+      IF ::lEdit
+         hwg_SetSignal( hwg_ComboEntry( ::handle ), "changed", CBN_EDITCHANGE, 0, 0 )
       ENDIF
    ENDIF
 

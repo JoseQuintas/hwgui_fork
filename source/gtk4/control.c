@@ -57,6 +57,13 @@
 #define ES_CENTER           1
 #define ES_RIGHT            2
 
+#define ES_PASSWORD        32
+#define ES_MULTILINE        4
+#define ES_READONLY      2048
+#define ES_CENTER           1
+#define ES_RIGHT            2
+#define ES_UPPERCASE        8
+
 #define BS_AUTO3STATE       6
 #define BS_GROUPBOX         7
 #define BS_AUTORADIOBUTTON  9
@@ -956,6 +963,205 @@ HB_FUNC( HWG_EDIT_SET_OVERMODE )
     }
     hb_retl( bOver );
 }
+/*
+ * Type-ahead context for editable combos.
+ */
+typedef struct {
+    GtkWidget *combo;
+    gchar     *prefix;
+} HWG_COMBO_SEEK_CTX;
+
+
+/*
+ * ES_UPPERCASE for editable combos.
+ *
+ * Modifying the entry content directly from inside the "changed"
+ * handler triggers a GTK4 warning:
+ *   "Cannot begin irreversible action while in user action"
+ * because gtk_editable_set_text() tries to open an irreversible
+ * action while the user action that produced the current change is
+ * still open.  The fix is to defer the rewrite to an idle callback:
+ * by the time it runs, the user action has already closed and the
+ * set_text() is allowed.
+ */
+static gboolean hwg_uppercase_idle( gpointer data )
+{
+    GtkEditable *editable = GTK_EDITABLE( data );
+    const gchar *text;
+    gchar       *upper;
+    gint         pos;
+
+    if( !editable || !G_IS_OBJECT( editable ) )
+        return G_SOURCE_REMOVE;
+
+    g_object_set_data( G_OBJECT( editable ), "hwg_upper_scheduled", NULL );
+
+    text = gtk_editable_get_text( editable );
+    if( text && *text )
+    {
+        upper = g_utf8_strup( text, -1 );
+        if( upper )
+        {
+            if( g_strcmp0( text, upper ) != 0 )
+            {
+                pos = gtk_editable_get_position( editable );
+                gtk_editable_set_text( editable, upper );
+                gtk_editable_set_position( editable, pos );
+            }
+            g_free( upper );
+        }
+    }
+
+    g_object_unref( editable );
+    return G_SOURCE_REMOVE;
+}
+
+static void cb_combo_uppercase( GtkEditable *editable, gpointer user_data )
+{
+    HB_SYMBOL_UNUSED( user_data );
+
+    if( !editable || !GTK_IS_EDITABLE( editable ) )
+        return;
+
+    /* Coalesce: if a rewrite is already scheduled, do nothing.  A
+     * burst of keystrokes should trigger one idle, not one per key. */
+    if( g_object_get_data( G_OBJECT( editable ), "hwg_upper_scheduled" ) )
+        return;
+
+    g_object_set_data( G_OBJECT( editable ), "hwg_upper_scheduled",
+                       GINT_TO_POINTER( 1 ) );
+    g_object_ref( editable );
+    g_idle_add( hwg_uppercase_idle, editable );
+}
+
+
+/*
+ * Key handler for the internal entry of an editable combo.  Sets a
+ * skip flag whenever the user presses Backspace or Delete, so the
+ * deferred seek does not refill the entry with the matched item and
+ * undo the deletion.
+ *
+ * GTK4 has no key-press signal on GtkComboBox itself; the controller
+ * is installed on the combo's child (the internal GtkEntry) and finds
+ * its way back through gtk_widget_get_parent.
+ */
+static gboolean cb_combo_entry_key( GtkEventControllerKey *ctl,
+                                    guint keyval, guint keycode,
+                                    GdkModifierType state,
+                                    gpointer user_data )
+{
+    GtkWidget *entry = gtk_event_controller_get_widget( GTK_EVENT_CONTROLLER( ctl ) );
+    GtkWidget *combo;
+
+    HB_SYMBOL_UNUSED( keycode );
+    HB_SYMBOL_UNUSED( state );
+    HB_SYMBOL_UNUSED( user_data );
+
+    combo = gtk_widget_get_parent( entry );
+    if( !combo || !GTK_IS_COMBO_BOX( combo ) )
+        return FALSE;
+
+    if( keyval == GDK_KEY_BackSpace || keyval == GDK_KEY_Delete )
+    {
+        g_object_set_data( G_OBJECT( combo ), "hwg_seek_skip",
+                           GINT_TO_POINTER( 1 ) );
+    }
+
+    return FALSE;
+}
+
+
+/*
+ * Deferred worker.  Runs in an idle callback, after the "changed"
+ * handler (and the user action it was part of) has already returned.
+ * From here, gtk_combo_box_set_active() is allowed to modify the
+ * entry without triggering GTK's
+ *   "Cannot begin irreversible action while in user action"
+ * warning.
+ */
+static gboolean hwg_combo_seek_idle( gpointer data )
+{
+    HWG_COMBO_SEEK_CTX *ctx = (HWG_COMBO_SEEK_CTX *) data;
+    GtkWidget    *combo = ctx->combo;
+    GtkTreeModel *model;
+    GtkTreeIter   iter;
+    GtkWidget    *entry;
+    gchar        *upper_prefix;
+    gint          n, i, matched = 0;
+    gint          prefix_chars;
+
+    if( !combo || !G_IS_OBJECT( combo ) || !GTK_IS_COMBO_BOX( combo ) )
+    {
+        g_free( ctx->prefix );
+        g_free( ctx );
+        return G_SOURCE_REMOVE;
+    }
+
+    g_object_set_data( G_OBJECT( combo ), "hwg_seek_pending", NULL );
+
+    upper_prefix = g_utf8_strup( ctx->prefix, -1 );
+    if( !upper_prefix )
+    {
+        g_free( ctx->prefix );
+        g_free( ctx );
+        return G_SOURCE_REMOVE;
+    }
+
+    prefix_chars = (gint) g_utf8_strlen( ctx->prefix, -1 );
+
+    model = gtk_combo_box_get_model( GTK_COMBO_BOX( combo ) );
+    n     = gtk_tree_model_iter_n_children( model, NULL );
+
+    for( i = 0; i < n; i++ )
+    {
+        gchar *item = NULL;
+
+        if( gtk_tree_model_iter_nth_child( model, &iter, NULL, i ) )
+        {
+            gtk_tree_model_get( model, &iter, 0, &item, -1 );
+
+            if( item )
+            {
+                gchar    *upper_item = g_utf8_strup( item, -1 );
+                gboolean  match = ( upper_item &&
+                g_str_has_prefix( upper_item, upper_prefix ) );
+
+                g_free( upper_item );
+                g_free( item );
+
+                if( match )
+                {
+                    matched = i + 1;
+                    break;
+                }
+            }
+        }
+    }
+
+    g_free( upper_prefix );
+
+    if( matched > 0 &&
+        gtk_combo_box_get_active( GTK_COMBO_BOX( combo ) ) != matched - 1 )
+    {
+        g_object_set_data( G_OBJECT( combo ), "hwg_autocompleting",
+                           GINT_TO_POINTER( 1 ) );
+
+        gtk_combo_box_set_active( GTK_COMBO_BOX( combo ), matched - 1 );
+
+        entry = gtk_combo_box_get_child( GTK_COMBO_BOX( combo ) );
+        if( entry && GTK_IS_EDITABLE( entry ) )
+        {
+            gtk_editable_select_region( GTK_EDITABLE( entry ),
+                                        prefix_chars, -1 );
+        }
+
+        g_object_set_data( G_OBJECT( combo ), "hwg_autocompleting", NULL );
+    }
+
+    g_free( ctx->prefix );
+    g_free( ctx );
+    return G_SOURCE_REMOVE;
+}
 
 
 /* =====================================================================
@@ -966,6 +1172,7 @@ HB_FUNC( HWG_CREATECOMBO )
     GtkWidget *hCtrl;
     GtkWidget *entry = NULL;
     gint iText = ( ( hb_parni( 3 ) & 1 ) == 0 );
+    unsigned long ulStyle = (unsigned long) hb_parni( 3 );
     GtkFixed *box = getFixedBox( (GObject*) HB_PARHANDLE( 1 ) );
 
     hCtrl = gtk_combo_box_text_new_with_entry();
@@ -982,7 +1189,36 @@ HB_FUNC( HWG_CREATECOMBO )
     (void) hwg_install_widget_events( hCtrl, FALSE );
     entry = gtk_combo_box_get_child( GTK_COMBO_BOX( hCtrl ) );
     if( entry && GTK_IS_WIDGET( entry ) )
+    {
         (void) hwg_install_widget_events( entry, FALSE );
+
+        /* ES_UPPERCASE from the style: force the entry content to
+         * uppercase on every change.  Works both for text typed by
+         * the user and for values assigned from Harbour through
+         * SetText / bSetGet, since both fire "changed". */
+        if( ( ulStyle & ES_UPPERCASE ) != 0 && GTK_IS_EDITABLE( entry ) )
+        {
+            g_signal_connect( entry, "changed",
+                              G_CALLBACK( cb_combo_uppercase ), NULL );
+        }
+
+        /* Track Backspace/Delete presses so HWG_COMBOSEEKPREFIX can
+         * skip autocomplete on deletion -- otherwise set_active()
+         * would refill the entry and undo the deletion. */
+        {
+            GtkEventController *key = gtk_event_controller_key_new();
+            /* CAPTURE phase: the handler must run BEFORE the entry
+             * processes the keystroke, so hwg_seek_skip is already
+             * set when the resulting "changed" fires and schedules
+             * the deferred seek.  In BUBBLE phase the flag arrives
+             * too late and the seek re-fills the entry, undoing the
+             * Backspace. */
+            gtk_event_controller_set_propagation_phase( key, GTK_PHASE_CAPTURE );
+            g_signal_connect( key, "key-pressed",
+                              G_CALLBACK( cb_combo_entry_key ), NULL );
+            gtk_widget_add_controller( entry, key );
+        }
+    }
 
     HB_RETHANDLE( hCtrl );
 }
@@ -1039,16 +1275,19 @@ HB_FUNC( HWG_COMBOGET )
     hb_retni( i );
 }
 
-/*
- * Read the text from the internal GtkEntry of an editable combo.
- *
- * The public GtkComboBoxText API returns the active item index, not
- * the text the user typed into the entry.  In an editable combo the
- * two can diverge: typing over a pre-selected item does not change
- * the active index.  This helper reaches into the combo's child
- * (which for a combo created with gtk_combo_box_text_new_with_entry()
- * is a GtkEntry) and reads what is actually on screen.
- */
+HB_FUNC( HWG_COMBOENTRY )
+{
+    GtkWidget *combo = (GtkWidget*) HB_PARHANDLE( 1 );
+
+    if( !combo || !GTK_IS_COMBO_BOX( combo ) )
+    {
+        HB_RETHANDLE( NULL );
+        return;
+    }
+
+    HB_RETHANDLE( gtk_combo_box_get_child( GTK_COMBO_BOX( combo ) ) );
+}
+
 HB_FUNC( HWG_COMBOGETTEXT )
 {
     GtkWidget   *combo = (GtkWidget*) HB_PARHANDLE( 1 );
@@ -1082,10 +1321,58 @@ HB_FUNC( HWG_COMBOGETTEXT )
     }
 }
 
+HB_FUNC( HWG_COMBOSEEKPREFIX )
+{
+    GtkWidget          *combo = (GtkWidget*) HB_PARHANDLE( 1 );
+    const gchar        *prefix = hb_parc( 2 );
+    HWG_COMBO_SEEK_CTX *ctx;
+
+    if( !combo || !GTK_IS_COMBO_BOX( combo ) || !prefix || !*prefix )
+    {
+        hb_retni( 0 );
+        return;
+    }
+
+    if( g_object_get_data( G_OBJECT( combo ), "hwg_autocompleting" ) )
+    {
+        hb_retni( 0 );
+        return;
+    }
+
+    /* Backspace/Delete just ran: consume the flag here and bail out
+     * before scheduling the idle.  If the flag were left for the idle
+     * to check, an earlier keystroke's idle could clear it first, and
+     * the autocomplete would refill the text the user just deleted. */
+    if( g_object_get_data( G_OBJECT( combo ), "hwg_seek_skip" ) )
+    {
+        g_object_set_data( G_OBJECT( combo ), "hwg_seek_skip", NULL );
+        hb_retni( 0 );
+        return;
+    }
+
+    if( g_object_get_data( G_OBJECT( combo ), "hwg_seek_pending" ) )
+    {
+        hb_retni( 0 );
+        return;
+    }
+
+    g_object_set_data( G_OBJECT( combo ), "hwg_seek_pending",
+                       GINT_TO_POINTER( 1 ) );
+
+    ctx = g_new0( HWG_COMBO_SEEK_CTX, 1 );
+    ctx->combo  = combo;
+    ctx->prefix = g_strdup( prefix );
+    g_idle_add( hwg_combo_seek_idle, ctx );
+
+    hb_retni( 1 );
+}
+
+
 HB_FUNC( HWG_COMBOPOPUP )
 {
     gtk_combo_box_popup( GTK_COMBO_BOX( HB_PARHANDLE( 1 ) ) );
 }
+
 
 /* =====================================================================
  *  Combo: limit the number of visible rows in the dropdown popup
