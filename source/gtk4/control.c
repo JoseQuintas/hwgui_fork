@@ -3360,4 +3360,53 @@ HB_FUNC( HWG_CHECKLISTGETCHECKED )
     hb_itemReturnRelease( aIdx );
 }
 
+/* =====================================================================
+ *  WebView
+ *
+ *  Embed a WebKitGTK 6.0 WebKitWebView inside a HWGUI GtkFixed.  The
+ *  WebView is a full browser engine: HTML, CSS, JavaScript and Canvas
+ *  all work.  Used for charts rendered with Chart.js, reports laid
+ *  out in HTML, and any rich content the Cairo drawing area cannot
+ *  reach.
+ *
+ *  The library is GTK4-only -- WebKitGTK 6.0 replaces the older
+ *  webkit2gtk-4.0 (GTK3).  Both must not be linked into the same
+ *  binary.
+ * ===================================================================== */
+#include <webkit/webkit.h>
+
+HB_FUNC( HWG_CREATEWEBVIEW )
+{
+    GtkWidget *wv;
+    GtkFixed  *box = getFixedBox( (GObject*) HB_PARHANDLE( 1 ) );
+
+    wv = webkit_web_view_new();
+
+    if( box )
+        gtk_fixed_put( box, wv, hb_parni( 4 ), hb_parni( 5 ) );
+
+    hwg_set_size_request( wv, hb_parni( 6 ), hb_parni( 7 ) );
+
+    HB_RETHANDLE( wv );
+}
+
+HB_FUNC( HWG_WEBVIEWLOADHTML )
+{
+    GtkWidget  *wv   = (GtkWidget*) HB_PARHANDLE( 1 );
+    const char *html = hb_parc( 2 );
+
+    if( wv && WEBKIT_IS_WEB_VIEW( wv ) && html )
+        webkit_web_view_load_html( WEBKIT_WEB_VIEW( wv ), html, NULL );
+}
+
+HB_FUNC( HWG_WEBVIEWRUNJS )
+{
+    GtkWidget  *wv = (GtkWidget*) HB_PARHANDLE( 1 );
+    const char *js = hb_parc( 2 );
+
+    if( wv && WEBKIT_IS_WEB_VIEW( wv ) && js )
+        webkit_web_view_evaluate_javascript( WEBKIT_WEB_VIEW( wv ),
+                                             js, -1, NULL, NULL, NULL,
+                                             NULL, NULL );
+}
 /* ====================== EOF of control.c ======================= */
