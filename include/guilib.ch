@@ -30,6 +30,10 @@
 #define	BMP_DRAW_CENTER         1
 #define	BMP_DRAW_FULL           2
 
+#define CHART_BAR               1
+#define CHART_LINE              2
+#define CHART_PIE               3
+
 #define SHS_NOISE               0
 #define SHS_DIAGSHADE           1
 #define SHS_HSHADE              2
@@ -2130,5 +2134,42 @@ Added by Marcos Antonio Gambeta
     [<oDrawn> := ] HDrawnDate():New( <oWnd>,<x>,<y>,<width>,<height>,<color>,<bcolor>, ;
         <aStyles>,<oFont>,<dValue>,<bDraw>,<bChange>,<bChg> );
     [; hwg_SetCtrlName( <oDrawn>,<(oDrawn)> )]
+
+#xcommand @ <x>,<y> CHART [ <oChart> ]       ;
+            TYPE <nType>                     ;
+            ITEMS <aData>                    ;
+            [ TITLE <cTitle> ]               ;
+            [ OF <oWnd> ]                    ;
+            [ ID <nId> ]                     ;
+            [ SIZE <width>, <height> ]       ;
+            [ STYLE <nStyle> ]               ;
+            [ FONT <oFont> ]                 ;
+            [ COLOR <tcolor> ]               ;
+            [ BACKCOLOR <bcolor> ]           ;
+            [ COLORS <aColors> ]             ;
+            [ <nogrid: NOGRID> ]             ;
+            [ <novalue: NOVALUE> ]           ;
+          => ;
+    [<oChart> := ] HChart():New( <oWnd>, <nId>, <nStyle>,       ;
+                    <x>, <y>, <width>, <height>,                ;
+                    <nType>, <aData>, <cTitle>, <oFont>,        ;
+                    , , , <tcolor>, <bcolor>, <aColors>,        ;
+                    !<.nogrid.>, !<.novalue.> )
+
+#xcommand @ <x>,<y> WEBCHART [ <oChart> ]       ;
+              TYPE <nType>                       ;
+              ITEMS <aData>                      ;
+              [ TITLE <cTitle> ]                 ;
+              [ COLORS <aColors> ]               ;
+              [ OF <oWnd> ]                      ;
+              [ ID <nId> ]                       ;
+              [ SIZE <width>, <height> ]         ;
+              [ STYLE <nStyle> ]                 ;
+              [ <light: LIGHT> ]                 ;
+          => ;
+    [<oChart> := ] HWebChart():New( <oWnd>, <nId>, <nStyle>, ;
+                    <x>, <y>, <width>, <height>,             ;
+                    <nType>, <aData>, <cTitle>, <aColors>,   ;
+                    , !<.light.> )
 
 /* ================= EOF of guilib.ch ==================== */
