@@ -40,6 +40,44 @@
  *   through the converter before touching GTK.  Without that, the
  *   title bar shows mojibake and pango prints "Invalid UTF-8 string
  *   passed to pango_layout_set_text()" warnings on any accented text.
+ *
+ *   Focus restoration:
+ *   ------------------
+ *   When a modal message box closes, GTK does not automatically
+ *   restore focus to the widget that had it.  Two reasons:
+ *
+ *     1. GTK4 clears the parent window's focus state as soon as the
+ *        modal's GtkWindow is created, so by the time the modal
+ *        opens, gtk_window_get_focus() and gtk_root_get_focus()
+ *        both return NULL for the parent.  There is nothing for GTK
+ *        to restore.
+ *
+ *     2. Even if the C side grabbed focus on the right widget, the
+ *        HWGui dialog engine would move focus again right after
+ *        hwg_message_box() returns -- when a VALID block returns
+ *        .F., the engine advances to the next control in the queue
+ *        (typically the "phantom" get used to hold the dialog open).
+ *        That happens later than any synchronous grab_focus() call.
+ *
+ *   The fix has two parts:
+ *
+ *     a. window.c keeps its own focus tracker (s_pLastFocusedWidget,
+ *        updated in cb_focus_enter) and exposes it through
+ *        hwg_get_last_focused_widget().  message.c reads that
+ *        pointer instead of asking GTK.
+ *
+ *     b. After the modal is destroyed, message.c schedules the focus
+ *        restoration through g_idle_add().  Idle callbacks run after
+ *        the current event burst is fully processed -- i.e. after
+ *        the Harbour VALID chain is done -- so our grab_focus() is
+ *        the last one to run.  The callback returns G_SOURCE_REMOVE
+ *        so it executes exactly once and is automatically dropped
+ *        from the queue.  No loops, no CPU burn.
+ *
+ *   All message box variants (MsgInfo, MsgStop, MsgExclamation,
+ *   MsgOkCancel, MsgYesNo, MsgYesNoCancel) share the same internal
+ *   hwg_message_box(), so the focus restoration applies to all of
+ *   them without duplication.
  */
 
 #include "guilib.h"
@@ -55,6 +93,17 @@
 
 extern GtkWidget *GetActiveWindow( void );
 extern gchar     *hwg_convert_to_utf8( const char * szText );
+
+/*
+ * HWGui's own focus tracker (defined in window.c).
+ *
+ * Returns the last HWGui widget that received GTK focus, or NULL if
+ * none is currently valid.  message.c uses this to restore focus
+ * after a modal closes, because GTK4 clears the parent window's
+ * focus as soon as the modal's GtkWindow is created -- by then,
+ * gtk_window_get_focus() and gtk_root_get_focus() both return NULL.
+ */
+extern GtkWidget *hwg_get_last_focused_widget( void );
 
 /* Response ids exposed to Harbour (Win32-compatible). */
 #define IDCANCEL   2
@@ -110,6 +159,67 @@ typedef struct {
     const gchar *label;      /* may contain '_' for mnemonic */
     int          response;   /* GTK_RESPONSE_* */
 } HWG_BUTTON_DEF;
+
+
+/* =====================================================================
+ *  Deferred focus restoration
+ *
+ *  See the file header for the full rationale.  Short version: the
+ *  HWGui dialog engine moves focus to the "phantom" get *after*
+ *  hwg_message_box() returns, when a VALID block returns .F.  We
+ *  therefore cannot restore focus synchronously -- we have to wait
+ *  for the next GLib idle cycle, at which point the Harbour chain is
+ *  done and our grab_focus() wins.
+ * ===================================================================== */
+typedef struct {
+    GtkWidget *prev_focus;   /* weak reference: we do not own it */
+} HWG_FOCUS_RESTORE;
+
+static gboolean hwg_restore_focus_idle( gpointer data )
+{
+    HWG_FOCUS_RESTORE *fr = (HWG_FOCUS_RESTORE *) data;
+
+    /*
+     * Guard against the widget having been destroyed while the modal
+     * was open (e.g. the user chose "Quit" instead of fixing the
+     * password).  The "dead" flag and the mapped/visible/sensitive
+     * checks in combination make sure we only call grab_focus on a
+     * widget that can actually take it.
+     */
+    if( fr->prev_focus && GTK_IS_WIDGET( fr->prev_focus ) &&
+        gtk_widget_get_visible( fr->prev_focus ) &&
+        gtk_widget_get_mapped( fr->prev_focus ) &&
+        gtk_widget_is_sensitive( fr->prev_focus ) )
+    {
+        /*
+         * Bring the parent window forward first.  In GTK4,
+         * gtk_widget_grab_focus() on a child of a non-active window
+         * is a no-op -- the window has to be presented first.
+         */
+        GtkWidget *win = gtk_widget_get_ancestor( fr->prev_focus,
+                                                  GTK_TYPE_WINDOW );
+        if( win )
+            gtk_window_present( GTK_WINDOW( win ) );
+
+        gtk_widget_grab_focus( fr->prev_focus );
+
+        /*
+         * GTK4 auto-selects the whole content of an editable when it
+         * receives focus (the same behaviour HWG_SETFOCUS and
+         * hwg_deferred_setfocus_idle compensate for in window.c).
+         * Undo it here so the user lands with the caret at position
+         * zero instead of the text all selected.
+         */
+        if( GTK_IS_EDITABLE( fr->prev_focus ) )
+        {
+            gtk_editable_set_position( GTK_EDITABLE( fr->prev_focus ), 0 );
+            gtk_editable_select_region( GTK_EDITABLE( fr->prev_focus ), 0, 0 );
+        }
+    }
+
+    g_free( fr );
+    return G_SOURCE_REMOVE;   /* run once, then drop from the queue */
+}
 
 
 /* =====================================================================
@@ -210,6 +320,7 @@ static int hwg_message_box( const char *cMsg, const char *cTitle,
     GtkWidget      *btnbox;
     GtkWidget      *first_btn;
     GtkWindow      *parent;
+    GtkWidget      *prev_focus = NULL;
     HWG_DIALOG_CTX  ctx;
     gchar          *gcptr;
     gchar          *gcTitle;
@@ -234,6 +345,22 @@ static int hwg_message_box( const char *cMsg, const char *cTitle,
      * input.  gcTitle is freed at the end of this function.
      */
     gcTitle = hwg_convert_to_utf8( title );
+
+    /*
+     * Remember which widget owned the focus before the modal opened.
+     *
+     * We ask HWGui's own focus tracker (window.c) rather than GTK:
+     * by the time the modal's GtkWindow exists, GTK has already
+     * cleared the parent window's focus, and both
+     * gtk_window_get_focus() and gtk_root_get_focus() return NULL.
+     * The tracker is kept up to date by cb_focus_enter() and is the
+     * only reliable source of "who had focus a moment ago".
+     *
+     * We capture it *before* creating the dialog because creating
+     * the dialog is exactly what triggers GTK to drop the parent's
+     * focus.
+     */
+    prev_focus = hwg_get_last_focused_widget();
 
     /* ---- window -------------------------------------------------- */
     dialog = gtk_window_new();
@@ -353,6 +480,22 @@ static int hwg_message_box( const char *cMsg, const char *cTitle,
      */
     if( GTK_IS_WINDOW( dialog ) )
         gtk_window_destroy( GTK_WINDOW( dialog ) );
+
+    /*
+     * Hand focus back to the previous widget, but deferred through
+     * the GLib idle queue so we run *after* the HWGui dialog engine
+     * finishes processing VALID=.F. and moves focus to the phantom.
+     *
+     * If prev_focus is NULL (no widget was tracked before the modal
+     * opened) there is nothing to restore, and we skip the idle.
+     * See the file header for the full rationale.
+     */
+    if( prev_focus && GTK_IS_WIDGET( prev_focus ) )
+    {
+        HWG_FOCUS_RESTORE *fr = g_new0( HWG_FOCUS_RESTORE, 1 );
+        fr->prev_focus = prev_focus;
+        g_idle_add( hwg_restore_focus_idle, fr );
+    }
 
     g_free( gcTitle );
 

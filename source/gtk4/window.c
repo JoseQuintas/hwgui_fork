@@ -40,6 +40,13 @@
  *  38. cb_window_destroyed marks the window dead on ANY destruction
  *      path, including GTK4's auto-destroy of children.  Without it,
  *      HWG_SETFOCUS could present a corpse.
+ *  39. s_pLastFocusedWidget -- HWGui's own focus tracker.  GTK4 clears
+ *      the parent window's focus as soon as a modal GtkWindow is
+ *      created, so gtk_window_get_focus() / gtk_root_get_focus() are
+ *      useless once the message box is up.  cb_focus_enter() records
+ *      every widget that gains focus, and hwg_get_last_focused_widget()
+ *      exposes it to message.c so the focus can be restored after the
+ *      modal closes.  See hwg_message_box() in message.c.
  */
 
 #include "guilib.h"
@@ -96,6 +103,19 @@ void      cb_signal_size( GtkWidget *widget, int w, int h, gpointer data );
 PHB_DYNS   pSym_onEvent  = NULL;
 PHB_DYNS   pSym_keylist  = NULL;
 GtkWidget *hMainWindow   = NULL;
+
+/*
+ * Last HWGui widget to receive GTK focus.
+ *
+ * GTK4 does not persist focus state across the lifetime of a modal
+ * dialog: when the modal's GtkWindow is created, GTK clears the
+ * focus of the parent window's widgets, and gtk_root_get_focus()
+ * returns NULL afterwards.  HWGui relies on GTK for focus tracking
+ * (see HWG_SETFOCUS / HWG_GETFOCUS), so we keep our own pointer
+ * here, updated in cb_focus_enter().  See hwg_message_box() in
+ * message.c, which uses this to restore focus after a message box.
+ */
+static GtkWidget *s_pLastFocusedWidget = NULL;
 
 HB_LONG    prevp2 = -1;
 
@@ -551,7 +571,16 @@ static void cb_focus_enter( GtkEventControllerFocus *ctl, gpointer user_data )
         return;
 
     if( g_object_get_data( (GObject*) w, "obj" ) )
+    {
+        /*
+         * HWGui's own focus tracker.  GTK4 drops the parent window's
+         * focus when a modal opens, so message.c cannot ask GTK where
+         * the focus was -- it asks us instead, via
+         * hwg_get_last_focused_widget().
+         */
+        s_pLastFocusedWidget = w;
         hwg_dispatch_onevent( w, WM_SETFOCUS, 0, 0 );
+    }
 }
 
 static void cb_focus_leave( GtkEventControllerFocus *ctl, gpointer user_data )
@@ -892,8 +921,8 @@ static void cb_button_released( GtkGestureClick *gesture, int n_press,
         return;
 
     /* Deliberately does NOT grab focus.  Doing so would steal focus
-     f rom the HGet that was created by a double click. */
-     hwg_dispatch_onevent( w, p1, 0, p3 );
+     *      from the HGet that was created by a double click. */
+    hwg_dispatch_onevent( w, p1, 0, p3 );
 }
 
 static void cb_motion( GtkEventControllerMotion *controller,
@@ -1041,7 +1070,7 @@ void hwg_install_widget_events( GtkWidget *widget, gboolean bDrawable )
     gtk_widget_add_controller( widget, motion );
 
     /* The scroll controller is NOT installed here.  It lives only on
-     t he GtkDrawingArea of a browse (see HWG_CREATEBROWSE in     *
+     t he GtkDrawingArea of a browse (see HWG_CREATEBROWSE in     **
      control.c).  Installing it on every widget made the input
      method of a focused GtkEntry insert literal characters. */
 
@@ -1409,6 +1438,24 @@ GtkWidget * GetActiveWindow( void )
     }
 
     return ( pList ) ? pList->data : NULL;
+}
+
+/*
+ * Return the last HWGui widget that received GTK focus, as tracked by
+ * cb_focus_enter().  See the comment next to s_pLastFocusedWidget.
+ *
+ * Used by hwg_message_box() in message.c to restore focus after a
+ * modal dialog closes: GTK4 clears the parent window's focus when the
+ * modal's GtkWindow is created, so gtk_window_get_focus() and
+ * gtk_root_get_focus() both return NULL by then.
+ */
+GtkWidget * hwg_get_last_focused_widget( void )
+{
+    if( s_pLastFocusedWidget && GTK_IS_WIDGET( s_pLastFocusedWidget ) &&
+        !hwg_is_dead( (GObject*) s_pLastFocusedWidget ) )
+        return s_pLastFocusedWidget;
+
+    return NULL;
 }
 
 HB_FUNC( HWG_GETACTIVEWINDOW )
@@ -1981,7 +2028,7 @@ HB_FUNC( HWG_SETFOCUS )
             GtkWidget *widget = GTK_WIDGET( hObj );
 
             /* Guard against destroyed-but-not-yet-finalized widgets:
-             G TK_IS_WIDGET still returns TRUE on a corpse, but   *
+             G TK_IS_WIDGET still returns TRUE on a corpse, but   **
              gtk_widget_grab_focus would then crash inside
              gtk_widget_get_native.  Require an attached root. */
             if( gtk_widget_get_root( widget ) != NULL &&
