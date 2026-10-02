@@ -15,6 +15,27 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-02 09:55 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+
+    * source/gtk4/{control.c,drawwidg.prg,window.c}
+      utils/tutorial/tutor_eng.xml:
+      GTK4 icon lookup and HBitmap:AddStandard validation.
+
+      * control.c: translate legacy gtk-* stock ids to freedesktop
+        names before gtk_icon_theme_lookup_icon(), so applications
+        passing "gtk-copy", "gtk-save", etc. keep working on GTK4.
+      * drawwidg.prg: HBitmap:AddStandard rejects a non-string cId
+        instead of aborting with BASE/1081 'Argument error: +'.
+      * window.c: filter the 'g_object_get_data: assertion
+        G_IS_OBJECT' critical and guard the parent chain in
+        cb_signal_size (both fired during menu popover teardown).
+      * tutor_eng.xml (Browse of bitmaps): use freedesktop names,
+        wrap each lookup in BEGIN SEQUENCE, and assign the loaded
+        HBitmap objects directly to oBrw:aArray -- passing the
+        object back through AddStandard() was the trigger for the
+        Argument error.
+      ! all samples of tutor run GTK4
+
 2026-09-01 23:50 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * source/common/editor/hcedit_l_gtk4.c
       source/common/editor/hcedit.prg

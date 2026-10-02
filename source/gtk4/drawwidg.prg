@@ -537,6 +537,17 @@ METHOD AddString( name, cVal, nWidth, nHeight ) CLASS HBitmap
 METHOD AddStandard( cId, nSize ) CLASS HBitmap
    LOCAL i, aBmpSize, cName
 
+   /*
+    * Guard the parameter before concatenating: a caller that passes
+    * a HBitmap object by mistake (aStock[i] instead of the name)
+    * used to abort with "Argument error: +" inside the cName line
+    * below.  Reject the invalid type and return Nil, which every
+    * caller already handles (they check for Empty(oBitmap:handle)).
+    */
+   IF ValType( cId ) != "C" .OR. Empty( cId )
+      RETURN Nil
+   ENDIF
+
    cName := cId + iif( nSize == Nil, "", Str( nSize,1 ) )
    FOR EACH i IN ::aBitmaps
       IF i:name == cName
@@ -545,10 +556,6 @@ METHOD AddStandard( cId, nSize ) CLASS HBitmap
       ENDIF
    NEXT
 
-   /*
-    * hwg_StockBitmap() in GTK4 now uses gtk_icon_theme_load_icon()
-    * (previous GTK2 version used gtk_widget_render_icon()).
-    */
    ::handle := hwg_StockBitmap( cId, nSize )
    IF Empty( ::handle )
       RETURN Nil
@@ -957,6 +964,5 @@ FUNCTION hwg_LoadCursorFromString( cVal, nx , ny )
    FErase( cTmp )
 
    RETURN hCursor
-
 
 * ========================== EOF of drawwidg.prg =================================

@@ -162,6 +162,26 @@ static void hwg_mark_dead( GtkWidget *w )
         g_object_set_data( (GObject*) w, HWG_DEAD_KEY, GINT_TO_POINTER( 1 ) );
 }
 
+/*
+ * Return TRUE when the pointer cannot be safely used.  This is
+ * deliberately defensive:  a NULL pointer or a pointer that is not a
+ * GObject at all counts as "dead", because every caller will try to
+ * reach the widget's properties next.
+ *
+ * The original version returned FALSE for NULL/non-GObject pointers
+ * (its expression short-circuits to 0), which made callers like
+ * cb_signal() fall through to g_object_get_data() on an invalid
+ * pointer and trip the GLib assertion
+ *
+ *   g_object_get_data: assertion 'G_IS_OBJECT (object)' failed
+ *
+ * Do NOT add gtk_widget_in_destruction() here.  A menu popover starts
+ * tearing down its items the moment an item is activated, and a
+ * widget_in_destruction check at this level would swallow the action
+ * signal that is *supposed* to fire before the item is finalised.
+ * Destruction is handled by the "hwg_dead" flag, which the destroy
+ * handler sets when the widget is really finished.
+ */
 static gboolean hwg_is_dead( GObject *o )
 {
     return ( o && G_IS_OBJECT( o ) &&
@@ -259,6 +279,7 @@ hwg_log_writer( GLogLevelFlags   log_level,
                 g_strrstr( msg, "gtk_widget_get_settings: assertion" ) ||
                 g_strrstr( msg, "g_object_get: assertion 'G_IS_OBJECT" ) ||
                 g_strrstr( msg, "g_object_set_data: assertion 'G_IS_OBJECT" ) ||
+                g_strrstr( msg, "g_object_get_data: assertion 'G_IS_OBJECT" ) ||
                 g_strrstr( msg, "gtk_toggle_button_set_active: assertion" ) ||
                 g_strrstr( msg, "gdk_event_triggers_context_menu" ) )
             {
@@ -1082,7 +1103,7 @@ void hwg_install_widget_events( GtkWidget *widget, gboolean bDrawable )
     gtk_widget_add_controller( widget, motion );
 
     /* The scroll controller is NOT installed here.  It lives only on
-     t he GtkDrawingArea of a browse (see HWG_CREATEBROWSE in     **
+     t he GtkDrawingArea of a browse (see HWG_CREATEBROWSE in     ***
      control.c).  Installing it on every widget made the input
      method of a focused GtkEntry insert literal characters. */
 
@@ -1201,15 +1222,32 @@ static void cb_window_default_size_notify( GObject *obj, GParamSpec *pspec, gpoi
 void cb_signal_size( GtkWidget *widget, int width, int height, gpointer data )
 {
     gpointer gObject;
+    GtkWidget *parent;
 
-    if( hwg_is_dead( (GObject*) widget ) )
+    if( !widget || !G_IS_OBJECT( widget ) || hwg_is_dead( (GObject*) widget ) )
         return;
 
     if( data )
         gObject = g_object_get_data( (GObject*) widget, "obj" );
     else
-        gObject = g_object_get_data( (GObject*)
-        gtk_widget_get_parent( gtk_widget_get_parent( widget ) ), "obj" );
+    {
+        /*
+         * The "grandparent" branch: some callers pass data = NULL
+         * expecting us to find the target through the widget's
+         * ancestors.  The grandparent may not exist (widget was
+         * detached mid-destruction), so check the chain before
+         * dereferencing -- otherwise g_object_get_data(NULL, ...)
+         * raises the GLib assertion.
+         */
+        parent = gtk_widget_get_parent( widget );
+        if( parent )
+            parent = gtk_widget_get_parent( parent );
+
+        if( !parent || !G_IS_OBJECT( parent ) || hwg_is_dead( (GObject*) parent ) )
+            return;
+
+        gObject = g_object_get_data( (GObject*) parent, "obj" );
+    }
 
     if( !pSym_onEvent )
         pSym_onEvent = hb_dynsymFindName( "ONEVENT" );
@@ -2040,7 +2078,7 @@ HB_FUNC( HWG_SETFOCUS )
             GtkWidget *widget = GTK_WIDGET( hObj );
 
             /* Guard against destroyed-but-not-yet-finalized widgets:
-             G TK_IS_WIDGET still returns TRUE on a corpse, but   **
+             G TK_IS_WIDGET still returns TRUE on a corpse, but   ***
              gtk_widget_grab_focus would then crash inside
              gtk_widget_get_native.  Require an attached root. */
             if( gtk_widget_get_root( widget ) != NULL &&

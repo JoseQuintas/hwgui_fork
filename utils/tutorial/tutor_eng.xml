@@ -1141,11 +1141,41 @@ STATIC oBmpCheck
 FUNCTION Test()
    LOCAL oDlg, oBrw, oBtnOk, oStyle := HStyle():New( { 0xffffff, 0xbbbbbb }, 1 )
    LOCAL bCol4 := {|o,h,x1,y1,x2,y2,nc,nr|
-      hwg_Fillrect( h, x1, y1, x2, y2, Iif( !Empty(o:brush), o:brush:handle, oBrw:handle ) )
-      IF Eval( o:block )
-         hwg_DrawTransparentBitmap( h, oBmpCheck:handle, x1+8, y1+8 )
-      ENDIF
-      RETURN Nil
+   LOCAL nCellW, nCellH, oCheckPen
+
+   /*
+   * Draw the checkmark with two line segments instead of
+   * hwg_DrawTransparentBitmap.  The GTK4 "gtk-apply" icon is a
+   * symbolic icon -- it inherits the foreground colour of the
+   * theme, and on a light theme it renders white, disappearing
+   * on the white browse rows.  Drawing the shape directly with
+   * hwg_Drawline gives full control over colour and thickness
+   * without depending on the icon theme at all.
+   */
+   hwg_Fillrect( h, x1, y1, x2, y2, ;
+   Iif( !Empty(o:brush), o:brush:handle, oBrw:brush:handle ) )
+
+   IF Eval( o:block )
+   nCellW := x2 - x1
+   nCellH := y2 - y1
+
+   oCheckPen := HPen():Add( PS_SOLID, 2, hwg_RGB(0, 128, 0) )
+   hwg_Selectobject( h, oCheckPen:handle )
+
+   /* Left stroke of the check (down-right) */
+   hwg_Drawline( h, ;
+   x1 + Int(nCellW * 0.25), y1 + Int(nCellH * 0.55), ;
+   x1 + Int(nCellW * 0.45), y1 + Int(nCellH * 0.75) )
+
+   /* Right stroke of the check (up-right) */
+   hwg_Drawline( h, ;
+   x1 + Int(nCellW * 0.45), y1 + Int(nCellH * 0.75), ;
+   x1 + Int(nCellW * 0.80), y1 + Int(nCellH * 0.25) )
+
+   oCheckPen:Release()
+   ENDIF
+
+   RETURN Nil
    }
    LOCAL bEnter := {|o,nc|
       IF nc == 4
@@ -1207,126 +1237,194 @@ Return Nil
 
 STATIC FUNCTION FCreateDB()
 
-   LOCAL i, j, d, oTree
-   FIELD DAT
+LOCAL i, j, d, oTree, aNames
 
-   DbCreate( "base1", { {"NAME","C",40,0}, {"NUM","N",4,0}, {"DAT","D",8,0}, ;
-      { "LOGIC","L",1,0 }, {"DAYW","C",12,0} },"DBFCDX", .F.,"BASE1" )
-   set exclusive off
-   use base1 via "DBFCDX"
-   oTree := HWindow():GetMain():oTree
-   FOR i := 1 TO Len( oTree:aItems )
-      base1->(dbappend())
-      base1->name := oTree:aItems[i]:Gettext()
-      base1->num := i * 100
-      base1->logic := ( hb_RandomInt( 0, 100 ) % 3 == 0 )
-      FOR j := 1 TO Len( oTree:aItems[i]:aItems )
-         base1->(dbappend())
-         base1->name := "-- " + oTree:aItems[i]:aItems[j]:Gettext()
-         base1->num := i * 100 + j
+FIELD DAT
+
+/*
+* Older versions of this sample read the tutor's tree through
+* HWindow():GetMain():oTree to build the dummy database.  That only
+* worked while the sample ran inside the tutor's own process; once
+* the tutor started spawning it as a separate process (hwgrun), the
+* child had no main window and HWindow():GetMain() returned Nil,
+* aborting with "Message not found: NIL:OTREE".
+*
+* Use a fixed list of names instead.  The sample only needs a few
+* rows to demonstrate the browse, so a static array is enough -- it
+* keeps the sample independent of whatever host runs it.
+*/
+aNames := { "Introduction", "Getting started", "Controls", ;
+"Advanced using of controls", "Get system", "Drawing", ;
+"Drafts" }
+
+DbCreate( "base1", { {"NAME","C",40,0}, {"NUM","N",4,0}, {"DAT","D",8,0}, ;
+{ "LOGIC","L",1,0 }, {"DAYW","C",12,0} },"DBFCDX", .F.,"BASE1" )
+set exclusive off
+use base1 via "DBFCDX"
+
+FOR i := 1 TO Len( aNames )
+base1->( dbappend() )
+         base1->name := aNames[i]
+         base1->num  := i * 100
+         base1->logic := ( hb_RandomInt( 0, 100 ) % 3 == 0 )
+         FOR j := 1 TO 5
+         base1->( dbappend() )
+         base1->name := "-- " + aNames[i] + " " + LTrim( Str( j ) )
+         base1->num  := i * 100 + j
          d := Date() + hb_RandomInt( -100, 100 )
          base1->dat := d
          base1->logic := ( hb_RandomInt( 0, 100 ) % 3 == 0 )
          base1->dayw := CDoW( d )
-      NEXT
-   NEXT
-   INDEX ON Dtos(DAT) TAG DAT
+         NEXT
+         NEXT
+         INDEX ON Dtos(DAT) TAG DAT
 
-   RETURN Nil
+         RETURN Nil
       ]]>
     </module>
 
     <module name="Browse of bitmaps" >
       <![CDATA[#include "hwgui.ch"
-Function Test()
-Local oDlg, oBrw, oBtnOk, i, oStyle := HStyle():New( { 0xffffff, 0xbbbbbb }, 1 )
-Local aStock, aStockNames, oBitmap
-Local bCol2 := {|o,h,x1,y1,x2,y2|
-   Local oBmp
-   hwg_Fillrect( h, x1, y1, x2, y2, oBrw:brush:handle )
-   IF oBrw:nCurrent <= Len(oBrw:aArray) .AND. Valtype( oBrw:aArray[oBrw:nCurrent] ) == "O"
-      oBmp := oBrw:aArray[oBrw:nCurrent]
-      hwg_Drawbitmap( h, oBmp:handle,, x1+20, y1+4, oBmp:nWidth, oBmp:nHeight )
-   ENDIF
-   RETURN Nil
-}
+      Function Test()
+      Local oDlg, oBrw, oBtnOk, i, oStyle := HStyle():New( { 0xffffff, 0xbbbbbb }, 1 )
+      Local aStock, aStockNames, oBitmap
+      Local aCandidates, aCandidateNames
+      Local bCol2 := {|o,h,x1,y1,x2,y2|
+      Local oBmp
+      hwg_Fillrect( h, x1, y1, x2, y2, oBrw:brush:handle )
+      IF oBrw:nCurrent <= Len(oBrw:aArray) .AND. Valtype( oBrw:aArray[oBrw:nCurrent] ) == "O"
+            oBmp := oBrw:aArray[oBrw:nCurrent]
+            hwg_Drawbitmap( h, oBmp:handle,, x1+20, y1+4, oBmp:nWidth, oBmp:nHeight )
+            ENDIF
+            RETURN Nil
+            }
 
-   // We will browse predefined bitmaps ( they are called "stock" in GTK ),
-   //   using a user-defined codeblock to paint a cell.
-   // Note, that the HBitmap():AddStandard() receives numerical id for WinAPI
-   //   and a string for GTK.
-   #ifdef __PLATFORM__WINDOWS
-      oBitmap := HBitmap():AddStandard( OBM_BTNCORNERS )
-      aStock := { OBM_BTNCORNERS, OBM_BTSIZE, ;
-         OBM_CHECK, OBM_CHECKBOXES, OBM_CLOSE, OBM_REDUCE, ;
-         OBM_COMBO, OBM_REDUCED, OBM_DNARROW, OBM_RESTORE, OBM_DNARROWD, OBM_RESTORED, ;
-         OBM_DNARROWI, OBM_RGARROW, OBM_LFARROW, OBM_RGARROWD, OBM_LFARROWD, OBM_RGARROWI, ;
-         OBM_LFARROWI, OBM_SIZE, OBM_MNARROW, OBM_UPARROW, OBM_UPARROWD, ;
-         OBM_UPARROWI, OBM_ZOOM, OBM_ZOOMD }
-      aStockNames := { "OBM_BTNCORNERS", "OBM_BTSIZE", ;
-         "OBM_CHECK", "OBM_CHECKBOXES", "OBM_CLOSE", "OBM_REDUCE", ;
-         "OBM_COMBO", "OBM_REDUCED", "OBM_DNARROW", "OBM_RESTORE", "OBM_DNARROWD", "OBM_RESTORED", ;
-         "OBM_DNARROWI", "OBM_RGARROW", "OBM_LFARROW", "OBM_RGARROWD", "OBM_LFARROWD", "OBM_RGARROWI", ;
-         "OBM_LFARROWI", "OBM_SIZE", "OBM_MNARROW", "OBM_UPARROW", "OBM_UPARROWD", ;
-         "OBM_UPARROWI", "OBM_ZOOM", "OBM_ZOOMD" }
-   #else
-      oBitmap := HBitmap():AddStandard( "gtk-ok" )
-      aStock := { "gtk-about", "gtk-add", "gtk-apply", "gtk-bold", "gtk-cancel", "gtk-cdrom", ;
-         "gtk-clear", "gtk-close", "gtk-color-picker", "gtk-convert", "gtk-connect", ;
-         "gtk-copy", "gtk-cut", "gtk-delete", "gtk-dialog-error", "gtk-dialog-info", ;
-         "gtk-dialog-question", "gtk-dialog-warning", "gtk-directory", "gtk-disconnect", ;
-         "gtk-dnd", "gtk-dnd-multiple", "gtk-edit", "gtk-execute", "gtk-file", "gtk-find", ;
-         "gtk-find-and-replace", "gtk-floppy", "gtk-fullscreen", "gtk-goto-bottom", ;
-         "gtk-goto-first", "gtk-goto-last", "gtk-goto-top", "gtk-go-back", "gtk-go-down", ;
-         "gtk-go-forward", "gtk-go-up", "gtk-harddisk", "gtk-help", "gtk-home", ;
-         "gtk-indent", "gtk-index", "gtk-info", "gtk-italic", "gtk-jump-to", ;
-         "gtk-justify-center", "gtk-justify-left", "gtk-justify-fill", "gtk-justify-right", ;
-         "gtk-leave-fullscreen", "gtk-media-forward", "gtk-media-next", "gtk-media-pause", ;
-         "gtk-media-play", "gtk-media-previous", "gtk-media-record", "gtk-media-rewind", ;
-         "gtk-media-stop", "gtk-missing-image", "gtk-network", "gtk-new", "gtk-no", "gtk-ok", "gtk-open", ;
-         "gtk-orientation-landscape", "gtk-orientation-portrait", "gtk-orientation-reverse-landscape", "gtk-orientation-reverse-portrait", ;
-         "gtk-page-setup", "gtk-paste", "gtk-preferences", "gtk-print", "gtk-print-error", ;
-         "gtk-print-paused", "gtk-print-preview", "gtk-print-report", "gtk-print-warning", "gtk-properties", ;
-         "gtk-quit", "gtk-redo", "gtk-refresh", "gtk-remove", "gtk-revert-to-saved", "gtk-save", "gtk-save-as", ;
-         "gtk-select-all", "gtk-select-color", "gtk-select-font", "gtk-sort-ascending", "gtk-sort-descending", ;
-         "gtk-spell-check", "gtk-stop", "gtk-strikethrough", "gtk-undelete", "gtk-underline", "gtk-undo", "gtk-unindent", ;
-         "gtk-yes", "gtk-zoom-100", "gtk-zoom-fit", "gtk-zoom-in", "gtk-zoom-out" }
-      aStockNames := aStock
-   #endif
+            #ifdef __PLATFORM__WINDOWS
+            aCandidates := { OBM_BTNCORNERS, OBM_BTSIZE, ;
+            OBM_CHECK, OBM_CHECKBOXES, OBM_CLOSE, OBM_REDUCE, ;
+            OBM_COMBO, OBM_REDUCED, OBM_DNARROW, OBM_RESTORE, OBM_DNARROWD, OBM_RESTORED, ;
+            OBM_DNARROWI, OBM_RGARROW, OBM_LFARROW, OBM_RGARROWD, OBM_LFARROWD, OBM_RGARROWI, ;
+            OBM_LFARROWI, OBM_SIZE, OBM_MNARROW, OBM_UPARROW, OBM_UPARROWD, ;
+            OBM_UPARROWI, OBM_ZOOM, OBM_ZOOMD }
+            aCandidateNames := { "OBM_BTNCORNERS", "OBM_BTSIZE", ;
+            "OBM_CHECK", "OBM_CHECKBOXES", "OBM_CLOSE", "OBM_REDUCE", ;
+            "OBM_COMBO", "OBM_REDUCED", "OBM_DNARROW", "OBM_RESTORE", "OBM_DNARROWD", "OBM_RESTORED", ;
+            "OBM_DNARROWI", "OBM_RGARROW", "OBM_LFARROW", "OBM_RGARROWD", "OBM_LFARROWD", "OBM_RGARROWI", ;
+            "OBM_LFARROWI", "OBM_SIZE", "OBM_MNARROW", "OBM_UPARROW", "OBM_UPARROWD", ;
+            "OBM_UPARROWI", "OBM_ZOOM", "OBM_ZOOMD" }
+            #else
+            /*
+            * Modern freedesktop names.  The gtk-* stock ids from GTK3 no
+            * longer exist in GTK4; these names are the replacement and are
+            * provided by the active icon theme (Breeze-Dark here).
+            */
+            aCandidates := { ;
+            "edit-copy",             ;
+            "edit-paste",            ;
+            "edit-cut",              ;
+            "edit-delete",           ;
+            "document-new",          ;
+            "document-open",         ;
+            "document-save",         ;
+            "document-print",        ;
+            "view-refresh",          ;
+            "window-close",          ;
+            "application-exit",      ;
+            "process-stop",          ;
+            "emblem-ok-symbolic",    ;
+            "object-select-symbolic",;
+            "dialog-warning",        ;
+            "dialog-error",          ;
+            "dialog-information",    ;
+            "dialog-question",       ;
+            "go-previous",           ;
+            "go-next",               ;
+            "go-up",                 ;
+            "go-down",               ;
+            "go-home",               ;
+            "zoom-in",               ;
+            "zoom-out",              ;
+            "zoom-fit-best",         ;
+            "edit-find",             ;
+            "edit-find-replace",     ;
+            "media-playback-start",  ;
+            "media-playback-pause",  ;
+            "media-playback-stop",   ;
+            "preferences-system",    ;
+            "help-about",            ;
+            "folder",                ;
+            "user-home"              ;
+            }
+            aCandidateNames := aCandidates
+            #endif
 
-   INIT DIALOG oDlg TITLE "Browse of images" ;
-         AT 0, 0 SIZE 380, 360 BACKCOLOR 0xeeeeee;
-         FONT HFont():Add( "MS Sans Serif",0,-15 )
+            /*
+            * Load the icons that the current theme provides.  The
+            * BEGIN SEQUENCE catches the runtime error that
+            * HBitmap:AddStandard() raises when a name cannot be resolved,
+            * so a missing icon is skipped instead of aborting the sample.
+            */
+            aStock := {}
+            aStockNames := {}
+            FOR i := 1 TO Len( aCandidates )
+            oBitmap := Nil
+            BEGIN SEQUENCE WITH {|e| Break(e)}
+            oBitmap := HBitmap():AddStandard( aCandidates[i] )
+            RECOVER
+            oBitmap := Nil
+            END SEQUENCE
+            IF !Empty( oBitmap ) .AND. !Empty( oBitmap:handle )
+            AAdd( aStock, oBitmap )
+            AAdd( aStockNames, aCandidateNames[i] )
+            ENDIF
+            NEXT
 
-   @ 20,20 BROWSE oBrw ARRAY SIZE 340,280 STYLE WS_BORDER + WS_VSCROLL ;
-         ON SIZE ANCHOR_TOPABS + ANCHOR_LEFTABS + ANCHOR_RIGHTABS + ANCHOR_BOTTOMABS
-   oBrw:oStyleHead := oStyle
-   oBrw:bcolorSel := oBrw:htbColor := 0xeeeeee
-   oBrw:tcolorSel := oBrw:httColor := 0
-   oBrw:nRowHeight := 36
-   oBrw:aArray := Array( Len(aStock) )
-   FOR i := 1 TO Len( aStock )
-      oBrw:aArray[i] := HBitmap():AddStandard( aStock[i] )
-   NEXT
+            IF Empty( aStock )
+            hwg_MsgStop( "No stock images could be loaded." )
+            RETURN Nil
+            ENDIF
 
-   oBrw:AddColumn( HColumn():New( "Name",{|v,o|aStockNames[o:nCurrent]},"C",20,0 ) )
-   oBrw:AddColumn( HColumn():New( "Bitmap",,"C",10,0 ) )
+            /* Bitmap for the Ok button -- use the first one we managed to load. */
+            oBitmap := aStock[1]
 
-   oBrw:aColumns[2]:oPaintCB := HPaintCB():New()
-   oBrw:aColumns[2]:oPaintCB:Set( PAINT_LINE_ALL, bCol2 )
+            INIT DIALOG oDlg TITLE "Browse of images" ;
+            AT 0, 0 SIZE 380, 360 BACKCOLOR 0xeeeeee;
+            FONT HFont():Add( "MS Sans Serif",0,-15 )
 
-   @ 120,320 OWNERBUTTON oBtnOk SIZE 140,32 ;
-         TEXT "Ok" COORDINATES 80,0,0,0 ;
-         BITMAP oBitmap COORDINATES 40,0,0,0 ;
-         ON SIZE ANCHOR_LEFTABS + ANCHOR_RIGHTABS + ANCHOR_BOTTOMABS ;
-         ON CLICK {||hwg_EndDialog()}
-   oBtnOk:aStyle := { HStyle():New( {0xffffff,0xdddddd}, 1,, 1 ), ;
+            @ 20,20 BROWSE oBrw ARRAY SIZE 340,280 STYLE WS_BORDER + WS_VSCROLL ;
+            ON SIZE ANCHOR_TOPABS + ANCHOR_LEFTABS + ANCHOR_RIGHTABS + ANCHOR_BOTTOMABS
+            oBrw:oStyleHead := oStyle
+            oBrw:bcolorSel := oBrw:htbColor := 0xeeeeee
+            oBrw:tcolorSel := oBrw:httColor := 0
+            oBrw:nRowHeight := 36
+
+            /*
+            * aStock already holds the successfully-loaded HBitmap objects;
+            * assign them directly, do NOT call AddStandard() again.
+            */
+            oBrw:aArray := Array( Len( aStock ) )
+            FOR i := 1 TO Len( aStock )
+            oBrw:aArray[i] := aStock[i]
+            NEXT
+
+            oBrw:AddColumn( HColumn():New( "Name",{|v,o|aStockNames[o:nCurrent]},"C",20,0 ) )
+            oBrw:AddColumn( HColumn():New( "Bitmap",,"C",10,0 ) )
+
+            oBrw:aColumns[2]:oPaintCB := HPaintCB():New()
+            oBrw:aColumns[2]:oPaintCB:Set( PAINT_LINE_ALL, bCol2 )
+
+            @ 120,320 OWNERBUTTON oBtnOk SIZE 140,32 ;
+            TEXT "Ok" COORDINATES 80,0,0,0 ;
+            BITMAP oBitmap COORDINATES 40,0,0,0 ;
+            ON SIZE ANCHOR_LEFTABS + ANCHOR_RIGHTABS + ANCHOR_BOTTOMABS ;
+            ON CLICK {||hwg_EndDialog()}
+            oBtnOk:aStyle := { HStyle():New( {0xffffff,0xdddddd}, 1,, 1 ), ;
             HStyle():New( {0xffffff,0xdddddd}, 2,, 1 ), ;
             HStyle():New( {0xffffff,0xdddddd}, 1,, 2, 8421440 ) }
 
-   ACTIVATE DIALOG oDlg
+            ACTIVATE DIALOG oDlg
 
-Return Nil
+            Return Nil
       ]]>
     </module>
     <module name="Anchors" >
@@ -1690,8 +1788,13 @@ Function DlgGet()
                e7 + chr(10) + chr(13)         ;
                ,"Results:" )
    ENDIF
-   oIco1:Release()
-   oIco2:Release()
+
+   IF !Empty( oIco1 )
+      oIco1:Release()
+   ENDIF
+   IF !Empty( oIco2 )
+      oIco2:Release()
+   ENDIF
 
 Return Nil
       ]]>

@@ -102,7 +102,6 @@ extern GdkPixbuf *alpha2pixbuf( GdkPixbuf *hPixIn, long int nColor );
 
 static PHB_DYNS   pSymTimerProc = NULL;
 static PHB_DYNS   pSym_onEvent  = NULL;
-static GtkWidget *h4stock       = NULL;
 
 
 /* =====================================================================
@@ -188,9 +187,98 @@ HB_FUNC( HWG_GETDRAWING )
     HB_RETHANDLE( getDrawing( (GObject*) HB_PARHANDLE( 1 ) ) );
 }
 
+/* =====================================================================
+ *  hwg_legacy_gtk_name
+ *
+ *  Translate the GTK3 stock ids (gtk-copy, gtk-save, gtk-open, ...)
+ *  into the freedesktop equivalents used by GTK4 icon themes.  The
+ *  GTK3 stock registry was removed in GTK4; the names themselves are
+ *  still what applications pass to HBitmap:AddStandard(), so we keep
+ *  accepting them and map to the modern names here.
+ *
+ *  Returns a pointer to a static buffer for names that need the
+ *  "gtk-" prefix stripped but no rename; returns a literal for names
+ *  with a specific mapping.  Never returns NULL for a non-NULL input.
+ * ===================================================================== */
+static const char *hwg_legacy_gtk_name( const char *name )
+{
+    static char buf[128];
+    const char *p;
+    size_t n;
+
+    if( !name )
+        return NULL;
+
+    p = name;
+    if( strncmp( p, "gtk-", 4 ) == 0 )
+        p += 4;
+
+    if( strcmp( p, "ok" )        == 0 ) return "emblem-ok-symbolic";
+    if( strcmp( p, "apply" )     == 0 ) return "emblem-ok-symbolic";
+    if( strcmp( p, "yes" )       == 0 ) return "emblem-ok-symbolic";
+    if( strcmp( p, "cancel" )    == 0 ) return "window-close";
+    if( strcmp( p, "close" )     == 0 ) return "window-close";
+    if( strcmp( p, "no" )        == 0 ) return "process-stop";
+    if( strcmp( p, "stop" )      == 0 ) return "process-stop";
+    if( strcmp( p, "quit" )      == 0 ) return "application-exit";
+    if( strcmp( p, "copy" )      == 0 ) return "edit-copy";
+    if( strcmp( p, "paste" )     == 0 ) return "edit-paste";
+    if( strcmp( p, "cut" )       == 0 ) return "edit-cut";
+    if( strcmp( p, "delete" )    == 0 ) return "edit-delete";
+    if( strcmp( p, "clear" )     == 0 ) return "edit-clear";
+    if( strcmp( p, "undo" )      == 0 ) return "edit-undo";
+    if( strcmp( p, "redo" )      == 0 ) return "edit-redo";
+    if( strcmp( p, "find" )      == 0 ) return "edit-find";
+    if( strcmp( p, "save" )      == 0 ) return "document-save";
+    if( strcmp( p, "save-as" )   == 0 ) return "document-save-as";
+    if( strcmp( p, "open" )      == 0 ) return "document-open";
+    if( strcmp( p, "new" )       == 0 ) return "document-new";
+    if( strcmp( p, "print" )     == 0 ) return "document-print";
+    if( strcmp( p, "refresh" )   == 0 ) return "view-refresh";
+    if( strcmp( p, "go-back" )   == 0 ) return "go-previous";
+    if( strcmp( p, "go-forward" )== 0 ) return "go-next";
+    if( strcmp( p, "home" )      == 0 ) return "go-home";
+    if( strcmp( p, "help" )      == 0 ) return "help-about";
+    if( strcmp( p, "about" )     == 0 ) return "help-about";
+    if( strcmp( p, "info" )      == 0 ) return "dialog-information";
+    if( strcmp( p, "edit" )      == 0 ) return "document-properties";
+    if( strcmp( p, "preferences" ) == 0 ) return "preferences-system";
+
+    n = strlen( p );
+    if( n >= sizeof( buf ) )
+        n = sizeof( buf ) - 1;
+    memcpy( buf, p, n );
+    buf[ n ] = '\0';
+    return buf;
+}
 
 /* =====================================================================
  *  HWG_STOCKBITMAP
+ *
+ *  Look up a named icon in the active GtkIconTheme and return it as
+ *  an HWGUI PIXBUF handle.
+ *
+ *  GTK4 removed gtk_widget_render_icon() (GTK2) and the GtkStockItem
+ *  registry.  The replacement path used below is:
+ *
+ *      GtkIconTheme     -> holds the icon lookup table
+ *      GtkIconPaintable -> the resolved icon
+ *      GtkSnapshot      -> render target for the paintable
+ *      GskRenderNode    -> the rendered node
+ *      cairo_surface_t  -> the node is drawn into this
+ *      GdkTexture       -> extracted from the surface
+ *      GdkPixbuf        -> extracted from the texture, wrapped in the
+ *                          HWGUI PIXBUF handle
+ *
+ *  The flag GTK_ICON_LOOKUP_FORCE_REGULAR makes the theme prefer the
+ *  colour variant of an icon over the symbolic one.  Symbolic icons
+ *  inherit the foreground colour of the theme: on a light-on-dark
+ *  theme (Breeze-Dark, for instance) they render almost white and
+ *  disappear against the white row background of a browse.
+ *
+ *  hwg_legacy_gtk_name() translates the GTK3 stock ids to the modern
+ *  freedesktop names before the lookup, so callers that still pass
+ *  "gtk-copy" or "gtk-save" keep working.
  * ===================================================================== */
 HB_FUNC( HWG_STOCKBITMAP )
 {
@@ -198,12 +286,27 @@ HB_FUNC( HWG_STOCKBITMAP )
     GdkPixbuf        *handle = NULL;
     GtkIconTheme     *theme;
     GtkIconPaintable *paintable;
-
-    HB_SYMBOL_UNUSED( h4stock );
+    const char       *requested;
+    const char       *resolved;
 
     theme = gtk_icon_theme_get_for_display( gdk_display_get_default() );
 
-    paintable = gtk_icon_theme_lookup_icon( theme, hb_parc(1),
+    requested = hb_parc( 1 );
+    if( !requested || !*requested )
+    {
+        hb_ret();
+        return;
+    }
+
+    /*
+     * Translate legacy "gtk-xxx" names to their freedesktop
+     * equivalents before the lookup.  Without this, a caller that
+     * still passes "gtk-copy" (GTK3 convention) gets no icon on
+     * GTK4 because the stock registry no longer exists.
+     */
+    resolved = hwg_legacy_gtk_name( requested );
+
+    paintable = gtk_icon_theme_lookup_icon( theme, resolved,
                                             NULL,
                                             HWG_ICON_SIZE_PX,
                                             1,
@@ -268,7 +371,6 @@ HB_FUNC( HWG_STOCKBITMAP )
     hpix->trcolor = -1;
     HB_RETHANDLE( hpix );
 }
-
 
 /* =====================================================================
  *  HWG_CREATESTATIC
