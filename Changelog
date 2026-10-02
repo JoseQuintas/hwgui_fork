@@ -15,6 +15,9 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-02 19:38 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+    * utils/tutor/tutor.prg fix for open and run hwgrun.exe
+
 2026-10-02 19:33 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * Update utils/tutor/tutor.hbp: Add flag Win OS -lgdiplus -gui.
     * Update utils/tutor/hwgrun.hbp: Add flag Win OS -lgdiplus -gui.
