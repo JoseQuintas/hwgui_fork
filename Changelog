@@ -15,8 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2026-09-02 09:55 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+2026-09-02 11:06 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+    * utils/tutorial/tutor.prg
+      utils/tutorial/tutor_eng.xml:
+      GTK4: samples standalone + font clamps.  tutor.prg routes
+      INIT DIALOG to hwgrun, clamps editor font to 8..40 px, and
+      HFontStyled returns the base font.  tutor_eng.xml uses a
+      fixed-list fallback in FCreateDB, freedesktop icon names
+      with BEGIN SEQUENCE, and guards the DlgGet releases.
 
+2026-09-02 09:55 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * source/gtk4/{control.c,drawwidg.prg,window.c}
       utils/tutorial/tutor_eng.xml:
       GTK4 icon lookup and HBitmap:AddStandard validation.
@@ -59,7 +67,6 @@
       out-of-range values from an old tutor.his on startup.
 
 2026-09-01 21:55 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
-
     * source/common/editor/hcedit_l_gtk4.c
       source/common/editor/hcedit.prg
       source/gtk4/htree.prg
@@ -82,7 +89,6 @@
       - Add hbmk2 project files for the GTK4 tutorial build.
 
 2026-09-30 12:33 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
-
   * source/gtk4/window.c
   * source/gtk4/message.c
 

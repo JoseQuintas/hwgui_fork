@@ -433,7 +433,22 @@ STATIC FUNCTION RunSample( oItem )
    dirChange( hb_dirBase() )
    FOR i := 1 TO oText:nTextLen
       cLine := oText:aText[i]
-      IF "INIT WINDOW" $ Upper( cLine )
+      /*
+       * Examples that open a top-level window or a dialog must run in a
+       * separate process (hwgrun), not through hb_hrbRun() in the same
+       * process as the tutor.
+       *
+       * hb_hrbRun() shares the Harbour VM with the caller: when the
+       * example's dialog is closed with oDlg:Close(), the HWindow
+       * object lives in a context that the tutor is already tearing
+       * down, and the widget destruction double-frees -- the tutor
+       * segfaults when the user clicks "Exit" on the example's menu.
+       *
+       * Detecting both INIT WINDOW and INIT DIALOG routes those
+       * examples through hwgrun, where the process exit cleans up
+       * everything at once.
+       */
+      IF "INIT WINDOW" $ Upper( cLine ) .OR. "INIT DIALOG" $ Upper( cLine )
          lWnd := .T.
       ENDIF
       cText += cLine + Chr( 13 ) + Chr( 10 )

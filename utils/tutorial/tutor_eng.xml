@@ -2689,33 +2689,92 @@ STATIC FUNCTION FBrw( oBoa, nBrw )
 
    RETURN Nil
 
-STATIC FUNCTION FCreateDB()
+   STATIC FUNCTION FCreateDB()
 
-   LOCAL i, j, d, oTree
+   LOCAL i, j, d, oTree, oMain, aNames
+
    FIELD DAT
 
+   /*
+   * Build the demo database.
+   *
+   * Preferred source: the tutor's tree.
+   *   When this sample runs inside the tutor's own process (hb_hrbRun),
+   *   HWindow():GetMain() returns the tutor's main window and its oTree
+   *   is available -- use it, so the demo data reflects the tutorial's
+   *   real chapter list.
+   *
+   * Fallback source: a fixed list.
+   *   When the sample runs in a separate process (hwgrun -- which is the
+   *   normal path for samples with INIT WINDOW / INIT DIALOG), there is
+   *   no main window in that process: GetMain() returns Nil, and reading
+   *   Nil:oTree used to abort with "Message not found: NIL:OTREE".  Use
+   *   a static list instead so the sample works in both contexts.
+   */
+   oMain := HWindow():GetMain()
+
+   IF !Empty( oMain ) .AND. __ObjHasMsg( oMain, "OTREE" ) .AND. !Empty( oMain:oTree )
+   oTree := oMain:oTree
+
    DbCreate( "base1", { {"NAME","C",40,0}, {"NUM","N",4,0}, {"DAT","D",8,0}, ;
-      { "LOGIC","L",1,0 }, {"DAYW","C",12,0} },"DBFCDX", .F.,"BASE1" )
+   { "LOGIC","L",1,0 }, {"DAYW","C",12,0} },"DBFCDX", .F.,"BASE1" )
    set exclusive off
    use base1 via "DBFCDX"
-   oTree := HWindow():GetMain():oTree
-   FOR i := 1 TO Len( oTree:aItems )
-      base1->(dbappend())
-      base1->name := oTree:aItems[i]:Gettext()
-      base1->num := i * 100
-      FOR j := 1 TO Len( oTree:aItems[i]:aItems )
-         base1->(dbappend())
-         base1->name := "-- " + oTree:aItems[i]:aItems[j]:Gettext()
-         base1->num := i * 100 + j
-         d := Date() + hb_RandomInt( -100, 100 )
-         base1->dat := d
-         base1->logic := ( hb_RandomInt( 0, 100 ) % 3 == 0 )
-         base1->dayw := CDoW( d )
-      NEXT
-   NEXT
-   INDEX ON Dtos(DAT) TAG DAT
 
-   RETURN Nil
+   FOR i := 1 TO Len( oTree:aItems )
+   base1->( dbappend() )
+      base1->name := oTree:aItems[ i ]:GetText()
+      base1->num  := i * 100
+
+      FOR j := 1 TO Len( oTree:aItems[ i ]:aItems )
+      base1->( dbappend() )
+      base1->name := "-- " + oTree:aItems[ i ]:aItems[ j ]:GetText()
+      base1->num  := i * 100 + j
+      d := Date() + hb_RandomInt( -100, 100 )
+      base1->dat   := d
+      base1->logic := ( hb_RandomInt( 0, 100 ) % 3 == 0 )
+      base1->dayw  := CDoW( d )
+      NEXT
+      NEXT
+
+      INDEX ON Dtos(DAT) TAG DAT
+
+      RETURN Nil
+      ENDIF
+
+      /*
+      * No main window available in this process -- use the fallback.
+      * The list mirrors the top-level chapters of the tutorial tree so
+      * the demo still looks familiar.
+      */
+      aNames := { "Introduction", "Getting started", "Controls", ;
+      "Advanced using of controls", "Get system", "Drawing", ;
+      "Drafts" }
+
+      DbCreate( "base1", { {"NAME","C",40,0}, {"NUM","N",4,0}, {"DAT","D",8,0}, ;
+      { "LOGIC","L",1,0 }, {"DAYW","C",12,0} },"DBFCDX", .F.,"BASE1" )
+      set exclusive off
+      use base1 via "DBFCDX"
+
+      FOR i := 1 TO Len( aNames )
+      base1->( dbappend() )
+      base1->name := aNames[ i ]
+      base1->num  := i * 100
+
+      FOR j := 1 TO 5
+      base1->( dbappend() )
+      base1->name := "-- " + aNames[ i ] + " " + LTrim( Str( j ) )
+      base1->num  := i * 100 + j
+      d := Date() + hb_RandomInt( -100, 100 )
+      base1->dat   := d
+      base1->logic := ( hb_RandomInt( 0, 100 ) % 3 == 0 )
+      base1->dayw  := CDoW( d )
+      NEXT
+      NEXT
+
+      INDEX ON Dtos(DAT) TAG DAT
+
+      RETURN Nil
 ]]>
     </module>
     <module name="Drawn progress bar" >
