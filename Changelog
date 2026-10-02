@@ -15,6 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-02 17:50 UTC-0300  Jose Quintas  <jmcquintas@gmail.com>
+    * include/hwgextern.ch:
+      Windows build fix: drop HWG_CHANGEMENU from REQUEST (removed from
+      menu_c.c; the stale REQUEST broke the designer link).
+
 2026-10-02 17:14 UTC-0300  Jose Quintas  <jmcquintas@gmail.com>
     * source/common/editor/hcedit.prg:
       Windows build fix: wrap STATIC hced_GdkToVk() in #ifdef __GTK__.
