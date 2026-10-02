@@ -15,6 +15,10 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-02 18:59 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+    * Update utils/designer/designer.hbp: Add flag -lgdiplus.
+    * Small fix in utils/designer/WindowsXP.Manifest: Run on all processors.
+
 2026-10-02 17:50 UTC-0300  Jose Quintas  <jmcquintas@gmail.com>
     * include/hwgextern.ch:
       Windows build fix: drop HWG_CHANGEMENU from REQUEST (removed from
@@ -27,7 +31,7 @@
       Linux build fix: guard the WinAPI-only sample group with {win}
       (testrtf linked Windows GDI+/EMF funcs, breaking the Ubuntu CI).
 
-2026-09-02 11:21 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+2026-10-02 11:21 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * source/gtk4/control.c:
       GTK4: fix Cairo assertion in HWG_STOCKBITMAP.  Remove the
       duplicated GBytes/GdkTexture block that called
@@ -35,7 +39,7 @@
       Use gdk_pixbuf_get_from_surface() in one step, flush before
       reading, guard width/height against 0.
 
-2026-09-02 11:06 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+2026-10-02 11:06 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * utils/tutorial/tutor.prg
       utils/tutorial/tutor_eng.xml:
       GTK4: samples standalone + font clamps.  tutor.prg routes
@@ -44,7 +48,7 @@
       fixed-list fallback in FCreateDB, freedesktop icon names
       with BEGIN SEQUENCE, and guards the DlgGet releases.
 
-2026-09-02 09:55 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+2026-10-02 09:55 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * source/gtk4/{control.c,drawwidg.prg,window.c}
       utils/tutorial/tutor_eng.xml:
       GTK4 icon lookup and HBitmap:AddStandard validation.
@@ -64,7 +68,7 @@
         Argument error.
       ! all samples of tutor run GTK4
 
-2026-09-01 23:50 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+2026-10-01 23:50 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * source/common/editor/hcedit_l_gtk4.c
       source/common/editor/hcedit.prg
       source/gtk4/drawtext.c
@@ -86,7 +90,7 @@
     * tutor.prg: clamp editor font to 8..40 px and reject
       out-of-range values from an old tutor.his on startup.
 
-2026-09-01 21:55 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+2026-10-01 21:55 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * source/common/editor/hcedit_l_gtk4.c
       source/common/editor/hcedit.prg
       source/gtk4/htree.prg

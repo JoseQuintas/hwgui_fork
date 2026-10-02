@@ -4,14 +4,14 @@
 # auto included hbmk.hbm
 
 -stop={!win}
+#free cmd command line while run designer.exe
+-gui
 
 -n -w1
-
-
+#link lib gdiplus
+-lgdiplus
 
 -L../../
-
-
 -o./designer
 
 designer.prg
