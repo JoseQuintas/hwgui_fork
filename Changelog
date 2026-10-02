@@ -15,6 +15,54 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-01 21:55 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+
+    * source/common/editor/hcedit_l_gtk4.c
+      source/common/editor/hcedit.prg
+      source/gtk4/htree.prg
+      source/gtk4/window.c
+      utils/tutorial/{hwgrunGTK4.hbp,tutorGTK4.hbp}:
+      GTK4 fixes for utils/tutorial/tutor.prg:
+
+      - hcedit_l_gtk4.c: install GtkEventControllerKey on the HCEdit
+        drawing area and mark it focusable.  hwg_CreateBoard() does
+        not call hwg_install_widget_events(), so keys never reached
+        HCEdit.  Route the raw GDK keyval as WM_KEYDOWN via
+        hwg_dispatch_onevent().
+      - hcedit.prg: run hced_GdkToVk() AFTER the ln1..ln4 capture --
+        those bits live in GdkModifierType and lose meaning once the
+        keyval is a VK_* code (broke Shift/Ctrl/Alt detection).
+      - htree.prg: declare DATA nCtrlPress in HTree (fixes BASE/1004
+        'Invalid class member' on Ctrl release with tree focused).
+      - window.c: pack WM_MOUSEWHEEL delta into the high word of
+        wParam, as Win32 does (wheel always scrolled down before).
+      - Add hbmk2 project files for the GTK4 tutorial build.
+
+2026-09-30 12:33 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+
+  * source/gtk4/window.c
+  * source/gtk4/message.c
+
+    Fix focus restoration after a message box closes in GTK4.
+
+    GTK4 clears the parent window's focus as soon as a modal GtkWindow
+    is created, so gtk_window_get_focus() and gtk_root_get_focus()
+    both return NULL by the time hwg_message_box() runs.  On top of
+    that, when a VALID block returns .F. the HWGui dialog engine moves
+    focus to the next control in the queue (typically the phantom get
+    used to hold the dialog open), overriding any synchronous
+    grab_focus() issued from Harbour.
+
+    window.c: track the last focused widget in cb_focus_enter() and
+    expose it through hwg_get_last_focused_widget().
+
+    message.c: capture that pointer before creating the modal, and
+    restore focus after the modal is destroyed via g_idle_add() so the
+    grab runs *after* the Harbour VALID chain completes.  Applies to
+    every message box variant (MsgInfo, MsgStop, MsgExclamation,
+    MsgOkCancel, MsgYesNo, MsgYesNoCancel) since they all share
+    hwg_message_box().
+
 2026-09-27 16:51 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
   Add chart samples
   + samples/chartdemo.prg add sample chart

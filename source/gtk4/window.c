@@ -982,7 +982,19 @@ gboolean cb_scroll( GtkEventControllerScroll *controller,
     if( dy == 0.0 )
         return TRUE;
 
-    p2 = ( dy < 0.0 ) ? 120 : -120;
+    /*
+     * Win32 packs the wheel delta into the HIGH word of wParam:
+     *   wParam = (delta << 16) | keys
+     * The Harbour-side handlers (HCEdit::onEvent, HBrowse::onEvent)
+     * read it back with hwg_HiWord(wParam), so the delta must be
+     * shifted into the upper 16 bits here.  Sending the raw value
+     * made hwg_HiWord() return 0 (or 0xFFFF for negatives), which
+     * translated into "always scroll down".
+     *
+     * Use an explicit unsigned cast before the shift: signed left
+     * shift on a negative value is undefined behaviour in C.
+     */
+    p2 = (HB_LONG)( (HB_ULONG)( ( dy < 0.0 ) ? 120 : -120 ) << 16 );
 
     hwg_dispatch_onevent( w, WM_MOUSEWHEEL, p2, 0 );
 

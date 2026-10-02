@@ -1,0 +1,39 @@
+#
+# $Id: tutorGTK4.hbp 3622 2025-04-20 16:21:08Z josequintas $
+#
+
+# The macro for unix has also effect on LINUX
+{unix}-lm
+{unix}-lz
+#{unix}-lpcre
+{unix}-ldl
+{unix}-static
+{unix}-d__LINUX__
+{unix}-d__GTK__
+
+# MacOS
+# {darwin}-lm
+# {darwin}-lz
+# {darwin}-lpcre
+# {darwin}-ldl
+{darwin}-static
+{darwin}-d__LINUX__
+{darwin}-d__GTK__
+
+{win}../../hwgui.hbc
+{darwin}../../hwgui_mac.hbc
+
+# GTK2
+{linux}../../hwguiGTK4.hbc
+# GTK3: Deactivate previous line
+# and activate following line
+# {linux}../../hwguiGTK3.hbc
+
+#-o../../bin/tutor
+-o./tutor
+-w3 -es2
+
+tutor.prg
+tutor_res.prg
+
+# ============== EOF of tutorGTK4.hbp =============

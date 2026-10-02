@@ -233,6 +233,17 @@ CLASS HTree INHERIT HControl
    DATA nScrollH  INIT 0
    DATA bScrollPos
 
+   /*
+    * nCtrlPress is written in onEvent() when the Ctrl key is released
+    * (WM_KEYUP branch), but was never declared as a member of HTree.
+    * Harbour raised BASE/1004 "Invalid class member" the first time a
+    * user pressed or released Ctrl with the tree focused -- the
+    * tutor.prg starting with focus on oTree made it reproducible on
+    * every launch.  Declared here so the WM_KEYUP handler can read and
+    * reset it without raising the error.
+    */
+   DATA nCtrlPress INIT 0
+
    METHOD New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, oFont, ;
       bInit, bSize, color, bcolor, aImages, lResour, lEditLabels, bClick, nBC )
    METHOD Init()

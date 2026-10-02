@@ -1,0 +1,42 @@
+#Initial of hwgrunGTK4.hbp
+#
+# $Id$
+#
+
+-n -w3
+
+# The macro for unix has also effect on LINUX
+# Bugfix: Do not set more than one option in one line
+#         take a new line for every option !!!!
+
+{unix}-lm
+{unix}-lz
+#{unix}-lpcre
+{unix}-ldl
+{unix}-static
+{unix}-d__LINUX__
+{unix}-d__GTK__
+
+# MacOS
+# {darwin}-lm -lz -lpcre -ldl
+{darwin}-static
+{darwin}-d__LINUX__
+{darwin}-d__GTK__
+
+-L../..
+
+{win}../../hwguiGTK4.hbc
+{darwin}../../hwgui_mac.hbc
+
+# GTK2
+{linux}../../hwguiGTK4.hbc
+# GTK3: Deactivate previous line
+# and activate following line
+# {linux}../../hwguiGTK3.hbc
+
+# -o../../bin/hwgrun
+-o./hwgrun
+
+hwgrun.prg
+
+# ===================== EOF of hwgrunGTK4.hbp ===============

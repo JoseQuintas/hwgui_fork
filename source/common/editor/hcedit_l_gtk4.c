@@ -136,6 +136,8 @@ typedef struct
 #define WM_PAINT            15
 #define WM_HSCROLL         276
 #define WM_VSCROLL         277
+#define WM_MOUSEWHEEL      522
+#define WM_KEYDOWN         256
 #define WS_VSCROLL     2097152     /* 0x00200000L */
 #define WS_HSCROLL     1048576     /* 0x00100000L */
 #define WS_BORDER      8388608
@@ -158,6 +160,114 @@ extern void all_signal_connect( gpointer hWnd );
 extern void cb_signal_size( GtkWidget *widget, int width, int height, gpointer data );
 extern GtkFixed *getFixedBox( GObject * handle );
 extern void hwg_gtk_drawedge( PHWGUI_HDC hDC, int left, int top, int right, int bottom, unsigned int iType );
+
+/*
+ * GTK4: hwg_dispatch_onevent() lives in window.c.  It routes an event
+ * to the Harbour object attached to a widget, calling its ONEVENT
+ * method with (msg, wParam, lParam).  We reuse it here so that the
+ * HCEdit receives WM_KEYDOWN exactly as if it had come through the
+ * normal window.c plumbing.
+ */
+extern HB_LONG hwg_dispatch_onevent( GtkWidget *widget, HB_LONG p1, HB_LONG p2, HB_LONG p3 );
+
+/*
+ * GTK4 SCROLL FIX
+ * ----------------
+ * The scroll controller is intentionally NOT installed by
+ * hwg_install_widget_events() in window.c -- doing so on every widget
+ * broke the input method of a focused GtkEntry.  HCEdit is a
+ * GtkDrawingArea, not a GtkEntry, so it can safely receive its own
+ * scroll controller.  We reuse window.c's cb_scroll(), which already
+ * encodes the delta as +120 / -120 and dispatches WM_MOUSEWHEEL,
+ * exactly what HCEdit:onEvent() expects.
+ */
+extern gboolean cb_scroll( GtkEventControllerScroll *controller,
+                           double dx, double dy, gpointer user_data );
+
+static void hced_install_scroll( GtkWidget *widget )
+{
+      GtkEventController *ctrl;
+
+      if( !widget || !GTK_IS_WIDGET( widget ) )
+            return;
+
+      /*
+       * Vertical + discrete: one WM_MOUSEWHEEL per notch, matching the
+       * Win32 behaviour and letting LineUp()/LineDown() run once per
+       * wheel click (rather than a flood of continuous deltas).
+       */
+      ctrl = gtk_event_controller_scroll_new(
+            GTK_EVENT_CONTROLLER_SCROLL_VERTICAL |
+            GTK_EVENT_CONTROLLER_SCROLL_DISCRETE );
+
+      /* CAPTURE phase so the controller sees the event before any
+       * enclosing GtkScrolledWindow may consume it. */
+      gtk_event_controller_set_propagation_phase( ctrl, GTK_PHASE_CAPTURE );
+
+      g_signal_connect( ctrl, "scroll", G_CALLBACK( cb_scroll ), NULL );
+
+      gtk_widget_add_controller( widget, ctrl );
+}
+
+/*
+ * GTK4 KEY FIX
+ * ------------
+ * hwg_CreateBoard (control.c) does not call hwg_install_widget_events,
+ * so the HCEdit drawing area never receives keyboard events on its
+ * own.  The GtkEventControllerKey must be installed manually, exactly
+ * like the scroll controller above.
+ *
+ * The callback routes the raw GDK keyval to the Harbour side as
+ * WM_KEYDOWN, letting HCEdit:onKeyDown() translate it via its own
+ * GDK -> VK table.  Modifier flags are packed the same way window.c's
+ * cb_key_pressed does (Shift=1, Ctrl=2, Alt=4) so that Shift-arrow
+ * selection, Ctrl+Home/End and the clipboard shortcuts keep working.
+ *
+ * Dead-key handling (AltGr, tilde, acute, etc.) is only relevant for
+ * GtkEntry-based widgets and is intentionally omitted here: the HCEdit
+ * is a GtkDrawingArea and expects the raw keyval.
+ */
+static gboolean cb_hced_key( GtkEventControllerKey *controller,
+                             guint keyval, guint keycode,
+                             GdkModifierType state, gpointer user_data )
+{
+      GtkWidget *w = gtk_event_controller_get_widget( GTK_EVENT_CONTROLLER( controller ) );
+      HB_LONG    p3;
+
+      (void) keycode;
+      (void) user_data;
+
+      if( !w )
+            return FALSE;
+
+      p3 = ( ( state & GDK_SHIFT_MASK )   ? 1 : 0 ) |
+      ( ( state & GDK_CONTROL_MASK ) ? 2 : 0 ) |
+      ( ( state & GDK_ALT_MASK )     ? 4 : 0 );
+
+      hwg_dispatch_onevent( w, WM_KEYDOWN, (HB_LONG) keyval, p3 );
+
+      return TRUE;
+}
+
+static void hced_install_key( GtkWidget *widget )
+{
+      GtkEventController *ctrl;
+
+      if( !widget || !GTK_IS_WIDGET( widget ) )
+            return;
+
+      /*
+       * GtkDrawingArea is not focusable by default.  Without focus the
+       * key controller never fires; enable focus first.
+       */
+      gtk_widget_set_focusable( widget, TRUE );
+
+      ctrl = gtk_event_controller_key_new();
+      gtk_event_controller_set_propagation_phase( ctrl, GTK_PHASE_CAPTURE );
+      g_signal_connect( ctrl, "key-pressed",
+                        G_CALLBACK( cb_hced_key ), NULL );
+      gtk_widget_add_controller( widget, ctrl );
+}
 
 gchar * szDelimiters = " .,-";
 
@@ -197,20 +307,6 @@ int hced_utf8bytes( char * szText, int iLen )
       return ( ptr - szText );
 }
 
-/*
- * UTF-8 case conversion helpers.
- *
- * Signature matches the original HWGUI helpers used by cfuncs.c:
- *   int utf8lcstr( const char *szSrc, int iSrcLen, char **szDst, int *iDstLen )
- *   int utf8ucstr( const char *szSrc, int iSrcLen, char **szDst, int *iDstLen )
- *
- * Return 0 on success, -1 on failure.  On success, *szDst points to a
- * newly hb_xgrab'ed buffer (caller must hb_xfree it) and *iDstLen is the
- * length in bytes.
- *
- * The implementation delegates to GLib, which is UTF-8 aware and locale
- * independent -- exactly the behaviour the editor expects.
- */
 int utf8lcstr( const char *szSrc, int iSrcLen, char **szDst, int *iDstLen )
 {
       gchar *result;
@@ -283,11 +379,6 @@ TEDFONT * ted_setfont( TEDIT * pted, PHWGUI_FONT hwg_font, int iNum, HB_BOOL bPr
 
       return pFont;
 }
-
-/*
- * ted_CalcItemWidth() returns the text width in pixels,
- * writes to the 4 parameter (iRealLen) the width in chars
- */
 
 int ted_CalcItemWidth( PangoLayout * layout, char *szText, TEDFONT *font, int *iRealLen,
                        int iWidth, HB_BOOL bWrap, HB_BOOL bLastInFew )
@@ -450,9 +541,7 @@ int ted_TextOut( TEDIT * pted, int xpos, int ypos, int iHeight,
             pted->bg_curr = bg;
       }
 
-      /* get size of text */
       pango_layout_set_text( hDC->layout, szText, hced_utf8bytes( szText, iLen ) );
-      /* Wrap mode off */
       pango_layout_set_width( hDC->layout, -1 );
       pango_layout_get_pixel_extents( hDC->layout, &rc, NULL );
       iWidth = PANGO_RBEARING(rc) + font->ixAdd;
@@ -487,7 +576,6 @@ int ted_LineOut( TEDIT * pted, int x1, int ypos, char *szText, int iPrinted, int
       {
             for( i = 0, lasti = 0; i <= iPrinted; i++ )
             {
-                  /* if the colour or font changes, then need to output */
                   if( i == iPrinted ||
                         ( pattr + i )->fg != ( pattr + lasti )->fg ||
                         ( pattr + i )->bg != ( pattr + lasti )->bg ||
@@ -521,7 +609,6 @@ int ted_LineOut( TEDIT * pted, int x1, int ypos, char *szText, int iPrinted, int
       }
       if( pted->bCaret && pted->iyCaretPos - pted->nBorder == ypos )
       {
-            /* Draw the caret */
             if( !iPrinted )
                   pted->ixCaretPos = x1;
             hwg_setcolor( pted->hDCScr->cr, (pted->hDCScr->fcolor != -1)? pted->hDCScr->fcolor : 0 );
@@ -556,20 +643,33 @@ HB_FUNC( HCED_INITTEXTEDIT )
       ted_ClearAttr( pted );
 
       HB_RETHANDLE( pted );
-
 }
-
-/*
- * GTK4: HCED_CREATETEXTEDIT is commented out in the original code and
- * kept commented here.  The GTK2/GTK3 API it used (gtk_fixed_put,
- * gtk_widget_add_events, "expose_event", "focus_in_event", ...) is
- * gone from GTK4.  The widget creation is done on the Harbour side via
- * HWG_CREATEDRAWINGAREA + hwg_install_widget_events().
- */
 
 HB_FUNC( HCED_SETHANDLE )
 {
-      ( ( TEDIT * ) HB_PARHANDLE( 1 ) )->area = ( GtkWidget* ) HB_PARHANDLE( 2 );
+      TEDIT *pted = ( TEDIT * ) HB_PARHANDLE( 1 );
+      GtkWidget *area = ( GtkWidget* ) HB_PARHANDLE( 2 );
+
+      pted->area = area;
+
+      /*
+       * GTK4 SCROLL FIX: attach the scroll controller to the HCEdit
+       * drawing area.  window.c deliberately skips this in
+       * hwg_install_widget_events() (it broke IME on GtkEntry), but
+       * HCEdit is a GtkDrawingArea and has no IME, so it is safe here.
+       * Reuses cb_scroll() from window.c, which already dispatches
+       * WM_MOUSEWHEEL with wParam = +/-120.
+       */
+      hced_install_scroll( area );
+
+      /*
+       * GTK4 KEY FIX: attach the key controller and make the drawing
+       * area focusable.  hwg_CreateBoard (control.c) does not call
+       * hwg_install_widget_events, so the HCEdit never receives
+       * keyboard events without this.  Same approach as the scroll
+       * controller above.
+       */
+      hced_install_key( area );
 }
 
 HB_FUNC( HCED_RELEASE )
@@ -620,9 +720,6 @@ HB_FUNC( HCED_CLEARATTR )
       ted_ClearAttr( ( ( TEDIT * ) HB_PARHANDLE( 1 ) ) );
 }
 
-/*
- * hced_setAttr( ::hEdit, nPos, nLen, nFont, tColor, bColor )
- */
 HB_FUNC( HCED_SETATTR )
 {
       TEDIT *pted = ( TEDIT * ) HB_PARHANDLE( 1 );
@@ -664,9 +761,6 @@ HB_FUNC( HCED_ADDATTRFONT )
       *( pted->pattrf+i ) = iFont;
 }
 
-/*
- * hed_setvscroll( hTEdit, nPos, nPartsInPage, nPages )
- */
 HB_FUNC( HCED_SETVSCROLL )
 {
 }
@@ -689,7 +783,6 @@ HB_FUNC( HCED_SETPAINT )
       pted->hDCScr->bcolor = pted->bg;
       pted->fg_curr = pted->fg;
       pted->bg_curr = pted->bg;
-
 }
 
 HB_FUNC( HCED_SETWIDTH )
@@ -700,7 +793,6 @@ HB_FUNC( HCED_SETWIDTH )
             pted->iWidth = hb_parni( 2 );
       if( !HB_ISNIL(3) )
             pted->iDocWidth = hb_parl( 3 );
-
 }
 
 HB_FUNC( HCED_FILLRECT )
@@ -712,7 +804,6 @@ HB_FUNC( HCED_FILLRECT )
 
       if( !pted->hDCPrn )
       {
-
             hwg_setcolor( pted->hDCScr->cr, pted->bg );
             pted->bg_curr = pted->bg;
             cairo_rectangle( pted->hDCScr->cr, (gdouble)x1, (gdouble)y1,
@@ -724,11 +815,6 @@ HB_FUNC( HCED_FILLRECT )
 void ted_ShowCaret( TEDIT *pted, int bShow )
 {
       pted->bCaret = bShow;
-      /*
-       * GTK4: gtk_widget_queue_draw_area() was removed.  Only the whole
-       * widget can be invalidated; the extra cost is negligible for an
-       * editor widget since only the caret line is redrawn internally.
-       */
       if( pted->area && GTK_IS_WIDGET( pted->area ) )
             gtk_widget_queue_draw( pted->area );
 }
@@ -779,13 +865,6 @@ HB_FUNC( HCED_SETCARETPOS )
       pted->iyCaretPos = hb_parni(3) + pted->nBorder;
 }
 
-/*
- * hced_ExactCaretPos( ::hEdit, cLine, x1, xPos, y1, bSet, nShiftL )
- *
- * GTK4: gdk_cairo_create() and gtk_widget_get_window() were removed.
- * We only need a cairo_t + PangoLayout for text MEASUREMENT here, not
- * for drawing.  An offscreen image surface is enough.
- */
 HB_FUNC( HCED_EXACTCARETPOS )
 {
       TEDIT *pted = ( TEDIT * ) HB_PARHANDLE( 1 );
@@ -804,10 +883,6 @@ HB_FUNC( HCED_EXACTCARETPOS )
 
       if( iLen > 0 )
       {
-            /*
-             * Offscreen surface, 1x1 is enough -- we only measure text, we
-             * do not draw anywhere.
-             */
             surface = cairo_image_surface_create( CAIRO_FORMAT_ARGB32, 1, 1 );
             cr      = cairo_create( surface );
             layout  = pango_cairo_create_layout( cr );
@@ -868,7 +943,6 @@ HB_FUNC( HCED_EXACTCARETPOS )
       }
 
       hb_retni( iPrinted );
-
 }
 
 HB_FUNC( HCED_INVALIDATERECT )
@@ -886,27 +960,15 @@ HB_FUNC( HCED_INVALIDATERECT )
       }
       else
       {
-            /*
-             * GTK4: gtk_widget_get_allocation() and GtkAllocation were
-             * removed.  Use gtk_widget_get_width/height() instead.
-             */
             x1 = y1 = 0;
             x2 = gtk_widget_get_width( widget );
             y2 = gtk_widget_get_height( widget );
       }
 
-      /*
-       * GTK4: gtk_widget_queue_draw_area() was removed; only whole-widget
-       * invalidation is available.
-       */
       (void)x1; (void)y1; (void)x2; (void)y2;
       gtk_widget_queue_draw( widget );
-
 }
 
-/*
- * hced_LineOut( ::hEdit, @x1, @yPos, @x2, cLine, Len(cLine), nAlign, lPaint )
- */
 HB_FUNC( HCED_LINEOUT )
 {
       TEDIT *pted = ( TEDIT * ) HB_PARHANDLE( 1 );

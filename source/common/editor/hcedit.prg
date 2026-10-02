@@ -384,6 +384,7 @@ METHOD Init() CLASS HCEdit
 #ifndef __GTK__
       ::nHolder := 1
 #endif
+
       hced_SetHandle( ::hEdit, ::handle )
       hwg_Setwindowobject( ::handle, Self )
 
@@ -447,35 +448,12 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HCEdit
       lRes := DLGC_WANTALLKEYS
 
    ELSEIF msg == WM_CHAR
-      // If not readonly mode and Ctrl key isn't pressed
-      // DF7BE: Message WM_CHAR not sent on LINUX/GTK, key codes handled in method OnKeyDown
       x := hwg_GetKeyboardState( lParam )
 
-      /*
-      ================================================================================
-      DF7BE : Handle AltGr key for ~, greek micro and Euro currency sign ( and more )
-      ================================================================================
-      */
-
-      // hwg_writelog(x)
-      &&
       n :=  Iif( Asc( SubStr(x,0x12,1 ) ) >= 128, FCONTROL, Iif( Asc(SubStr(x,0x11,1 ) ) >= 128,FSHIFT,0 ) )
-      &&                       18dec                                          17dec
       n1 := Iif( Asc( SubStr(x,19,1 ) ) >= 128, FCONTROL, 0 )
       n2 := Iif( Asc( SubStr(x,18,1 ) ) >= 128, FSHIFT ,0 )
-      /*
-        Keyboard buffer x has fixed length of 256 ( 0 ... 255 )
-        FSHIFT=4,FCONTROL=8,FALT=16=0x10
-        Table: values for Ctrl and AltGr key
-        Position in keyboard buffer: 18 +  19
-        AltGr + Euro : 81 + 81 (Euro currency sign)
-        AltGr + ~    : 80 + 80 (Tilde)
-        AltGr + mu   : 81 + 81 (Greek micro)
-        AltGr + \    : 81 + 80 (Backslash)
-        Logical assignment:
-         AltGr + character pressed : n1 ==  FCONTROL  and n2 == FSHIFT  ==> lctrls := .T.
-         Ctrl pressed              : n1 ==  FCONTROL  and n2 == 0       ==> lctrls := .F.
-      */
+
       lctrls := .F.
 
       IF n != FCONTROL
@@ -486,16 +464,12 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HCEdit
        lctrls := .T.
       ENDIF
 
-      // hwg_writelog("n1=" + STR(n1) + " n2=" + STR(n2) )
-      // IF n != FCONTROL
       IF lctrls   && Ctrl or AltGr key
 #ifdef __GTK__
          x := wParam
 #else
          x := hwg_PtrToUlong( wParam )
 #endif
-*
-*        IF ::bKeyDown != Nil .AND. ( n := Eval( ::bKeyDown, Self, x, n, 1 ) ) != -1
          IF ::bKeyDown != Nil  && .AND.
           n := Eval( ::bKeyDown, Self, x, n, 1 )
           IF n != -1
@@ -513,12 +487,10 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HCEdit
 #endif
    ELSEIF msg == WM_LBUTTONDOWN .OR. msg == WM_RBUTTONDOWN
 #ifdef __GTK__
-      //hced_SetFocus( ::hEdit )
       hwg_SetFocus( ::handle )
 #endif
       IF msg == WM_LBUTTONDOWN .AND. !Empty( ::aPointM2[P_Y] )
          ::PCopy( , ::aPointM2 )
-         //hced_Invalidaterect( ::hEdit, 0, 0, 0, ::nClientWidth, ::nHeight )
          hwg_Invalidaterect( ::handle, 0, 0, 0, ::nClientWidth, ::nHeight )
       ENDIF
       hced_ShowCaret( ::hEdit )
@@ -549,7 +521,6 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HCEdit
       IF ::lMDown
          IF ::nCaret > 0
             //::nCaret := 0
-            //hced_HideCaret( ::hEdit )
          ENDIF
          n := ::nLineC
          ::SetCaretPos( SETC_COORS + 100, hwg_LoWord( lParam ), hwg_HiWord( lParam ) )
@@ -557,10 +528,8 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HCEdit
             ::PCopy( ::aPointC, ::aPointM2 )
          ENDIF
          IF ::nLineC >= n
-            //hced_Invalidaterect( ::hEdit, 0, 0, ::aLines[n,AL_Y1], ::nClientWidth, ::aLines[::nLineC,AL_Y2] )
             hwg_Invalidaterect( ::handle, 0, 0, ::aLines[n,AL_Y1], ::nClientWidth, ::aLines[::nLineC,AL_Y2] )
          ELSE
-            //hced_Invalidaterect( ::hEdit, 0, 0, ::aLines[::nLineC,AL_Y1], ::nClientWidth, ::aLines[n,AL_Y2] )
             hwg_Invalidaterect( ::handle, 0, 0, ::aLines[::nLineC,AL_Y1], ::nClientWidth, ::aLines[n,AL_Y2] )
          ENDIF
       ENDIF
@@ -584,7 +553,6 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HCEdit
       ENDIF
 
    ELSEIF msg == WM_MOUSEACTIVATE
-      //hced_SetFocus( ::hEdit )
       hwg_SetFocus( ::handle )
       lRes := MA_ACTIVATE
 
@@ -629,7 +597,6 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HCEdit
 #ifdef __GTK__
          ENDIF
 #endif
-         //hced_Invalidaterect( ::hEdit, 0, 0, 0, ::nClientWidth, ::nHeight )
          hwg_Invalidaterect( ::handle, 0, 0, 0, ::nClientWidth, ::nHeight )
       ENDIF
 
@@ -746,7 +713,6 @@ METHOD Paint( lReal ) CLASS HCEdit
 
          yNew := ::PaintLine( Iif( lReal, hDC, Nil ), yPos, nLine, .T., ::nBoundR )
 
-         //IF yNew + ( ::aLines[nLine,AL_Y2] - ::aLines[nLine,AL_Y1] ) > ::nHeight
          IF yNew + BOTTOM_HEIGHT > ::nHeight
             EXIT
          ENDIF
@@ -755,7 +721,6 @@ METHOD Paint( lReal ) CLASS HCEdit
    ENDIF
 
    IF lReal
-      //hced_FillRect( ::hEdit, 0, yNew, ::nClientWidth, ::nHeight )
       IF ::n4Separ > 0
          hwg_Selectobject( hDC, ::oPenNum:handle )
          hwg_Drawline( hDC, ::nBoundL + ::nMarginL + ::n4Separ - 4, 4, ::nBoundL + ::nMarginL + ::n4Separ - 4, ::nHeight - 8 )
@@ -764,9 +729,6 @@ METHOD Paint( lReal ) CLASS HCEdit
 
    IF lReal
 #ifdef __GTK__
-      //hced_drawBorder( ::hEdit, ::nWidth, ::nHeight )
-      //hwg_BitBlt( hDCReal, 0, 0, aCoors[3] - aCoors[1], aCoors[4] - aCoors[2], hDC )
-      //hwg_ReleaseDC( , hDC )
 #else
       hwg_BitBlt( hDCReal, 0, 0, aCoors[3] - aCoors[1], aCoors[4] - aCoors[2], hDC, ::nShiftL, 0, SRCCOPY )
       hwg_DeleteDC( hDC )
@@ -777,7 +739,6 @@ METHOD Paint( lReal ) CLASS HCEdit
       hwg_Releasedc( ::handle, hDCReal )
    ENDIF
    IF ::lSetFocus
-      //hced_SetFocus( ::hEdit )
       hwg_SetFocus( ::handle )
       ::lSetFocus := .F.
    ENDIF
@@ -787,7 +748,6 @@ METHOD Paint( lReal ) CLASS HCEdit
 
    RETURN Nil
 
-/* Added: nRight */
 METHOD PaintLine( hDC, yPos, nLine, lUse_aWrap, nRight ) CLASS HCEdit
    LOCAL lReal := !Empty( hDC ), i, nPrinted, x1, x2, cLine, aLine, nTextLine := ::nLineF+nLine-1
    LOCAL nWCharF := Iif( ::lWrap.AND.nLine==1, ::nWCharF, ::nPosF ), nWSublF := Iif( ::lWrap.AND.nLine==1, ::nWSublF, 1 ), num := ::nLines+1
@@ -842,7 +802,6 @@ METHOD PaintLine( hDC, yPos, nLine, lUse_aWrap, nRight ) CLASS HCEdit
       aLine[AL_Y2] := yPos
 
       IF lReal .AND. x1 > 0
-         //hced_FillRect( ::hEdit, ::nBoundL, aLine[AL_Y1], x1, yPos )
       ENDIF
       IF lReal .AND. ::bPaint != Nil
          Eval( ::bPaint, Self, hDC, nTextLine, aLine[AL_Y1], yPos  )
@@ -880,7 +839,6 @@ METHOD PaintLine( hDC, yPos, nLine, lUse_aWrap, nRight ) CLASS HCEdit
 
    RETURN yPos
 
-/* Added: nWCharF, nLineC */
 METHOD MarkLine( nLine, lReal, nSubLine, nWCharF, nLineC ) CLASS HCEdit
    LOCAL nPos1, nPos2, x1, x2, i, aStru, nL := ::nLineF + nLine - 1, P1, P2, aHili
    LOCAL bColor && := 0
@@ -973,13 +931,11 @@ METHOD MarkLine( nLine, lReal, nSubLine, nWCharF, nLineC ) CLASS HCEdit
 
 METHOD End(  ) CLASS HCEdit
 
-   //hwg_writelog( "-------" )
-   //hwg_writelog( hwg_trace() )
    IF !Empty( ::oHili )
       ::oHili:End()
       ::oHili := Nil
    ENDIF
-   IF /* !Empty( l ) .AND. */ !Empty( ::hEdit )
+   IF !Empty( ::hEdit )
       hced_Release( ::hEdit )
       ::hEdit := Nil
    ENDIF
@@ -1061,13 +1017,11 @@ METHOD SetText( xText, cPageIn, cPageOut ) CLASS HCEdit
    ENDIF
    ::lSetFocus := .T.
    IF ::lInit
-      //hwg_Invalidaterect( ::handle, 0 )
       hwg_Invalidaterect( ::handle, 0 )
    ENDIF
 
    RETURN Nil
 
-/* Added: cpSou */
 METHOD Save( cFileName, cpSou ) CLASS HCEdit
    LOCAL nHand, i, cLine
 
@@ -1159,7 +1113,6 @@ METHOD SetFont( oFont ) CLASS HCEdit
 METHOD SetCaretPos( nType, p1, p2 ) CLASS HCEdit
    LOCAL lSet := .T. , lInfo := .F., x1, y1, xPos, cLine, nLinePrev := ::nLineC
 
-   //::lChgCaret := .T.
    IF Empty( nType ) .OR. Empty( ::nLines )
       hced_SetCaretPos( ::hEdit, ::nBoundL + ::nMarginL + ::n4Separ, 0 )
       RETURN Nil
@@ -1194,7 +1147,6 @@ METHOD SetCaretPos( nType, p1, p2 ) CLASS HCEdit
    ELSEIF nType == SETC_XLAST
       xPos := ::nClientWidth
    ENDIF
-   //hwg_writelog( str(::nLineC)+" "+str(::nLineF)+ " "+valtype(::aLines[::nLineC,AL_LINE]) )
    ::MarkLine( Iif( ::lWrap, ::aLines[::nLineC,AL_LINE]-::nLineF+1, ::nLineC ), .F., Iif( ::lWrap, hced_SubLine( Self, ::nLineC ), Nil ) )
    IF x1 == Nil
       xPos += ::nShiftL
@@ -1220,19 +1172,13 @@ METHOD SetCaretPos( nType, p1, p2 ) CLASS HCEdit
    IF !lInfo
       IF nLinePrev != ::nLineC
          IF nLinePrev <= ::nLines
-            //hced_Invalidaterect( ::hEdit, 0, 0, ::aLines[nLinePrev,AL_Y1], ::nClientWidth, ;
-            //   ::aLines[nLinePrev,AL_Y2] )
             hwg_Invalidaterect( ::handle, 0, 0, ::aLines[nLinePrev,AL_Y1], ::nClientWidth, ;
                ::aLines[nLinePrev,AL_Y2] )
          ENDIF
-         //hced_Invalidaterect( ::hEdit, 0, 0, ::aLines[::nLineC,AL_Y1], ::nClientWidth, ;
-         //   ::aLines[::nLineC,AL_Y2] )
          hwg_Invalidaterect( ::handle, 0, 0, ::aLines[::nLineC,AL_Y1], ::nClientWidth, ;
             ::aLines[::nLineC,AL_Y2] )
 #ifdef __GTK__
       ELSE
-         //hced_Invalidaterect( ::hEdit, 0, 0, ::aLines[nLinePrev,AL_Y1], ::nClientWidth, ;
-         //   ::aLines[nLinePrev,AL_Y2] )
          hwg_Invalidaterect( ::handle, 0, 0, ::aLines[nLinePrev,AL_Y1], ::nClientWidth, ;
             ::aLines[nLinePrev,AL_Y2] )
 #endif
@@ -1256,17 +1202,6 @@ METHOD onKeyDown( nKeyCode, lParam, nCtrl ) CLASS HCEdit
 
    // Store for last key (needed by memo edit)
    ::nLastKey := nKeyCode
-   /*
-    Shift L: 65505 = 0xFFE1
-    Shift R: 65506 = 0xFFE2
-    Ctrl   : 65207 = 0xFEB7
-    Alt    : 65513 = 0xFFE9
-    AltGr  : 65027 = 0xFE03
-
-    AltGr + Euro : keydown:      65027 /          0 FFFF
-    AltGr + ~    : keydown:         -1 /          0 TTTT
-
-   */
 
    IF nCtrl == Nil
       cLine := hwg_Getkeyboardstate( lParam )
@@ -1276,20 +1211,34 @@ METHOD onKeyDown( nKeyCode, lParam, nCtrl ) CLASS HCEdit
    ENDIF
 
 #ifdef __GTK__
+   /*
+    * Read the Shift/Ctrl/Alt/AltGr modifier bits from the ORIGINAL
+    * GTK4 keyval.  FBITSHIFT (3) / FBITCTRL (4) / FBITALT (9) are
+    * bit positions inside GdkModifierType, meaningless once the
+    * keyval has been translated to a VK_* code.  This must stay
+    * BEFORE the hced_GdkToVk() call below.
+    */
    ln1 := Iif(hwg_checkBit( nKeyCode, FBITSHIFT ) , .T., .F. )
    ln2 := Iif(hwg_checkBit( nKeyCode, FBITCTRL  ) , .T., .F. )
    ln3 := Iif(hwg_checkBit( nKeyCode, FBITALT   ) , .T., .F. )
    ln4 := Iif(hwg_checkBit( nKeyCode, FBITALTGR ) , .T., .F. )
-#endif
-
 
    /*
-      Output of this command:
-                     ln1   ln2, ln3 ln4
-      nKeyCode nctrl Shift Ctrl Alt AltGr
-   */
-   // hwg_writelog( "keydown: " + str(nKeyCode) + " / " + str(nctrl) +" "+Iif(hwg_checkBit( nKeyCode,FBITSHIFT ),"T","F")+Iif(hwg_checkBit( nKeyCode, FBITCTRL ),"T","F") + Iif(hwg_checkBit( nKeyCode, FBITALT), "T","F" ) + Iif(hwg_checkBit( nKeyCode, FBITALTGR) ,"T","F") )
-
+    * Translate GTK4 keyval into the VK_* codes used by the IF chain
+    * below.  GTK4 delivers GDK_KEY_* values (0xFF51..0xFFFF for the
+    * special keys) while the rest of the method compares against
+    * Win32 VK_* constants (37, 38, 39, 40, ...).  Without this,
+    * arrow keys fall through to the "insert character" ELSEIF at
+    * the bottom and get treated as text.
+    *
+    * Must run AFTER ln1..ln4 are captured (they need the raw GTK
+    * keyval's modifier bits) and BEFORE the IF chain.  The AltGr+~
+    * combination (nKeyCode == -1) is preserved untouched.
+    */
+   IF nKeyCode != -1
+      nKeyCode := hced_GdkToVk( nKeyCode )
+   ENDIF
+#endif
 
    ::lSetFocus := .T.
    IF ::bKeyDown != Nil .AND. ( nLine := Eval( ::bKeyDown, Self, nKeyCode, nCtrl, 0 ) ) != -1
@@ -1313,7 +1262,6 @@ METHOD onKeyDown( nKeyCode, lParam, nCtrl ) CLASS HCEdit
        ::putChar( 126 )  && nKeyCode
    ELSEIF nKeyCode == VK_RIGHT
 #else
-// Cursor right : This block catches AltGr + ~ (Tilde) , so ignored, Bug fixed (DF7BE)
    IF nKeyCode == VK_RIGHT
 #endif
       n := Iif( hwg_checkBit( nctrl,FBITCTRL ), ::aLines[nLine,AL_NCHARS] - ::nPosC, 1 )
@@ -1327,7 +1275,7 @@ METHOD onKeyDown( nKeyCode, lParam, nCtrl ) CLASS HCEdit
             ENDIF
             lInvAll := .T.
          ELSEIF ::nPosC > ::aLines[nLine,AL_NCHARS]
-            IF ::lWrap //.AND. ::nDocFormat == 0
+            IF ::lWrap
                RETURN 0
             ENDIF
             IF hced_GetXCaretPos( ::hEdit ) > ( ::nClientWidth-::nMarginR-10 )
@@ -1346,8 +1294,6 @@ METHOD onKeyDown( nKeyCode, lParam, nCtrl ) CLASS HCEdit
       IF hwg_checkBit( nctrl,FBITSHIFT )
          ::PCopy( ::aPointC, ::aPointM2 )
          lUnSel := .F.
-         //hced_Invalidaterect( ::hEdit, 0, 0, ::aLines[nLine,AL_Y1], ::nClientWidth, ;
-         //   ::aLines[nLine,AL_Y2] )
          hwg_Invalidaterect( ::handle, 0, 0, ::aLines[nLine,AL_Y1], ::nClientWidth, ;
             ::aLines[nLine,AL_Y2] )
       ENDIF
@@ -1385,8 +1331,6 @@ METHOD onKeyDown( nKeyCode, lParam, nCtrl ) CLASS HCEdit
       IF hwg_checkBit( nctrl,FBITSHIFT )
          ::PCopy( ::aPointC, ::aPointM2 )
          lUnSel := .F.
-         //hced_Invalidaterect( ::hEdit, 0, 0, ::aLines[nLine,AL_Y1], ::nClientWidth, ;
-         //   ::aLines[nLine,AL_Y2] )
          hwg_Invalidaterect( ::handle, 0, 0, ::aLines[nLine,AL_Y1], ::nClientWidth, ;
             ::aLines[nLine,AL_Y2] )
       ENDIF
@@ -1492,8 +1436,7 @@ METHOD onKeyDown( nKeyCode, lParam, nCtrl ) CLASS HCEdit
       ENDIF
 
    ELSEIF ( nKeyCode == 89 .OR. nKeyCode == 121 ) .AND. hwg_checkBit( nctrl,FBITCTRL )  // 'Y'
-      IF ::lWrap //.AND. ::aWrap[::nLineF+nLine-1] != Nil
-         //::DelText( {::aWrap[nLine-1],::nLineF+nLine-1}, {1,::nLineF+nLine-1} )
+      IF ::lWrap
       ELSE
          ::DelText( {1,::nLineF+nLine-1}, {1,::nLineF+nLine} )
       ENDIF
@@ -1557,10 +1500,7 @@ METHOD onKeyDown( nKeyCode, lParam, nCtrl ) CLASS HCEdit
 
 METHOD PutChar( nKeyCode ) CLASS HCEdit
    LOCAL nLine, nPos
-   * Variables not used
-   * P1, x, y
 
-   //hwg_writelog( "putchar: " + str(nKeyCode) )
    IF ::lReadOnly
       RETURN Nil
    ENDIF
@@ -1579,7 +1519,7 @@ METHOD PutChar( nKeyCode ) CLASS HCEdit
    ELSEIF nKeyCode == VK_ESCAPE
 
    ELSEIF nKeyCode == VK_BACK .OR. nKeyCode == 7
-      IF !Empty( ::aPointM2[P_Y] )  // there is text selected
+      IF !Empty( ::aPointM2[P_Y] )
          ::DelText( ::aPointM1, ::aPointM2 )
          ::Pcopy( , ::aPointM2 )
       ELSE
@@ -1603,8 +1543,7 @@ METHOD PutChar( nKeyCode ) CLASS HCEdit
             ::DelText( { nPos, nLine }, { nPos+1,nLine } )
          ENDIF
       ENDIF
-   ELSE        // Insert or overwrite any character
-      //hwg_writelog( str( nKeyCode ) + "/" + hced_Chr( Self,nKeyCode ) )
+   ELSE
       ::InsText( ::aPointC, hced_Chr( Self,nKeyCode ), !::lInsert )
    ENDIF
 
@@ -1642,11 +1581,8 @@ METHOD LineDown() CLASS HCEdit
 
    RETURN Nil
 
-/* Added: lChgPos */
 METHOD LineUp( lChgPos ) CLASS HCEdit
    LOCAL y
-   * Variables not used
-   *   i
 
    IF lChgPos == Nil; lChgPos := .T.; ENDIF
 
@@ -1691,8 +1627,6 @@ METHOD PageDown() CLASS HCEdit
          ::nLineF ++
          ::nWCharF := ::nWSublF := 1
       ELSE
-         //RETURN ::Bottom()
-
          ::nLineF := ::aLines[::nLines,AL_LINE]
          ::nWCharF := ::aLines[::nLines,AL_FIRSTC]
          ::nWSublF := ::aLines[::nLines,AL_SUBL]
@@ -1703,7 +1637,6 @@ METHOD PageDown() CLASS HCEdit
          ::nLineF += ::nLines - 1
       ELSE
          RETURN ::Bottom()
-         //::nLineC := ::nLines
       ENDIF
    ENDIF
    y := ::aLines[::nLineC,AL_Y2] - 4
@@ -1830,62 +1763,6 @@ METHOD GOTO( nLine ) CLASS HCEdit
    ENDIF
 
    RETURN Nil
-
-/*
-METHOD onVScroll( wParam ) CLASS HCEdit
-   LOCAL nCode := hwg_Loword( wParam ), nPos := hwg_Hiword( wParam )
-   LOCAL n, nPages, i, nL
-
-   IF ::nLines <= 0
-      RETURN 0
-   ENDIF
-   IF nCode == SB_TOP
-      ::Top()
-   ELSEIF nCode == SB_BOTTOM
-      ::Bottom()
-   ELSEIF nCode == SB_LINEDOWN
-      ::LineDown()
-   ELSEIF nCode == SB_LINEUP
-      ::LineUp()
-   ELSEIF nCode == SB_PAGEDOWN
-      ::PageDown()
-   ELSEIF nCode == SB_PAGEUP
-      ::PageUp()
-   ELSEIF nCode = SB_THUMBPOSITION .OR. nCode = SB_THUMBTRACK
-      n := Iif( ::nLines > 0, Int( ::nHeight/(::aLines[1,AL_Y2] - ::aLines[1,AL_Y1] ) ), 0 )
-      IF n > 0
-         nPages := Int( ::nLinesAll/n ) + 1
-         //hwg_writelog( "    "+str(npos)+"/"+str(npages) )
-         IF nPos == 0
-            ::Top()
-         ELSEIF nPos + 4 >= ( nPages-1 ) * 4
-            ::Bottom()
-         ELSE
-            n := Min( Max( Int( nPos / ((nPages - 1 ) * 4 ) * ::nLinesAll ) - ::nLineC + 1, 1 ), ::nLinesAll )
-            IF ::lWrap
-               i := nL := 0
-               DO WHILE ++i <= ::nTextLen
-                  nL += Iif( Empty(::aWrap[i]), 1, Len(::aWrap[i])+1 )
-                  IF nL >= n
-                     EXIT
-                  ENDIF
-               ENDDO
-               ::nLineF := i
-               ::nWSublF := Iif( nL == n .OR. Empty(::aWrap[i]), 1, Len(::aWrap[i])-(nL-n)+2 )
-               ::nWCharF := Iif( nL == n .OR. Empty(::aWrap[i]), 1, ::aWrap[i,Len(::aWrap[i])-(nL-n)+1] )
-            ELSE
-               ::nLineF := n
-            ENDIF
-            ::Paint( .F. )
-
-            ::SetCaretPos( SETC_COORS, hced_GetXCaretPos( ::hEdit ), hced_GetYCaretPos( ::hEdit ) )
-            hwg_Invalidaterect( ::handle, 0 )
-         ENDIF
-      ENDIF
-   ENDIF
-
-   RETURN 0
-*/
 
 METHOD PCopy( Psource, Pdest ) CLASS HCEdit
 
@@ -2056,7 +1933,6 @@ METHOD InsText( aPoint, cText, lOver, lChgPos ) CLASS HCEdit
          cRest := hced_Substr( Self, ::aText[nLine], nPos )
          ::aText[nLine] := hced_Left( Self, ::aText[nLine], nPos - 1 ) + aText[1]
          IF Empty( ::aText[nLine] )
-            // For properties of this paragraph (aStru) remained with it
             ::AddLine( nLine)
             ::aText[nLine] := ""
             l := .T.
@@ -2219,11 +2095,9 @@ METHOD Highlighter( oHili ) CLASS HCEdit
    ENDIF
    RETURN Nil
 
-/* Added:  nl1, nl2, hDC, nWidth, nHeight */
 METHOD Scan( nl1, nl2, hDC, nWidth, nHeight ) CLASS HCEdit
    LOCAL lNested := ::lScan, aCoors, yPos, yNew, nLine, nLines, i, n1, n2
    LOCAL nDocWidth
-   //LOCAL hDCR, hBitmap
    LOCAL nLinesB := ::nLines, nLineF := ::nLineF, nLineC := ::nLineC, nWCharF := ::nWCharF, nWSublF := ::nWSublF
 
    IF Empty( ::aText ) .OR. Empty( ::aWrap ) .OR. !::lWrap
@@ -2330,9 +2204,6 @@ METHOD Scan( nl1, nl2, hDC, nWidth, nHeight ) CLASS HCEdit
 #ifdef __GTK__
       hwg_Releasedc( ::handle, hDC )
 #else
-      //hwg_DeleteDC( hDC )
-      //hwg_DeleteObject( hBitmap )
-      //hwg_Releasedc( ::handle, hDCR )
       hwg_Releasedc( ::handle, hDC )
 #endif
    ENDIF
@@ -2491,8 +2362,6 @@ METHOD PrintLine( oPrinter, yPos, nL ) CLASS HCEdit
                arrS := hwg_GetTextSize( oPrinter:hDCPrn, cTemp )
                nHeight := Max( nHeight, arrS[2] + 1 )
 
-               //oPrinter:Say( cTemp, nMarginL, yPos, nMarginL+arrS[1], yPos+nHeight, ::nAlign, ::aFonts[Asc(i)] )
-               //hwg_writelog( cTemp+"//-- "+str(::nMarginR)+" "+str(::nBoundR) )
                Aadd( aTemp, { cTemp, Asc(i), arrS[1]+2 } )
                nMarginL += arrS[1]
                IF x1 > Len(cAttr)
@@ -2542,7 +2411,6 @@ METHOD Move( x1, y1, width, height ) CLASS HCEdit
    LOCAL nw := Iif( Empty(::oTrack).OR.::oTrack:lHide, 0, ;
       Iif( Valtype(::oTrack)=="N", ::oTrack, ::oTrack:nWidth ) )
 
-   //hwg_writelog( "1> "+Iif(x1==nil,"nil",str(x1)) + " " + Iif(width==nil,"nil",str(width)) + " " + str(nw) + " " + str(::nWidth) )
    ::Super:Move( x1, y1, Iif(Empty(width),::nWidth,width)-nw, height )
    ::nWidth += nw
    IF !Empty(::oTrack) .AND. !::oTrack:lHide
@@ -2561,7 +2429,6 @@ METHOD ShowTrackBar( lShow, nTrackWidth ) CLASS HCEdit
          ::oTrack := HTrack():New( ::oParent,, ::nLeft+::nWidth-nTrackWidth, ::nTop, nTrackWidth, ;
             ::nHeight,,,,, 48,, HStyle():New( { 0x888888, 0xcccccc }, 3 ), .F. )
          ::oTrack:bChange := {|o,n| onTrack(Self,o,n) }
-         //hwg_writelog( "CrTrack " + ::oParent:ClassName() )
       ELSE
          ::oTrack:Show()
       ENDIF
@@ -2700,10 +2567,8 @@ STATIC FUNCTION onTrack( oEdit, oTrack )
 
    nInPage := Iif( oEdit:nLines > 0, Int( oEdit:nHeight/(oEdit:aLines[1,AL_Y2] - oEdit:aLines[1,AL_Y1] ) ), 0 )
    nLinesAll := oEdit:nLinesAll - nInPage + 2
-   // hwg_writelog( "1> nPos: " + str(nPos,7,4)+" nInPage: "+str(nInPage)+" nLines: "+str(oEdit:nLines) )
-   IF oEdit:nLinesAll > nInPage //n > 0
+   IF oEdit:nLinesAll > nInPage
       nLine := Min( nLinesAll, Max( 1, Int( nPos * nLinesAll ) ) )
-      //hwg_writelog( "  2> nLine: " + str(nLine)+" nLinesAll: "+str(oEdit:nLinesAll) )
       IF oEdit:SetWrap()
          i := nL := 0
          DO WHILE ++i <= oEdit:nTextLen
@@ -2805,5 +2670,51 @@ Function hced_NextPos( oEdit, cLine, nPos )
 #endif
    RETURN nPos + 1
 
-* ====================== EOF of hcedit.prg =====================
+/*
+ * GTK4 keyval -> Win32 VK_* translation table.
+ *
+ * GTK4 delivers Gdk keyvals (GDK_KEY_*) to cb_key_pressed() in
+ * window.c, but HCEdit:onKeyDown() compares against the Win32 VK_*
+ * constants (VK_UP = 38, VK_DOWN = 40, ...).  Without this table the
+ * arrow keys, Home/End, PgUp/PgDn, Enter, Backspace, Tab, Esc, Ins
+ * and Del fall through to the "insert character" branch at the
+ * bottom of onKeyDown() and get treated as text instead of commands.
+ *
+ * Digits, letters and ordinary punctuation do not need translation:
+ * their GDK keyvals coincide with the ASCII values, which is why the
+ * editor appeared to work for typing and only failed for the special
+ * keys.
+ *
+ * Numpad variants (GDK_KP_*) are translated too, since they are
+ * commonly used for navigation.  They are distinct keyvals
+ * (0xFF96..0xFF9D) from the main-keyboard arrows (0xFF51..0xFF57).
+ */
+STATIC FUNCTION hced_GdkToVk( nKey )
+   DO CASE
+   CASE nKey == 0xFF51 ; RETURN VK_LEFT       // 37
+   CASE nKey == 0xFF52 ; RETURN VK_UP         // 38
+   CASE nKey == 0xFF53 ; RETURN VK_RIGHT      // 39
+   CASE nKey == 0xFF54 ; RETURN VK_DOWN       // 40
+   CASE nKey == 0xFF50 ; RETURN VK_HOME       // 36
+   CASE nKey == 0xFF57 ; RETURN VK_END        // 35
+   CASE nKey == 0xFF55 ; RETURN VK_PRIOR      // 33
+   CASE nKey == 0xFF56 ; RETURN VK_NEXT       // 34
+   CASE nKey == 0xFF0D .OR. nKey == 0xFF8D ; RETURN VK_RETURN   // 13
+   CASE nKey == 0xFF08 ; RETURN VK_BACK       // 8
+   CASE nKey == 0xFF09 ; RETURN VK_TAB        // 9
+   CASE nKey == 0xFF1B ; RETURN VK_ESCAPE     // 27
+   CASE nKey == 0xFF63 ; RETURN VK_INSERT     // 45
+   CASE nKey == 0xFFFF ; RETURN VK_DELETE     // 46
+   /* Numpad variants */
+   CASE nKey == 0xFF96 ; RETURN VK_LEFT       // KP_Left
+   CASE nKey == 0xFF97 ; RETURN VK_UP         // KP_Up
+   CASE nKey == 0xFF98 ; RETURN VK_RIGHT      // KP_Right
+   CASE nKey == 0xFF99 ; RETURN VK_DOWN       // KP_Down
+   CASE nKey == 0xFF9A ; RETURN VK_PRIOR      // KP_Page_Up
+   CASE nKey == 0xFF9B ; RETURN VK_NEXT       // KP_Page_Down
+   CASE nKey == 0xFF9C ; RETURN VK_END        // KP_End
+   CASE nKey == 0xFF9D ; RETURN VK_HOME       // KP_Home
+   ENDCASE
+RETURN nKey
 
+* ====================== EOF of hcedit.prg =====================
