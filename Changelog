@@ -15,6 +15,28 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-01 23:50 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+    * source/common/editor/hcedit_l_gtk4.c
+      source/common/editor/hcedit.prg
+      source/gtk4/drawtext.c
+      utils/tutorial/tutor.prg:
+      GTK4 fixes for the tutorial editor.
+
+    * hcedit_l_gtk4.c: install GtkEventControllerKey on the HCEdit
+      drawing area (hwg_CreateBoard does not install widget events).
+      Route raw GDK keyvals as WM_KEYDOWN.  Cache logical ascent for
+      line height (ascent + descent) and shared-baseline alignment,
+      so mixed-font runs stay on the same visual line and descenders
+      are no longer truncated.
+    * hcedit.prg: run hced_GdkToVk() AFTER the ln1..ln4 modifier-bit
+      capture (those bits are GdkModifierType and lose meaning once
+      the keyval is rewritten as a VK_* code).
+    * drawtext.c: HWG_CREATEFONT takes abs(height) before
+      pango_font_description_set_size() -- fixes the Pango assert
+      on negative heights (Win32 convention used by HFont:Add).
+    * tutor.prg: clamp editor font to 8..40 px and reject
+      out-of-range values from an old tutor.his on startup.
+
 2026-09-01 21:55 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
 
     * source/common/editor/hcedit_l_gtk4.c

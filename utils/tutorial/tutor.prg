@@ -77,6 +77,7 @@ STATIC cHwg_image_dir := ".." + DIR_SEP + ".." + DIR_SEP + "image"
 STATIC cHrb_inc_dir := "", cHrb_bin_dir := ""
 STATIC aThemes := {}, nCurrTheme := 1
 STATIC nInitWidth := 900, nInitHeight := 600, nInitSplitX := 270
+STATIC nFontTextPx := 15   // current editor font height, in pixels
 
 FUNCTION Main
    LOCAL oMain, oPanel, oBtnMenu, oFont := HFont():Add( "Georgia", 0, - 15 )
@@ -516,16 +517,54 @@ STATIC FUNCTION FindHwgrun()
    RETURN ""
 
 STATIC FUNCTION ChangeFont( oCtrl, n )
-   LOCAL oFont, nHeight := oCtrl:oFont:height
+   LOCAL oFont
 
-   nHeight := Iif( nHeight < 0, nHeight - n, nHeight + n )
-   oFont := HFont():Add( oCtrl:oFont:name,, nHeight,, ;
+   /*
+    * Track the editor font size directly, in pixels.  Reading
+    * oCtrl:oFont:height here is unreliable: depending on the platform
+    * and the HFont internals, it can return either the original pixel
+    * height (e.g. -15) or an already-converted Pango value (e.g. 2048),
+    * and the +/- arithmetic below produces wildly different results
+    * depending on which one it is.
+    *
+    * Keeping our own counter makes the button behaviour independent of
+    * that ambiguity: n is always ±2 pixels, and the clamp guarantees
+    * the resulting font stays readable.
+    */
+   nFontTextPx += n
+   IF nFontTextPx < 8
+      nFontTextPx := 8
+   ELSEIF nFontTextPx > 40
+      nFontTextPx := 40
+   ENDIF
+
+   oFont := HFont():Add( oCtrl:oFont:name, 0, -nFontTextPx,, ;
       oCtrl:oFont:Charset,,,,, .T. )
-   //hwg_Setctrlfont( oCtrl:oParent:handle, oCtrl:id, oFont:handle )
 
    oCtrl:SetFont( oFont )
 
    RETURN Nil
+
+/*
+ * Return the base editor font, unchanged.
+ *
+ * The highlighter is meant to differentiate groups by COLOUR, not by
+ * size.  Building a separate HFont for bold / italic variants is
+ * unreliable on this port -- the styled font ends up ~40% smaller
+ * than the base (the debug log shows raw=11264 for the base and
+ * raw=7168 for the styled variant), and the two runs then anchor on
+ * different baselines, which produces the "subscript" effect.
+ *
+ * Since the tutor themes only change the COLOUR of each group, reuse
+ * the base font for every group.  HCEdit then draws every run at the
+ * same size, and only the colour from SetHili varies.
+ */
+STATIC FUNCTION HFontStyled( oBase, lBold, lItalic, lUnder, lStrike )
+   HB_SYMBOL_UNUSED( lBold   )
+   HB_SYMBOL_UNUSED( lItalic )
+   HB_SYMBOL_UNUSED( lUnder  )
+   HB_SYMBOL_UNUSED( lStrike )
+   RETURN oBase
 
 STATIC FUNCTION Load2Draft()
 
@@ -605,19 +644,19 @@ FUNCTION ChangeTheme( n )
 
    IF !Empty( arr[2] )
       oText:SetHili( HILIGHT_KEYW, Iif( !Empty(arr[2,3]).OR.!Empty(arr[2,4]), ;
-         oText:oFont:SetFontStyle( !Empty(arr[2,3]),,!Empty(arr[2,4]) ), -1 ), arr[2,1], arr[2,2] )
+         HFontStyled( oText:oFont, !Empty(arr[2,3]), !Empty(arr[2,4]) ), -1 ), arr[2,1], arr[2,2] )
    ENDIF
    IF !Empty( arr[3] )
       oText:SetHili( HILIGHT_FUNC, Iif( !Empty(arr[3,3]).OR.!Empty(arr[3,4]), ;
-         oText:oFont:SetFontStyle( !Empty(arr[3,3]),,!Empty(arr[3,4]) ), -1 ), arr[3,1], arr[3,2] )
+         HFontStyled( oText:oFont, !Empty(arr[3,3]), !Empty(arr[3,4]) ), -1 ), arr[3,1], arr[3,2] )
    ENDIF
    IF !Empty( arr[4] )
       oText:SetHili( HILIGHT_COMM, Iif( !Empty(arr[4,3]).OR.!Empty(arr[4,4]), ;
-         oText:oFont:SetFontStyle( !Empty(arr[4,3]),,!Empty(arr[4,4]) ), -1 ), arr[4,1], arr[4,2] )
+         HFontStyled( oText:oFont, !Empty(arr[4,3]), !Empty(arr[4,4]) ), -1 ), arr[4,1], arr[4,2] )
    ENDIF
    IF !Empty( arr[5] )
       oText:SetHili( HILIGHT_QUOTE, Iif( !Empty(arr[5,3]).OR.!Empty(arr[5,4]), ;
-         oText:oFont:SetFontStyle( !Empty(arr[5,3]),,!Empty(arr[5,4]) ), -1 ), arr[5,1], arr[5,2] )
+         HFontStyled( oText:oFont, !Empty(arr[5,3]), !Empty(arr[5,4]) ), -1 ), arr[5,1], arr[5,2] )
    ENDIF
    oText:Refresh()
 

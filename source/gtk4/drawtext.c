@@ -284,7 +284,62 @@ HB_FUNC( HWG_CREATEFONT )
                                           hb_parni(6) ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL );
     }
 
-    pango_font_description_set_size( hFont, hb_parni(3) );
+    {
+        int iHeight = hb_parni( 3 );
+        if( iHeight < 0 )
+            iHeight = - iHeight;
+        if( iHeight == 0 )
+            iHeight = 12;
+
+        /* set_size() expects points, multiplied by PANGO_SCALE.
+         * The result is DPI-aware, which is what the rest of HWGUI
+         * expects from hwg_GetTextMetric()/hwg_GetTextWidth(). */
+        pango_font_description_set_size( hFont, iHeight * PANGO_SCALE );
+    }
+
+    /*
+     * HWGUI follows the Win32 convention for font height:
+     *
+     *   negative  ->  height is in pixels, the absolute value is used
+     *                 (HFont():Add("Georgia", 0, -15) means "15 px")
+     *   positive  ->  height is in points (less common in HWGUI code)
+     *   zero      ->  caller omitted the parameter
+     *
+     * Feeding a negative number to pango_font_description_set_size()
+     * trips the assert
+     *   pango_font_description_set_size: assertion 'size >= 0' failed
+     * and leaves the description at Pango's default size, which is
+     * what produced the Pango-CRITICAL warnings on every startup.
+     *
+     * set_absolute_size() takes a size in device units (pixels) and
+     * needs the value multiplied by PANGO_SCALE; that is the unit the
+     * rest of the HWGUI GTK4 code uses (PANGO_DESCENT, PANGO_RBEARING,
+     * hwg_GetTextWidth, the HCEdit width calculations), so the two
+     * sides now agree.  A zero height falls back to 12 px -- without
+     * the fallback the call would silently produce an unusable font.
+     */
+    {
+        int iHeight = hb_parni( 3 );
+        if( iHeight < 0 )
+            iHeight = - iHeight;
+        if( iHeight == 0 )
+            iHeight = 12 * PANGO_SCALE;
+
+        /*
+         * Pango rejects negative sizes with:
+         *   pango_font_description_set_size: assertion 'size >= 0' failed
+         *
+         * HWGUI follows the Win32 convention where a negative height
+         * means "absolute height in pixels" (HFont():Add("Georgia",
+         * 0, -15)).  By the time this function is called, the Harbour
+         * side has already converted that pixel height into Pango
+         * units -- i.e. the value passed here is height-in-points
+         * multiplied by PANGO_SCALE.  Only the sign needs to be
+         * fixed; multiplying by PANGO_SCALE again would blow the
+         * font size up by a factor of 1024.
+         */
+        pango_font_description_set_size( hFont, iHeight );
+    }
 
     /* Pango weights live in 100..900 (400 = Regular).  HWGUI callers
      * pass 0 to mean "use the default weight" -- that came from Win32,

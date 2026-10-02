@@ -84,6 +84,9 @@ typedef struct
       /* Font information */
       PHWGUI_FONT hwg_font;
       int iWidth, iHeight, ixAdd, iSpace;
+      /* Logical ascent of the font, used to lay out runs on a shared
+       * baseline and to compute the full line height (ascent + descent). */
+      int iAscent;
 
 } TEDFONT;
 
@@ -391,19 +394,26 @@ int ted_CalcItemWidth( PangoLayout * layout, char *szText, TEDFONT *font, int *i
 
       if( !font->iWidth )
       {
+            PangoRectangle logical;
             pango_layout_set_text( layout, "aA", 2 );
-            pango_layout_get_pixel_extents( layout, &rc, NULL );
-            font->iWidth = rc.width / 2;
-            font->iHeight = PANGO_DESCENT( rc );
+            pango_layout_get_pixel_extents( layout, &rc, &logical );
+            font->iWidth  = rc.width / 2;
+            /* Use the LOGICAL metrics, not the ink metrics: "aA" has
+             * no descenders, so its ink descent is almost zero and the
+             * line height derived from it truncates the descenders of
+             * real text (g, p, y).  The logical descent is the font's
+             * designed descent and includes the space for them. */
+            font->iHeight = PANGO_DESCENT( logical );
+            font->iAscent = PANGO_ASCENT( logical );
 
             pango_layout_set_text( layout, "a", 1 );
             pango_layout_get_pixel_extents( layout, &rc, NULL );
-            font->ixAdd = PANGO_LBEARING(rc);
-            font->iSpace = PANGO_RBEARING(rc);
+            font->ixAdd  = PANGO_LBEARING( rc );
+            font->iSpace = PANGO_RBEARING( rc );
 
             pango_layout_set_text( layout, "  a", 3 );
             pango_layout_get_pixel_extents( layout, &rc, NULL );
-            font->iSpace = (PANGO_RBEARING(rc) - font->iSpace)/2;
+            font->iSpace = ( PANGO_RBEARING(rc) - font->iSpace ) / 2;
       }
 
       iReal = iWidth / font->iWidth;
@@ -548,10 +558,16 @@ int ted_TextOut( TEDIT * pted, int xpos, int ypos, int iHeight,
 
       if( hDC->bcolor != -1 )
       {
+            /* The background rect must cover the full line box, not
+             * just the descent -- otherwise the highlight for the
+             * current line lets the top of the runs show through and
+             * the bottom cuts the descenders. */
+            gdouble nRectH = (gdouble)( iMaxAscent + PANGO_DESCENT( rc ) + pted->iInterline );
+
             hwg_setcolor( hDC->cr, hDC->bcolor );
             cairo_rectangle( hDC->cr, (gdouble)xpos, (gdouble)ypos,
                              (iLen==1 && *szText==' ')? (gdouble)font->iSpace : (gdouble)iWidth,
-                             (gdouble)PANGO_DESCENT(rc)+pted->iInterline );
+                             nRectH );
             cairo_fill( hDC->cr );
       }
 
@@ -1004,15 +1020,21 @@ HB_FUNC( HCED_LINEOUT )
       pted->x2 = x1 + iRealWidth;
 
       i = 0;
-      while( i < TEDATTRF_MAX )
+      iFont = 0;
       {
-            iFont = *( pted->pattrf + i );
-            font = ( (pted->hDCPrn)? pted->pFontsPrn : pted->pFontsScr ) +
-            (iFont? iFont-1 : 0) ;
-            iHeight = ( iHeight > font->iHeight )? iHeight : font->iHeight;
-            if( ! *( pted->pattrf+i ) )
-                  break;
-            i ++;
+            int iFontH = 0;
+            while( i < TEDATTRF_MAX )
+            {
+                  iFont = *( pted->pattrf + i );
+                  font = ( (pted->hDCPrn)? pted->pFontsPrn : pted->pFontsScr ) +
+                  (iFont? iFont-1 : 0) ;
+                  iFontH = font->iAscent + font->iHeight;
+                  if( iFontH > iHeight )
+                        iHeight = iFontH;
+                  if( ! *( pted->pattrf+i ) )
+                        break;
+                  i ++;
+            }
       }
       pted->iCaretHeight = iHeight;
 
