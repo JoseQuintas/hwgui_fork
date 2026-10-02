@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-09-02 11:21 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+    * source/gtk4/control.c:
+      GTK4: fix Cairo assertion in HWG_STOCKBITMAP.  Remove the
+      duplicated GBytes/GdkTexture block that called
+      cairo_surface_reference() on an already-destroyed surface.
+      Use gdk_pixbuf_get_from_surface() in one step, flush before
+      reading, guard width/height against 0.
+
 2026-09-02 11:06 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * utils/tutorial/tutor.prg
       utils/tutorial/tutor_eng.xml:

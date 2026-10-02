@@ -186,7 +186,6 @@ HB_FUNC( HWG_GETDRAWING )
 {
     HB_RETHANDLE( getDrawing( (GObject*) HB_PARHANDLE( 1 ) ) );
 }
-
 /* =====================================================================
  *  hwg_legacy_gtk_name
  *
@@ -195,10 +194,6 @@ HB_FUNC( HWG_GETDRAWING )
  *  GTK3 stock registry was removed in GTK4; the names themselves are
  *  still what applications pass to HBitmap:AddStandard(), so we keep
  *  accepting them and map to the modern names here.
- *
- *  Returns a pointer to a static buffer for names that need the
- *  "gtk-" prefix stripped but no rename; returns a literal for names
- *  with a specific mapping.  Never returns NULL for a non-NULL input.
  * ===================================================================== */
 static const char *hwg_legacy_gtk_name( const char *name )
 {
@@ -266,9 +261,19 @@ static const char *hwg_legacy_gtk_name( const char *name )
  *      GtkSnapshot      -> render target for the paintable
  *      GskRenderNode    -> the rendered node
  *      cairo_surface_t  -> the node is drawn into this
- *      GdkTexture       -> extracted from the surface
- *      GdkPixbuf        -> extracted from the texture, wrapped in the
- *                          HWGUI PIXBUF handle
+ *      GdkPixbuf        -> a copy of the surface, wrapped in the HWGUI
+ *                          PIXBUF handle
+ *
+ *  gdk_pixbuf_get_from_surface() copies the pixel data out of the
+ *  cairo surface in one step, so there is no need for the intermediate
+ *  GBytes / GdkTexture pipeline that a previous version used.  That
+ *  pipeline was the source of the Cairo assertion
+ *
+ *      cairo_surface_reference: assertion
+ *        'CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&surface->ref_count)' failed
+ *
+ *  -- a duplicated block called cairo_surface_reference() on a surface
+ *  that had already been destroyed by the previous pass.
  *
  *  The flag GTK_ICON_LOOKUP_FORCE_REGULAR makes the theme prefer the
  *  colour variant of an icon over the symbolic one.  Symbolic icons
@@ -298,12 +303,6 @@ HB_FUNC( HWG_STOCKBITMAP )
         return;
     }
 
-    /*
-     * Translate legacy "gtk-xxx" names to their freedesktop
-     * equivalents before the lookup.  Without this, a caller that
-     * still passes "gtk-copy" (GTK3 convention) gets no icon on
-     * GTK4 because the stock registry no longer exists.
-     */
     resolved = hwg_legacy_gtk_name( requested );
 
     paintable = gtk_icon_theme_lookup_icon( theme, resolved,
@@ -318,44 +317,42 @@ HB_FUNC( HWG_STOCKBITMAP )
         int width  = gdk_paintable_get_intrinsic_width( GDK_PAINTABLE( paintable ) );
         int height = gdk_paintable_get_intrinsic_height( GDK_PAINTABLE( paintable ) );
 
-        if( width > 0 && height > 0 )
+        if( width <= 0 )  width  = HWG_ICON_SIZE_PX;
+        if( height <= 0 ) height = HWG_ICON_SIZE_PX;
+
         {
             cairo_surface_t *surface = cairo_image_surface_create( CAIRO_FORMAT_ARGB32, width, height );
-            GtkSnapshot *snapshot = gtk_snapshot_new();
-            GskRenderNode *node;
-            cairo_t *cr;
-            GBytes *bytes;
-            GdkTexture *texture;
+            GtkSnapshot     *snapshot = gtk_snapshot_new();
+            GskRenderNode   *node;
+            cairo_t         *cr;
 
             gdk_paintable_snapshot( GDK_PAINTABLE( paintable ), snapshot, width, height );
             node = gtk_snapshot_free_to_node( snapshot );
-            cr = cairo_create( surface );
-            gsk_render_node_draw( node, cr );
-            cairo_destroy( cr );
-            gsk_render_node_unref( node );
 
-            bytes = g_bytes_new_with_free_func(
-                cairo_image_surface_get_data( surface ),
-                                               cairo_image_surface_get_height( surface ) * cairo_image_surface_get_stride( surface ),
-                                               (GDestroyNotify) cairo_surface_destroy,
-                                               cairo_surface_reference( surface ) );
-
-            texture = gdk_memory_texture_new(
-                cairo_image_surface_get_width( surface ),
-                                             cairo_image_surface_get_height( surface ),
-                                             GDK_MEMORY_DEFAULT,
-                                             bytes,
-                                             cairo_image_surface_get_stride( surface ) );
-
-            g_bytes_unref( bytes );
-            cairo_surface_destroy( surface );
-
-            if( texture )
+            /*
+             * gtk_snapshot_free_to_node() returns NULL when the paintable
+             * pushed nothing to the snapshot (some symbolic icons at a
+             * given size).  Guard the pipeline so the Gsk assertions
+             *     gsk_render_node_draw: assertion 'GSK_IS_RENDER_NODE (node)' failed
+             * do not fire.
+             */
+            if( node )
             {
-                handle = gdk_pixbuf_get_from_texture( texture );
-                g_object_unref( texture );
+                cr = cairo_create( surface );
+                gsk_render_node_draw( node, cr );
+                cairo_destroy( cr );
+                gsk_render_node_unref( node );
+
+                /* Make the pixels written by cairo visible to the
+                 * GdkPixbuf reader below. */
+                cairo_surface_flush( surface );
+
+                handle = gdk_pixbuf_get_from_surface( surface, 0, 0, width, height );
             }
+
+            cairo_surface_destroy( surface );
         }
+
         g_object_unref( paintable );
     }
 
