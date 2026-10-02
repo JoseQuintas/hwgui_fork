@@ -59,14 +59,14 @@
 #
 # Samples WinAPI only
 #
-../samples/a.hbp
-../samples/buildpelles.hbp
-../samples/demomdi.hbp
-../samples/demoonother.hbp
-../samples/hello.hbp
-../samples/testrtf.hbp
-../samples/tstscrlbar.hbp
-../samples/tstsplash.hbp
+{win}../samples/a.hbp
+{win}../samples/buildpelles.hbp
+{win}../samples/demomdi.hbp
+{win}../samples/demoonother.hbp
+{win}../samples/hello.hbp
+{win}../samples/testrtf.hbp
+{win}../samples/tstscrlbar.hbp
+{win}../samples/tstsplash.hbp
 #
 # Programs not runable
 # ../samples/nice2.prg

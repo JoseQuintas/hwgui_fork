@@ -2689,6 +2689,7 @@ Function hced_NextPos( oEdit, cLine, nPos )
  * commonly used for navigation.  They are distinct keyvals
  * (0xFF96..0xFF9D) from the main-keyboard arrows (0xFF51..0xFF57).
  */
+#ifdef __GTK__
 STATIC FUNCTION hced_GdkToVk( nKey )
    DO CASE
    CASE nKey == 0xFF51 ; RETURN VK_LEFT       // 37
@@ -2716,5 +2717,6 @@ STATIC FUNCTION hced_GdkToVk( nKey )
    CASE nKey == 0xFF9D ; RETURN VK_HOME       // KP_Home
    ENDCASE
 RETURN nKey
+#endif
 
 * ====================== EOF of hcedit.prg =====================
