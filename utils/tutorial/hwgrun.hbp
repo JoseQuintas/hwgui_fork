@@ -4,6 +4,8 @@
 #
 
 -n -w3
+{win}-gui
+{win}-lgdiplus
 
 # The macro for unix has also effect on LINUX
 # Bugfix: Do not set more than one option in one line
