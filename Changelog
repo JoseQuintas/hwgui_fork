@@ -15,12 +15,82 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2026-10-03 14:03 UTC-0300  Jose Quintas  <jmcquintas@gmail.com>
+2026-10-03 16:48 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  * source/gtk4/listbox.c
+      New file.  GTK4 implementation of the HListBox backend:
+        - HWG_CREATELISTBOX      : GtkScrolledWindow wrapping a GtkListBox
+        - HWG_LISTBOXADDSTRING   : appends a GtkListBoxRow (child = GtkLabel)
+        - HWG_LISTBOXSETSTRING   : selects a row by 1-based index
+        - HWG_LISTBOXDELETESTRING: removes a row by 1-based index
+        - HWG_INITLISTPROC       : no-op kept for API compatibility
+        - hwg_listbox_handle_message : LB_* dispatcher, called from
+                                       HWG_SENDMESSAGE in misc.c
+      Selection is programmatic-safe: a per-listbox "busy" flag suppresses
+      the row-selected notification while HListBox:SetItem / :Refresh /
+      :Init set the selection, so bSetGet / bChange do not fire twice.
+
+  * source/gtk4/hlistbox.prg
+      Removed ::nHolder := 1 from Init().  That member no longer exists
+      in HControl as of 2.23 and the assignment triggered
+      "Invalid class member" from HCustomWindow's error handler.
+      Header rewritten to describe the cross-platform contract.
+
+  * source/gtk4/misc.c
+  + HWG_SENDMESSAGE refactored from a stub into a real dispatcher:
+    LB_* messages are forwarded to hwg_listbox_handle_message() in
+    listbox.c.  Previously the function was empty, so every
+    hwg_SendMessage(LB_*) call from a .prg was silently ignored.
+  + HWG_ISCTRLSHIFT added: returns .T. when the requested modifier
+    keys are held.  Uses gdk_device_get_modifier_state() on the
+    seat's keyboard (gdk_keymap_get_modifier_state was removed in
+    GTK4).  Called by hlistbox.prg's onEvent for Tab handling.
+
+  * utils/agenda/agenda.prg
+      New sample.  TAgendaEx is a custom-drawn month calendar for
+      HWGui on both WinAPI and GTK4, plus a small CRUD application
+      that persists appointments in a DBF (agenda.dbf, created on
+      first run):
+        - TAppointment       : single appointment (date, time, title, ...)
+        - TAgendaEx          : HStatic with SS_OWNERDRAW, custom paint
+                               via hwg_FillRect / hwg_DrawText /
+                               hwg_SetTextColor (the HChart pattern)
+        - Mouse routed through onEvent() (WM_LBUTTONDOWN /
+          WM_LBUTTONDBLCLK) -- ::bLClicked / ::bLDblClicked are not
+          published by HCustomWindow
+        - DBF layer: Open / Close / Load / Add / Update / Delete /
+          ClearAll.  Add computes the id BEFORE DbAppend, otherwise
+          NextApptId() would move the record pointer and the write
+          would land on record #1.
+        - Navigation: <, >, Today, month change
+        - CRUD dialog shared by New and Edit, validates title and time
+
+
+2026-10-03 14:03 UTC-0300  Jose Quintas  <jmcquintas@gma
     * .github/workflows/checkubuntu.yml
     * .github/workflows/checkwindows.yml
-      CI no longer depends on external/private repositories:
-      builds this repository itself (actions/checkout), harbour from
-      harbour/core and, on Windows, mingw from winlibs.com.
+      CI no longer depends on external/private repositor
+      builds this repository itself (actions/checkout),
+      harbour/core and, on Windows, mingw from winlibs.c
+
+2026-10-03 14:48 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+    * source/gtk4/draw.c:
+      GTK4: native SVG via GdkPixbuf.  Replace the __USE_LIBRSVG
+      block with HWG_LOADSVG based on
+      gdk_pixbuf_new_from_file_at_scale(); no compile flag or
+      explicit librsvg/cairo/glib link.  Restore the dwRaster
+      slot (param 3) in HWG_DRAWBITMAP dropped by the port,
+      which shifted x/y into destWidth/destHeight and triggered
+      the GdkPixbuf "dest_width > 0" assertion.  Guard
+      destWidth/destHeight <= 0 in both HWG_DRAWBITMAP and
+      HWG_DRAWTRANSPARENTBITMAP, NULL-check alpha2pixbuf() and
+      gdk_pixbuf_scale_simple().
+    * source/gtk4/drawwidg.prg:
+      HBitmap:AddHandle() - new method for source parity with
+      WinAPI.  Validates the pixbuf via hwg_Getbitmapsize() and
+      rejects {0,0} so a partial object never reaches ::aBitmaps.
+    * samples/test_svg.prg:
+      Cross-platform demo: per-backend UI font, drop svg.hbc
+      from the Linux build, update header for both build paths.
 
 2026-10-02 19:38 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * utils/tutor/tutor.prg fix for open and run hwgrun.exe

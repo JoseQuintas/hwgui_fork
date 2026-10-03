@@ -49,6 +49,7 @@
 #include <time.h>
 #include <sys/stat.h>
 
+#include "windows.ch"
 #include "guilib.h"
 #include "hbmath.h"
 #include "hbapi.h"
@@ -67,6 +68,27 @@
 #endif
 /* Avoid warnings from GCC */
 #include "warnings.h"
+
+/* listbox.c -- LB_* message bridge, used by HWG_SENDMESSAGE below.
+ *
+ * Declared locally rather than pulled from hwgtk4.h because that
+ * header requires <gtk/gtk.h> and the Harbour API headers to be
+ * included first; misc.c includes them in a different order and the
+ * header's C++ guards also assume a specific insertion point.  Same
+ * pattern as control.c, which declares its own extern block.
+ */
+extern HB_BOOL hwg_listbox_handle_message( GtkWidget *hWnd, HB_ULONG ulMsg,
+                                           HB_LONG wParam, HB_LONG lParam,
+                                           HB_LONG *pResult );
+
+/* ---------------------------------------------------------------------
+ *  LB_ERR
+ *
+ *  windows.ch does not publish this one -- its LB_* block stops at
+ *  LB_SETCOUNT (0x01A7).  Define it locally; the value matches the
+ *  Win32 SDK and the ">= 0 means success" test in HListBox:DeleteItem.
+ * --------------------------------------------------------------------- */
+#define LB_ERR   (-1)
 
 static GdkClipboard *clipboard = NULL;
 
@@ -372,8 +394,105 @@ HB_FUNC( HWG_SHOWALL )
         gtk_widget_set_visible( w, TRUE );
 }
 
+/* =====================================================================
+ *  HWG_SENDMESSAGE
+ *
+ *  Global Win32 SendMessage() emulation.  Delegates to one handler
+ *  per widget family; each handler returns TRUE when the message was
+ *  recognised.  Add a new "if( hwg_xxx_handle_message(...) )" line
+ *  for each new widget class that needs LB_*CB_/EM_* support.
+ * ===================================================================== */
 HB_FUNC( HWG_SENDMESSAGE )
 {
+    GtkWidget *hWnd   = (GtkWidget*) HB_PARHANDLE( 1 );
+    HB_ULONG   ulMsg  = (HB_ULONG)   hb_parnl( 2 );
+    HB_LONG    wParam = (HB_LONG)    hb_parnl( 3 );
+    HB_LONG    lParam = (HB_LONG)    hb_parnl( 4 );
+    HB_LONG    result = 0;
+
+    if( hWnd && G_IS_OBJECT( hWnd ) )
+    {
+        if( hwg_listbox_handle_message( hWnd, ulMsg, wParam, lParam, &result ) )
+        {
+            hb_retnl( result );
+            return;
+        }
+
+        /* Future widget families plug in here, in this order:
+         *
+         *   if( hwg_combo_handle_message( hWnd, ulMsg, wParam, lParam, &result ) )
+         *   if( hwg_edit_handle_message ( hWnd, ulMsg, wParam, lParam, &result ) )
+         *   ...
+         */
+    }
+
+    hb_retnl( 0 );
+}
+
+/* =====================================================================
+ *  HWG_ISCTRLSHIFT
+ *
+ *  Returns .T. when the requested modifier keys are currently held.
+ *
+ *  Called from hlistbox.prg's onEvent():
+ *
+ *      hwg_GetSkip( ::oParent, ::handle, , ;
+ *                   iif( hwg_IsCtrlShift( .f., .t. ), -1, 1 ) )
+ *
+ *  Declared as REQUEST in hwgextern.ch, so it must exist in C on
+ *  every backend.  Parameters follow the Win32 convention:
+ *
+ *      1 - lCtrl  : .T. to test Ctrl  (default .F.)
+ *      2 - lShift : .T. to test Shift (default .T.)
+ *
+ *  Both .F.  -> returns .T. if EITHER modifier is down.
+ *  Otherwise -> returns .T. only when BOTH requested keys are down.
+ *
+ *  GTK4 replacement for gdk_keymap_get_modifier_state() (removed in
+ *  GTK4) is gdk_device_get_modifier_state() on the seat's keyboard.
+ * ===================================================================== */
+HB_FUNC( HWG_ISCTRLSHIFT )
+{
+    GdkDisplay     *display;
+    GdkSeat        *seat;
+    GdkDevice      *keyboard;
+    GdkModifierType state  = 0;
+    HB_BOOL         lCtrl  = HB_ISLOG( 1 ) ? hb_parl( 1 ) : FALSE;
+    HB_BOOL         lShift = HB_ISLOG( 2 ) ? hb_parl( 2 ) : TRUE;
+    HB_BOOL         bCtrl;
+    HB_BOOL         bShift;
+
+    display = gdk_display_get_default();
+    if( !display )
+    {
+        hb_retl( FALSE );
+        return;
+    }
+
+    seat = gdk_display_get_default_seat( display );
+    if( !seat )
+    {
+        hb_retl( FALSE );
+        return;
+    }
+
+    keyboard = gdk_seat_get_keyboard( seat );
+    if( !keyboard )
+    {
+        hb_retl( FALSE );
+        return;
+    }
+
+    state = gdk_device_get_modifier_state( keyboard );
+
+    bCtrl  = ( state & GDK_CONTROL_MASK ) != 0;
+    bShift = ( state & GDK_SHIFT_MASK   ) != 0;
+
+    if( !lCtrl && !lShift )
+        hb_retl( bCtrl || bShift );
+    else
+        hb_retl( ( !lCtrl  || bCtrl  ) &&
+        ( !lShift || bShift ) );
 }
 
 HB_FUNC( HWG_GETNOTIFYCODE )
