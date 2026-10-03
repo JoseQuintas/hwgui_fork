@@ -798,6 +798,16 @@ HB_FUNC( HWG_CREATEEDIT )
             gtk_entry_set_visibility( GTK_ENTRY( hCtrl ), FALSE );
         if( ulStyle & ES_RIGHT )
             gtk_editable_set_alignment( GTK_EDITABLE( hCtrl ), 1.0f );
+
+        /* ES_READONLY on GtkEntry: mark as non-editable AND remove
+         * focus.  gtk_editable_set_editable(FALSE) alone leaves the
+         * widget focusable and, on some GTK builds, still accepts
+         * keystrokes.  Dropping can_focus closes that hole. */
+        if( ulStyle & ES_READONLY )
+        {
+            gtk_editable_set_editable( GTK_EDITABLE( hCtrl ), FALSE );
+            gtk_widget_set_can_focus( hCtrl, FALSE );
+        }
     }
 
     {

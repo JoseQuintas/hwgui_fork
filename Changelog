@@ -15,6 +15,29 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-03 18:33 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  * source/gtk4/misc.c
+      HWG_SENDMESSAGE refactored from an empty stub into a per-widget
+      dispatcher.  Two new bridges added in this file:
+        hwg_combo_handle_message  (CB_GETCOUNT, CB_GETCURSEL,
+                                   CB_SETCURSEL, CB_RESETCONTENT, ...)
+        hwg_edit_handle_message   (EM_GETSEL, EM_SETSEL, EM_SETREADONLY,
+                                   EM_LIMITTEXT, EM_GETLINECOUNT, ...)
+      hwg_listbox_handle_message (listbox.c) closes the third branch.
+      Until now every hwg_SendMessage(CB_*/EM_*) call from a .prg
+      returned 0 silently -- same root cause that made HListBox a no-op
+      on GTK4.
+      HWG_ISCTRLSHIFT added (gdk_device_get_modifier_state; the GTK3
+      gdk_keymap_get_modifier_state was removed).
+
+  * source/gtk4/control.c
+      HWG_CREATEEDIT honours ES_READONLY on single-line entries; only
+      the multi-line branch checked the style bit before.
+
+  + samples/test_msgs.prg
+      Sample exercising CB_GETCOUNT / CB_GETCURSEL on a combo and
+      EM_GETSEL / EM_SETSEL / EM_GETLIMITTEXT on an edit.
+
 2026-10-03 17:00 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
   * hwgui/hwguiGTK4.hbm add new files source/gtk4/listbox.c hlistbox.prg
 

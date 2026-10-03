@@ -70,17 +70,22 @@
 #include "warnings.h"
 
 /* listbox.c -- LB_* message bridge, used by HWG_SENDMESSAGE below.
- *
- * Declared locally rather than pulled from hwgtk4.h because that
- * header requires <gtk/gtk.h> and the Harbour API headers to be
- * included first; misc.c includes them in a different order and the
- * header's C++ guards also assume a specific insertion point.  Same
- * pattern as control.c, which declares its own extern block.
- */
+ * Declared locally, mirroring the extern block in control.c, so this
+ * file does not need to pull in hwgtk4.h just for one prototype. */
 extern HB_BOOL hwg_listbox_handle_message( GtkWidget *hWnd, HB_ULONG ulMsg,
                                            HB_LONG wParam, HB_LONG lParam,
                                            HB_LONG *pResult );
 
+/* Same pattern for the combo and edit handlers, both defined further
+ * down in this file.  The forward declarations are required because
+ * HWG_SENDMESSAGE references them before their definitions appear. */
+HB_BOOL hwg_combo_handle_message( GtkWidget *hWnd, HB_ULONG ulMsg,
+                                  HB_LONG wParam, HB_LONG lParam,
+                                  HB_LONG *pResult );
+
+HB_BOOL hwg_edit_handle_message ( GtkWidget *hWnd, HB_ULONG ulMsg,
+                                  HB_LONG wParam, HB_LONG lParam,
+                                  HB_LONG *pResult );
 /* ---------------------------------------------------------------------
  *  LB_ERR
  *
@@ -410,20 +415,19 @@ HB_FUNC( HWG_SENDMESSAGE )
     HB_LONG    lParam = (HB_LONG)    hb_parnl( 4 );
     HB_LONG    result = 0;
 
+    /* Each widget family publishes a handler that returns TRUE when
+     * it recognises the message.  The chain short-circuits on the
+     * first match, so the dispatch cost is proportional to how many
+     * families are tried before a hit -- negligible at HWGui scale. */
     if( hWnd && G_IS_OBJECT( hWnd ) )
     {
-        if( hwg_listbox_handle_message( hWnd, ulMsg, wParam, lParam, &result ) )
+        if( hwg_listbox_handle_message( hWnd, ulMsg, wParam, lParam, &result ) ||
+            hwg_combo_handle_message  ( hWnd, ulMsg, wParam, lParam, &result ) ||
+            hwg_edit_handle_message   ( hWnd, ulMsg, wParam, lParam, &result ) )
         {
             hb_retnl( result );
             return;
         }
-
-        /* Future widget families plug in here, in this order:
-         *
-         *   if( hwg_combo_handle_message( hWnd, ulMsg, wParam, lParam, &result ) )
-         *   if( hwg_edit_handle_message ( hWnd, ulMsg, wParam, lParam, &result ) )
-         *   ...
-         */
     }
 
     hb_retnl( 0 );
@@ -1004,6 +1008,338 @@ HB_FUNC( HWG_GUITYPE )
     #else
     hb_retc( "GTK2" );
     #endif
+}
+
+/* =====================================================================
+ *  Combo box message handler
+ *
+ *  Called from HWG_SENDMESSAGE for CB_* messages.  Only numeric
+ *  messages are handled here -- the string-carrying ones
+ *  (CB_ADDSTRING, CB_INSERTSTRING, CB_FINDSTRING, CB_SELECTSTRING,
+ *  CB_GETLBTEXT) require a dedicated function because SendMessage
+ *  only transports integer arguments.  HWGui's .prg side already
+ *  uses hwg_ComboAddString / hwg_ComboSetArray for those paths (see
+ *  control.c), so the dispatcher below can reject them cleanly.
+ * ===================================================================== */
+
+static gint hwg_combo_count( GtkWidget *combo )
+{
+    GtkTreeModel *model;
+
+    if( !combo || !GTK_IS_COMBO_BOX( combo ) )
+        return 0;
+
+    model = gtk_combo_box_get_model( GTK_COMBO_BOX( combo ) );
+    if( !model )
+        return 0;
+
+    return gtk_tree_model_iter_n_children( model, NULL );
+}
+
+HB_BOOL hwg_combo_handle_message( GtkWidget *hWnd, HB_ULONG ulMsg,
+                                  HB_LONG wParam, HB_LONG lParam,
+                                  HB_LONG *pResult )
+{
+    if( !hWnd || !G_IS_OBJECT( hWnd ) || !GTK_IS_COMBO_BOX( hWnd ) )
+        return FALSE;
+
+    switch( ulMsg )
+    {
+        case CB_RESETCONTENT:
+            /* Only GtkComboBoxText exposes remove_all().  Non-text
+             * combos would have to clear the GtkTreeModel row by row;
+             * HWG_CREATECOMBO only ever builds GtkComboBoxText, so
+             * this branch is safe for the HWGui usage. */
+            if( GTK_IS_COMBO_BOX_TEXT( hWnd ) )
+                gtk_combo_box_text_remove_all( GTK_COMBO_BOX_TEXT( hWnd ) );
+
+        *pResult = 0;
+        return TRUE;
+
+        case CB_DELETESTRING:
+        {
+            gint idx = (gint) wParam;
+
+            if( idx >= 0 && GTK_IS_COMBO_BOX_TEXT( hWnd ) )
+                gtk_combo_box_text_remove( GTK_COMBO_BOX_TEXT( hWnd ), idx );
+
+            *pResult = hwg_combo_count( hWnd );
+            return TRUE;
+        }
+
+        case CB_GETCOUNT:
+            *pResult = hwg_combo_count( hWnd );
+            return TRUE;
+
+        case CB_GETCURSEL:
+            /* gtk_combo_box_get_active() returns 0-based, -1 when
+             * nothing is selected -- exactly the Win32 semantics. */
+            *pResult = gtk_combo_box_get_active( GTK_COMBO_BOX( hWnd ) );
+            return TRUE;
+
+        case CB_SETCURSEL:
+        {
+            gint idx = (gint) wParam;
+
+            if( idx < 0 || idx >= hwg_combo_count( hWnd ) )
+                gtk_combo_box_set_active( GTK_COMBO_BOX( hWnd ), -1 );
+            else
+                gtk_combo_box_set_active( GTK_COMBO_BOX( hWnd ), idx );
+
+            *pResult = 0;
+            return TRUE;
+        }
+
+        case CB_SETITEMHEIGHT:
+            /* Stored as a hint.  GtkComboBoxText does not offer fixed
+             * row height; CSS would be the way to apply it, but for the
+             * demo scale we just remember the value so CB_GETITEMHEIGHT
+             * is symmetric. */
+            g_object_set_data( (GObject*) hWnd, "hwg_combo_itemheight",
+                               GINT_TO_POINTER( (gint) lParam ) );
+            *pResult = 0;
+            return TRUE;
+
+        case CB_GETITEMHEIGHT:
+            *pResult = GPOINTER_TO_INT(
+                g_object_get_data( (GObject*) hWnd,
+                                   "hwg_combo_itemheight" ) );
+            return TRUE;
+
+        case CB_ADDSTRING:
+        case CB_INSERTSTRING:
+        case CB_FINDSTRING:
+        case CB_SELECTSTRING:
+        case CB_GETLBTEXT:
+        case CB_GETLBTEXTLEN:
+            /* String-carrying messages cannot travel through
+             * hwg_Sendmessage() -- its lParam is an integer.  The .prg
+             * side reaches these via dedicated functions
+             * (hwg_ComboAddString, hwg_ComboSetArray, ...) already
+             * implemented in control.c.  Returning CB_ERR here just
+             * makes the misuse visible instead of silently succeeding. */
+            *pResult = -1;
+            return TRUE;
+    }
+
+    return FALSE;
+}
+
+
+/* =====================================================================
+ *  Edit message handler
+ *
+ *  Handles both GtkEntry (single-line) and GtkTextView (multi-line),
+ *  because HWG_CREATEEDIT builds one or the other depending on the
+ *  ES_MULTILINE style bit.  The widget handle returned to Harbour is
+ *  the same in both cases (the .c layer stores the GtkScrolledWindow
+ *  wrapper of the multi-line variant under the "main_widget" key).
+ * ===================================================================== */
+
+HB_BOOL hwg_edit_handle_message( GtkWidget *hWnd, HB_ULONG ulMsg,
+                                 HB_LONG wParam, HB_LONG lParam,
+                                 HB_LONG *pResult )
+{
+    HB_BOOL is_view;
+    HB_BOOL is_editable;
+
+    if( !hWnd || !G_IS_OBJECT( hWnd ) )
+        return FALSE;
+
+    is_view     = GTK_IS_TEXT_VIEW( hWnd );
+    is_editable = GTK_IS_EDITABLE( hWnd );
+
+    if( !is_view && !is_editable )
+        return FALSE;
+
+    switch( ulMsg )
+    {
+        case EM_GETSEL:
+        {
+            gint start = 0, end = 0;
+
+            if( is_editable )
+            {
+                if( !gtk_editable_get_selection_bounds( GTK_EDITABLE( hWnd ),
+                    &start, &end ) )
+                {
+                    /* No selection: both values hold the caret position,
+                     * matching the Win32 behaviour. */
+                    start = end = gtk_editable_get_position( GTK_EDITABLE( hWnd ) );
+                }
+            }
+
+            /* Win32 packs start in the low word and end in the high
+             * word of the return value.  cb_edit_GetSel on the .prg
+             * side unpacks with hwg_Loword / hwg_Hiword. */
+            *pResult = ( (HB_LONG)( start & 0xFFFF ) ) |
+            ( (HB_LONG)( end ) << 16 );
+            return TRUE;
+        }
+
+        case EM_SETSEL:
+        {
+            gint start = (gint) wParam;
+            gint end   = (gint) lParam;
+
+            if( is_editable )
+            {
+                if( start < 0 )
+                    gtk_editable_select_region( GTK_EDITABLE( hWnd ), 0, -1 );
+                else
+                    gtk_editable_select_region( GTK_EDITABLE( hWnd ), start, end );
+            }
+
+            *pResult = 0;
+            return TRUE;
+        }
+
+        case EM_SETREADONLY:
+        {
+            HB_BOOL bReadOnly = ( wParam != 0 );
+
+            if( is_view )
+            {
+                gtk_text_view_set_editable( GTK_TEXT_VIEW( hWnd ), !bReadOnly );
+            }
+            else if( is_editable )
+            {
+                gtk_editable_set_editable( GTK_EDITABLE( hWnd ), !bReadOnly );
+            }
+
+            /* GTK4 note: gtk_editable_set_editable(FALSE) is not enough on
+             * its own.  The widget still receives focus and, depending on the
+             * GTK build, may still accept keystrokes.  Removing the "can
+             * focus" flag makes the read-only state stick, and disabling
+             * sensitivity gives the visual feedback the user expects (the
+             * field is greyed out and clearly non-interactive).
+             *
+             * gtk_widget_set_can_focus was introduced in GTK4 to replace the
+             * old GTK_WIDGET_CAN_FOCUS flag.  On GTK3 it would be
+             * gtk_widget_set_can_focus too, so no #ifdef is needed. */
+            if( !is_view )
+            {
+                gtk_widget_set_can_focus( hWnd, !bReadOnly );
+                gtk_widget_set_sensitive( hWnd, !bReadOnly );
+            }
+
+            *pResult = 0;
+            return TRUE;
+        }
+
+        case EM_LIMITTEXT:
+        {
+            gint max = (gint) wParam;
+
+            if( GTK_IS_ENTRY( hWnd ) )
+                gtk_entry_set_max_length( GTK_ENTRY( hWnd ), max );
+
+            /* Stored on the widget so the multi-line path (and
+             * HWG_CREATEEDIT's own max-length bookkeeping) can consult
+             * it later, and so EM_GETLIMITTEXT below returns what the
+             * caller set. */
+            g_object_set_data( (GObject*) hWnd, "hwg_maxlen",
+                               GINT_TO_POINTER( max ) );
+
+            *pResult = 0;
+            return TRUE;
+        }
+
+        case EM_GETLIMITTEXT:
+        {
+            gint max = 0;
+
+            if( GTK_IS_ENTRY( hWnd ) )
+            {
+                max = gtk_entry_get_max_length( GTK_ENTRY( hWnd ) );
+            }
+
+            if( max <= 0 )
+            {
+                max = GPOINTER_TO_INT(
+                    g_object_get_data( (GObject*) hWnd, "hwg_maxlen" ) );
+            }
+
+            *pResult = max;
+            return TRUE;
+        }
+
+        case EM_GETLINECOUNT:
+        {
+            if( is_view )
+            {
+                GtkTextBuffer *buf = gtk_text_view_get_buffer( GTK_TEXT_VIEW( hWnd ) );
+                *pResult = gtk_text_buffer_get_line_count( buf );
+            }
+            else
+            {
+                *pResult = 1;
+            }
+
+            return TRUE;
+        }
+
+        case EM_LINELENGTH:
+        {
+            /* Single-line: the length of the whole content.
+             * Multi-line: computing the length of the line at position
+             * wParam needs a GtkTextIter walk; return 0 to signal "not
+             * implemented" rather than guessing. */
+            if( is_editable && !is_view )
+            {
+                const gchar *text = gtk_editable_get_text( GTK_EDITABLE( hWnd ) );
+                *pResult = text ? g_utf8_strlen( text, -1 ) : 0;
+            }
+            else
+            {
+                *pResult = 0;
+            }
+
+            return TRUE;
+        }
+
+        case EM_SCROLLCARET:
+            if( is_view )
+            {
+                GtkTextBuffer *buf  = gtk_text_view_get_buffer( GTK_TEXT_VIEW( hWnd ) );
+                GtkTextMark   *mark = gtk_text_buffer_get_insert( buf );
+
+                gtk_text_view_scroll_to_mark( GTK_TEXT_VIEW( hWnd ), mark,
+                                              0.0, FALSE, 0.0, 0.0 );
+            }
+            *pResult = 0;
+            return TRUE;
+
+        case EM_SETMODIFY:
+            g_object_set_data( (GObject*) hWnd, "hwg_modified",
+                               GINT_TO_POINTER( wParam != 0 ? 1 : 0 ) );
+
+            if( is_view )
+            {
+                GtkTextBuffer *buf = gtk_text_view_get_buffer( GTK_TEXT_VIEW( hWnd ) );
+                gtk_text_buffer_set_modified( buf, wParam != 0 );
+            }
+            *pResult = 0;
+            return TRUE;
+
+        case EM_GETMODIFY:
+        {
+            if( is_view )
+            {
+                GtkTextBuffer *buf = gtk_text_view_get_buffer( GTK_TEXT_VIEW( hWnd ) );
+                *pResult = gtk_text_buffer_get_modified( buf ) ? 1 : 0;
+            }
+            else
+            {
+                *pResult = GPOINTER_TO_INT(
+                    g_object_get_data( (GObject*) hWnd,
+                                       "hwg_modified" ) );
+            }
+
+            return TRUE;
+        }
+    }
+    return FALSE;
 }
 
 /* ========= EOF of misc.c ============ */
