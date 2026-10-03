@@ -102,6 +102,7 @@
 {unix}source/gtk4/message.c
 {unix}source/gtk4/misc.c
 {unix}source/gtk4/inter.c
+{unix}source/gtk4/listbox.c
 
 {unix}source/cross/common.prg
 {unix}source/cross/hbincnt.prg
@@ -126,6 +127,7 @@
 {unix}source/gtk4/hdialog.prg
 {unix}source/gtk4/hedit.prg
 {unix}source/gtk4/hhyper.prg
+{unix}source/gtk4/hlistbox.prg
 {unix}source/gtk4/hownbtn.prg
 {unix}source/gtk4/hpanel.prg
 {unix}source/gtk4/hprinter.prg
