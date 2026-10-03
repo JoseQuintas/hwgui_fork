@@ -1,16 +1,23 @@
 /*
- * demo_svg.prg - SVG demo with menu, using static BITMAP controls.
- * Works on HWGui 2.23 where bPaint of HMainWindow is not honored.
+ * test_svg.prg - SVG demo with menu, using static BITMAP controls.
  *
- * Build: hbmk2 demo_svg.prg C:\dev\hwgui\hwgui.hbp C:\dev\hwgui\svg.hbc
+ * Works on both backends:
+ *   - WinAPI : HWG_LOADSVG() via librsvg + Cairo, needs svg.hbc
+ *   - GTK4   : HWG_LOADSVG() via GdkPixbuf, no extra dependency
+ *              (SVG loader provided by the librsvg2 runtime package)
+ *
+ * Build (WinAPI):
+ *     hbmk2 demo_svg.prg C:\dev\hwgui\hwgui.hbp C:\dev\hwgui\svg.hbc
+ * Build (GTK4 / Linux):
+ *     hbmk2 demo_svg.prg
  */
 
 #include "hwgui.ch"
 
 #define WIN_W      800
 #define WIN_H      600
-#define SVG_LOGO   "..\image\svg\hwgui.svg"
-#define SVG_TEST   "..\image\svg\info.svg"
+#define SVG_LOGO   "../image/svg/hwgui.svg"
+#define SVG_TEST   "../image/svg/info.svg"
 
 STATIC oMain
 STATIC oImgLogo, oImgTest
@@ -21,7 +28,11 @@ FUNCTION Main()
 
    LOCAL hSvg
 
-   PREPARE FONT oFont NAME "Segoe UI" WIDTH 0 HEIGHT -11 WEIGHT 400
+   #ifdef __PLATFORM__WINDOWS
+      PREPARE FONT oFont NAME "Segoe UI" WIDTH 0 HEIGHT -11 WEIGHT 400
+   #else
+      PREPARE FONT oFont NAME "Noto Sans" WIDTH 0 HEIGHT -11 WEIGHT 400
+   #endif
 
    /* ---- Load the SVGs ---- */
    hSvg := hwg_LoadSvg( SVG_LOGO, 400, 215 )
@@ -42,7 +53,7 @@ FUNCTION Main()
 
    /* ---- Window ---- */
    INIT WINDOW oMain MAIN ;
-      TITLE "SVG Demo - HWGui + librsvg" ;
+      TITLE "SVG Demo - HWGui" ;
       AT 100, 50 SIZE WIN_W, WIN_H ;
       FONT oFont
 
@@ -57,8 +68,13 @@ FUNCTION Main()
          MENUITEM "E&xit"                ACTION oMain:Close()
       ENDMENU
       MENU TITLE "&Help"
-         MENUITEM "&About..." ACTION hwg_MsgInfo( "SVG Demo" + Chr(10) + ;
-                                                  "HWGui + librsvg" )
+        #ifdef __PLATFORM__WINDOWS
+            MENUITEM "&About..." ACTION hwg_MsgInfo( "SVG Demo" + Chr(10) + ;
+                                          "HWGui + librsvg (WinAPI)" )
+        #else
+            MENUITEM "&About..." ACTION hwg_MsgInfo( "SVG Demo" + Chr(10) + ;
+                                          "HWGui + GdkPixbuf (GTK4)" )
+        #endif
       ENDMENU
    ENDMENU
 

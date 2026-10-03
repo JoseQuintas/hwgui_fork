@@ -895,90 +895,127 @@ HB_FUNC( HWG_WINDOW2BITMAP )
         hb_ret();
 }
 
-
 /* =====================================================================
- *  Bitmap drawing — uses GDK-Cairo bridge
+ *  HWG_DRAWBITMAP - draw a bitmap (pixbuf) on a device context.
+ *
+ *  Signature kept compatible with the WinAPI backend so that all the
+ *  HWGUI Harbour sources (HBitmap:Draw, HBrowse, custom controls, ...)
+ *  keep working unchanged:
+ *     1 - HDC
+ *     2 - bitmap / pixbuf handle
+ *     3 - dwRaster (optional, ignored on GTK4)
+ *     4 - x
+ *     5 - y
+ *     6 - destination width  (optional, defaults to source width)
+ *     7 - destination height (optional, defaults to source height)
  * ===================================================================== */
 HB_FUNC( HWG_DRAWBITMAP )
 {
     PHWGUI_HDC    hDC = (PHWGUI_HDC) HB_PARHANDLE(1);
     PHWGUI_PIXBUF obj = (PHWGUI_PIXBUF) HB_PARHANDLE(2);
-    GdkPixbuf *pixbuf;
-    gint x = hb_parni(4), y = hb_parni(5);
-    gint srcWidth, srcHeight;
-    gint destWidth, destHeight;
+    GdkPixbuf    *pixbuf;
+    gint          srcWidth, srcHeight;
+    gint          destWidth, destHeight;
+    gint          x = hb_parni(4);
+    gint          y = hb_parni(5);
 
-    /* Harbour passes Nil when HWG_OPENBITMAP failed (missing file,
-     * bad path, unsupported format); HB_PARHANDLE() then yields NULL
-     * and gdk_pixbuf_get_width(NULL) aborts the process.  Silently
-     * skip the draw instead -- the caller cannot tell the difference
-     * between "image not drawn" and "image drawn transparent".
-     *
-     * GDK_IS_PIXBUF also catches the case where obj->handle was
-     * freed by HWG_DELETEOBJECT and the caller still holds the
-     * PHWGUI_PIXBUF. */
     if( !hDC || !obj || !obj->handle || !GDK_IS_PIXBUF( obj->handle ) )
         return;
 
-    srcWidth  = gdk_pixbuf_get_width(  obj->handle );
-    srcHeight = gdk_pixbuf_get_height( obj->handle );
-    destWidth  = ( hb_pcount() >= 5 && !HB_ISNIL(6) ) ? hb_parni(6) : srcWidth;
-    destHeight = ( hb_pcount() >= 6 && !HB_ISNIL(7) ) ? hb_parni(7) : srcHeight;
+    srcWidth   = gdk_pixbuf_get_width(  obj->handle );
+    srcHeight  = gdk_pixbuf_get_height( obj->handle );
+    destWidth  = HB_ISNUM(6) ? hb_parni(6) : srcWidth;
+    destHeight = HB_ISNUM(7) ? hb_parni(7) : srcHeight;
+
+    /* Guard against callers that pass Nil / 0 for the destination
+     * size: fall back to the source size instead of feeding 0 into
+     * gdk_pixbuf_scale_simple(), which aborts with a GdkPixbuf
+     * assertion and leaves the destination empty. */
+    if( destWidth  <= 0 ) destWidth  = srcWidth;
+    if( destHeight <= 0 ) destHeight = srcHeight;
 
     if( srcWidth == destWidth && srcHeight == destHeight ) {
         gdk_cairo_set_source_pixbuf( hDC->cr, obj->handle, x, y );
         cairo_paint( hDC->cr );
     } else {
-        pixbuf = gdk_pixbuf_scale_simple( obj->handle, destWidth, destHeight, GDK_INTERP_HYPER );
-        gdk_cairo_set_source_pixbuf( hDC->cr, pixbuf, x, y );
-        cairo_paint( hDC->cr );
-        g_object_unref( (GObject*) pixbuf );
+        pixbuf = gdk_pixbuf_scale_simple( obj->handle,
+                                          destWidth, destHeight,
+                                          GDK_INTERP_HYPER );
+        if( pixbuf ) {
+            gdk_cairo_set_source_pixbuf( hDC->cr, pixbuf, x, y );
+            cairo_paint( hDC->cr );
+            g_object_unref( (GObject*) pixbuf );
+        }
     }
 }
 
+/* =====================================================================
+ *  HWG_DRAWTRANSPARENTBITMAP - draw a bitmap with a colour-key.
+ *
+ *  Signature matches the WinAPI backend:
+ *     1 - HDC
+ *     2 - bitmap / pixbuf handle
+ *     3 - x
+ *     4 - y
+ *     5 - transparent colour (colour-key); default WHITE
+ *     6 - destination width  (optional)
+ *     7 - destination height (optional)
+ * ===================================================================== */
 HB_FUNC( HWG_DRAWTRANSPARENTBITMAP )
 {
     PHWGUI_HDC    hDC = (PHWGUI_HDC) HB_PARHANDLE(1);
     PHWGUI_PIXBUF obj = (PHWGUI_PIXBUF) HB_PARHANDLE(2);
-    GdkPixbuf *pixbuf;
-    gint x = hb_parni(3), y = hb_parni(4);
-    long int nColor = hb_parnl(5);
+    GdkPixbuf    *pixbuf;
+    gint          x = hb_parni(3);
+    gint          y = hb_parni(4);
+
+    /* Default to WHITE, not BLACK.  Omitting the 5th parameter used
+     * to mean "colour 0x000000 is transparent", which erased any
+     * icon whose drawing was black (check marks, arrows, text).  For
+     * an icon on a coloured background, WHITE is the far more
+     * common colour-key; callers who really want black still pass
+     * 0 explicitly. */
+    long int nColor = HB_ISNUM(5) ? hb_parnl(5) : 0xFFFFFF;
+
     gint srcWidth, srcHeight;
     gint destWidth, destHeight;
 
-    /* Harbour passes Nil when HWG_OPENBITMAP failed (missing file,
-     * bad path, unsupported format); HB_PARHANDLE() then yields NULL
-     * and gdk_pixbuf_get_width(NULL) aborts the process.  GDK_IS_PIXBUF
-     * also catches a stale handle left over after HWG_DELETEOBJECT. */
     if( !hDC || !obj || !obj->handle || !GDK_IS_PIXBUF( obj->handle ) )
         return;
 
-    /* The trcolor swap goes first: alpha2pixbuf() returns a NEW
-     * pixbuf and leaves the input intact, so reading the dimensions
-     * after the swap guarantees they come from the pixbuf that will
-     * actually be drawn.  (gdk_pixbuf_add_alpha preserves dimensions,
-     * so the numbers are the same either way today, but this keeps
-     * the code robust against future changes to alpha2pixbuf.) */
     if( obj->trcolor != nColor ) {
         pixbuf = alpha2pixbuf( obj->handle, nColor );
+        if( !pixbuf )
+            return;
         g_object_unref( (GObject*) obj->handle );
         obj->handle  = pixbuf;
         obj->trcolor = nColor;
     }
 
-    srcWidth  = gdk_pixbuf_get_width(  obj->handle );
-    srcHeight = gdk_pixbuf_get_height( obj->handle );
-    destWidth  = ( hb_pcount() >= 5 && !HB_ISNIL(6) ) ? hb_parni(6) : srcWidth;
-    destHeight = ( hb_pcount() >= 6 && !HB_ISNIL(7) ) ? hb_parni(7) : srcHeight;
+    srcWidth   = gdk_pixbuf_get_width(  obj->handle );
+    srcHeight  = gdk_pixbuf_get_height( obj->handle );
+    destWidth  = HB_ISNUM(6) ? hb_parni(6) : srcWidth;
+    destHeight = HB_ISNUM(7) ? hb_parni(7) : srcHeight;
+
+    /* Guard against callers that pass Nil / 0 for the destination
+     * size: fall back to the source size instead of feeding 0 into
+     * gdk_pixbuf_scale_simple(), which aborts with a GdkPixbuf
+     * assertion and leaves the destination empty. */
+    if( destWidth  <= 0 ) destWidth  = srcWidth;
+    if( destHeight <= 0 ) destHeight = srcHeight;
 
     if( srcWidth == destWidth && srcHeight == destHeight ) {
         gdk_cairo_set_source_pixbuf( hDC->cr, obj->handle, x, y );
         cairo_paint( hDC->cr );
     } else {
-        pixbuf = gdk_pixbuf_scale_simple( obj->handle, destWidth, destHeight, GDK_INTERP_HYPER );
-        gdk_cairo_set_source_pixbuf( hDC->cr, pixbuf, x, y );
-        cairo_paint( hDC->cr );
-        g_object_unref( (GObject*) pixbuf );
+        pixbuf = gdk_pixbuf_scale_simple( obj->handle,
+                                          destWidth, destHeight,
+                                          GDK_INTERP_HYPER );
+        if( pixbuf ) {
+            gdk_cairo_set_source_pixbuf( hDC->cr, pixbuf, x, y );
+            cairo_paint( hDC->cr );
+            g_object_unref( (GObject*) pixbuf );
+        }
     }
 }
 
@@ -1942,6 +1979,74 @@ HB_FUNC( HWG_BMPLINESIZE )
     hb_retnl( ((bd * w + 7 ) / 8 + pad ) );
 }
 
+/* =====================================================================
+ *  SVG loading - native GTK4 support via GdkPixbuf
+ *
+ *  GdkPixbuf loads SVG transparently when the SVG loader module
+ *  (provided by the librsvg package) is installed at the system
+ *  level.  No compile-time flag such as -D__USE_LIBRSVG is required,
+ *  and no explicit link against librsvg-2, cairo, glib or gobject
+ *  is needed either - GdkPixbuf resolves all of that at runtime.
+ *
+ *  If the loader is missing, gdk_pixbuf_new_from_file_at_scale()
+ *  returns NULL for .svg files and this function returns Nil to the
+ *  caller, which is the same behaviour as a failed HWG_OPENBITMAP().
+ *
+ *  Cross-platform naming:
+ *      The name intentionally matches the WinAPI backend, which
+ *      implements this with librsvg + Cairo.  Keeping the same name
+ *      lets the same PRG source compile on both backends without
+ *      any conditional code.
+ *
+ *  Note:
+ *      Because GdkPixbuf dispatches by content, the GTK4 build
+ *      happens to accept other formats as well (PNG, JPEG, ...).
+ *      That is a side effect of the implementation, not part of the
+ *      API contract - callers should still pass SVG files so the
+ *      same code keeps working on Windows.
+ * ===================================================================== */
+HB_FUNC( HWG_LOADSVG )
+{
+    const char *szFileName = hb_parc(1);
+    int         nWidth     = hb_parni(2);
+    int         nHeight    = hb_parni(3);
+    GdkPixbuf  *pixbuf     = NULL;
+
+    /* Reject obviously invalid arguments up front, so the caller gets
+     * Nil instead of a partially built object. */
+    if( !szFileName || nWidth <= 0 || nHeight <= 0 )
+    {
+        hb_retptr( NULL );
+        return;
+    }
+
+    /* Load the SVG and scale it to the requested size.
+     * preserve_aspect_ratio = TRUE keeps the original proportions,
+     * so the returned image fits inside the nWidth x nHeight box
+     * without distortion.  The GError is intentionally ignored: a
+     * missing loader or a malformed file is reported to the caller
+     * simply as a NULL result. */
+    pixbuf = gdk_pixbuf_new_from_file_at_scale( szFileName,
+                                                nWidth,
+                                                nHeight,
+                                                TRUE,   /* preserve aspect ratio */
+                                                NULL ); /* GError ignored */
+
+    if( pixbuf )
+    {
+        /* Wrap the GdkPixbuf into the same PHWGUI_PIXBUF structure that
+         * HWG_OPENBITMAP() / HWG_OPENIMAGE() produce, so the result can
+         * be passed unchanged to HWG_DRAWBITMAP(),
+         * HWG_DRAWTRANSPARENTBITMAP(), HWG_GETBITMAPSIZE() and so on. */
+        PHWGUI_PIXBUF hpix = (PHWGUI_PIXBUF) hb_xgrab( sizeof(HWGUI_PIXBUF) );
+        hpix->type    = HWGUI_OBJECT_PIXBUF;
+        hpix->handle  = pixbuf;
+        hpix->trcolor = -1;          /* -1 = no colour-key transparency yet */
+        HB_RETHANDLE( hpix );
+    }
+    else
+        hb_retptr( NULL );
+}
 
 /* =====================================================================
  *  QR code

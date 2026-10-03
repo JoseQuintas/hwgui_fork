@@ -394,11 +394,57 @@ CLASS HBitmap INHERIT HObject
    METHOD AddString( name, cVal, nWidth, nHeight )
    METHOD AddStandard( cId, nSize )
    METHOD AddWindow( oWnd, x1, y1, width, height )
+   METHOD AddHandle( hHandle )          // <-- add this
    METHOD Draw( hDC, x1, y1, width, height )
    METHOD RELEASE()
    METHOD OBMP2FILE( cfilename , name )
 
 ENDCLASS
+
+/*
+ * AddHandle() - attach a raw HWGUI pixbuf handle to this HBitmap.
+ *
+ * Kept for source-level compatibility with the WinAPI backend, where
+ * HBitmap:AddHandle() is the standard way to attach a handle produced
+ * by HWG_LOADSVG() or HWG_LOADIMAGE().
+ *
+ * The handle must be a PHWGUI_PIXBUF as returned by hwg_LoadSvg(),
+ * hwg_OpenBitmap(), hwg_OpenImage(), hwg_StockBitmap() and friends.
+ * If the handle is empty the call is a no-op and returns Nil, so the
+ * caller can keep the same "IF !Empty( oBmp )" pattern used with the
+ * other Add* methods.
+ */
+METHOD AddHandle( hHandle ) CLASS HBitmap
+
+   LOCAL aBmpSize
+
+   IF Empty( hHandle )
+      RETURN Nil
+   ENDIF
+
+   aBmpSize := hwg_Getbitmapsize( hHandle )
+
+   /*
+    * hwg_Getbitmapsize() returns {0,0} on GTK4 when the underlying
+    * GdkPixbuf is invalid.  Without this check ::nWidth and ::nHeight
+    * stay at zero, and the BITMAP control ends up calling
+    * HWG_DRAWBITMAP with destWidth/destHeight = 0 -- which is exactly
+    * the scenario that triggers the GdkPixbuf assertion
+    * 'dest_width > 0' and leaves the control blank.
+    *
+    * Reject the handle up front so a partially built object never
+    * reaches ::aBitmaps.
+    */
+   IF Empty( aBmpSize ) .OR. aBmpSize[ 1 ] <= 0 .OR. aBmpSize[ 2 ] <= 0
+      RETURN Nil
+   ENDIF
+
+   ::handle  := hHandle
+   ::nWidth  := aBmpSize[ 1 ]
+   ::nHeight := aBmpSize[ 2 ]
+   AAdd( ::aBitmaps, Self )
+
+   RETURN Self
 
 /*
  Stores a bitmap in a file from object
