@@ -15,6 +15,13 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-03 14:03 UTC-0300  Jose Quintas  <jmcquintas@gmail.com>
+    * .github/workflows/checkubuntu.yml
+    * .github/workflows/checkwindows.yml
+      CI no longer depends on external/private repositories:
+      builds this repository itself (actions/checkout), harbour from
+      harbour/core and, on Windows, mingw from winlibs.com.
+
 2026-10-02 19:38 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * utils/tutor/tutor.prg fix for open and run hwgrun.exe
 

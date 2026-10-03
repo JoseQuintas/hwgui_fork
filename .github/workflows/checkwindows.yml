@@ -1,3 +1,12 @@
+#
+# checkwindows.yml
+#
+# input-output:  mingw_xxxx.7z            (winlibs, cached as artifact)
+# input-output:  hb32_mingw_xxxx.7z       (harbour/core, cached as artifact)
+# output:        hwgui_hb32_mingw_xxxx.7z (hwgui libs + samples)
+#
+# public sources only: winlibs.com, harbour/core and this repository
+#
 
 name: checkwindows
 
@@ -16,53 +25,153 @@ jobs:
 
   Build:
     runs-on: windows-latest
+    # mingw_1602: winlibs.com GCC 16.2.0 + MinGW-w64 14.0.0, 32 bits, msvcrt, posix-dwarf, no clang
+
     steps:
 
-    - name: load mingw
+#----- load source -----
+
+    - name: Load Source Code
+      uses: actions/checkout@v5
+
+#----- restore zip -----
+
+    - name: load mingw_xxxx.7z
       uses: dawidd6/action-download-artifact@v21
       with:
-         workflow: buildall.yml
+         workflow: checkwindows.yml
          workflow_conclusion: success
-         name: mingw_1502
+         name: mingw_1602
          path: c:\temp
-         repo: JoseQuintas/sefazclass
+         repo: ${{ github.repository }}
+         if_no_artifact_found: warn
 
-    - name: load harbour32
+    - name: load hb32_xxxx.7z
+      if: ${{ github.event_name == 'push' }}
       uses: dawidd6/action-download-artifact@v21
       with:
-         workflow: buildall.yml
+         workflow: checkwindows.yml
          workflow_conclusion: success
-         name: hb32_mingw_1502
+         name: hb32_mingw_1602
          path: c:\temp
-         repo: JoseQuintas/sefazclass
+         repo: ${{ github.repository }}
+         if_no_artifact_found: warn
 
-    - name: Unzip
+#----- unzip -----
+
+    # only if artifact mingw_xxxx was not found (first run, or artifact expired), get it from winlibs.com
+    # winlibs posix-dwarf + MinGW-w64 14.0.0 msvcrt, 32 bits, no clang (extracts to mingw32\bin)
+    - name: Download mingw_xxxx from winlibs (if no artifact)
+      env:
+         URL_MINGW: https://github.com/brechtsanders/winlibs_mingw/releases/download/16.2.0posix-14.0.0-msvcrt-r1/winlibs-i686-posix-dwarf-gcc-16.2.0-mingw-w64msvcrt-14.0.0-r1.7z
+      run: |
+         c:
+         $file = "c:\temp\mingw_1602.7z"
+         if (-not (Test-Path $file)) {
+            New-Item -ItemType Directory -Force -Path c:\temp | Out-Null
+            Invoke-WebRequest -Uri $env:URL_MINGW -OutFile $file
+         }
+
+    - name: Unzip mingw_xxxx
       env:
          PATH: c:\program files\7-zip
       run: |
          c:
-         md c:\temp\harbour
-         md c:\temp\harbour\comp
-         7z x -y c:\temp\mingw_1502.7z -oc:\temp\comp
-         7z x -y c:\temp\hb32_mingw_1502.7z -oc:\temp\harbour
+         7z x -y c:\temp\mingw_1602.7z -oc:\temp\mingw
 
-    - name: Load Source Code
+    # mingw_1602: default-manifest.o (language 0x409) conflicts with manifest from application .rc
+    # ld: .rsrc merge failure: multiple non-default manifests
+    - name: Remove default-manifest.o (mingw_1602)
       run: |
          c:
-         git clone https://github.com/JoseQuintas/hwgui_fork /temp/hwgui --depth 1
+         Remove-Item -Force -ErrorAction SilentlyContinue c:\temp\mingw\mingw32\i686-w64-mingw32\lib\default-manifest.o
 
-    - name: Build 32 bits
+    - name: Unzip hb32_xxxx
+      if: ${{ github.event_name == 'push' }}
+      env:
+         PATH: c:\program files\7-zip
+      run: |
+         c:
+         if (Test-Path c:\temp\hb32_mingw_1602.7z) {
+            7z x -y c:\temp\hb32_mingw_1602.7z -oc:\temp\harbour
+         }
+
+    # push normally reuses hb32_xxxx from previous run
+    # if it does not exist yet (first run, new compiler), harbour is built too
+    - name: Check harbour prebuilt
+      id: hbcheck
+      run: |
+         if (Test-Path c:\temp\harbour\bin\hbmk2.exe) { "prebuilt=true" >> $env:GITHUB_OUTPUT } else { "prebuilt=false" >> $env:GITHUB_OUTPUT }
+
+#----- build -----
+
+    - name: Load harbour.git
+      if: ${{ github.event_name != 'push' || steps.hbcheck.outputs.prebuilt != 'true' }}
+      env:
+         REPO_HARBOUR: https://github.com/harbour/core
+         PATH_HARBOUR: c:\temp\harbour32
+      run: |
+         c:
+         git clone $env:REPO_HARBOUR $env:PATH_HARBOUR --depth 1
+
+    - name: Build harbour 32 bits
+      if: ${{ github.event_name != 'push' || steps.hbcheck.outputs.prebuilt != 'true' }}
       env:
          HB_BUILD_STRIP: all
          HB_COMPILER: mingw
          HB_INSTALL_PREFIX: c:\temp\harbour
-         PATH: c:\temp\comp\mingw32\bin;c:\temp\harbour\bin
+         PATH: c:\temp\mingw\mingw32\bin;c:\temp\harbour\bin
       run: |
          c:
-         cd c:\temp\hwgui
-         hbmk2 hwgui.hbp -w3
-         hbmk2 hbxml.hbp -w3
-         hbmk2 procmisc.hbp -w3
+         cd c:\temp\harbour32
+         mingw32-make clean install
+
+    - name: Build hwgui 32 bits
+      env:
+         HB_BUILD_STRIP: all
+         HB_COMPILER: mingw
+         HB_INSTALL_PREFIX: c:\temp\harbour
+         PATH: c:\temp\harbour\bin;c:\temp\mingw\mingw32\bin
+      run: |
+         cd $env:GITHUB_WORKSPACE
+         hbmk2 hbxml.hbp    -w3
+         hbmk2 hwgui.hbp    -w3
          hbmk2 hwgdebug.hbp -w3
-         cd c:\temp\hwgui\samples
+         hbmk2 procmisc.hbp -w3
+         cd $env:GITHUB_WORKSPACE\samples
          hbmk2 allhbp.hbp
+
+#----- create zip -----
+
+    - name: Create hb32_xxxx.7z
+      if: ${{ github.event_name != 'push' || steps.hbcheck.outputs.prebuilt != 'true' }}
+      env:
+         PATH: c:\program files\7-zip
+      run: |
+         c:
+         7z a -r c:\temp\hb32_mingw_1602.7z c:\temp\harbour\*.* -xr'!.git' -xr'!.github' -xr'!.hbmk'
+
+    - name: Create hwgui_hb32_xxxx.7z
+      env:
+         PATH: c:\program files\7-zip
+      run: |
+         7z a -r c:\temp\hwgui_hb32_mingw_1602.7z "$env:GITHUB_WORKSPACE\*.*" -xr'!.git' -xr'!.github' -xr'!.hbmk'
+
+    - name: Save mingw_xxxx
+      uses: actions/upload-artifact@v4
+      with:
+         name: mingw_1602
+         path: c:\temp\mingw_1602.7z
+
+    - name: Save hb32_xxxx.7z
+      uses: actions/upload-artifact@v4
+      with:
+         name: hb32_mingw_1602
+         path: c:\temp\hb32_mingw_1602.7z
+
+    - name: Save hwgui_hb32_xxxx.7z
+      uses: actions/upload-artifact@v4
+      with:
+         name: hwgui_hb32_mingw_1602
+         path: c:\temp\hwgui_hb32_mingw_1602.7z
+#----------------------------

@@ -18,6 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
+    - name: Load Source Code
+      uses: actions/checkout@v5
+
     - name: Build
       env:
          HB_BUILD_STRIP: all
@@ -30,13 +33,12 @@ jobs:
          sudo apt-get install build-essential libgtk2.0-dev --fix-missing
          sudo apt-get install git
          git clone https://github.com/harbour/core /tmp/harbour --depth 1
-         git clone https://github.com/JoseQuintas/hwgui_fork /tmp/hwgui --depth 1
          cd /tmp/harbour
          sudo make install
-         cd /tmp/hwgui
+         cd $GITHUB_WORKSPACE
          hbmk2 hwgui.hbp -workdir=/tmp -w3 -es2
          hbmk2 hbxml.hbp -workdir=/tmp -w3 -es2
          hbmk2 procmisc.hbp -workdir=/tmp -w3 -es2
          hbmk2 hwgdebug.hbp -workdir=/tmp -w3 -es2
-         cd /tmp/hwgui/samples
+         cd $GITHUB_WORKSPACE/samples
          hbmk2 allhbp.hbp -workdir=/tmp -w3 -es2
