@@ -820,11 +820,173 @@ HB_FUNC( HWG_GTK_DRAWEDGE )
                       hb_parni(4), hb_parni(5), hb_parni(6) );
 }
 
+/* =====================================================================
+ *  Bitmap / image / icon loading
+ *
+ *  These three functions were empty stubs.  All three now load from
+ *  a file through GdkPixbuf and return a PHWGUI_PIXBUF handle, the
+ *  same shape used by HWG_OPENBITMAP / HWG_OPENIMAGE, so the result
+ *  can be passed unchanged to HWG_DRAWBITMAP / HWG_DRAWICON /
+ *  HWG_GETBITMAPSIZE / HWG_STATICSETIMAGE / etc.
+ *
+ *  HWG_LOADICON additionally accepts an icon name (without a file
+ *  extension) and falls back to the current GtkIconTheme, matching
+ *  the Win32 behaviour where HIcon:Load() accepts either a file path
+ *  or a stock icon name.
+ * ===================================================================== */
+HB_FUNC( HWG_LOADBITMAP )
+{
+    PHWGUI_PIXBUF hpix;
+    GdkPixbuf    *handle = gdk_pixbuf_new_from_file( hb_parc(1), NULL );
 
-HB_FUNC( HWG_LOADICON )  { }
-HB_FUNC( HWG_LOADIMAGE ) { }
-HB_FUNC( HWG_LOADBITMAP ){ }
+    if( handle )
+    {
+        hpix = (PHWGUI_PIXBUF) hb_xgrab( sizeof(HWGUI_PIXBUF) );
+        hpix->type    = HWGUI_OBJECT_PIXBUF;
+        hpix->handle  = handle;
+        hpix->trcolor = -1;
+        HB_RETHANDLE( hpix );
+    }
+}
 
+HB_FUNC( HWG_LOADIMAGE )
+{
+    PHWGUI_PIXBUF hpix;
+    GdkPixbuf    *handle;
+
+    /* Second argument selects the source: FALSE / Nil = a file path
+     * (default), TRUE = the content is passed inline in the first
+     * argument.  Mirrors HWG_OPENIMAGE's convention. */
+    if( HB_ISLOG(2) && hb_parl(2) )
+    {
+        guint8          *buf = (guint8*) hb_parc(1);
+        GdkPixbufLoader *loader;
+        GdkPixbuf       *loaded;
+
+        if( !buf )
+            return;
+
+        loader = gdk_pixbuf_loader_new();
+        gdk_pixbuf_loader_write( loader, buf, (gsize) hb_parclen(1), NULL );
+        if( gdk_pixbuf_loader_close( loader, NULL ) )
+        {
+            loaded = gdk_pixbuf_loader_get_pixbuf( loader );
+            if( loaded && GDK_IS_PIXBUF( loaded ) )
+                handle = GDK_PIXBUF( g_object_ref( loaded ) );
+            else
+                handle = NULL;
+        }
+        else
+            handle = NULL;
+
+        g_object_unref( loader );
+    }
+    else
+    {
+        handle = gdk_pixbuf_new_from_file( hb_parc(1), NULL );
+    }
+
+    if( handle )
+    {
+        hpix = (PHWGUI_PIXBUF) hb_xgrab( sizeof(HWGUI_PIXBUF) );
+        hpix->type    = HWGUI_OBJECT_PIXBUF;
+        hpix->handle  = handle;
+        hpix->trcolor = -1;
+        HB_RETHANDLE( hpix );
+    }
+}
+
+HB_FUNC( HWG_LOADICON )
+{
+    PHWGUI_PIXBUF hpix;
+    const char   *szName = hb_parc(1);
+    GdkPixbuf    *handle = NULL;
+
+    if( !szName || !*szName )
+        return;
+
+    /* Two paths, matching the Win32 HIcon:Load() API:
+     *
+     *   1. The name looks like a file path (contains '/' or '.') and
+     *      the file exists -> load it from disk.
+     *
+     *   2. Otherwise treat it as a theme icon name -> resolve through
+     *      GtkIconTheme using the same pipeline as HWG_STOCKBITMAP
+     *      (see control.c).  Translation of legacy "gtk-xxx" names
+     *      goes through hwg_legacy_gtk_name(). */
+    if( g_file_test( szName, G_FILE_TEST_EXISTS ) )
+    {
+        handle = gdk_pixbuf_new_from_file( szName, NULL );
+    }
+    else
+    {
+        GtkIconTheme     *theme;
+        GtkIconPaintable *paintable;
+        const char       *resolved = hwg_legacy_gtk_name( szName );
+
+        theme = gtk_icon_theme_get_for_display( gdk_display_get_default() );
+        paintable = gtk_icon_theme_lookup_icon( theme, resolved, NULL,
+                                                16, 1,
+                                                GTK_TEXT_DIR_NONE,
+                                                GTK_ICON_LOOKUP_FORCE_REGULAR );
+
+        if( paintable )
+        {
+            int w = gdk_paintable_get_intrinsic_width( GDK_PAINTABLE( paintable ) );
+            int h = gdk_paintable_get_intrinsic_height( GDK_PAINTABLE( paintable ) );
+
+            if( w <= 0 ) w = 16;
+            if( h <= 0 ) h = 16;
+
+            {
+                cairo_surface_t *surface = cairo_image_surface_create(
+                    CAIRO_FORMAT_ARGB32, w, h );
+                GtkSnapshot     *snapshot = gtk_snapshot_new();
+                GskRenderNode   *node;
+                cairo_t         *cr;
+
+                gdk_paintable_snapshot( GDK_PAINTABLE( paintable ),
+                                        snapshot, w, h );
+                node = gtk_snapshot_free_to_node( snapshot );
+
+                if( node )
+                {
+                    cr = cairo_create( surface );
+                    gsk_render_node_draw( node, cr );
+                    cairo_destroy( cr );
+                    gsk_render_node_unref( node );
+                    cairo_surface_flush( surface );
+                    handle = gdk_pixbuf_get_from_surface( surface, 0, 0, w, h );
+                }
+                cairo_surface_destroy( surface );
+            }
+            g_object_unref( paintable );
+        }
+    }
+
+    if( handle )
+    {
+        hpix = (PHWGUI_PIXBUF) hb_xgrab( sizeof(HWGUI_PIXBUF) );
+        hpix->type    = HWGUI_OBJECT_PIXBUF;
+        hpix->handle  = handle;
+        hpix->trcolor = -1;
+        HB_RETHANDLE( hpix );
+    }
+}
+
+HB_FUNC( HWG_DRAWICON )
+{
+    PHWGUI_HDC    hDC = (PHWGUI_HDC) HB_PARHANDLE(1);
+    PHWGUI_PIXBUF obj = (PHWGUI_PIXBUF) HB_PARHANDLE(2);
+    gint          x   = hb_parni(3);
+    gint          y   = hb_parni(4);
+
+    if( !hDC || !obj || !obj->handle || !GDK_IS_PIXBUF( obj->handle ) )
+        return;
+
+    gdk_cairo_set_source_pixbuf( hDC->cr, obj->handle, x, y );
+    cairo_paint( hDC->cr );
+}
 
 /* =====================================================================
  *  Window -> bitmap
@@ -1186,8 +1348,6 @@ HB_FUNC( HWG_OPENIMAGE )
         HB_RETHANDLE( hpix );
     }
 }
-
-HB_FUNC( HWG_DRAWICON ) { }
 
 HB_FUNC( HWG_GETSYSCOLOR )
 {

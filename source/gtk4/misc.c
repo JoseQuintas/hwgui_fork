@@ -49,7 +49,6 @@
 #include <time.h>
 #include <sys/stat.h>
 
-#include "windows.ch"
 #include "guilib.h"
 #include "hbmath.h"
 #include "hbapi.h"
@@ -94,6 +93,47 @@ HB_BOOL hwg_edit_handle_message ( GtkWidget *hWnd, HB_ULONG ulMsg,
  *  Win32 SDK and the ">= 0 means success" test in HListBox:DeleteItem.
  * --------------------------------------------------------------------- */
 #define LB_ERR   (-1)
+
+/* ---------------------------------------------------------------------
+ *  Win32 combo / edit messages
+ *
+ *  Values copied from windows.ch.  Defined locally because this file
+ *  is C code and cannot include the Harbour-level header.  They MUST
+ *  match the ones in windows.ch byte-for-byte -- HWG_SENDMESSAGE
+ *  routes them between the C dispatcher and the .prg side.
+ * --------------------------------------------------------------------- */
+#ifndef CB_GETCOUNT
+#define CB_ADDSTRING        323     /* 0x0143 */
+#define CB_DELETESTRING     324     /* 0x0144 */
+#define CB_GETCOUNT         326     /* 0x0146 */
+#define CB_GETCURSEL        327     /* 0x0147 */
+#define CB_GETLBTEXT        328     /* 0x0148 */
+#define CB_GETLBTEXTLEN     329     /* 0x0149 */
+#define CB_INSERTSTRING     330     /* 0x014A */
+#define CB_RESETCONTENT     331     /* 0x014B */
+#define CB_FINDSTRING       332     /* 0x014C */
+#define CB_SELECTSTRING     333     /* 0x014D */
+#define CB_SETCURSEL        334     /* 0x014E */
+#define CB_SETITEMHEIGHT    0x0153
+#define CB_GETITEMHEIGHT    0x0154
+#endif
+
+#ifndef EM_GETSEL
+#define EM_GETSEL           176     /* 0x00B0 */
+#define EM_SETSEL           177     /* 0x00B1 */
+#define EM_SCROLLCARET      183     /* 0x00B7 */
+#define EM_GETMODIFY        184     /* 0x00B8 */
+#define EM_SETMODIFY        185     /* 0x00B9 */
+#define EM_GETLINECOUNT     186     /* 0x00BA */
+#define EM_LINELENGTH       193     /* 0x00C1 */
+#define EM_LIMITTEXT        197     /* 0x00C5 */
+#define EM_SETREADONLY      207     /* 0x00CF */
+#define EM_GETLIMITTEXT     213     /* 0x00D5 */
+#endif
+
+#ifndef EN_CHANGE
+#define EN_CHANGE           768     /* 0x0300 */
+#endif
 
 static GdkClipboard *clipboard = NULL;
 

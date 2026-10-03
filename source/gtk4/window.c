@@ -87,6 +87,7 @@ extern int hb_setGetConfirm( void );
 #define WM_RBUTTONDOWN                  516
 #define WM_RBUTTONUP                    517
 #define WM_MOUSEWHEEL                   522
+#define EN_CHANGE                       768
 
 #define HWG_DEAD_KEY "hwg_dead"
 
@@ -766,12 +767,18 @@ static void cb_editable_changed( GtkEditable *editable, gpointer user_data )
     if( !GTK_IS_ENTRY( editable ) )
         return;
 
-    if( hb_setGetConfirm() )
-        return;
-
     w = GTK_WIDGET( editable );
 
     if( hwg_is_dead( (GObject*) w ) )
+        return;
+
+    /* Max-length auto-advance.  Fires on any "changed" emission from
+     * the GtkEntry -- including the synchronous one triggered by
+     * HWG_EDIT_SETTEXT from within HEdit:onEvent.  EN_CHANGE itself
+     * is NOT dispatched here; the HEdit class fires it directly at
+     * the point where it knows the change came from user typing.
+     * See the WM_KEYDOWN branch in hedit.prg. */
+    if( hb_setGetConfirm() )
         return;
 
     max_len = hwg_get_field_maxlen( w );
@@ -1103,9 +1110,9 @@ void hwg_install_widget_events( GtkWidget *widget, gboolean bDrawable )
     gtk_widget_add_controller( widget, motion );
 
     /* The scroll controller is NOT installed here.  It lives only on
-     t he GtkDrawingArea of a browse (see HWG_CREATEBROWSE in     ***
-     control.c).  Installing it on every widget made the input
-     method of a focused GtkEntry insert literal characters. */
+     * the GtkDrawingArea of a browse (see HWG_CREATEBROWSE in
+     * control.c).  Installing it on every widget made the input
+     * method of a focused GtkEntry insert literal characters. */
 
     key = gtk_event_controller_key_new();
     gtk_event_controller_set_propagation_phase( key, GTK_PHASE_CAPTURE );

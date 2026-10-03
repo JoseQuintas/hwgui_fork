@@ -15,6 +15,33 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-03 20:43 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  * source/gtk4/window.c
+      cb_editable_changed limited to MAXLENGTH auto-advance.  With the
+      busy flag set by HWG_EDIT_SETTEXT, every "changed" emission it
+      could see came from a programmatic SetText, so EN_CHANGE never
+      reached the .prg.
+  * source/gtk4/control.c
+      HWG_EDIT_SETTEXT wraps set_text() with "hwg_edit_busy" so
+      cb_editable_changed can tell programmatic from typed changes.
+  * source/gtk4/hedit.prg
+      ON CHANGE fired by the class at the four user-input entry points:
+      WM_KEYDOWN, GDK_BackSpace, GDK_Delete, DoPaste.  ON KEYDOWN wired
+      via the new bKeyDown DATA.  Both blocks were already passed by
+      the @ GET macro; the constructor discarded them.
+  * source/gtk4/draw.c
+      HWG_LOADBITMAP / HWG_LOADIMAGE / HWG_LOADICON / HWG_DRAWICON
+      implemented (were empty stubs).
+  * source/gtk4/misc.c
+      Kept in sync with the new edit semantics.
+
+  + samples/test_enchange.prg
+    Sample exercising ON CHANGE and the busy flag.
+
+  @ 130, 20 GET oGet VAR cVal SIZE 300, 28 ;
+     ON KEYDOWN { |o, key| ... } ;
+     ON CHANGE  { |cText, o| ... }
+
 2026-10-03 18:33 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
   * source/gtk4/misc.c
       HWG_SENDMESSAGE refactored from an empty stub into a per-widget

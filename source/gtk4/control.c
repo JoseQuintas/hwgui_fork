@@ -186,6 +186,7 @@ HB_FUNC( HWG_GETDRAWING )
 {
     HB_RETHANDLE( getDrawing( (GObject*) HB_PARHANDLE( 1 ) ) );
 }
+
 /* =====================================================================
  *  hwg_legacy_gtk_name
  *
@@ -195,7 +196,7 @@ HB_FUNC( HWG_GETDRAWING )
  *  still what applications pass to HBitmap:AddStandard(), so we keep
  *  accepting them and map to the modern names here.
  * ===================================================================== */
-static const char *hwg_legacy_gtk_name( const char *name )
+const char *hwg_legacy_gtk_name( const char *name )
 {
     static char buf[128];
     const char *p;
@@ -882,7 +883,20 @@ HB_FUNC( HWG_EDIT_SETTEXT )
         {
             cur = gtk_editable_get_text( GTK_EDITABLE( hCtrl ) );
             if( !cur || strcmp( cur, gcText ) != 0 )
+            {
+                /* Mark the change as programmatic.  cb_editable_changed
+                 * in window.c bails out when this flag is set, so
+                 * EN_CHANGE is not dispatched to Harbour.  GTK emits
+                 * "changed" synchronously from within set_text(), so
+                 * the guard window is exactly as wide as it needs to
+                 * be -- cleared right after. */
+                g_object_set_data( (GObject*) hCtrl, "hwg_edit_busy",
+                                   GINT_TO_POINTER( 1 ) );
+
                 gtk_editable_set_text( GTK_EDITABLE( hCtrl ), gcText );
+
+                g_object_set_data( (GObject*) hCtrl, "hwg_edit_busy", NULL );
+            }
         }
     }
 

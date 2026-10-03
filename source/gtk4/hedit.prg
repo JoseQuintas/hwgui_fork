@@ -51,17 +51,19 @@ CLASS HEdit INHERIT HControl
    DATA oPicture
    DATA bValid
    DATA bAnyEvent
+   DATA bChange                    /* ON CHANGE  -- fired on EN_CHANGE */
    DATA lFirst       INIT .T.
    DATA lChanged     INIT .F.
    DATA nMaxLength   INIT Nil
    DATA nLastKey     INIT 0
    DATA lMouse       INIT .F.
-   DATA aColorOld      INIT { 0,0 }
+   DATA aColorOld    INIT { 0, 0 }
    DATA bColorBlock
-   DATA bkeydown
+   DATA bKeyDown                   /* ON KEYDOWN -- fired on WM_KEYDOWN */
 
    METHOD New( oWndParent, nId, vari, bSetGet, nStyle, nLeft, nTop, nWidth, nHeight, ;
-      oFont, bInit, bSize, bGfocus, bLfocus, ctoolt, tcolor, bcolor, cPicture, lNoBorder, nMaxLength, lPassword )
+      oFont, bInit, bSize, bGfocus, bLfocus, ctoolt, tcolor, bcolor, cPicture, ;
+      lNoBorder, nMaxLength, lPassword, bKeyDown, bChange )
    METHOD Activate()
    METHOD onEvent( msg, wParam, lParam )
    METHOD Init()
@@ -75,7 +77,8 @@ ENDCLASS
 
 METHOD New( oWndParent, nId, vari, bSetGet, nStyle, nLeft, nTop, nWidth, nHeight, ;
       oFont, bInit, bSize, bGfocus, bLfocus, ctoolt, ;
-      tcolor, bcolor, cPicture, lNoBorder, nMaxLength, lPassword ) CLASS HEdit
+      tcolor, bcolor, cPicture, lNoBorder, nMaxLength, lPassword, ;
+      bKeyDown, bChange ) CLASS HEdit
 
    nStyle := Hwg_BitOr( iif( nStyle == Nil,0,nStyle ), ;
       WS_TABSTOP + iif( lNoBorder == Nil .OR. !lNoBorder, WS_BORDER, 0 ) + ;
@@ -100,8 +103,10 @@ METHOD New( oWndParent, nId, vari, bSetGet, nStyle, nLeft, nTop, nWidth, nHeight
 
    ::Activate()
 
-   ::bGetFocus := bGFocus
+   ::bGetFocus  := bGFocus
    ::bLostFocus := bLFocus
+   ::bKeyDown   := bKeyDown
+   ::bChange    := bChange
 
    /* These two are no-ops in GTK4 (focus signals removed); the shared
       event controllers installed by HWG_CREATEEDIT already dispatch
@@ -134,9 +139,22 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HEdit
 
    LOCAL oParent
    LOCAL nPos, i, cText
+   LOCAL nEval
 
    IF ::bAnyEvent != Nil .AND. Eval( ::bAnyEvent, Self, msg, wParam, lParam ) != 0
       RETURN 0
+   ENDIF
+
+   /* ON KEYDOWN: fires before the class processes the key, so the
+    * user handler can intercept or precede the built-in navigation.
+    * Returning anything other than -1 or Nil consumes the key --
+    * same convention as HListBox:onEvent and the WinAPI backend. */
+   IF msg == WM_KEYDOWN .AND. ::bKeyDown != Nil .AND. ValType( ::bKeyDown ) == "B"
+      nEval := Eval( ::bKeyDown, Self, wParam )
+      IF ( ValType( nEval ) == "L" .AND. ! nEval ) .OR. ;
+         ( nEval != -1 .AND. nEval != Nil )
+         RETURN 0
+      ENDIF
    ENDIF
 
    IF msg == WM_SETFOCUS
@@ -246,7 +264,13 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HEdit
                      hwg_edit_Setpos( ::handle, nPos )
                   ENDIF
                ENDIF
+               IF ::bChange != Nil
+                  Eval( ::bChange, ::title, Self )
+               ENDIF
                RETURN 1
+            ENDIF
+            IF ::bChange != Nil
+               Eval( ::bChange, ::title, Self )
             ENDIF
             RETURN 0
          ELSEIF wParam == GDK_Down
@@ -309,7 +333,13 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HEdit
                   hwg_edit_Settext( ::handle, ::title := cText )
                   hwg_edit_Setpos( ::handle, nPos )
                ENDIF
+               IF ::bChange != Nil
+                  Eval( ::bChange, ::title, Self )
+               ENDIF
                RETURN 1
+            ENDIF
+            IF ::bChange != Nil
+               Eval( ::bChange, ::title, Self )
             ENDIF
          ELSEIF wParam == GDK_Tab
             IF hwg_Checkbit( lParam, 1 )
@@ -357,6 +387,16 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HEdit
                IF !( cText == ::title )
                   hwg_edit_Settext( ::handle, ::title := cText )
                   hwg_SetGetUpdated( Self )
+                  /* Fire ON CHANGE here: this is the point where we
+                   * know the text changed because the user typed.  The
+                   * cb_editable_changed in window.c is suppressed by
+                   * the busy flag during HWG_EDIT_SETTEXT, so it cannot
+                   * deliver EN_CHANGE for typed input.  Reporting it
+                   * directly from the class keeps the ON CHANGE contract
+                   * identical to WinAPI. */
+                  IF ::bChange != Nil
+                     Eval( ::bChange, ::title, Self )
+                  ENDIF
                ENDIF
                hwg_edit_SetPos( ::handle, nPos )
                IF ::cType != "N" .AND. !Set( _SET_CONFIRM ) .AND. ;
@@ -545,6 +585,14 @@ STATIC FUNCTION DoPaste( oEdit )
       oEdit:title := Iif( Empty(oEdit:oPicture), cText, oEdit:oPicture:UnTransform( cText ) )
       hwg_edit_Settext( oEdit:handle, oEdit:title )
       hwg_SetGetUpdated( oEdit )
+
+      /* Fire ON CHANGE -- paste is a user-initiated text change,
+       * same as typing.  Reporting it here covers both the WM_PASTE
+       * message path and the Ctrl+V keystroke path, without
+       * duplicating the Eval at each call site. */
+      IF oEdit:bChange != Nil
+         Eval( oEdit:bChange, oEdit:title, oEdit )
+      ENDIF
    ENDIF
 
    RETURN Nil
