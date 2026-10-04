@@ -179,7 +179,7 @@ FUNCTION Main( p0, p1, p2 )
          SIZE 24, 24 FLAT               ;
          BITMAP oDesigner:cBmpPath+"bmp_new.bmp" COORDINATES 0, 4, 0, 0 TRANSPARENT ;
          TOOLTIP "New Form"
-      @ 26, 3 OWNERBUTTON OF oPanel       ;
+      @ 27, 3 OWNERBUTTON OF oPanel       ;
          ON CLICK { ||HFormGen():Open() } ;
          SIZE 24, 24 FLAT                ;
          BITMAP oDesigner:cBmpPath+"bmp_open.bmp" COORDINATES 0, 4, 0, 0 TRANSPARENT ;
@@ -187,7 +187,7 @@ FUNCTION Main( p0, p1, p2 )
 
       @ 55, 6 LINE LENGTH 18 VERTICAL
 
-      @ 60, 3 OWNERBUTTON OF oPanel       ;
+      @ 70, 3 OWNERBUTTON OF oPanel       ;
          ON CLICK { ||iif( HFormGen():oDlgSelected != Nil, HFormGen():oDlgSelected:oParent:Save(), hwg_Msgstop( "No Form in use!" ) ) } ;
          SIZE 24, 24 FLAT                ;
          BITMAP oDesigner:cBmpPath+"bmp_save.bmp" COORDINATES 0, 4, 0, 0 TRANSPARENT ;

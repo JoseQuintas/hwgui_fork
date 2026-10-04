@@ -15,6 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-04 15:07 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+   * source/gtk4/control.c
+     HWG_CREATESEP rebuilt on GtkDrawingArea; GtkSeparator ignored
+     size and theme colours, so the designer toolbar separator was
+     invisible.  Paints a single 1px line, matching Windows.
+   * /utils/designer/designer.prg
+     Added 'OF oPanel' to the toolbar separator so it attaches to
+     the same GtkFixed as the OWNERBUTTONs.
+
 2026-10-04 13:50 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
    * /utils/designer.hbp
    * /utils/hbmk.hbm

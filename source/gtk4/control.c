@@ -2092,24 +2092,65 @@ HB_FUNC( HWG_GETCURRENTTAB )
 
 /* =====================================================================
  *  HWG_CREATESEP
+ *
+ *  Windows backend draws a single 1px line via SS_ETCHEDVERT /
+ *  SS_ETCHEDHORZ inside a STATIC of the requested size. GTK4's
+ *  GtkSeparator ignores both the requested size and the theme
+ *  colours, so we use a GtkDrawingArea and paint the same single
+ *  line — same .prg works identically on both platforms.
  * ===================================================================== */
+static void sep_draw_func( GtkDrawingArea *area, cairo_t *cr,
+                           int width, int height, gpointer user_data )
+{
+    gboolean lVert = GPOINTER_TO_INT( user_data );
+
+    cairo_set_source_rgb( cr, 0.62, 0.62, 0.62 );
+    cairo_set_line_width( cr, 1.0 );
+
+    if( lVert )
+    {
+        /* Single vertical line centred in the 10px slot */
+        double x = width / 2.0;
+        cairo_move_to( cr, x, 0 );
+        cairo_line_to( cr, x, height );
+    }
+    else
+    {
+        /* Single horizontal line centred in the 10px slot */
+        double y = height / 2.0;
+        cairo_move_to( cr, 0, y );
+        cairo_line_to( cr, width, y );
+    }
+    cairo_stroke( cr );
+}
+
 HB_FUNC( HWG_CREATESEP )
 {
     HB_BOOL    lVert = hb_parl( 2 );
     GtkWidget *hCtrl;
     GtkFixed  *box;
+    int        w = hb_parni( 5 );
+    int        h = hb_parni( 6 );
 
-    hCtrl = gtk_separator_new( lVert ? GTK_ORIENTATION_VERTICAL
-    : GTK_ORIENTATION_HORIZONTAL );
+    if( lVert ) { if( w <= 0 ) w = 10; if( h <= 0 ) h = 18; }
+    else        { if( w <= 0 ) w = 18; if( h <= 0 ) h = 10; }
+
+    hCtrl = gtk_drawing_area_new();
+    gtk_drawing_area_set_draw_func( GTK_DRAWING_AREA( hCtrl ),
+                                    sep_draw_func,
+                                    GINT_TO_POINTER( lVert ? 1 : 0 ),
+                                    NULL );
+    gtk_widget_set_size_request( hCtrl, w, h );
+    gtk_widget_set_visible( hCtrl, TRUE );
 
     box = getFixedBox( (GObject*) HB_PARHANDLE( 1 ) );
     if( box )
         gtk_fixed_put( box, hCtrl, hb_parni( 3 ), hb_parni( 4 ) );
-    hwg_set_size_request( hCtrl, hb_parni( 5 ), hb_parni( 6 ) );
+
+    hwg_set_size_request( hCtrl, w, h );
 
     HB_RETHANDLE( hCtrl );
 }
-
 
 /* =====================================================================
  *  HWG_CREATEPANEL
