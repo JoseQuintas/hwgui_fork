@@ -32,7 +32,7 @@
 {win}../../hwgui.hbc
 # GTK2
 {darwin}../../hwgui_mac.hbc
-{linux}../../hwgui.hbc
+{linux}../../hwguiGTK4.hbc
 
 # GTK3: Deactivate previous line
 # and activate following line
