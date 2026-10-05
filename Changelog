@@ -16,6 +16,14 @@
 */
 
 2026-10-04 15:07 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+    Fixed 32-bit regression after 60a4227e: use HB_PTRDIFF
+    (not HB_PTRUINT) in hwg_Getdlgitem() so handle -1 stays -1;
+    reverted hwg_InitControls() workaround.
+  * source\winapi\misc.c
+  * source\winapi\guimain.prg
+    Fix send for José Quintas
+
+2026-10-04 15:07 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
    * source/gtk4/control.c
      HWG_CREATESEP rebuilt on GtkDrawingArea; GtkSeparator ignored
      size and theme colours, so the designer toolbar separator was

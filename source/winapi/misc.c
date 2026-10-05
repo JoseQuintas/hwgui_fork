@@ -1103,7 +1103,10 @@ HB_FUNC( HWG_PTRTOULONG )
 {
   if( HB_ISPOINTER( 1 ) )
   {
-    hb_retnint( ( HB_MAXINT ) ( HB_PTRUINT ) hb_parptr( 1 ) );
+    /* HB_PTRDIFF (signed pointer-sized) preserves -1 on both 32-bit and 64-bit systems.
+     * Do not use HB_PTRUINT: on 32-bit systems, 0xFFFFFFFF becomes 4294967295
+     * when promoted to HB_MAXINT, breaking the <= 0 test in hwg_InitControls. */
+    hb_retnint( ( HB_MAXINT ) ( HB_PTRDIFF ) hb_parptr( 1 ) );
   }
   else
   {

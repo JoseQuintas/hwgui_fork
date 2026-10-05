@@ -29,8 +29,7 @@ FUNCTION hwg_InitControls( oWnd, lNoActivate )
             pArray[i]:Activate()
             pArray[i]:lInit := lInit
          ENDIF
-         IF IIF( ValType( pArray[ i ]:handle ) == "P", hwg_Ptrtoulong( pArray[ i ]:handle ), pArray[ i ]:handle ) <= 0
-         //IF Empty( pArray[i]:handle ) .OR. hwg_isPtrneg1( pArray[i]:handle )
+         IF Empty( pArray[ i ]:handle ) .OR. pArray[ i ]:handle <= 0
             pArray[i]:handle := hwg_Getdlgitem( oWnd:handle, pArray[i]:id )
             // writelog( "InitControl2"+str(pArray[i]:handle)+"/"+pArray[i]:classname )
          ENDIF
