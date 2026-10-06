@@ -286,9 +286,10 @@ METHOD EvalKeyList( nKey ) CLASS HWindow
 
 CLASS HMainWindow INHERIT HWindow
 
-   CLASS VAR aMessages INIT { ;
+      CLASS VAR aMessages INIT { ;
       { WM_COMMAND, WM_ERASEBKGND, WM_MOVE, WM_SIZE, WM_SYSCOMMAND, ;
-      WM_NOTIFYICON, WM_ACTIVATE, WM_ENTERIDLE, WM_ACTIVATEAPP, WM_CLOSE, WM_DESTROY, WM_ENDSESSION }, ;
+      WM_NOTIFYICON, WM_ACTIVATE, WM_ENTERIDLE, WM_ACTIVATEAPP, WM_CLOSE, WM_DESTROY, WM_ENDSESSION, ;
+      WM_DRAWITEM }, ;
       { ;
       {|o,w,l|onCommand( o, w, l ) },       ;
       {|o,w|onEraseBk( o, w ) },            ;
@@ -301,10 +302,11 @@ CLASS HMainWindow INHERIT HWindow
       {|o,w,l|onEnterIdle( o, w, l ) },     ;
       {|o|onCloseQuery( o ) },              ;
       {|o|hwg_onDestroy( o ) },             ;
-      {|o,w|onEndSession( o, w ) }          ;
+      {|o,w|onEndSession( o, w ) },         ;
+      {|o,w,l|onDrawItem( o, w, l ) }       ;
       } ;
       }
-   DATA   nMenuPos
+   DATA nMenuPos
    DATA oNotifyIcon, bNotify, oNotifyMenu
    DATA lTray INIT .F.
 
@@ -704,6 +706,36 @@ STATIC FUNCTION onEraseBk( oWnd, hDC )
       aCoors := hwg_Getclientrect( oWnd:handle )
       hwg_Fillrect( hDC, aCoors[1], aCoors[2], aCoors[3] + 1, aCoors[4] + 1, oWnd:brush:handle )
       RETURN 1
+   ENDIF
+
+   RETURN -1
+
+STATIC FUNCTION onDrawItem( oWnd, wParam, lParam )
+
+   LOCAL oCtrl, drawInfo, hDC
+
+   // wParam arrives as a pointer (HB_PUSHITEM from s_MainWndProc);
+   // convert back to the numeric control id before FindControl.
+   oCtrl := oWnd:FindControl( hwg_PtrToUlong( wParam ) )
+   IF oCtrl == Nil
+      RETURN -1
+   ENDIF
+
+   // Extract the HDC from the DRAWITEMSTRUCT.  This DC belongs to
+   // the WM_DRAWITEM paint cycle, so drawing on it is correct.
+   // Do not go through oCtrl:bPaint here: on WinAPI that block was
+   // provided by the user code (agenda.prg) assuming hwg_GetDC, and
+   // that call is invalid inside WM_DRAWITEM - it does not validate
+   // the paint region and causes an endless WM_PAINT loop.
+   drawInfo := hwg_Getdrawiteminfo( lParam )
+   hDC := drawInfo[ 3 ]
+   IF hDC == Nil
+      RETURN -1
+   ENDIF
+
+   IF __ObjHasMsg( oCtrl, "PAINT" )
+      oCtrl:Paint( hDC )
+      RETURN 0
    ENDIF
 
    RETURN -1

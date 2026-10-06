@@ -1,2 +1,4 @@
+{win}-gui
+{win}-lgdiplus
 {unix}-lm -lz
 ../../hwguiGTK4.hbc

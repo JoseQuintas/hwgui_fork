@@ -715,6 +715,7 @@ CLASS TAgendaEx FROM HStatic
 
    DATA nColW, nRowH
 
+   METHOD Init()                                         /* platform hook */
    METHOD New( oParent, nX, nY, nW, nH, dInit ) CONSTRUCTOR
    METHOD RecalcDims()
    METHOD Paint( hDC )
@@ -741,9 +742,29 @@ ENDCLASS
 
 /* ------------------------------------------------------------------ */
 
+METHOD Init() CLASS TAgendaEx
+
+   ::Super:Init()
+
+#ifdef __PLATFORM__WINDOWS
+   // Windows: subclass the native STATIC so mouse messages reach
+   // onEvent().  Without this the STATIC ignores WM_LBUTTONDOWN and
+   // the calendar never changes day on click.  Other HStatic controls
+   // (SAY) are not affected because the subclass is installed here,
+   // not in HStatic:Init.
+   hwg_InitStaticProc( ::handle )
+#endif
+   // GTK4: HWGui wires the widget signals internally and calls
+   // onEvent() directly.  Nothing to do.
+
+   RETURN Nil
+
+/* ------------------------------------------------------------------ */
+
 METHOD New( oParent, nX, nY, nW, nH, dInit ) CLASS TAgendaEx
 
    LOCAL d0
+   LOCAL nStyle
 
    d0 := IF( dInit == Nil, Date(), dInit )
 
@@ -752,7 +773,19 @@ METHOD New( oParent, nX, nY, nW, nH, dInit ) CLASS TAgendaEx
    ::aDayNames  := { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" }
    ::aAppts     := {}
 
-   ::Super:New( oParent, 0, SS_OWNERDRAW, nX, nY, nW, nH )
+#ifdef __PLATFORM__WINDOWS
+   // Windows: SS_OWNERDRAW routes painting through the parent's
+   // WM_DRAWITEM.  SS_NOTIFY is required for the STATIC to receive
+   // mouse messages at all - without it, onEvent() never fires.
+   nStyle := hwg_BitOr( SS_OWNERDRAW, SS_NOTIFY )
+#else
+   // GTK4: SS_OWNERDRAW is what makes HStatic connect the widget
+   // "draw" signal and invoke the user bPaint.  Same as it was
+   // before the WinAPI fix - do not change.
+   nStyle := SS_OWNERDRAW
+#endif
+
+   ::Super:New( oParent, 0, nStyle, nX, nY, nW, nH )
 
    ::RecalcDims()
 
@@ -780,18 +813,38 @@ METHOD onEvent( msg, wParam, lParam ) CLASS TAgendaEx
       RETURN 0
    ENDCASE
 
+#ifdef __PLATFORM__WINDOWS
+   // Windows: returning -1 makes StaticSubclassProc call the saved
+   // original procedure, so WM_PAINT / WM_ERASEBKGND / focus / etc.
+   // behave as default.  Without this the subclass swallows the
+   // messages, WM_PAINT never validates and the app loops forever.
+   RETURN -1
+#else
+   // GTK4: fall through to the parent class.
    RETURN ::Super:onEvent( msg, wParam, lParam )
+#endif
 
 /* ------------------------------------------------------------------ */
 
 STATIC FUNCTION DoPaint( oAgenda )
 
-   LOCAL hDC := hwg_GetDC( oAgenda:handle )
+   LOCAL hDC
 
+#ifdef __PLATFORM__WINDOWS
+   // Windows: painting is driven by the parent's WM_DRAWITEM, which
+   // calls HStatic:DrawFromLpDis() -> Paint( hDC ).  DoPaint() is
+   // not used on this path; calling it would bypass the paint cycle
+   // and trigger an endless WM_PAINT loop.
+   HB_SYMBOL_UNUSED( oAgenda )
+#else
+   // GTK4: HWGui invokes bPaint from the widget draw signal; a fresh
+   // device context is valid at this point.
+   hDC := hwg_GetDC( oAgenda:handle )
    IF hDC != Nil
       oAgenda:Paint( hDC )
       hwg_ReleaseDC( oAgenda:handle, hDC )
    ENDIF
+#endif
 
    RETURN Nil
 

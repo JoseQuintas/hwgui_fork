@@ -245,7 +245,7 @@ METHOD Redefine( oWndParent, nId, cCaption, oFont, bInit, ;
 
    RETURN Self
 
-   //- HStatic
+//- HStatic
 
 CLASS HStatic INHERIT HControl
 
@@ -260,7 +260,8 @@ CLASS HStatic INHERIT HControl
       bSize, bPaint, cTooltip, tcolor, bColor, lTransp )
    METHOD Activate()
    METHOD Init()
-   METHOD Paint( lpDis )
+   METHOD DrawFromLpDis( lpDis )
+   METHOD Paint( hDC )
    METHOD SetText( c )
    METHOD Move( x1, y1, width, height )
    METHOD Refresh()
@@ -275,7 +276,6 @@ METHOD New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, ;
       ::extStyle += WS_EX_TRANSPARENT
       ::nStyleDraw := iif( Empty( nStyle ), 0, nStyle )
       nStyle := SS_OWNERDRAW
-      bPaint := { |o, p| o:paint( p ) }
    ENDIF
 
    // Enabling style for tooltips
@@ -331,6 +331,8 @@ METHOD Init() CLASS HStatic
 
    IF !::lInit
       ::Super:init()
+      hwg_SetWindowObject( ::handle, Self )
+
       IF ::Title != NIL
          hwg_Setwindowtext( ::handle, ::title )
       ENDIF
@@ -338,16 +340,37 @@ METHOD Init() CLASS HStatic
 
    RETURN  NIL
 
-METHOD Paint( lpDis ) CLASS HStatic
+// Internal: called by the parent form when the OS delivers
+// WM_DRAWITEM for this control.  Decodes the DRAWITEMSTRUCT and
+// forwards a plain HDC to Paint(), so subclasses only need to
+// implement Paint( hDC ) and the same override works on both
+// backends (WinAPI and GTK4).
+METHOD DrawFromLpDis( lpDis ) CLASS HStatic
 
    LOCAL drawInfo := hwg_Getdrawiteminfo( lpDis )
-   LOCAL hDC := drawInfo[ 3 ], x1 := drawInfo[ 4 ], y1 := drawInfo[ 5 ], x2 := drawInfo[ 6 ], y2 := drawInfo[ 7 ]
+   LOCAL hDC := drawInfo[ 3 ]
 
    IF ::oFont != Nil
       hwg_Selectobject( hDC, ::oFont:handle )
    ENDIF
    IF ::tcolor != NIL
       hwg_Settextcolor( hDC, ::tcolor )
+   ENDIF
+
+   ::Paint( hDC )
+
+   RETURN NIL
+
+// Overridable.  Subclasses that need custom drawing (TAgendaEx,
+// charts, etc.) override this method.  The default implementation
+// paints ::title in the control rectangle, preserving the previous
+// behavior of transparent HStatics.
+METHOD Paint( hDC ) CLASS HStatic
+
+   LOCAL x1 := 0, y1 := 0, x2 := ::nWidth, y2 := ::nHeight
+
+   IF ::Title == Nil .OR. Empty( ::Title )
+      RETURN Nil
    ENDIF
 
    hwg_Settransparentmode( hDC, .T. )

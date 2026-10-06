@@ -96,7 +96,7 @@ static void CALLBACK s_timerProc( HWND, UINT, UINT, DWORD );
 static HWND hWndTT = 0;
 static BOOL lInitCmnCtrl = 0;
 static BOOL lToolTipBalloon = FALSE;    // added by MAG
-static WNDPROC wpOrigEditProc, wpOrigTrackProc, wpOrigTabProc, wpOrigStaticProc, wpOrigListProc, wpOrigUpDownProc, wpOrigDatePickerProc,  wpOrigTreeViewProc;
+static WNDPROC wpOrigEditProc, wpOrigTrackProc, wpOrigTabProc, wpOrigListProc, wpOrigUpDownProc, wpOrigDatePickerProc,  wpOrigTreeViewProc;
 static LONG_PTR wpOrigButtonProc;
 
 /*=============================================================================
@@ -1690,49 +1690,80 @@ LRESULT CALLBACK WinCtrlProc( HWND hWnd, UINT message, WPARAM wParam,
 /*=============================================================================
  * HWG_INITSTATICPROC()
  * Subclasses static control
+ *
+ * The original window procedure is stored as a window property, keyed
+ * by the control handle, instead of a single global.  This is required
+ * because an application typically creates many STATIC controls (every
+ * SAY is one), and a shared global would be overwritten on each new
+ * creation, causing the wrong proc to be restored by a previously
+ * subclassed control.
+ *
+ * Also guards against double-subclassing: calling this twice on the
+ * same handle is a no-op, so HStatic:Init() can call it safely.
  *===========================================================================*/
 HB_FUNC( HWG_INITSTATICPROC )
 {
-   wpOrigStaticProc = ( WNDPROC ) SetWindowLongPtr( ( HWND ) HB_PARHANDLE( 1 ),
-         GWLP_WNDPROC, ( LONG_PTR ) StaticSubclassProc );
+      HWND hWnd = ( HWND ) HB_PARHANDLE( 1 );
+      WNDPROC pOld;
+
+      if( !IsWindow( hWnd ) )
+            return;
+
+      if( GetProp( hWnd, TEXT( "HWGUI_OLD_STATIC_PROC" ) ) != NULL )
+            return;
+
+      pOld = ( WNDPROC ) SetWindowLongPtr( hWnd, GWLP_WNDPROC,
+                                           ( LONG_PTR ) StaticSubclassProc );
+      SetProp( hWnd, TEXT( "HWGUI_OLD_STATIC_PROC" ), ( HANDLE ) pOld );
 }
 
 /*=============================================================================
  * StaticSubclassProc()
  * Static control subclass procedure
+ *
+ * Forwards every message to the Harbour object's onEvent().  If
+ * onEvent() returns -1 the message is passed to the original window
+ * procedure, which is fetched per-handle from the window property
+ * instead of the old shared global.
  *===========================================================================*/
 LRESULT APIENTRY StaticSubclassProc( HWND hWnd, UINT message, WPARAM wParam,
-      LPARAM lParam )
+                                     LPARAM lParam )
 {
-   long int res;
-   PHB_ITEM pObject = ( PHB_ITEM ) GetWindowLongPtr( hWnd, GWLP_USERDATA );
+      long int res;
+      PHB_ITEM pObject = ( PHB_ITEM ) GetWindowLongPtr( hWnd, GWLP_USERDATA );
+      WNDPROC  pOld    = ( WNDPROC ) GetProp( hWnd, TEXT( "HWGUI_OLD_STATIC_PROC" ) );
 
-   if( !pSym_onEvent )
-      pSym_onEvent = hb_dynsymFindName( "ONEVENT" );
+      /* DEBUG: show only for mouse messages to avoid screen flood */
+      if( message == WM_LBUTTONDOWN || message == WM_LBUTTONDBLCLK ||
+            message == WM_LBUTTONUP )
 
-   if( pSym_onEvent && pObject )
-   {
-      hb_vmPushSymbol( hb_dynsymSymbol( pSym_onEvent ) );
-      hb_vmPush( pObject );
-      hb_vmPushLong( ( LONG ) message );
-      HB_PUSHITEM( wParam );
-      HB_PUSHITEM( lParam );
-      hb_vmSend( 3 );
-      if( HB_ISPOINTER( -1 ) )
-         return (LRESULT) HB_PARHANDLE( -1 );
-      else
+      if( pOld == NULL )
+            pOld = DefWindowProc;
+
+      if( !pSym_onEvent )
+            pSym_onEvent = hb_dynsymFindName( "ONEVENT" );
+
+      if( pSym_onEvent && pObject )
       {
-         res = hb_parnl( -1 );
-         if( res == -1 )
-            return ( CallWindowProc( wpOrigStaticProc, hWnd, message, wParam,
-                        lParam ) );
-         else
-            return res;
+            hb_vmPushSymbol( hb_dynsymSymbol( pSym_onEvent ) );
+            hb_vmPush( pObject );
+            hb_vmPushLong( ( LONG ) message );
+            HB_PUSHITEM( wParam );
+            HB_PUSHITEM( lParam );
+            hb_vmSend( 3 );
+            if( HB_ISPOINTER( -1 ) )
+                  return ( LRESULT ) HB_PARHANDLE( -1 );
+            else
+            {
+                  res = hb_parnl( -1 );
+                  if( res == -1 )
+                        return CallWindowProc( pOld, hWnd, message, wParam, lParam );
+                  else
+                        return res;
+            }
       }
-   }
-   else
-      return ( CallWindowProc( wpOrigStaticProc, hWnd, message, wParam,
-                  lParam ) );
+      else
+            return CallWindowProc( pOld, hWnd, message, wParam, lParam );
 }
 
 /*=============================================================================

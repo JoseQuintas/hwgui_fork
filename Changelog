@@ -15,6 +15,34 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-05 21:30 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+    winapi: owner-draw HStatic and per-handle STATIC subclassing.
+    Fixes blank SS_OWNERDRAW controls (WM_DRAWITEM unanswered) and
+    lost mouse messages (native STATIC not subclassed).  Paint( hDC )
+    now works on both backends without #ifdef in user code.
+  * source\winapi\hwindow.prg
+      aMessages: add WM_DRAWITEM; new onDrawItem() locates the child
+      by id and calls Paint( hDC ) with the HDC from DRAWITEMSTRUCT.
+  * source\winapi\hcontrol.prg
+      HStatic: new DrawFromLpDis( lpDis ) decodes DRAWITEMSTRUCT
+      and forwards a plain HDC to Paint( hDC ); Init() registers
+      the object via hwg_SetWindowObject.
+      hwg_InitControls(): drops invalid "handle <= 0" test
+      (BASE/1074 on Harbour).
+  * source\winapi\control.c
+      HWG_INITSTATICPROC stores original proc per-handle via
+      SetProp/GetProp (was a shared global clobbered on each STATIC
+      creation); StaticSubclassProc reads it back the same way.
+  * utils\agenda\agenda.prg
+      TAgendaEx: Init() subclasses only the calendar on Windows;
+      New() splits style by #ifdef (WinAPI: SS_OWNERDRAW + SS_NOTIFY;
+      GTK4: keeps SS_OWNERDRAW, which connects the widget draw
+      signal and drives the user bPaint); onEvent() returns -1 on
+      Windows to preserve default STATIC behavior (prevents WM_PAINT
+      loop); DoPaint() is a no-op on Windows, hwg_GetDC path on GTK4.
+  * utils\agenda\hbmk.hbm
+      add -lgdiplus and -gui
+
 2026-10-04 15:07 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     Fixed 32-bit regression after 60a4227e: use HB_PTRDIFF
     (not HB_PTRUINT) in hwg_Getdlgitem() so handle -1 stays -1;
