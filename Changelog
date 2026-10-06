@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-06 09:08 UTC-0300  Jose Quintas  <jmcquintas@gmail.com>
+  * source\winapi\guimain.prg
+    ! hwg_InitControls(): restored the "handle -1" test, dropped in the
+      previous commit. dialog.c marks every control of an in-memory
+      dialog template (INIT DIALOG without resource) with handle -1;
+      with only Empty( handle ) the -1 was never replaced by
+      hwg_Getdlgitem(), so controls (e.g. HPanel) kept handle -1 and
+      were not painted. Test now uses hwg_PtrToUlong( handle ) == -1,
+      valid on 32 and 64 bits, no BASE/1074.
+
 2026-10-05 21:30 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     winapi: owner-draw HStatic and per-handle STATIC subclassing.
     Fixes blank SS_OWNERDRAW controls (WM_DRAWITEM unanswered) and
