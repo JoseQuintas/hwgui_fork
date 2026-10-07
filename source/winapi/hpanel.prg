@@ -138,10 +138,25 @@ METHOD Init() CLASS HPanel
 
    IF !::lInit
       IF ::bSize == Nil .AND. Empty( ::Anchor )
-         ::bSize := { | o, x, y | o:Move( iif( ::nLeft > 0, x - ::nLeft, 0 ), ;
-            iif( ::nTop > 0, y - ::nHeight, 0 ), ;
-            iif( ::nWidth == 0 .OR. ::lResizeX, x, ::nWidth ), ;
-            iif( ::nHeight == 0 .OR. ::lResizeY, y, ::nHeight ) ) }
+         // Default resize logic that covers all four anchoring modes.
+         //
+         //   lResizeX = .T.  -> panel spans the full parent width
+         //                      (TOP and BOTTOM panels)
+         //   lResizeY = .T.  -> panel spans the full parent height
+         //                      (LEFT and RIGHT panels)
+         //   nLeft > 0       -> panel is anchored to the right edge
+         //   nTop  > 0       -> panel is anchored to the bottom edge
+         //
+         // The previous formula used "x - ::nLeft" for the new left,
+         // which only worked when ::nLeft was effectively the panel
+         // width.  The correct value for a right-anchored panel is
+         // "x - ::nWidth" so the panel keeps its distance from the
+         // right edge of the parent.
+         ::bSize := { | o, x, y | o:Move( ;
+            iif( ::lResizeX .OR. ::nLeft == 0, 0, x - ::nWidth ), ;
+            iif( ::lResizeY .OR. ::nTop  == 0, 0, y - ::nHeight ), ;
+            iif( ::lResizeX, x, ::nWidth ), ;
+            iif( ::lResizeY, y, ::nHeight ) ) }
       ENDIF
 
       ::Super:Init()

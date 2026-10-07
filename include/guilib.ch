@@ -836,6 +836,30 @@
     [<oPanel> :=] HPanel():New( <oWnd>,<nId>,<nStyle>,0,0,<oWnd>:nWidth,<height>,<bInit>,ANCHOR_TOPABS+ANCHOR_LEFTABS+ANCHOR_RIGHTABS,<bDraw>,<bcolor>,<oStyle> );
     [; hwg_SetCtrlName( <oPanel>,<(oPanel)> )]
 
+#xcommand ADD LEFT PANEL [ <oPanel> ] TO <oWnd> ;
+            [ ID <nId> ]               ;
+            WIDTH <width>              ;
+            [ BACKCOLOR <bcolor> ]     ;
+            [ HSTYLE <oStyle> ]        ;
+            [ ON INIT <bInit> ]        ;
+            [ ON PAINT <bDraw> ]       ;
+            [ STYLE <nStyle> ]         ;
+          => ;
+    [<oPanel> :=] HPanel():New( <oWnd>,<nId>,<nStyle>,0,0,<width>,<oWnd>:nHeight,<bInit>,ANCHOR_LEFTABS+ANCHOR_TOPABS+ANCHOR_BOTTOMABS,<bDraw>,<bcolor>,<oStyle> );
+    [; hwg_SetCtrlName( <oPanel>,<(oPanel)> )]
+
+#xcommand ADD RIGHT PANEL [ <oPanel> ] TO <oWnd> ;
+            [ ID <nId> ]               ;
+            WIDTH <width>              ;
+            [ BACKCOLOR <bcolor> ]     ;
+            [ HSTYLE <oStyle> ]        ;
+            [ ON INIT <bInit> ]        ;
+            [ ON PAINT <bDraw> ]       ;
+            [ STYLE <nStyle> ]         ;
+          => ;
+    [<oPanel> :=] HPanel():New( <oWnd>,<nId>,<nStyle>,<oWnd>:nWidth-<width>,0,<width>,<oWnd>:nHeight,<bInit>,ANCHOR_RIGHTABS+ANCHOR_TOPABS+ANCHOR_BOTTOMABS,<bDraw>,<bcolor>,<oStyle> );
+    [; hwg_SetCtrlName( <oPanel>,<(oPanel)> )]
+
 #xcommand ADD STATUS PANEL [ <oPanel> ] TO <oWnd> ;
             [ ID <nId> ]               ;
             HEIGHT <height>            ;
