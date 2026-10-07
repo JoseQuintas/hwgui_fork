@@ -708,6 +708,25 @@ HB_FUNC( HWG_SETDATEPICKERNULL )
 }
 
 /*=============================================================================
+ * HWG_GETDRAWITEMHWND()
+ * Returns the control HWND stored in the DRAWITEMSTRUCT.
+ *
+ * Needed because onDrawItem must locate the target control by its
+ * window handle: the CtlID field is not unique (several HStatic
+ * controls default to id 0), and FindControl by id would then hit
+ * the wrong control.
+ *===========================================================================*/
+HB_FUNC( HWG_GETDRAWITEMHWND )
+{
+      DRAWITEMSTRUCT * lpDis = ( DRAWITEMSTRUCT * ) HB_PARHANDLE( 1 );
+
+      if( lpDis )
+            HB_RETHANDLE( lpDis->hwndItem );
+      else
+            HB_RETHANDLE( NULL );
+}
+
+/*=============================================================================
  * HWG_GETDATEPICKER()
  * Gets date picker value
  *===========================================================================*/

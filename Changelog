@@ -15,6 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-06 21:38 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+    winapi: owner-draw HStatic across form, dialog and tab.
+    Fixes blank SS_OWNERDRAW controls and lost mouse messages on
+    WinAPI; Paint( hDC ) now works on both backends without #ifdef
+    in user code.  @ SAY ... Transparent works in the main window,
+    in dialogs and inside tab pages.
+  * source\winapi\control.c
+  * source\winapi\hwindow.prg
+  * source\winapi\hdialog.prg
+  * source\winapi\htab.prg
+  * hwgui\Changelog
+
 2026-10-06 09:08 UTC-0300  Jose Quintas  <jmcquintas@gmail.com>
   * source\winapi\guimain.prg
     ! hwg_InitControls(): restored the "handle -1" test, dropped in the

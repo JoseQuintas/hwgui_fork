@@ -40,7 +40,7 @@ CLASS HTab INHERIT HControl
       bClick, bGetFocus, bLostFocus, lOwnerDraw )
    METHOD Activate()
    METHOD Init()
-   //METHOD onEvent( msg, wParam, lParam )
+   METHOD onEvent( msg, wParam, lParam )
    METHOD SetTab( n )
    METHOD StartPage( cName, oDlg , ctooltip )
    METHOD EndPage()
@@ -135,23 +135,21 @@ METHOD Init() CLASS HTab
    ENDIF
 
    RETURN Nil
-/*
+
 METHOD onEvent( msg, wParam, lParam ) CLASS HTab
 
-   LOCAL iParHigh, iParLow, nPos
-
-   IF msg == WM_COMMAND
-      IF ::aEvents != Nil
-         iParHigh := hwg_Hiword( wParam )
-         iParLow  := hwg_Loword( wParam )
-         IF ( nPos := Ascan( ::aEvents, { |a|a[1] == iParHigh .AND. a[2] == iParLow } ) ) > 0
-            Eval( ::aEvents[ nPos,3 ], Self, iParLow )
-         ENDIF
-      ENDIF
+   // SS_OWNERDRAW children (e.g. @ SAY ... Transparent) send
+   // WM_DRAWITEM to their immediate parent, which is the tab
+   // control itself.  Forward it to the tab's parent (the dialog
+   // or the main window) so the shared owner-draw handler can
+   // paint the child.  Without this, such controls stay blank
+   // inside tab pages.
+   IF msg == WM_DRAWITEM .AND. ::oParent != Nil
+      RETURN ::oParent:onEvent( msg, wParam, lParam )
    ENDIF
 
-   Return - 1
-*/
+   RETURN ::Super:onEvent( msg, wParam, lParam )
+
 METHOD SetTab( n ) CLASS HTab
 
    hwg_Sendmessage( ::handle, TCM_SETCURFOCUS, n - 1, 0 )

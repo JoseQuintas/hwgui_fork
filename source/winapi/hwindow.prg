@@ -303,7 +303,7 @@ CLASS HMainWindow INHERIT HWindow
       {|o|onCloseQuery( o ) },              ;
       {|o|hwg_onDestroy( o ) },             ;
       {|o,w|onEndSession( o, w ) },         ;
-      {|o,w,l|onDrawItem( o, w, l ) }       ;
+      {|o,w,l|Hwg_onDrawItem( o, w, l ) }   ;
       } ;
       }
    DATA nMenuPos
@@ -710,23 +710,29 @@ STATIC FUNCTION onEraseBk( oWnd, hDC )
 
    RETURN -1
 
-STATIC FUNCTION onDrawItem( oWnd, wParam, lParam )
+FUNCTION hwg_OnDrawItem( oWnd, wParam, lParam )
 
-   LOCAL oCtrl, drawInfo, hDC
+   LOCAL oCtrl, drawInfo, hDC, hCtl
 
-   // wParam arrives as a pointer (HB_PUSHITEM from s_MainWndProc);
-   // convert back to the numeric control id before FindControl.
-   oCtrl := oWnd:FindControl( hwg_PtrToUlong( wParam ) )
+   HB_SYMBOL_UNUSED( oWnd )
+   HB_SYMBOL_UNUSED( wParam )
+
+   hCtl := hwg_Getdrawitemhwnd( lParam )
+   IF hCtl == Nil
+      RETURN -1
+   ENDIF
+
+   // Look up the Harbour object directly by HWND.  Walking
+   // oWnd:aControls would only find direct children of the form,
+   // but owner-draw controls can be nested (e.g. @ SAY inside a
+   // tab page is a child of the HTab, not of the dialog).
+   // hwg_GetWindowObject returns whatever object was registered
+   // with hwg_SetWindowObject - which HStatic:Init always does.
+   oCtrl := hwg_GetWindowObject( hCtl )
    IF oCtrl == Nil
       RETURN -1
    ENDIF
 
-   // Extract the HDC from the DRAWITEMSTRUCT.  This DC belongs to
-   // the WM_DRAWITEM paint cycle, so drawing on it is correct.
-   // Do not go through oCtrl:bPaint here: on WinAPI that block was
-   // provided by the user code (agenda.prg) assuming hwg_GetDC, and
-   // that call is invalid inside WM_DRAWITEM - it does not validate
-   // the paint region and causes an endless WM_PAINT loop.
    drawInfo := hwg_Getdrawiteminfo( lParam )
    hDC := drawInfo[ 3 ]
    IF hDC == Nil

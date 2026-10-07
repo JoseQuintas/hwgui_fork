@@ -23,6 +23,7 @@ STATIC aMessModalDlg := { ;
       { WM_HELP, { |o,w,l|onHelp( o,w,l ) } },                ;
       { WM_ACTIVATE, { |o,w,l|onActivate( o,w,l ) } },        ;
       { WM_INITDIALOG, { |o,w,l|InitModalDlg( o,w,l ) } },    ;
+      { WM_DRAWITEM, { |o,w,l|hwg_OnDrawItem( o, w, l ) } },  ;
       { WM_DESTROY, { |o|hwg_onDestroy( o ) } }               ;
       }
 
