@@ -21,7 +21,7 @@ libpaths=lib
 # Change 3 lines to build HwGUI in Unicode mode
 
 #PRGFLAGS=-DUNICODE -q -m -n -es2
-#{win}CFLAGS=-DUNICODE -DHWG_USE_POINTER_ITEM
+{win}CFLAGS=-DUNICODE -DHWG_USE_POINTER_ITEM
 #{unix}CFLAGS=-DUNICODE -DHWG_USE_POINTER_ITEM "`pkg-config --cflags gtk+-2.0`"
 
 PRGFLAGS=-q -m -n -es2
@@ -29,6 +29,9 @@ PRGFLAGS=-q -m -n -es2
 {unix}CFLAGS=-DHWG_USE_POINTER_ITEM "`pkg-config --cflags gtk+-2.0`"
 
 {allmingw}libs=gdiplus
+
+# Theme support (Windows XP+) — linkar uxtheme para todos os toolchains
+{win}libs=uxtheme
 
 # Activate for GCC > V8
 #-Wold-style-cast

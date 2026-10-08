@@ -15,6 +15,22 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-08 20:37 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+   * Win32: add Windows theme support (uxtheme)
+     * include/hwingui.h, include/guilib.ch: uxtheme.h + ETDT_* constants
+     * source/winapi/control.c: refactor HWG_INITCOMMONCONTROLSEX into
+       s_InitCommonControls() + hwg_theme_init_once(); add ICC_STANDARD_CLASSES;
+       add HWG_ISTHEMEACTIVE, HWG_ISAPPTHEMED, HWG_SETWINDOWTHEME,
+       HWG_ENABLEDIALOGTHEME, HWG_ISTHEMEDIALOGTEXTUREENABLED,
+       HWG_OPENWINDOWTHEME, HWG_CLOSEWINDOWTHEME
+     * source/winapi/window.c: call hwg_theme_init_once() at startup
+       (before RegisterClass)
+     * source/winapi/hdialog.prg: hwg_EnableDialogTheme(ETDT_ENABLETAB)
+       in InitModalDlg()
+     * hwgui.hbc: link uxtheme, samples/hwgui_xp.rc
+     * WindowsXP.Manifest: new (comctl32 v6 dependency)
+     * samples/testtheme.prg: new (theme diagnostics sample)
+
 2026-10-08 12:31 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     HPanel: collapse / expand sidebar with auto-hide on hover.
     Adds Collapse(), Expand(), ToggleCollapse() and SetAutoCollapse()

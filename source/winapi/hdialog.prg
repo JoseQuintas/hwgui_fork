@@ -295,6 +295,9 @@ STATIC FUNCTION InitModalDlg( oDlg, wParam, lParam )
    IF ValType( oDlg:menu ) == "A"
       hwg__SetMenu( oDlg:handle, oDlg:menu[5] )
    ENDIF
+   IF hwg_IsThemeActive() .AND. hwg_IsAppThemed()
+      hwg_EnableDialogTheme( oDlg:handle, ETDT_ENABLETAB )
+   ENDIF
    hwg_InitControls( oDlg, .T. )
    IF oDlg:oIcon != Nil
       hwg_Sendmessage( oDlg:handle, WM_SETICON, 1, oDlg:oIcon:handle )

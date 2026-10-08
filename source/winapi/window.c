@@ -114,6 +114,8 @@ HB_FUNC( HWG_INITMAINWINDOW )
    int width = hb_parnl( 11 );
    int height = hb_parnl( 12 );
 
+   hwg_theme_init_once();
+
    if( !aWindows[0] )
    {
       wndclass.style = CS_OWNDC | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
@@ -381,6 +383,8 @@ HB_FUNC( HWG_INITMDIWINDOW )
    int width = hb_parnl( 10 );
    int height = hb_parnl( 11 );
 
+   hwg_theme_init_once();
+
    if( aWindows[0] )
    {
       hb_retni( -1 );
@@ -522,6 +526,8 @@ HB_FUNC( HWG_CREATEMDICHILDWINDOW )
             style = WS_VISIBLE | WS_CHILD | WS_OVERLAPPEDWINDOW | ( int ) hb_parnl( 2 );
       else
             style = style | ( int ) hb_parnl( 2 );
+
+      hwg_theme_init_once();
 
       if( aWindows[0] )
       {
@@ -1563,6 +1569,8 @@ HB_FUNC( HWG__ISUNICODE )
 
 HB_FUNC( HWG_INITPROC )
 {
+   hwg_theme_init_once();
+
    s_KeybHook = SetWindowsHookEx( WH_KEYBOARD, KeybHook, 0, GetCurrentThreadId() );
 }
 

@@ -23,6 +23,15 @@
 #endif
 #include "guilib.h"
 
+/* ============================================================
+ * Theme support (Windows XP+)
+ * uxtheme.h is shipped with HWGUI (include/uxtheme.h).
+ * Requires uxtheme.lib (MSVC/BCC) or -luxtheme (MinGW/gcc).
+ * ============================================================ */
+#if !defined(__WATCOMC__) && !defined(__DMC__)
+#include <uxtheme.h>
+#endif
+
 #if ((defined(_MSC_VER)&&(_MSC_VER<1300)&&!defined(__POCC__)) || defined(__WATCOMC__)|| defined(__DMC__))
    /* DF7BE:
       Open Watcom: Macro IS_INTRESOURCE now defined in: H\NT\winuser.h
@@ -143,4 +152,9 @@ extern int iDialogs;
 extern HMODULE hModule;
 extern PHB_DYNS pSym_onEvent;
 
+HB_EXTERN_END
+
+/* --- Theme helpers (defined in control.c or theme.c) --- */
+HB_EXTERN_BEGIN
+extern BOOL hwg_theme_init_once( void );
 HB_EXTERN_END

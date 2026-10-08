@@ -80,6 +80,19 @@
 #define HORZ_PTS                9
 #define VERT_PTS               12
 
+/* ===== Theme support (Windows XP+) =====
+ * Constants mirrored from include/uxtheme.h so PRG code does not
+ * need to #include the C header.
+ */
+#define ETDT_DISABLE        0x00000001
+#define ETDT_ENABLE         0x00000002
+#define ETDT_USETABTEXTURE  0x00000004
+#define ETDT_ENABLETAB      (ETDT_ENABLE + ETDT_USETABTEXTURE)
+
+/* Style flags accepted by hwg_SetWindowTheme() (2nd parameter) */
+#define HWG_THEME_DEFAULT   0
+#define HWG_THEME_NONE      1
+
 /* HPanel auto-collapse default interval, in milliseconds. */
 #define HWG_PANEL_GRACE_MS   800
 

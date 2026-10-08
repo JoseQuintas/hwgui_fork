@@ -94,6 +94,9 @@ LRESULT APIENTRY TreeViewSubclassProc( HWND hwnd, UINT uMsg, WPARAM wParam,
       LPARAM lParam );
 static void CALLBACK s_timerProc( HWND, UINT, UINT_PTR, DWORD );
 
+/* Forward declaration: definida mais abaixo neste arquivo. */
+static void s_InitCommonControls( void );
+
 static HWND hWndTT = 0;
 static BOOL lInitCmnCtrl = 0;
 static BOOL lToolTipBalloon = FALSE;    // added by MAG
@@ -194,6 +197,22 @@ HB_FUNC( HWG_GETEFFECTIVEBRUSH )
       hb_retnint( ( HB_PTRUINT ) hwg_GetEffectiveBrush( hWnd ) );
 }
 
+static void s_InitCommonControls( void )
+{
+      if( !lInitCmnCtrl )
+      {
+            INITCOMMONCONTROLSEX i;
+            i.dwSize = sizeof( INITCOMMONCONTROLSEX );
+            i.dwICC  = ICC_STANDARD_CLASSES | ICC_WIN95_CLASSES |
+            ICC_DATE_CLASSES     | ICC_INTERNET_CLASSES |
+            ICC_BAR_CLASSES      | ICC_LISTVIEW_CLASSES  |
+            ICC_TAB_CLASSES      | ICC_TREEVIEW_CLASSES  |
+            ICC_PROGRESS_CLASS   | ICC_UPDOWN_CLASS      ;
+            InitCommonControlsEx( &i );
+            lInitCmnCtrl = 1;
+      }
+}
+
 /*=============================================================================
  * HWG_INITCOMMONCONTROLSEX()
  * Initializes Windows common controls
@@ -201,17 +220,25 @@ HB_FUNC( HWG_GETEFFECTIVEBRUSH )
  *===========================================================================*/
 HB_FUNC( HWG_INITCOMMONCONTROLSEX )
 {
-   if( !lInitCmnCtrl )
-   {
-      INITCOMMONCONTROLSEX i;
+      s_InitCommonControls();
+}
 
-      i.dwSize = sizeof( INITCOMMONCONTROLSEX );
-      i.dwICC =
-            ICC_DATE_CLASSES | ICC_INTERNET_CLASSES | ICC_BAR_CLASSES |
-            ICC_LISTVIEW_CLASSES | ICC_TAB_CLASSES | ICC_TREEVIEW_CLASSES;
-      InitCommonControlsEx( &i );
-      lInitCmnCtrl = 1;
-   }
+BOOL hwg_theme_init_once( void )
+{
+      s_InitCommonControls();
+      return TRUE;
+}
+/*=============================================================================
+ * hwg_theme_init_once()
+ * Ensures common controls are initialized exactly once, at application
+ * startup, *before* any window/dialog is created.  Without this, the
+ * first window created (usually the main window) is not themed and the
+ * application stays stuck in the legacy look for its whole lifetime.
+ *===========================================================================*/
+BOOL hwg_theme_init_once( void )
+{
+      s_InitCommonControls();
+      return TRUE;
 }
 
 /*=============================================================================
@@ -3336,6 +3363,82 @@ HB_FUNC( HWG_DEFUSERLANG )
 HB_FUNC( HWG_SHOWCURSOR )
 {
   hb_retni(ShowCursor(hb_parl( 1 ) ) );
+}
+
+/*=============================================================================
+ * Theme support (Windows XP+) — see hwingui.h / include/uxtheme.h
+ *
+ * IsThemeActive()  : a visual theme is present on the system.
+ * IsAppThemed()    : *this process* is themed (manifest is active).
+ *                    If this returns FALSE while IsThemeActive() is TRUE,
+ *                    the executable is missing the comctl32 v6 manifest.
+ * SetWindowTheme() : apply/remove a theme on a specific HWND.
+ * EnableThemeDialogTexture() : give a dialog the same textured background
+ *                    as its tab control (fixes the classic "flat gray
+ *                    behind the tab" issue with ETDT_ENABLETAB).
+ *===========================================================================*/
+
+HB_FUNC( HWG_ISTHEMEACTIVE )
+{
+      hb_retl( IsThemeActive() );
+}
+
+HB_FUNC( HWG_ISAPPTHEMED )
+{
+      hb_retl( IsAppThemed() );
+}
+
+/*
+ * hwg_SetWindowTheme( hWnd, cSubApp, cSubId )
+ *
+ *   hwg_SetWindowTheme( hWnd, "Explorer", Nil )  -> force Explorer look
+ *   hwg_SetWindowTheme( hWnd, " ", " " )         -> remove theme
+ *   hwg_SetWindowTheme( hWnd, Nil, Nil )         -> restore default
+ *
+ * Returns HRESULT (0 == S_OK).
+ */
+HB_FUNC( HWG_SETWINDOWTHEME )
+{
+      HWND     hWnd   = ( HWND ) HB_PARHANDLE( 1 );
+      void    *hApp   = NULL, *hId = NULL;
+      LPCTSTR  lpszApp = HB_PARSTR( 2, &hApp, NULL );
+      LPCTSTR  lpszId  = HB_PARSTR( 3, &hId,  NULL );
+      HRESULT  hr;
+
+      hr = SetWindowTheme( hWnd, lpszApp, lpszId );
+
+      hb_strfree( hApp );
+      hb_strfree( hId );
+
+      hb_retnl( ( LONG ) hr );
+}
+
+HB_FUNC( HWG_ENABLEDIALOGTHEME )
+{
+      HWND  hDlg   = ( HWND ) HB_PARHANDLE( 1 );
+      DWORD dwFlag = ( DWORD ) hb_parnl( 2 );
+
+      hb_retnl( ( LONG ) EnableThemeDialogTexture( hDlg, dwFlag ) );
+}
+
+HB_FUNC( HWG_ISTHEMEDIALOGTEXTUREENABLED )
+{
+      hb_retl( IsThemeDialogTextureEnabled( ( HWND ) HB_PARHANDLE( 1 ) ) );
+}
+
+HB_FUNC( HWG_OPENWINDOWTHEME )
+{
+      void   *hCls    = NULL;
+      LPCTSTR lpszCls = HB_PARSTR( 2, &hCls, NULL );
+      HTHEME  h       = OpenThemeData( ( HWND ) HB_PARHANDLE( 1 ), lpszCls );
+
+      hb_strfree( hCls );
+      HB_RETHANDLE( h );
+}
+
+HB_FUNC( HWG_CLOSEWINDOWTHEME )
+{
+      CloseThemeData( ( HTHEME ) HB_PARHANDLE( 1 ) );
 }
 
 /* ====================== EOF of control.c ======================= */
