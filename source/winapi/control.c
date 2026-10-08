@@ -23,6 +23,7 @@
  */
 
 #include "hbapiitm.h"
+#include "hbapicls.h"
 #include "hbvm.h"
 #include "hbdate.h"
 #include "hbtrace.h"
@@ -98,6 +99,100 @@ static BOOL lInitCmnCtrl = 0;
 static BOOL lToolTipBalloon = FALSE;    // added by MAG
 static WNDPROC wpOrigEditProc, wpOrigTrackProc, wpOrigTabProc, wpOrigListProc, wpOrigUpDownProc, wpOrigDatePickerProc,  wpOrigTreeViewProc;
 static LONG_PTR wpOrigButtonProc;
+
+/*=============================================================================
+ * hwg_GetControlBrush
+ *
+ * Returns the HBRUSH stored on the HWGUI object attached to hWnd, or
+ * NULL if the window has no PRG object / no brush set.
+ *
+ * HControl stores its background brush as ::brush. A few older
+ * subclasses also used ::hBrush, so we probe both names. The probe
+ * uses hb_objHasMessage() to avoid a runtime error when the DATA
+ * is not declared on the object.
+ *===========================================================================*/
+static HBRUSH hwg_GetControlBrush( HWND hWnd )
+{
+      PHB_ITEM pObj;
+      PHB_ITEM pVal;
+      HBRUSH   hBr = NULL;
+      static PHB_DYNS s_pSymBrush  = NULL;
+      static PHB_DYNS s_pSymHBrush = NULL;
+
+      if( hWnd == NULL )
+            return NULL;
+
+      pObj = ( PHB_ITEM ) GetWindowLongPtr( hWnd, GWLP_USERDATA );
+      if( pObj == NULL )
+            return NULL;
+
+      if( s_pSymBrush == NULL )
+            s_pSymBrush = hb_dynsymFindName( "BRUSH" );
+      if( s_pSymHBrush == NULL )
+            s_pSymHBrush = hb_dynsymFindName( "HBRUSH" );
+
+      if( s_pSymBrush != NULL && hb_objHasMessage( pObj, s_pSymBrush ) )
+      {
+            pVal = hb_objSendMsg( pObj, "BRUSH", 0 );
+            if( pVal != NULL && HB_IS_NUMERIC( pVal ) )
+                  hBr = ( HBRUSH ) ( HB_PTRUINT ) hb_itemGetNInt( pVal );
+      }
+
+      if( hBr == NULL && s_pSymHBrush != NULL &&
+            hb_objHasMessage( pObj, s_pSymHBrush ) )
+      {
+            pVal = hb_objSendMsg( pObj, "HBRUSH", 0 );
+            if( pVal != NULL && HB_IS_NUMERIC( pVal ) )
+                  hBr = ( HBRUSH ) ( HB_PTRUINT ) hb_itemGetNInt( pVal );
+      }
+
+      return hBr;
+}
+
+/*=============================================================================
+ * hwg_GetEffectiveBrush
+ *
+ * Returns a valid background brush for an owner-draw control by
+ * walking up the parent chain until a non-NULL brush is found.
+ * Falls back to WHITE_BRUSH so owner-draw controls never paint
+ * pure black inside tabs or nested containers.
+ *===========================================================================*/
+HBRUSH hwg_GetEffectiveBrush( HWND hWnd )
+{
+      HWND   hParent;
+      HBRUSH hBr;
+      int    nDepth = 0;
+
+      if( hWnd == NULL )
+            return ( HBRUSH ) GetStockObject( WHITE_BRUSH );
+
+      hParent = GetParent( hWnd );
+
+      while( hParent != NULL && nDepth++ < 32 )
+      {
+            hBr = hwg_GetControlBrush( hParent );
+            if( hBr != NULL )
+                  return hBr;
+
+            hParent = GetParent( hParent );
+      }
+
+      return ( HBRUSH ) GetStockObject( WHITE_BRUSH );
+}
+
+/*=============================================================================
+ * HWG_GETEFFECTIVEBRUSH()
+ *
+ * PRG-visible wrapper around hwg_GetEffectiveBrush().
+ *   1 - HWND of the control whose owner-draw paint needs a brush
+ * Returns a valid HBRUSH (never 0).
+ *===========================================================================*/
+HB_FUNC( HWG_GETEFFECTIVEBRUSH )
+{
+      HWND hWnd = ( HWND ) HB_PARHANDLE( 1 );
+
+      hb_retnint( ( HB_PTRUINT ) hwg_GetEffectiveBrush( hWnd ) );
+}
 
 /*=============================================================================
  * HWG_INITCOMMONCONTROLSEX()
@@ -2131,12 +2226,24 @@ LRESULT APIENTRY TabSubclassProc( HWND hWnd, UINT message, WPARAM wParam,
                HDC hdcMem;
                HBITMAP hbmMem;
                HBITMAP hbmOld;
+               HBRUSH hBg;
 
                GetClientRect( hWnd, &rc );
 
                hdcMem = CreateCompatibleDC( hdc );
                hbmMem = CreateCompatibleBitmap( hdc, rc.right - rc.left, rc.bottom - rc.top );
                hbmOld = ( HBITMAP ) SelectObject( hdcMem, hbmMem );
+
+               /* Pre-fill the memory DC with the effective background
+                * brush. The tab control's WM_PRINTCLIENT with
+                * PRF_ERASEBKGND is not reliable on modern Windows
+                * (themed controls only paint the tab strip, leaving the
+                * area below it as the uninitialised bitmap colour, i.e.
+                * black). hwg_GetEffectiveBrush() walks up the parent
+                * chain so we pick up the dialog's BACKCOLOR. */
+               hBg = hwg_GetEffectiveBrush( hWnd );
+               if( hBg )
+                     FillRect( hdcMem, &rc, hBg );
 
                CallWindowProc( wpOrigTabProc, hWnd, WM_PRINTCLIENT, ( WPARAM ) hdcMem,
                                ( LPARAM ) ( PRF_CLIENT | PRF_ERASEBKGND ) );

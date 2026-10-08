@@ -63,35 +63,45 @@ CLASS HTab INHERIT HControl
 ENDCLASS
 
 METHOD New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, ;
-      oFont, bInit, bSize, bPaint, aTabs, bChange, aImages, lResour, nBC, bClick, bGetFocus, bLostFocus, lOwnerDraw ) CLASS HTab
+      oFont, bInit, bSize, bPaint, aTabs, bChange, aImages, lResour, nBC, ;
+      bClick, bGetFocus, bLostFocus, lOwnerDraw ) CLASS HTab
    LOCAL i, aBmpSize
 
    lOwnerDraw := ( ValType( lOwnerDraw ) == "L" .AND. lOwnerDraw )
 
-   nStyle   := Hwg_BitOr( iif( nStyle == Nil,0,nStyle ), WS_CHILD + WS_VISIBLE + WS_TABSTOP )
+   nStyle := Hwg_BitOr( iif( nStyle == Nil, 0, nStyle ), ;
+      WS_CHILD + WS_VISIBLE + WS_TABSTOP )
 
    IF lOwnerDraw
       nStyle := Hwg_BitOr( nStyle, TCS_OWNERDRAWFIXED )
    ENDIF
 
-   ::Super:New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, oFont, bInit, ;
-      bSize, bPaint )
+   ::Super:New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, ;
+      oFont, bInit, bSize, bPaint )
 
-   ::title   := ""
-   ::oFont   := iif( oFont == Nil, ::oParent:oFont, oFont )
-   ::aTabs   := iif( aTabs == Nil, {}, aTabs )
-   ::bChange := bChange
+   ::title    := ""
+   ::oFont    := iif( oFont == Nil, ::oParent:oFont, oFont )
+   ::aTabs    := iif( aTabs == Nil, {}, aTabs )
+   ::bChange  := bChange
    ::bChange2 := bChange
 
-   ::bGetFocus := iif( bGetFocus == Nil, Nil, bGetFocus )
+   // nBC is currently used only for the image list mask color.
+   // When no BACKCOLOR is later assigned, use it as a hint so the
+   // tab can paint its own background consistently with its parent.
+   IF ::brush == Nil .AND. ValType( nBC ) == "N"
+      ::brush := hwg_CreateSolidBrush( nBC )
+   ENDIF
+
+   ::bGetFocus  := iif( bGetFocus == Nil, Nil, bGetFocus )
    ::bLostFocus := iif( bLostFocus == Nil, Nil, bLostFocus )
-   ::bAction   := iif( bClick == Nil, Nil, bClick )
+   ::bAction    := iif( bClick == Nil, Nil, bClick )
 
    IF aImages != Nil
       ::aImages := {}
       FOR i := 1 TO Len( aImages )
          AAdd( ::aImages, Upper( aImages[i] ) )
-         aImages[i] := iif( lResour, hwg_Loadbitmap( aImages[i] ), hwg_Openbitmap( aImages[i] ) )
+         aImages[i] := iif( lResour, hwg_Loadbitmap( aImages[i] ), ;
+                                      hwg_Openbitmap( aImages[i] ) )
       NEXT
       aBmpSize := hwg_Getbitmapsize( aImages[1] )
       ::himl := hwg_Createimagelist( aImages, aBmpSize[1], aBmpSize[2], 12, nBC )
@@ -120,7 +130,22 @@ METHOD Init() CLASS HTab
 
    IF !::lInit
       ::Super:Init()
-      hwg_Inittabcontrol( ::handle, ::aTabs, IF( ::himl != Nil,::himl,0 ) )
+
+      // Owner-draw children (SS_OWNERDRAW) rely on their parent's
+      // brush to erase the background before painting. HTabPage and
+      // HTab are not created with an explicit BACKCOLOR, so ::brush
+      // stays Nil and Windows falls back to BLACK.
+      //
+      // Inherit the brush from the parent window when available,
+      // so HStatic/@ SAY ... Transparent inside a tab page paints
+      // with the correct background color.
+      IF ::brush == Nil .AND. ::oParent != Nil
+         IF __ObjHasMsg( ::oParent, "brush" ) .AND. ::oParent:brush != Nil
+            ::brush := ::oParent:brush
+         ENDIF
+      ENDIF
+
+      hwg_Inittabcontrol( ::handle, ::aTabs, IF( ::himl != Nil, ::himl, 0 ) )
       ::nHolder := 1
       hwg_Setwindowobject( ::handle, Self )
 
@@ -137,15 +162,23 @@ METHOD Init() CLASS HTab
    RETURN Nil
 
 METHOD onEvent( msg, wParam, lParam ) CLASS HTab
+   LOCAL oCtrl
 
-   // SS_OWNERDRAW children (e.g. @ SAY ... Transparent) send
-   // WM_DRAWITEM to their immediate parent, which is the tab
-   // control itself.  Forward it to the tab's parent (the dialog
-   // or the main window) so the shared owner-draw handler can
-   // paint the child.  Without this, such controls stay blank
-   // inside tab pages.
+   // SS_OWNERDRAW children (e.g. "@ SAY ... Transparent") send
+   // WM_DRAWITEM to their immediate parent, which is the tab control
+   // itself. Forward it to the tab's parent (dialog or main window)
+   // so the shared owner-draw handler can paint the child.
+   //
+   // IMPORTANT: only forward when wParam actually belongs to a child
+   // of THIS tab. Otherwise we would also forward the tab's own
+   // WM_DRAWITEM (when TCS_OWNERDRAWFIXED is set), which breaks the
+   // tab strip rendering and leaves blank/black areas.
    IF msg == WM_DRAWITEM .AND. ::oParent != Nil
-      RETURN ::oParent:onEvent( msg, wParam, lParam )
+      oCtrl := hwg_GetWindowObject( wParam )
+      IF oCtrl != Nil .AND. oCtrl:oParent == Self
+         RETURN ::oParent:onEvent( msg, wParam, lParam )
+      ENDIF
+      // Fall through to Super for the tab's own owner-draw handling.
    ENDIF
 
    RETURN ::Super:onEvent( msg, wParam, lParam )

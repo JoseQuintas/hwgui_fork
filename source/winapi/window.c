@@ -54,6 +54,12 @@ PHB_DYNS pSym_keylist = NULL;
 
 static LPCTSTR s_szChild = TEXT( "MDICHILD" );
 
+/* Defined in control.c. Returns the effective background brush for
+ * hWnd, walking up the parent chain when the immediate brush is NULL.
+ * Used by HWG_GETBACKBRUSH() so owner-draw controls and nested tabs
+ * never fall back to black. */
+extern HBRUSH hwg_GetEffectiveBrush( HWND hWnd );
+
 void hwg_doEvents( void )
 {
    MSG msg;
@@ -1491,15 +1497,23 @@ HB_FUNC( HWG_PAINTWINDOW )
 
 HB_FUNC( HWG_GETBACKBRUSH )
 {
-   /* FIXED: GetDC() must be paired with ReleaseDC() - the DC handle was
-    * being leaked on every call. */
-   HWND hWnd = ( HWND ) HB_PARHANDLE( 1 );
-   HDC hDC = GetDC( hWnd );
-   HANDLE hBrush = GetCurrentObject( hDC, OBJ_BRUSH );
+      HWND   hWnd = ( HWND ) HB_PARHANDLE( 1 );
+      HBRUSH hBr;
 
-   ReleaseDC( hWnd, hDC );
+      if( hWnd == NULL )
+      {
+            HB_RETHANDLE( NULL );
+            return;
+      }
 
-   HB_RETHANDLE( hBrush );
+      /* Walk up the parent chain instead of asking the DC for its
+       * currently selected brush. The DC approach returned whatever
+       * happened to be selected (often the wrong colour inside tab
+       * pages), while this returns the HBRUSH that the owner-draw
+       * control should actually fill its background with. */
+      hBr = hwg_GetEffectiveBrush( hWnd );
+
+      HB_RETHANDLE( hBr );
 }
 
 HB_FUNC( HWG_WINDOWSETRESIZE )

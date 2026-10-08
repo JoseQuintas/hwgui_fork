@@ -15,6 +15,20 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-07 23:06 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+    winapi: fix black background on HTabPage and owner-draw HStatic
+    inside tabs.  Regression from r4017: HTabPage had no ::brush, so
+    SS_OWNERDRAW children fell back to BLACK; TabSubclassProc double-
+    buffer exposed the uninitialised bitmap below the tab strip on
+    themed Windows.  onEvent() forwards WM_DRAWITEM only for direct
+    children; Init() inherits parent's brush; new hwg_GetControlBrush()
+    / hwg_GetEffectiveBrush() walk up the parent chain with WHITE_BRUSH
+    fallback; HWG_GETBACKBRUSH() reimplemented on top of it;
+    TabSubclassProc WM_PAINT pre-fills the memory DC.
+  * source\winapi\control.c
+  * source\winapi\htab.prg
+  * source\winapi\window.c
+
 2026-10-07 12:27 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     winapi: ADD LEFT/RIGHT PANEL commands + HPanel resize fix.
     Enables sidebar layouts on WinAPI; HPanel default resize now
