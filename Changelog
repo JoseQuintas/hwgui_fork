@@ -15,6 +15,24 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-08 12:31 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+    HPanel: collapse / expand sidebar with auto-hide on hover.
+    Adds Collapse(), Expand(), ToggleCollapse() and SetAutoCollapse()
+    to HPanel.  When collapsed, top-level dialogs owned by the parent
+    form are shifted left by the panel width and widened, so the freed
+    area is reused; expanding restores them.  Auto-collapse polls the
+    cursor on a Windows timer and hides the panel after a grace period
+    of mouse-away, expanding again when the cursor reaches the left
+    edge of the parent window.  New C helpers HWG_PANEL_GETRECT() and
+    HWG_PANEL_ENUMOWNED(); HWG_SETTIMER() now accepts a codeblock,
+    stored in a C-side registry and evaluated by s_timerProcBlock,
+    replacing the fixed HWG_TIMERPROC dispatcher.
+  * source\winapi\control.c
+  * source\winapi\hpanel.prg
+  * source\winapi\window.c
+  * include\guilib.ch
+  * samples\sidebar.prg
+
 2026-10-07 23:06 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     winapi: fix black background on HTabPage and owner-draw HStatic
     inside tabs.  Regression from r4017: HTabPage had no ::brush, so

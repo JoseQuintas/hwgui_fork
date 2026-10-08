@@ -80,6 +80,18 @@
 #define HORZ_PTS                9
 #define VERT_PTS               12
 
+/* HPanel auto-collapse default interval, in milliseconds. */
+#define HWG_PANEL_GRACE_MS   800
+
+/* WindowLongPtr indexes (subset).  See hwingui.h for the full list. */
+#define GWL_STYLE        (-16)
+#define GWL_EXSTYLE      (-20)
+#define GWLP_WNDPROC     (-4)
+#define GWLP_HINSTANCE   (-6)
+#define GWLP_HWNDPARENT  (-8)
+#define GWLP_USERDATA    (-21)
+#define GWLP_ID          (-12)
+
 #ifdef __LINUX__
    /* for some ancient [x]Harbour versions which do not set __PLATFORM__UNIX */
    #ifndef __PLATFORM__UNIX

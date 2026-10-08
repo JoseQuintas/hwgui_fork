@@ -1566,19 +1566,24 @@ HB_FUNC( HWG_INITPROC )
    s_KeybHook = SetWindowsHookEx( WH_KEYBOARD, KeybHook, 0, GetCurrentThreadId() );
 }
 
+extern void hwg_timersExit( void );   /* defined in control.c */
+
 HB_FUNC( HWG_EXITPROC )
 {
-   if( aDialogs )
-      hb_xfree( aDialogs );
+      if( aDialogs )
+            hb_xfree( aDialogs );
 
-   if( s_KeybHook )
-   {
-      UnhookWindowsHookEx( s_KeybHook );
-      s_KeybHook = NULL;
-   }
-#if defined( __USE_GDIPLUS )
-   hwg_GdiplusExit();
-#endif
+      if( s_KeybHook )
+      {
+            UnhookWindowsHookEx( s_KeybHook );
+            s_KeybHook = NULL;
+      }
+
+      hwg_timersExit();                   /* <-- nova linha */
+
+      #if defined( __USE_GDIPLUS )
+      hwg_GdiplusExit();
+      #endif
 }
 
 /*

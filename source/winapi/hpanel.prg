@@ -11,6 +11,14 @@
 #include "hwgui.ch"
 #include "hbclass.ch"
 
+/* hb_idleAdd callback id while auto-collapse is active (0 = off),
+ * and timestamp of the last mouse check.  The idle callback fires
+ * many times per second; nLastCheck throttles the real work to one
+ * pass every ~200 ms. */
+STATIC nAutoIdleId  := 0
+STATIC nLastCheck   := 0
+STATIC oAutoPanel   := Nil
+
 CLASS HPanel INHERIT HControl
 
    DATA winclass Init "PANEL"
@@ -20,6 +28,17 @@ CLASS HPanel INHERIT HControl
    DATA oPaintCB    INIT {}         // HPaintCB object
    DATA lDragWin    INIT .F.
    DATA lCaptured   INIT .F.
+
+   /* --- Collapse / expand support ------------------------------ */
+   DATA lCollapsed     INIT .F.    // .T. when the panel is hidden
+   DATA lAutoCollapse  INIT .F.    // .T. enables hover auto-collapse
+   DATA nAutoTimer     INIT 0      // WM_TIMER id (0 = no timer)
+   DATA nGraceMs       INIT 0      // accumulated mouse-away time
+   DATA nGraceThresh   INIT 800    // ms of mouse-away before collapse
+   DATA bOnCollapse    INIT Nil    // {|| ... } after Collapse()
+   DATA bOnExpand      INIT Nil    // {|| ... } after Expand()
+   DATA lLastSyncState INIT Nil    // previous ::lCollapsed value seen
+
    DATA hCursor
    DATA nOldX, nOldY HIDDEN
    DATA lResizeX, lResizeY, nSize HIDDEN
@@ -37,6 +56,14 @@ CLASS HPanel INHERIT HControl
    METHOD Show()
    //METHOD SetPaintCB( nId, block, cId )
    METHOD Drag( xPos, yPos )
+
+   METHOD Collapse()
+   METHOD Expand()
+   METHOD ToggleCollapse()
+   METHOD SetAutoCollapse( lOn )
+   METHOD SyncTrackedWindows()
+   METHOD OnAutoTimer()
+
    METHOD Release()
 
 ENDCLASS
@@ -109,6 +136,10 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HPanel
    ELSEIF msg == WM_DESTROY
       IF ::oEmbedded != Nil
          ::oEmbedded:END()
+      ENDIF
+      IF ::nAutoTimer != 0
+         hwg_KillTimer( ::handle, ::nAutoTimer )
+         ::nAutoTimer := 0
       ENDIF
       ::Super:onEvent( WM_DESTROY )
       RETURN 0
@@ -352,6 +383,246 @@ METHOD Drag( xPos, yPos ) CLASS HPanel
 
    IF Abs(xPos-::nOldX) > 1 .OR. Abs(yPos-::nOldY) > 1
       oWnd:Move( oWnd:nLeft + (xPos-::nOldX), oWnd:nTop + (yPos-::nOldY) )
+   ENDIF
+
+   RETURN Nil
+
+/*===========================================================================
+ * Collapse() / Expand() / ToggleCollapse()
+ *
+ * Hide or restore the panel and shift any top-level dialogs owned by
+ * the parent form so they fill (or give back) the space occupied by
+ * the sidebar.  Original positions are remembered per HWND, so manual
+ * moves made while the panel is expanded are respected on the next
+ * collapse cycle.
+ *=========================================================================*/
+
+METHOD Collapse() CLASS HPanel
+
+   IF ::lCollapsed
+      RETURN Nil
+   ENDIF
+
+   ::Hide()
+   ::lCollapsed := .T.
+
+   ::SyncTrackedWindows()
+
+   IF ::bOnCollapse != Nil
+      Eval( ::bOnCollapse, Self )
+   ENDIF
+
+   RETURN Nil
+
+METHOD Expand() CLASS HPanel
+
+   IF !::lCollapsed
+      RETURN Nil
+   ENDIF
+
+   ::Show()
+   ::lCollapsed := .F.
+
+   ::SyncTrackedWindows()
+
+   IF ::bOnExpand != Nil
+      Eval( ::bOnExpand, Self )
+   ENDIF
+
+   RETURN Nil
+
+METHOD ToggleCollapse() CLASS HPanel
+
+   IF ::lCollapsed
+      ::Expand()
+   ELSE
+      ::Collapse()
+   ENDIF
+
+   RETURN Nil
+
+/*=============================================================================
+ * SyncTrackedWindows
+ *
+ * Applies (or reverts) the horizontal shift on every top-level dialog
+ * owned by the parent form when the panel collapsed state changes.
+ *
+ * This version is intentionally type-agnostic: it never compares HWNDs
+ * across calls and never stores them in an array.  It only checks
+ * whether ::lCollapsed changed since the last call, and if so shifts
+ * each visible owned window by +-::nWidth using the delta rule:
+ *
+ *     nDelta = iif( ::lCollapsed, -::nWidth, +::nWidth )
+ *     left   = left  + nDelta
+ *     width  = width - nDelta
+ *
+ * The previous algorithm kept a per-HWND table of original positions
+ * and looked up entries with AScan().  Depending on how the C helper
+ * marshalled handles (pointer vs numeric), the comparison raised
+ * "Argument error: ==".  The delta approach sidesteps that entirely.
+ *===========================================================================*/
+METHOD SyncTrackedWindows() CLASS HPanel
+
+   LOCAL hParent, aWins, aRect, hWnd, nHandle, nDelta, i
+
+   IF ::oParent == Nil
+      RETURN Nil
+   ENDIF
+
+   hParent := ::oParent:handle
+   IF ValType( hParent ) != "N" .OR. hParent == 0
+      RETURN Nil
+   ENDIF
+
+   /* No state change since last sync: nothing to do.  This also
+    * prevents double-shifting when the timer fires every 200 ms. */
+   IF ::lLastSyncState != Nil .AND. ::lLastSyncState == ::lCollapsed
+      RETURN Nil
+   ENDIF
+   ::lLastSyncState := ::lCollapsed
+
+   /* Collapse: shift left, grow right.  Expand: shift right, shrink. */
+   nDelta := iif( ::lCollapsed, -::nWidth, ::nWidth )
+
+   aWins := hwg_Panel_EnumOwned( hParent )
+
+   FOR i := 1 TO Len( aWins )
+
+      hWnd := aWins[i]
+
+      /* Normalise handle to numeric.  Accept either numeric or
+       * pointer from the C side; never mix them in a comparison. */
+      DO CASE
+      CASE ValType( hWnd ) == "N"
+         nHandle := hWnd
+      CASE ValType( hWnd ) == "P"
+         nHandle := Int( hWnd )
+      OTHERWISE
+         LOOP
+      ENDCASE
+
+      IF nHandle <= 0
+         LOOP
+      ENDIF
+
+      aRect := hwg_Panel_GetRect( nHandle )
+      IF ValType( aRect ) != "A" .OR. Len( aRect ) != 4
+         LOOP
+      ENDIF
+      IF aRect[3] <= aRect[1] .OR. aRect[4] <= aRect[2]
+         LOOP
+      ENDIF
+
+      hwg_MoveWindow( nHandle, ;
+                      aRect[1] + nDelta, ;
+                      aRect[2], ;
+                      ( aRect[3] - aRect[1] ) - nDelta, ;
+                      aRect[4] - aRect[2], ;
+                      .T. )
+   NEXT
+
+   RETURN Nil
+
+/*===========================================================================
+ * SetAutoCollapse( lOn )
+ *
+ * Enables / disables the hover auto-collapse.  When enabled, a 200 ms
+ * timer polls the cursor; if it stays away from the panel for longer
+ * than ::nGraceThresh milliseconds the panel collapses automatically.
+ * Moving the cursor to the left edge (x <= 4) expands it back.
+ *
+ * The timer is created lazily so panels that never opt in pay nothing.
+ *=========================================================================*/
+METHOD SetAutoCollapse( lOn ) CLASS HPanel
+
+   lOn := ( ValType( lOn ) == "L" .AND. lOn )
+
+   IF lOn == ::lAutoCollapse
+      RETURN Nil
+   ENDIF
+
+   ::lAutoCollapse := lOn
+
+   IF ::lAutoCollapse
+      IF ::nAutoTimer == 0
+         ::nAutoTimer := 100
+         /* The codeblock is stored in the C-level timer registry and
+          * evaluated on every tick by s_timerProcBlock.  No global
+          * dispatcher name is looked up, so the timer works even when
+          * HWG_TIMERPROC / HWG_PANEL_TIMERPROC are not defined. */
+         hwg_SetTimer( ::handle, ::nAutoTimer, 200, {|| ::OnAutoTimer()} )
+      ENDIF
+   ELSE
+      IF ::nAutoTimer != 0
+         hwg_KillTimer( ::handle, ::nAutoTimer )
+         ::nAutoTimer := 0
+      ENDIF
+      IF ::lCollapsed
+         ::Expand()
+      ENDIF
+   ENDIF
+
+   RETURN Nil
+
+/*===========================================================================
+ * OnAutoTimer()
+ *
+ * Timer callback: keeps the tracked windows in sync (so a dialog that
+ * is opened while collapsed is immediately shifted) and, if auto-
+ * collapse is on, decides whether to collapse or expand based on the
+ * current cursor position.
+ *=========================================================================*/
+METHOD OnAutoTimer() CLASS HPanel
+
+   LOCAL aPos, aRect, nX, nY, lInside
+
+   ::SyncTrackedWindows()
+
+   IF !::lAutoCollapse
+      RETURN Nil
+   ENDIF
+
+   aPos := hwg_GetCursorPos()
+   IF ValType( aPos ) != "A" .OR. Len( aPos ) < 2
+      RETURN Nil
+   ENDIF
+   nX := aPos[1]
+   nY := aPos[2]
+
+   IF ::lCollapsed
+
+      /* Expand when the cursor reaches the left edge of the screen. */
+      IF nX <= 4
+         ::Expand()
+         ::nGraceMs := 0
+      ENDIF
+
+   ELSE
+
+      /* Use the panel's real screen rect for the hit test.  The
+       * previous version compared the cursor X against ::nWidth,
+       * assuming the main window was at x = 0.  When the window is
+       * centred (or moved), the panel's on-screen x is not 0 and
+       * the check never matches.  A small tolerance on all four
+       * sides prevents flicker when the cursor grazes the border. */
+      aRect   := hwg_Panel_GetRect( ::handle )
+      lInside := .F.
+
+      IF ValType( aRect ) == "A" .AND. Len( aRect ) == 4
+         lInside := ( nX >= aRect[1] - 20 .AND. nX <= aRect[3] + 20 .AND. ;
+                      nY >= aRect[2]      .AND. nY <= aRect[4] + 40 )
+      ENDIF
+
+      IF !lInside
+         ::nGraceMs += 200
+         IF ::nGraceMs >= ::nGraceThresh
+            ::Collapse()
+            ::nGraceMs := 0
+         ENDIF
+      ELSE
+         ::nGraceMs := 0
+      ENDIF
+
    ENDIF
 
    RETURN Nil
@@ -643,5 +914,42 @@ STATIC FUNCTION fPaintBtn( oBtn )
    ENDIF
 
    hwg_Endpaint( oBtn:handle, pps )
+
+   RETURN Nil
+
+/*===========================================================================
+ * HPanelAutoTick
+ *
+ * Idle callback installed by HPanel:SetAutoCollapse().  Runs on the
+ * main thread between window messages.  Throttled to one real check
+ * every ~200 ms so it does not steal CPU from the UI.
+ *
+ * Using hb_idleAdd instead of a Windows timer or a background thread
+ * avoids two problems:
+ *   - HWG_SETTIMER with 4 parameters never reaches HPanel:onEvent in
+ *     this build, so WM_TIMER is lost;
+ *   - STATIC variables are not shared between Harbour threads, so a
+ *     worker thread cannot see oPanel / lAutoCollapse reliably.
+ *=========================================================================*/
+FUNCTION HPanelAutoTick()
+
+   LOCAL nNow
+   hwg_MsgInfo( "tick" )   // TEMPORÁRIO
+
+   IF oAutoPanel == Nil
+      RETURN Nil
+   ENDIF
+
+   nNow := hb_MilliSeconds()
+   IF nNow - nLastCheck < 200
+      RETURN Nil
+   ENDIF
+   nLastCheck := nNow
+
+   BEGIN SEQUENCE
+      oAutoPanel:OnAutoTimer()
+   RECOVER
+      // swallow transient errors so the idle loop never dies
+   END SEQUENCE
 
    RETURN Nil

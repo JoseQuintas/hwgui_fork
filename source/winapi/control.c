@@ -92,7 +92,7 @@ LRESULT APIENTRY TabSubclassProc( HWND hwnd, UINT uMsg, WPARAM wParam,
       LPARAM lParam );
 LRESULT APIENTRY TreeViewSubclassProc( HWND hwnd, UINT uMsg, WPARAM wParam,
       LPARAM lParam );
-static void CALLBACK s_timerProc( HWND, UINT, UINT, DWORD );
+static void CALLBACK s_timerProc( HWND, UINT, UINT_PTR, DWORD );
 
 static HWND hWndTT = 0;
 static BOOL lInitCmnCtrl = 0;
@@ -328,6 +328,73 @@ HB_FUNC( HWG_CREATEPANEL )
 }
 
 /*=============================================================================
+ * HWG_PANEL_GETRECT()
+ *
+ * Returns the screen rectangle of a window as { left, top, right, bottom }.
+ * Empty array if the handle is invalid.  Used by HPanel to save and
+ * restore positions of owned dialogs when the sidebar is collapsed.
+ *===========================================================================*/
+HB_FUNC( HWG_PANEL_GETRECT )
+{
+      HWND hWnd = ( HWND ) HB_PARHANDLE( 1 );
+      RECT rc;
+      PHB_ITEM pArr = hb_itemArrayNew( 4 );
+
+      if( hWnd != NULL && GetWindowRect( hWnd, &rc ) )
+      {
+            hb_arraySetNI( pArr, 1, rc.left   );
+            hb_arraySetNI( pArr, 2, rc.top    );
+            hb_arraySetNI( pArr, 3, rc.right  );
+            hb_arraySetNI( pArr, 4, rc.bottom );
+      }
+      hb_itemReturnRelease( pArr );
+}
+
+/*=============================================================================
+ * HWG_PANEL_ENUMOWNED()
+ *
+ * Returns an array of HWNDs of top-level windows owned by hOwner and
+ * currently visible.  Used by HPanel to shift module dialogs when the
+ * sidebar is collapsed or expanded.
+ *
+ * "Owned" here means GetWindow(hWnd, GW_OWNER) == hOwner, which is the
+ * standard relationship set by CreateWindowEx when the parent is passed
+ * as the owner.  HWGUI dialogs created with "OF oFormMain" fall into
+ * this category.
+ *===========================================================================*/
+HB_FUNC( HWG_PANEL_ENUMOWNED )
+{
+      HWND hOwner = ( HWND ) HB_PARHANDLE( 1 );
+      PHB_ITEM pArr = hb_itemArrayNew( 0 );
+      HWND hWnd;
+      PHB_ITEM pItem;
+
+      if( hOwner != NULL )
+      {
+            hWnd = GetWindow( hOwner, GW_HWNDFIRST );
+            while( hWnd != NULL )
+            {
+                  if( hWnd != hOwner &&
+                        GetWindow( hWnd, GW_OWNER ) == hOwner &&
+                        IsWindowVisible( hWnd ) )
+                  {
+                        /* Store the handle as a numeric instead of a pointer.
+                         * hb_itemPutPtr() maps a NULL HWND to Nil in some
+                         * Harbour builds, and comparing a pointer item with a
+                         * numeric 0 in PRG raises "Argument error: ==".
+                         * HWND fits in HB_PTRUINT, so a number is safe. */
+                        pItem = hb_itemPutNInt( NULL, ( HB_PTRUINT ) hWnd );
+                        hb_arrayAdd( pArr, pItem );
+                        hb_itemRelease( pItem );
+                  }
+                  hWnd = GetWindow( hWnd, GW_HWNDNEXT );
+            }
+      }
+
+      hb_itemReturnRelease( pArr );
+}
+
+/*=============================================================================
  * HWG_CREATESTATIC()
  * Creates a static text control
  *===========================================================================*/
@@ -348,6 +415,39 @@ HB_FUNC( HWG_CREATESTATIC )
          NULL );
 
    HB_RETHANDLE( hWndCtrl );
+}
+
+/*=============================================================================
+ * HWG_SETWINDOWLONG()
+ *
+ * Thin wrapper around SetWindowLongPtr for use from the PRG side.
+ *
+ * The 32-bit variant SetWindowLong is not usable here because HWND and
+ * LONG_PTR are pointer-sized: on 64-bit Windows, using the 32-bit call
+ * would truncate the parent HWND and corrupt the window hierarchy.
+ * SetWindowLongPtr is the correct call on both architectures.
+ *
+ * Parameters:
+ *   1 - HWND of the target window
+ *   2 - index (e.g. GWLP_HWNDPARENT = -8, GWL_STYLE = -16,
+ *       GWL_EXSTYLE = -20)
+ *   3 - new value (numeric; a handle or a style mask)
+ *
+ * Returns:
+ *   The previous value, or 0 on error.
+ *
+ * Typical use from HWGUI PRG code:
+ *   // Set oFormMain as the owner of a newly created dialog so it
+ *   // participates in HPanel collapse / expand tracking.
+ *   hwg_SetWindowLong( oDlg:handle, GWLP_HWNDPARENT, oFormMain:handle )
+ *===========================================================================*/
+HB_FUNC( HWG_SETWINDOWLONG )
+{
+      HWND      hWnd = ( HWND ) HB_PARHANDLE( 1 );
+      int       nIdx = hb_parni( 2 );
+      LONG_PTR  v    = ( LONG_PTR ) hb_parnint( 3 );
+
+      hb_retnint( ( HB_PTRUINT ) SetWindowLongPtr( hWnd, nIdx, v ) );
 }
 
 /*=============================================================================
@@ -1499,23 +1599,225 @@ HB_FUNC( HWG_DESTROYIMAGELIST )
 }
 
 /*=============================================================================
+ * Timer registry
+ *
+ * HWG_SETTIMER used to accept only (hWnd, nId, nElapse) and route the
+ * tick through a fixed global PRG function HWG_TIMERPROC.  That is
+ * fine for one-shot applications but useless for a library, because
+ * HPanel (and any other control that wants its own timer) needs to
+ * receive a private callback.
+ *
+ * This registry keeps a small table of (hWnd, nId, codeblock) entries.
+ * When the timer fires, s_timerProcBlock looks up the entry and
+ * evaluates its codeblock in the PRG VM.
+ *
+ * Notes:
+ *   - The callback runs on the same thread that installed the timer,
+ *     which is the main UI thread.  No cross-thread access, no lock
+ *     contention in practice.  The critical section is only here to
+ *     protect against KillTimer / SetTimer being called from the PRG
+ *     while a tick is in flight.
+ *   - Each entry owns a reference to its codeblock (hb_itemNew).  That
+ *     reference is released in HWG_KILLTIMER and in hwg_timersExit.
+ *===========================================================================*/
+
+#define HWG_MAX_TIMERS 128
+
+typedef struct {
+      HWND     hWnd;
+      UINT_PTR nId;
+      PHB_ITEM pBlock;
+} HWG_TIMER_ENTRY;
+
+static HWG_TIMER_ENTRY s_timers[HWG_MAX_TIMERS];
+static CRITICAL_SECTION s_timersCS;
+static BOOL s_timersInit = FALSE;
+
+static void s_timersEnsureInit( void )
+{
+      if( !s_timersInit )
+      {
+            InitializeCriticalSection( &s_timersCS );
+            s_timersInit = TRUE;
+      }
+}
+
+static int s_timerFind( HWND hWnd, UINT_PTR nId )
+{
+      int i;
+
+      for( i = 0; i < HWG_MAX_TIMERS; i++ )
+      {
+            if( s_timers[i].pBlock != NULL &&
+                  s_timers[i].hWnd   == hWnd &&
+                  s_timers[i].nId    == nId )
+                  return i;
+      }
+      return -1;
+}
+
+static int s_timerFindFree( void )
+{
+      int i;
+      for( i = 0; i < HWG_MAX_TIMERS; i++ )
+            if( s_timers[i].pBlock == NULL )
+                  return i;
+      return -1;
+}
+
+/* Callback installed for every codeblock-based timer.  Looks up the
+ * entry and evaluates the stored codeblock with no arguments. */
+static void CALLBACK s_timerProcBlock( HWND hWnd, UINT message, UINT_PTR nId, DWORD dwTime )
+{
+      PHB_ITEM pBlock = NULL;
+      PHB_ITEM pRet;
+      int      i;
+
+      HB_SYMBOL_UNUSED( message );
+      HB_SYMBOL_UNUSED( dwTime );
+
+      EnterCriticalSection( &s_timersCS );
+      i = s_timerFind( hWnd, nId );
+      if( i >= 0 )
+            pBlock = s_timers[i].pBlock;
+      LeaveCriticalSection( &s_timersCS );
+
+      if( pBlock != NULL )
+      {
+            pRet = hb_itemDo( pBlock, 0 );
+            if( pRet != NULL )
+                  hb_itemRelease( pRet );
+      }
+}
+
+/*=============================================================================
  * HWG_SETTIMER()
- * Sets a timer
+ * Installs a timer.
+ *
+ * Parameters:
+ *   1 - HWND of the window that owns the timer
+ *   2 - numeric timer id (unique per window)
+ *   3 - interval in milliseconds
+ *   4 - optional codeblock {|| ... } evaluated on every tick
+ *
+ * Behaviour:
+ *   - With a codeblock: the callback is stored in the registry and
+ *     evaluated on the main thread by s_timerProcBlock.  Use this
+ *     form for control-owned timers (HPanel:SetAutoCollapse, etc.).
+ *   - Without a codeblock (3 params): the tick is routed through the
+ *     legacy global PRG function HWG_TIMERPROC / HWG_PANEL_TIMERPROC,
+ *     kept for backwards compatibility.
+ *   - With any other 4th parameter (e.g. .T.): treated as "no
+ *     codeblock, no callback" - the OS posts WM_TIMER to the window,
+ *     matching the historical behaviour.
  *===========================================================================*/
 HB_FUNC( HWG_SETTIMER )
 {
-   SetTimer( ( HWND ) HB_PARHANDLE( 1 ), ( UINT ) hb_parni( 2 ),
-             ( UINT ) hb_parni( 3 ),
-             hb_pcount() == 3 ?  ( TIMERPROC ) ( UINT_PTR ) s_timerProc : ( TIMERPROC ) ( UINT_PTR )  NULL );
+      HWND       hWnd     = ( HWND ) HB_PARHANDLE( 1 );
+      UINT_PTR   nId      = ( UINT_PTR ) hb_parni( 2 );
+      UINT       nElapse  = ( UINT ) hb_parni( 3 );
+      PHB_ITEM   pBlock   = hb_param( 4, HB_IT_BLOCK );
+      TIMERPROC  pProc    = NULL;
+      UINT_PTR   nRes;
+      int        i;
+
+      s_timersEnsureInit();
+
+      if( pBlock != NULL )
+      {
+            EnterCriticalSection( &s_timersCS );
+            i = s_timerFind( hWnd, nId );
+            if( i >= 0 )
+            {
+                  hb_itemRelease( s_timers[i].pBlock );
+                  s_timers[i].pBlock = hb_itemNew( pBlock );
+            }
+            else
+            {
+                  i = s_timerFindFree();
+                  if( i >= 0 )
+                  {
+                        s_timers[i].hWnd   = hWnd;
+                        s_timers[i].nId    = nId;
+                        s_timers[i].pBlock = hb_itemNew( pBlock );
+                  }
+            }
+            LeaveCriticalSection( &s_timersCS );
+
+            if( i < 0 )
+            {
+                  hb_retni( 0 );
+                  return;
+            }
+
+            pProc = s_timerProcBlock;
+      }
+      else if( hb_pcount() == 3 )
+      {
+            /* Legacy path: global dispatcher. */
+            pProc = s_timerProc;
+      }
+      /* else: 4th parameter present but not a codeblock -> pProc = NULL,
+       *      Windows posts WM_TIMER to the window. */
+
+      nRes = SetTimer( hWnd, nId, nElapse, pProc );
+
+      hb_retni( ( int ) nRes );
 }
 
 /*=============================================================================
  * HWG_KILLTIMER()
- * Kills a timer
+ * Removes a timer and releases its codeblock reference, if any.
  *===========================================================================*/
 HB_FUNC( HWG_KILLTIMER )
 {
-   hb_retl( KillTimer( ( HWND ) HB_PARHANDLE( 1 ), ( UINT ) hb_parni( 2 ) ) );
+      HWND     hWnd = ( HWND ) HB_PARHANDLE( 1 );
+      UINT_PTR nId  = ( UINT_PTR ) hb_parni( 2 );
+      int      i;
+      BOOL     res;
+
+      s_timersEnsureInit();
+
+      EnterCriticalSection( &s_timersCS );
+      i = s_timerFind( hWnd, nId );
+      if( i >= 0 )
+      {
+            hb_itemRelease( s_timers[i].pBlock );
+            s_timers[i].pBlock = NULL;
+            s_timers[i].hWnd   = NULL;
+            s_timers[i].nId    = 0;
+      }
+      LeaveCriticalSection( &s_timersCS );
+
+      res = KillTimer( hWnd, nId );
+      hb_retl( res );
+}
+
+/*=============================================================================
+ * hwg_timersExit()
+ * Called from HWG_EXITPROC.  Releases any codeblock still held by the
+ * registry so the PRG VM can shut down cleanly.
+ *===========================================================================*/
+void hwg_timersExit( void )
+{
+      int i;
+
+      if( !s_timersInit )
+            return;
+
+      EnterCriticalSection( &s_timersCS );
+      for( i = 0; i < HWG_MAX_TIMERS; i++ )
+      {
+            if( s_timers[i].pBlock != NULL )
+            {
+                  hb_itemRelease( s_timers[i].pBlock );
+                  s_timers[i].pBlock = NULL;
+            }
+      }
+      LeaveCriticalSection( &s_timersCS );
+
+      DeleteCriticalSection( &s_timersCS );
+      s_timersInit = FALSE;
 }
 
 /*=============================================================================
@@ -1687,24 +1989,35 @@ HB_FUNC( HWG_REGBOARD )
  * s_timerProc()
  * Timer callback procedure
  *===========================================================================*/
-static void CALLBACK s_timerProc( HWND hWnd, UINT message, UINT idTimer, DWORD dwTime )
+static void CALLBACK s_timerProc( HWND hWnd, UINT message, UINT_PTR idTimer, DWORD dwTime )
 {
-   static PHB_DYNS s_pSymTest = NULL;
+      static PHB_DYNS s_pSymPanel  = NULL;
+      static PHB_DYNS s_pSymLegacy = NULL;
+      PHB_DYNS pSym = NULL;
 
-   HB_SYMBOL_UNUSED( message );
-   HB_SYMBOL_UNUSED( dwTime );
+      HB_SYMBOL_UNUSED( message );
+      HB_SYMBOL_UNUSED( dwTime );
 
-   if( s_pSymTest == NULL )
-      s_pSymTest = hb_dynsymGetCase( "HWG_TIMERPROC" );
+      if( s_pSymPanel == NULL )
+            s_pSymPanel  = hb_dynsymGetCase( "HWG_PANEL_TIMERPROC" );
+      if( s_pSymLegacy == NULL )
+            s_pSymLegacy = hb_dynsymGetCase( "HWG_TIMERPROC" );
 
-   if( hb_dynsymIsFunction( s_pSymTest ) )
-   {
-      hb_vmPushDynSym( s_pSymTest );
-      hb_vmPushNil();
-      HB_PUSHITEM( hWnd );
-      hb_vmPushLong( ( LONG ) idTimer );
-      hb_vmDo( 2 );
-   }
+      /* Prefer the panel-specific dispatcher; fall back to the legacy
+       * generic name for code that already defined HWG_TIMERPROC. */
+      if( s_pSymPanel != NULL && hb_dynsymIsFunction( s_pSymPanel ) )
+            pSym = s_pSymPanel;
+      else if( s_pSymLegacy != NULL && hb_dynsymIsFunction( s_pSymLegacy ) )
+            pSym = s_pSymLegacy;
+
+      if( pSym != NULL )
+      {
+            hb_vmPushDynSym( pSym );
+            hb_vmPushNil();
+            HB_PUSHITEM( hWnd );
+            hb_vmPushLong( ( LONG ) idTimer );   /* UINT_PTR -> LONG, safe for ids */
+            hb_vmDo( 2 );
+      }
 }
 
 /*=============================================================================
