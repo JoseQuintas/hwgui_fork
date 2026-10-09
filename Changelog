@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-09 10:17 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+    * Win32 theme: soften dark-mode text colour
+      * control.c: HWG_DARKTHEMECOLOR() index 1 (text on dark bg) and
+        index 3 (edit text) changed from RGB(240,240,240) / RGB(220,220,220)
+        to RGB(200,200,200), matching the Windows 11 Explorer default
+        and reducing eye strain
+      * dialog.c: hwg_draw_tab_item() tab caption colours softened
+        (selected 245->220, unselected 190->170) for visual consistency
+        with the new palette
+
 2026-10-09 01:54 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * Win32 theme: read dark-mode preference from registry
       * source/winapi/control.c: hwg_should_apps_use_dark_mode() reads

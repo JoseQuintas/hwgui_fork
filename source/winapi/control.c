@@ -3744,12 +3744,11 @@ HB_FUNC( HWG_DARKTHEMECOLOR )
       switch( nIdx )
       {
             case 0:  cr = RGB(  32,  32,  32 ); break;   /* dialog background */
-            case 1:  cr = RGB( 240, 240, 240 ); break;   /* text on dark bg   */
+            case 1:  cr = RGB( 200, 200, 200 ); break;   /* text on dark bg   */
             case 2:  cr = RGB(  45,  45,  48 ); break;   /* edit background   */
-            case 3:  cr = RGB( 220, 220, 220 ); break;   /* edit text         */
+            case 3:  cr = RGB( 200, 200, 200 ); break;   /* edit text         */
             default: cr = RGB(  32,  32,  32 );
       }
-
       /* HWGUI stores colors internally as 0x00BBGGRR (BGR order). */
       hb_retni( ( int ) ( ( ( cr & 0x000000FF ) << 16 ) |
       ( cr & 0x0000FF00 )        |

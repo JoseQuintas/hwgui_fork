@@ -150,9 +150,9 @@ static BOOL hwg_draw_tab_item( const DRAWITEMSTRUCT *dis )
                   if( bDisabled )
                         cr = RGB( 110, 110, 110 );   /* dim gray for disabled */
                         else if( bSelected )
-                              cr = RGB( 245, 245, 245 );   /* bright for the active tab */
+                              cr = RGB( 220, 220, 220 );   /* bright for the active tab */
                               else
-                                    cr = RGB( 190, 190, 190 );   /* normal unselected */
+                                    cr = RGB( 170, 170, 170 );   /* normal unselected */
             }
             else
             {
