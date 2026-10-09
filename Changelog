@@ -15,7 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2026-10-09 00:13 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+2026-10-09 01:54 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * Win32 theme: read dark-mode preference from registry
       * source/winapi/control.c: hwg_should_apps_use_dark_mode() reads
         AppsUseLightTheme from HKCU (uxtheme's ShouldAppsUseDarkMode
