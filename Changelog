@@ -16,6 +16,17 @@
 */
 
 2026-10-09 00:13 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+    * Win32 theme: read dark-mode preference from registry
+      * source/winapi/control.c: hwg_should_apps_use_dark_mode() reads
+        AppsUseLightTheme from HKCU (uxtheme's ShouldAppsUseDarkMode
+        returns wrong value on some Win10/11 builds); cache result;
+        HWG_SHOULDAPPSUSEDARKMODE delegates to the helper;
+        hwg_theme_init_once() no longer forces SetPreferredAppMode
+      * include/hwingui.h: extern hwg_set_preferred_app_mode()
+      * samples/testtheme.prg: call FORCEDARK/FORCELIGHT based on the
+        real preference instead of forcing dark
+
+2026-10-09 00:13 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * Win32: full Windows theme support (light + dark)
       * include/hwingui.h, include/guilib.ch: uxtheme.h + ETDT_* +
         HWG_APPMODE_* constants

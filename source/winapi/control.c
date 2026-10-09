@@ -100,7 +100,7 @@ LRESULT APIENTRY TreeViewSubclassProc( HWND hwnd, UINT uMsg, WPARAM wParam,
 BOOL hwg_should_apps_use_dark_mode( void );
 HBRUSH hwg_get_dark_brush( int nKind );
 
-static int  hwg_set_preferred_app_mode( int nMode );
+int  hwg_set_preferred_app_mode( int nMode );
 
 static void CALLBACK s_timerProc( HWND, UINT, UINT_PTR, DWORD );
 
@@ -254,11 +254,6 @@ HB_FUNC( HWG_INITCOMMONCONTROLSEX )
 BOOL hwg_theme_init_once( void )
 {
       s_InitCommonControls();
-
-
-      if( hwg_should_apps_use_dark_mode() )
-          hwg_set_preferred_app_mode( HWG_LOCAL_APPMODE_FORCEDARK );
-
       return TRUE;
 }
 
@@ -3502,6 +3497,12 @@ typedef int  ( WINAPI * HWG_PFN_SETPREFERREDAPPMODE )( int );
 static HMODULE s_hUxTheme        = NULL;
 static HWG_PFN_SHOULDAPPSUSEDARKMODE s_pfnShouldAppsUseDarkMode = NULL;
 static HWG_PFN_SETPREFERREDAPPMODE   s_pfnSetPreferredAppMode   = NULL;
+/* Cached result of ShouldAppsUseDarkMode() read BEFORE
+ * SetPreferredAppMode() was called.  Once SetPreferredAppMode(FORCEDARK)
+ * runs, ShouldAppsUseDarkMode() starts returning TRUE for this process
+ * regardless of the user's real preference, so we must capture the
+ * original value first. */
+static int s_UserPrefersDark = -1;   /* -1 = not read yet */
 
 static void s_LoadDarkModeProcs( void )
 {
@@ -3520,13 +3521,69 @@ static void s_LoadDarkModeProcs( void )
 
 /* C-pure helpers - safe to call from other .c files in this module. */
 
+/*=============================================================================
+ * hwg_should_apps_use_dark_mode
+ *
+ * Returns TRUE only if the user has explicitly selected dark mode for
+ * applications.  Reads the registry directly:
+ *
+ *   HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize
+ *       AppsUseLightTheme  (DWORD)
+ *           0x1 -> apps in light mode
+ *           0x0 -> apps in dark mode
+ *
+ * Why not ShouldAppsUseDarkMode() (uxtheme ordinal 132)?
+ *   On several Windows 10 / 11 builds that API returns TRUE from
+ *   inside a process even when the registry says light mode, which
+ *   causes the app to render dark against the user's wishes.  The
+ *   registry value is what the Settings UI writes, so it is the
+ *   reliable source of truth.
+ *
+ * The value is cached on first read so that a subsequent call to
+ * SetPreferredAppMode(FORCEDARK) does not change our own return value.
+ *===========================================================================*/
 BOOL hwg_should_apps_use_dark_mode( void )
 {
-      s_LoadDarkModeProcs();
-      return s_pfnShouldAppsUseDarkMode ? s_pfnShouldAppsUseDarkMode() : FALSE;
+      HKEY  hKey;
+      DWORD dwValue = 0;
+      DWORD dwSize  = sizeof( dwValue );
+      DWORD dwType  = 0;
+      BOOL  lFromRegistry = FALSE;
+
+      /* Already cached? Return it. */
+      if( s_UserPrefersDark >= 0 )
+            return s_UserPrefersDark == 1;
+
+      /* Primary source: registry (matches the Settings UI). */
+      if( RegOpenKeyEx( HKEY_CURRENT_USER,
+            TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"),
+                        0, KEY_READ, &hKey ) == ERROR_SUCCESS )
+      {
+            if( RegQueryValueEx( hKey, TEXT("AppsUseLightTheme"), NULL,
+                  &dwType, ( LPBYTE ) &dwValue, &dwSize ) == ERROR_SUCCESS )
+            {
+                  lFromRegistry = TRUE;
+            }
+            RegCloseKey( hKey );
+      }
+
+      /* Fallback: uxtheme API, when the registry key is absent
+       * (rare - e.g. fresh installs of some Windows Server SKUs). */
+      if( !lFromRegistry )
+      {
+            s_LoadDarkModeProcs();
+            if( s_pfnShouldAppsUseDarkMode )
+                  s_UserPrefersDark = s_pfnShouldAppsUseDarkMode() ? 1 : 0;
+            else
+                  s_UserPrefersDark = 0;   /* assume light */
+      }
+      else
+            s_UserPrefersDark = ( dwValue == 0 ) ? 1 : 0;
+
+      return s_UserPrefersDark == 1;
 }
 
-static int hwg_set_preferred_app_mode( int nMode )
+int hwg_set_preferred_app_mode( int nMode )
 {
       s_LoadDarkModeProcs();
       return s_pfnSetPreferredAppMode ? s_pfnSetPreferredAppMode( nMode ) : -1;
@@ -3534,16 +3591,13 @@ static int hwg_set_preferred_app_mode( int nMode )
 
 /*=============================================================================
  * HWG_SHOULDAPPSUSEDARKMODE()
- * Returns .T. if the user has "Dark mode" selected for applications.
- * Falls back to .F. on Windows versions that don't export the API.
+ * PRG-visible wrapper around hwg_should_apps_use_dark_mode().
+ * The C helper reads the registry (AppsUseLightTheme) instead of the
+ * uxtheme API, which is unreliable on some Windows 10/11 builds.
  *===========================================================================*/
 HB_FUNC( HWG_SHOULDAPPSUSEDARKMODE )
 {
-      s_LoadDarkModeProcs();
-      if( s_pfnShouldAppsUseDarkMode )
-            hb_retl( s_pfnShouldAppsUseDarkMode() );
-      else
-            hb_retl( FALSE );
+      hb_retl( hwg_should_apps_use_dark_mode() );
 }
 
 /*=============================================================================

@@ -13,21 +13,21 @@ FUNCTION Main()
    LOCAL oDlg, oTab, oEdit, oCombo, oSay, oBtn1, oBtn2, oBtn3, cEdit
    LOCAL nPrevMode, lDark
 
-   /* ---------------------------------------------------------------
-    * 0) Dark-mode activation: MUST run BEFORE any window is created.
-    *    If SetPreferredAppMode is called after the first RegisterClass
-    *    / CreateWindow, Windows ignores it and the process stays in
-    *    light mode for its whole lifetime.
-    * --------------------------------------------------------------- */
-   nPrevMode := hwg_SetPreferredAppMode( HWG_APPMODE_FORCEDARK )
+   /* Read the user's real preference BEFORE forcing anything.
+    * If we call FORCEDARK unconditionally, the process goes dark
+    * even when the user has light mode selected in Settings. */
+   lDark := hwg_ShouldAppsUseDarkMode()
 
-   /* ---------------------------------------------------------------
-    * 1) Diagnostics: prints to console whether theming is active.
-    * --------------------------------------------------------------- */
+   IF lDark
+      nPrevMode := hwg_SetPreferredAppMode( HWG_APPMODE_FORCEDARK )
+   ELSE
+      nPrevMode := hwg_SetPreferredAppMode( HWG_APPMODE_FORCELIGHT )
+   ENDIF
+
    ? "===== THEME DIAGNOSTICS ====="
    ? "IsThemeActive              :", hwg_IsThemeActive()
    ? "IsAppThemed                :", hwg_IsAppThemed()
-   ? "ShouldAppsUseDarkMode      :", hwg_ShouldAppsUseDarkMode()
+   ? "ShouldAppsUseDarkMode      :", lDark
    ? "SetPreferredAppMode return :", nPrevMode
    ? "============================="
    ?
