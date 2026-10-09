@@ -92,6 +92,16 @@ LRESULT APIENTRY TabSubclassProc( HWND hwnd, UINT uMsg, WPARAM wParam,
       LPARAM lParam );
 LRESULT APIENTRY TreeViewSubclassProc( HWND hwnd, UINT uMsg, WPARAM wParam,
       LPARAM lParam );
+
+/* Dark-mode helpers used by hwg_theme_init_once() near the top of this
+ * file.  The actual implementations live much further below; these are
+ * just forward declarations so the compiler accepts the calls. */
+#define HWG_LOCAL_APPMODE_FORCEDARK  2
+BOOL hwg_should_apps_use_dark_mode( void );
+HBRUSH hwg_get_dark_brush( int nKind );
+
+static int  hwg_set_preferred_app_mode( int nMode );
+
 static void CALLBACK s_timerProc( HWND, UINT, UINT_PTR, DWORD );
 
 /* Forward declaration: definida mais abaixo neste arquivo. */
@@ -167,7 +177,14 @@ HBRUSH hwg_GetEffectiveBrush( HWND hWnd )
       int    nDepth = 0;
 
       if( hWnd == NULL )
+      {
+            /* Dark mode: never fall back to WHITE_BRUSH, or the tab
+             * interior (and any owner-draw control that relies on this
+             * function) would paint a bright area on a dark dialog. */
+            if( hwg_should_apps_use_dark_mode() )
+                  return hwg_get_dark_brush( 0 );
             return ( HBRUSH ) GetStockObject( WHITE_BRUSH );
+      }
 
       hParent = GetParent( hWnd );
 
@@ -179,6 +196,10 @@ HBRUSH hwg_GetEffectiveBrush( HWND hWnd )
 
             hParent = GetParent( hParent );
       }
+
+      /* Same dark-mode fallback when no parent has an explicit brush. */
+      if( hwg_should_apps_use_dark_mode() )
+            return hwg_get_dark_brush( 0 );
 
       return ( HBRUSH ) GetStockObject( WHITE_BRUSH );
 }
@@ -223,11 +244,6 @@ HB_FUNC( HWG_INITCOMMONCONTROLSEX )
       s_InitCommonControls();
 }
 
-BOOL hwg_theme_init_once( void )
-{
-      s_InitCommonControls();
-      return TRUE;
-}
 /*=============================================================================
  * hwg_theme_init_once()
  * Ensures common controls are initialized exactly once, at application
@@ -238,6 +254,11 @@ BOOL hwg_theme_init_once( void )
 BOOL hwg_theme_init_once( void )
 {
       s_InitCommonControls();
+
+
+      if( hwg_should_apps_use_dark_mode() )
+          hwg_set_preferred_app_mode( HWG_LOCAL_APPMODE_FORCEDARK );
+
       return TRUE;
 }
 
@@ -2555,6 +2576,7 @@ LRESULT APIENTRY TabSubclassProc( HWND hWnd, UINT message, WPARAM wParam,
    }
 
    /* Paint hook: overlay disabled captions in gray */
+   /* Paint hook: overlay disabled captions in gray */
    if( message == WM_PAINT )
    {
          PAINTSTRUCT ps;
@@ -2562,11 +2584,12 @@ LRESULT APIENTRY TabSubclassProc( HWND hWnd, UINT message, WPARAM wParam,
 
          if( hdc )
          {
-               RECT rc;
+               RECT rc, rcInterior, rcItem;
                HDC hdcMem;
                HBITMAP hbmMem;
                HBITMAP hbmOld;
                HBRUSH hBg;
+               int  nStripHeight = 24;   /* sensible fallback */
 
                GetClientRect( hWnd, &rc );
 
@@ -2575,18 +2598,30 @@ LRESULT APIENTRY TabSubclassProc( HWND hWnd, UINT message, WPARAM wParam,
                hbmOld = ( HBITMAP ) SelectObject( hdcMem, hbmMem );
 
                /* Pre-fill the memory DC with the effective background
-                * brush. The tab control's WM_PRINTCLIENT with
-                * PRF_ERASEBKGND is not reliable on modern Windows
-                * (themed controls only paint the tab strip, leaving the
-                * area below it as the uninitialised bitmap colour, i.e.
-                * black). hwg_GetEffectiveBrush() walks up the parent
-                * chain so we pick up the dialog's BACKCOLOR. */
+                * brush, so nothing shows through as black during the
+                * subsequent WM_PRINTCLIENT call. */
                hBg = hwg_GetEffectiveBrush( hWnd );
                if( hBg )
                      FillRect( hdcMem, &rc, hBg );
 
+               /* Let the original tab control paint its strip. */
                CallWindowProc( wpOrigTabProc, hWnd, WM_PRINTCLIENT, ( WPARAM ) hdcMem,
-                               ( LPARAM ) ( PRF_CLIENT | PRF_ERASEBKGND ) );
+                               ( LPARAM ) PRF_CLIENT );
+
+               /* IMPORTANT: SysTabControl32 paints the interior area (below
+                * the tab strip) with the current theme's light body colour,
+                * overriding whatever we filled before WM_PRINTCLIENT.  The
+                * only reliable fix is to repaint the interior AFTER the
+                * strip has been drawn.  Compute the strip height from the
+                * first tab item's rectangle and cover everything below it. */
+               if( hwg_should_apps_use_dark_mode() )
+               {
+                     if( TabCtrl_GetItemRect( hWnd, 0, &rcItem ) )
+                           nStripHeight = rcItem.bottom + 2;
+                     rcInterior = rc;
+                     rcInterior.top = nStripHeight;
+                     FillRect( hdcMem, &rcInterior, hwg_get_dark_brush( 0 ) );
+               }
 
                hwg_tab_draw_disabled_captions( hWnd, hdcMem );
 
@@ -3439,6 +3474,285 @@ HB_FUNC( HWG_OPENWINDOWTHEME )
 HB_FUNC( HWG_CLOSEWINDOWTHEME )
 {
       CloseThemeData( ( HTHEME ) HB_PARHANDLE( 1 ) );
+}
+
+/*=============================================================================
+ * Dark mode support (Windows 10 1809+)
+ *
+ * uxtheme.dll exports two undocumented but stable functions:
+ *   - ShouldAppsUseDarkMode  (ordinal 132) - user preference
+ *   - SetPreferredAppMode    (ordinal 135) - per-process mode
+ * Both are loaded dynamically so the build keeps working on older
+ * Windows versions (LoadLibrary returns NULL -> functions safely
+ * fall back to light mode).
+ *===========================================================================*/
+
+#define HWG_ORD_SHOULDAPPSUSEDARKMODE   132
+#define HWG_ORD_SETPREFERREDAPPMODE     135
+
+/* Values accepted by SetPreferredAppMode */
+#define HWG_APPMODE_DEFAULT     0
+#define HWG_APPMODE_ALLOWDARK   1
+#define HWG_APPMODE_FORCEDARK   2
+#define HWG_APPMODE_FORCELIGHT  3
+
+typedef BOOL ( WINAPI * HWG_PFN_SHOULDAPPSUSEDARKMODE )( void );
+typedef int  ( WINAPI * HWG_PFN_SETPREFERREDAPPMODE )( int );
+
+static HMODULE s_hUxTheme        = NULL;
+static HWG_PFN_SHOULDAPPSUSEDARKMODE s_pfnShouldAppsUseDarkMode = NULL;
+static HWG_PFN_SETPREFERREDAPPMODE   s_pfnSetPreferredAppMode   = NULL;
+
+static void s_LoadDarkModeProcs( void )
+{
+      if( s_hUxTheme )
+            return;
+
+      s_hUxTheme = LoadLibrary( TEXT( "uxtheme.dll" ) );
+      if( !s_hUxTheme )
+            return;
+
+      s_pfnShouldAppsUseDarkMode = ( HWG_PFN_SHOULDAPPSUSEDARKMODE )
+      GetProcAddress( s_hUxTheme, MAKEINTRESOURCEA( HWG_ORD_SHOULDAPPSUSEDARKMODE ) );
+      s_pfnSetPreferredAppMode   = ( HWG_PFN_SETPREFERREDAPPMODE )
+      GetProcAddress( s_hUxTheme, MAKEINTRESOURCEA( HWG_ORD_SETPREFERREDAPPMODE ) );
+}
+
+/* C-pure helpers - safe to call from other .c files in this module. */
+
+BOOL hwg_should_apps_use_dark_mode( void )
+{
+      s_LoadDarkModeProcs();
+      return s_pfnShouldAppsUseDarkMode ? s_pfnShouldAppsUseDarkMode() : FALSE;
+}
+
+static int hwg_set_preferred_app_mode( int nMode )
+{
+      s_LoadDarkModeProcs();
+      return s_pfnSetPreferredAppMode ? s_pfnSetPreferredAppMode( nMode ) : -1;
+}
+
+/*=============================================================================
+ * HWG_SHOULDAPPSUSEDARKMODE()
+ * Returns .T. if the user has "Dark mode" selected for applications.
+ * Falls back to .F. on Windows versions that don't export the API.
+ *===========================================================================*/
+HB_FUNC( HWG_SHOULDAPPSUSEDARKMODE )
+{
+      s_LoadDarkModeProcs();
+      if( s_pfnShouldAppsUseDarkMode )
+            hb_retl( s_pfnShouldAppsUseDarkMode() );
+      else
+            hb_retl( FALSE );
+}
+
+/*=============================================================================
+ * HWG_SETPREFERREDAPPMODE( nMode )
+ * Tells Windows how this process wants to be themed.
+ *   0 = default, 1 = allow dark, 2 = force dark, 3 = force light
+ * Must be called BEFORE any window is created to have full effect.
+ * Returns the previous mode, or -1 on failure.
+ *===========================================================================*/
+HB_FUNC( HWG_SETPREFERREDAPPMODE )
+{
+      int nMode = hb_parni( 1 );
+      s_LoadDarkModeProcs();
+      if( s_pfnSetPreferredAppMode )
+            hb_retni( s_pfnSetPreferredAppMode( nMode ) );
+      else
+            hb_retni( -1 );
+}
+
+/*=============================================================================
+ * HWG_SETDARKTITLEBAR( hWnd, lDark )
+ *   Applies or removes the immersive dark title bar via DWM.
+ *   Requires Windows 10 1809+ (build 17763).  Safe no-op on older.
+ *===========================================================================*/
+HB_FUNC( HWG_SETDARKTITLEBAR )
+{
+      HWND  hWnd  = ( HWND ) HB_PARHANDLE( 1 );
+      BOOL  lDark = hb_parl( 2 );
+      BOOL  bResult = FALSE;
+      HMODULE hDwm;
+      typedef HRESULT ( WINAPI * HWG_PFN_DWMSETWINDOWATTRIBUTE )( HWND, DWORD, LPCVOID, DWORD );
+      HWG_PFN_DWMSETWINDOWATTRIBUTE pfn = NULL;
+      DWORD dwAttr;
+      BOOL  bValue = lDark;
+
+      hDwm = LoadLibrary( TEXT( "dwmapi.dll" ) );
+      if( !hDwm )
+      {
+            hb_retl( FALSE );
+            return;
+      }
+
+      pfn = ( HWG_PFN_DWMSETWINDOWATTRIBUTE )
+      GetProcAddress( hDwm, "DwmSetWindowAttribute" );
+      if( !pfn )
+      {
+            FreeLibrary( hDwm );
+            hb_retl( FALSE );
+            return;
+      }
+
+      /* Attribute ID changed from 19 to 20 in Windows 10 20H1.
+       * Try 20 first, fall back to 19 if it fails. */
+      dwAttr = 20;
+      if( FAILED( pfn( hWnd, dwAttr, &bValue, sizeof( bValue ) ) ) )
+      {
+            dwAttr = 19;
+            if( SUCCEEDED( pfn( hWnd, dwAttr, &bValue, sizeof( bValue ) ) ) )
+                  bResult = TRUE;
+      }
+      else
+            bResult = TRUE;
+
+      FreeLibrary( hDwm );
+
+      hb_retl( bResult );
+}
+
+/*=============================================================================
+ * HWG_DARKENCONTROL( hWnd )
+ *   Applies "DarkMode_Explorer" to a single control.
+ *   On light mode this is a no-op (theme just doesn't exist -> no change).
+ *   Safe to call on any control handle.
+ *===========================================================================*/
+HB_FUNC( HWG_DARKENCONTROL )
+{
+      HWND hWnd = ( HWND ) HB_PARHANDLE( 1 );
+
+      if( hWnd )
+            SetWindowTheme( hWnd, L"DarkMode_Explorer", NULL );
+}
+
+/*=============================================================================
+ * HWG_DARKENCOMBOBOX( hCombo )
+ *
+ * A Win32 ComboBox is a composite control:
+ *   - The main HWND   : the visible box (edit + dropdown button).
+ *   - hwndItem        : internal edit or static (child).
+ *   - hwndList        : the dropdown list (ComboLBox, top-level popup
+ *                       owned by the combo, NOT a child).
+ *
+ * SetWindowTheme() on the main HWND does not reach the dropdown, and
+ * FindWindowEx() does not find it either (the dropdown is not a child
+ * in the WS_CHILD sense).  The correct way to get its HWND is
+ * GetComboBoxInfo(), which returns hwndList for exactly this purpose.
+ *
+ * Theme name: ComboBox uses "DarkMode_CFD" (Common File Dialog), not
+ * "DarkMode_Explorer" (which is for TreeView / ListView / Edit).
+ *===========================================================================*/
+HB_FUNC( HWG_DARKENCOMBOBOX )
+{
+      HWND hCombo = ( HWND ) HB_PARHANDLE( 1 );
+      COMBOBOXINFO cbi;
+
+      if( !hCombo )
+            return;
+
+      /* Main combo HWND - ComboBox-specific dark theme. */
+      SetWindowTheme( hCombo, L"DarkMode_CFD", NULL );
+
+      /* Ask Windows for the internal HWNDs (edit box and dropdown list). */
+      memset( &cbi, 0, sizeof( cbi ) );
+      cbi.cbSize = sizeof( cbi );
+
+      if( GetComboBoxInfo( hCombo, &cbi ) )
+      {
+            if( cbi.hwndItem )
+                  SetWindowTheme( cbi.hwndItem, L"DarkMode_CFD", NULL );
+
+            if( cbi.hwndList )
+                  SetWindowTheme( cbi.hwndList, L"DarkMode_CFD", NULL );
+      }
+}
+
+/*=============================================================================
+ * HWG_DARKTHEMECOLOR( nColorIndex )
+ *
+ * Returns the RGB value for one of the standard dark-theme colors used
+ * by the Windows 10+ dark mode palette.
+ *
+ *   0 = background  (dialog / window background)
+ *   1 = foreground  (text on top of the background)
+ *   2 = edit bg     (edit control background)
+ *   3 = edit fg     (edit control text)
+ *
+ * The exact values match the ones used by the Windows 10 20H1+ shell,
+ * so custom-painted dialogs visually match system dialogs.
+ *===========================================================================*/
+HB_FUNC( HWG_DARKTHEMECOLOR )
+{
+      int nIdx = hb_parni( 1 );
+      COLORREF cr;
+
+      switch( nIdx )
+      {
+            case 0:  cr = RGB(  32,  32,  32 ); break;   /* dialog background */
+            case 1:  cr = RGB( 240, 240, 240 ); break;   /* text on dark bg   */
+            case 2:  cr = RGB(  45,  45,  48 ); break;   /* edit background   */
+            case 3:  cr = RGB( 220, 220, 220 ); break;   /* edit text         */
+            default: cr = RGB(  32,  32,  32 );
+      }
+
+      /* HWGUI stores colors internally as 0x00BBGGRR (BGR order). */
+      hb_retni( ( int ) ( ( ( cr & 0x000000FF ) << 16 ) |
+      ( cr & 0x0000FF00 )        |
+      ( ( cr & 0x00FF0000 ) >> 16 ) ) );
+}
+
+/*=============================================================================
+ * Dark-theme brushes
+ *
+ * Windows expects WM_CTLCOLORDLG / WM_CTLCOLORSTATIC / WM_CTLCOLOREDIT to
+ * return an HBRUSH that will be used to paint the control's background.
+ * These brushes are created lazily and cached for the process lifetime;
+ * they are never freed explicitly (the OS reclaims them on exit).
+ *===========================================================================*/
+
+static HBRUSH s_hDarkBrushDlg  = NULL;
+static HBRUSH s_hDarkBrushEdit = NULL;
+
+HBRUSH hwg_get_dark_brush( int nKind )
+{
+      /* nKind: 2 = edit control, anything else = dialog / static */
+      if( nKind == 2 )
+      {
+            if( !s_hDarkBrushEdit )
+                  s_hDarkBrushEdit = CreateSolidBrush( RGB( 45, 45, 48 ) );
+            return s_hDarkBrushEdit;
+      }
+      if( !s_hDarkBrushDlg )
+            s_hDarkBrushDlg = CreateSolidBrush( RGB( 32, 32, 32 ) );
+      return s_hDarkBrushDlg;
+}
+
+/*=============================================================================
+ * HWG_GETDARKBRUSH( nKind )
+ *   0 = dialog / static background brush
+ *   2 = edit control background brush
+ * Returns a valid HBRUSH (never NULL).
+ *===========================================================================*/
+HB_FUNC( HWG_GETDARKBRUSH )
+{
+      HB_RETHANDLE( hwg_get_dark_brush( hb_parni( 1 ) ) );
+}
+
+/*=============================================================================
+ * HWG_GETSTOCKBRUSH( nIndex )
+ *   Returns a stock brush (see GetStockObject for the index values).
+ *   Common indices:
+ *     0 = WHITE_BRUSH
+ *     1 = LTGRAY_BRUSH
+ *     2 = GRAY_BRUSH
+ *     3 = DKGRAY_BRUSH
+ *     4 = BLACK_BRUSH
+ *     5 = NULL_BRUSH  (a.k.a. HOLLOW_BRUSH)
+ *===========================================================================*/
+HB_FUNC( HWG_GETSTOCKBRUSH )
+{
+      HB_RETHANDLE( GetStockObject( hb_parni( 1 ) ) );
 }
 
 /* ====================== EOF of control.c ======================= */

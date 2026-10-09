@@ -93,6 +93,12 @@
 #define HWG_THEME_DEFAULT   0
 #define HWG_THEME_NONE      1
 
+/* ===== Dark mode support (Windows 10 1809+) ===== */
+#define HWG_APPMODE_DEFAULT     0
+#define HWG_APPMODE_ALLOWDARK   1
+#define HWG_APPMODE_FORCEDARK   2
+#define HWG_APPMODE_FORCELIGHT  3
+
 /* HPanel auto-collapse default interval, in milliseconds. */
 #define HWG_PANEL_GRACE_MS   800
 

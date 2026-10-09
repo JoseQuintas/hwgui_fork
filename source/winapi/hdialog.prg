@@ -295,10 +295,27 @@ STATIC FUNCTION InitModalDlg( oDlg, wParam, lParam )
    IF ValType( oDlg:menu ) == "A"
       hwg__SetMenu( oDlg:handle, oDlg:menu[5] )
    ENDIF
+
+   /* Enable themed dialog background (tab texture) - safe no-op on light */
    IF hwg_IsThemeActive() .AND. hwg_IsAppThemed()
       hwg_EnableDialogTheme( oDlg:handle, ETDT_ENABLETAB )
    ENDIF
+
+   /* Creates every child control and assigns their HWND to oCtrl:handle.
+    * Must run BEFORE ApplyDarkMode, otherwise the SetWindowTheme calls
+    * would receive 0 / -1 handles and be silently ignored. */
    hwg_InitControls( oDlg, .T. )
+
+   /* >>> Dark mode: applied AFTER hwg_InitControls, when every control
+    * already has a valid HWND.  This is the key timing requirement. */
+   IF hwg_ShouldAppsUseDarkMode()
+      hwg_SetDarkTitleBar( oDlg:handle, .T. )
+      IF __ObjHasMsg( oDlg, "APPLYDARKMODE" )
+         oDlg:ApplyDarkMode()
+      ENDIF
+   ENDIF
+   /* <<< end dark */
+
    IF oDlg:oIcon != Nil
       hwg_Sendmessage( oDlg:handle, WM_SETICON, 1, oDlg:oIcon:handle )
    ENDIF
@@ -326,19 +343,9 @@ STATIC FUNCTION InitModalDlg( oDlg, wParam, lParam )
       ENDIF
    ENDIF
 
-/*
-   IF oDlg:nAdjust == 1
-      oDlg:nAdjust := 2
-      aCoors := hwg_Getwindowrect( oDlg:handle )
-      aRect := hwg_GetClientRect( oDlg:handle )
-      hwg_writelog( str(oDlg:nHeight) + "/" + str(aCoors[4]-aCoors[2]) + "/" + str(aRect[4]) )
-      oDlg:Move( ,, oDlg:nWidth + (aCoors[3]-aCoors[1]-aRect[3]), oDlg:nHeight + (aCoors[4]-aCoors[2]-aRect[4]) )
-   ELSE
-*/
-      aCoors := hwg_Getwindowrect( oDlg:handle )
-      oDlg:nWidth  := aCoors[3] - aCoors[1]
-      oDlg:nHeight := aCoors[4] - aCoors[2]
-//   ENDIF
+   aCoors := hwg_Getwindowrect( oDlg:handle )
+   oDlg:nWidth  := aCoors[3] - aCoors[1]
+   oDlg:nHeight := aCoors[4] - aCoors[2]
 
    RETURN nReturn
 
@@ -357,12 +364,19 @@ STATIC FUNCTION onEraseBk( oDlg, hDC )
          RETURN 1
       ELSE
          aCoors := hwg_Getclientrect( oDlg:handle )
+
          IF oDlg:brush != Nil
             IF ValType( oDlg:brush ) != "N"
                hwg_Fillrect( hDC, aCoors[1], aCoors[2], aCoors[3] + 1, aCoors[4] + 1, oDlg:brush:handle )
             ENDIF
          ELSE
-            hwg_Fillrect( hDC, aCoors[1], aCoors[2], aCoors[3] + 1, aCoors[4] + 1, COLOR_3DFACE + 1 )
+            /* Dark mode: erase with the dark background brush so the
+             * dialog does not flash a light frame during WM_ERASEBKGND. */
+            IF hwg_ShouldAppsUseDarkMode()
+               hwg_Fillrect( hDC, aCoors[1], aCoors[2], aCoors[3] + 1, aCoors[4] + 1, hwg_GetDarkBrush( 0 ) )
+            ELSE
+               hwg_Fillrect( hDC, aCoors[1], aCoors[2], aCoors[3] + 1, aCoors[4] + 1, COLOR_3DFACE + 1 )
+            ENDIF
          ENDIF
          RETURN 1
       ENDIF
@@ -626,7 +640,6 @@ FUNCTION hwg_EndDialog( handle )
    ENDIF
 
    RETURN lRes
-
 
 STATIC FUNCTION onSysCommand( oDlg, wParam )
 

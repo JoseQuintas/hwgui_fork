@@ -67,7 +67,16 @@ METHOD New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, ;
       bClick, bGetFocus, bLostFocus, lOwnerDraw ) CLASS HTab
    LOCAL i, aBmpSize
 
-   lOwnerDraw := ( ValType( lOwnerDraw ) == "L" .AND. lOwnerDraw )
+   /* Owner-draw is required to properly theme the tab strip in dark
+    * mode (the native SysTabControl32 draws the strip in light gray
+    * regardless of the process theme).  Enable it automatically when
+    * the user prefers dark, unless the caller explicitly requested a
+    * different mode. */
+   IF ValType( lOwnerDraw ) != "L" .AND. hwg_ShouldAppsUseDarkMode()
+      lOwnerDraw := .T.
+   ELSE
+      lOwnerDraw := ( ValType( lOwnerDraw ) == "L" .AND. lOwnerDraw )
+   ENDIF
 
    nStyle := Hwg_BitOr( iif( nStyle == Nil, 0, nStyle ), ;
       WS_CHILD + WS_VISIBLE + WS_TABSTOP )
@@ -142,6 +151,10 @@ METHOD Init() CLASS HTab
       IF ::brush == Nil .AND. ::oParent != Nil
          IF __ObjHasMsg( ::oParent, "brush" ) .AND. ::oParent:brush != Nil
             ::brush := ::oParent:brush
+         ELSEIF hwg_ShouldAppsUseDarkMode()
+            /* Dark mode: parent has no brush, but we still need one so
+             * the tab area does not fall back to the system face colour. */
+            ::brush := HBrush():Add( hwg_DarkThemeColor( 0 ) )
          ENDIF
       ENDIF
 

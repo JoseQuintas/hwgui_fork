@@ -120,8 +120,19 @@ static BOOL hwg_draw_tab_item( const DRAWITEMSTRUCT *dis )
             TCHAR buf[ 256 ];
             TCITEM tci;
             COLORREF cr;
+            HBRUSH hBg;
+            BOOL bDark = hwg_should_apps_use_dark_mode();
+            BOOL bDisabled = hwg_tab_is_disabled( hTab, nTab );
+            BOOL bSelected = ( dis->itemState & ODS_SELECTED ) != 0;
 
-            FillRect( hdc, &rc, GetSysColorBrush( COLOR_BTNFACE ) );
+            /* Background: dark brush in dark mode, otherwise the
+             * classic BTNFACE used until now. */
+            if( bDark )
+                  hBg = hwg_get_dark_brush( 0 );
+            else
+                  hBg = GetSysColorBrush( COLOR_BTNFACE );
+
+            FillRect( hdc, &rc, hBg );
 
             buf[ 0 ] = 0;
             memset( &tci, 0, sizeof( tci ) );
@@ -131,13 +142,41 @@ static BOOL hwg_draw_tab_item( const DRAWITEMSTRUCT *dis )
             SendMessage( hTab, TCM_GETITEM, ( WPARAM ) idx, ( LPARAM ) &tci );
 
             SetBkMode( hdc, TRANSPARENT );
-            cr = GetSysColor( hwg_tab_is_disabled( hTab, nTab ) ? COLOR_GRAYTEXT : COLOR_BTNTEXT );
+
+            /* Text colour: in dark mode pick a light palette that
+             * mimics the Windows shell's own dark tab captions. */
+            if( bDark )
+            {
+                  if( bDisabled )
+                        cr = RGB( 110, 110, 110 );   /* dim gray for disabled */
+                        else if( bSelected )
+                              cr = RGB( 245, 245, 245 );   /* bright for the active tab */
+                              else
+                                    cr = RGB( 190, 190, 190 );   /* normal unselected */
+            }
+            else
+            {
+                  cr = GetSysColor( bDisabled ? COLOR_GRAYTEXT : COLOR_BTNTEXT );
+            }
+
             SetTextColor( hdc, cr );
 
-            DrawText( hdc, buf, -1, &rc, DT_SINGLELINE | DT_CENTER | DT_VCENTER );
+            DrawText( hdc, buf, -1, &rc,
+                      DT_SINGLELINE | DT_CENTER | DT_VCENTER );
 
-            if( dis->itemState & ODS_SELECTED )
-                  DrawEdge( hdc, &rc, EDGE_RAISED, BF_RECT );
+            /* Selected tab: light raised edge in light mode, softer
+             * border in dark mode. */
+            if( bSelected )
+            {
+                  if( bDark )
+                  {
+                        /* Subtle 1px frame so the active tab stands out. */
+                        SetTextColor( hdc, RGB( 100, 100, 100 ) );
+                        DrawEdge( hdc, &rc, EDGE_RAISED, BF_RECT | BF_SOFT );
+                  }
+                  else
+                        DrawEdge( hdc, &rc, EDGE_RAISED, BF_RECT );
+            }
 
             return TRUE;
       }

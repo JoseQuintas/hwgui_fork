@@ -157,4 +157,9 @@ HB_EXTERN_END
 /* --- Theme helpers (defined in control.c or theme.c) --- */
 HB_EXTERN_BEGIN
 extern BOOL hwg_theme_init_once( void );
+
+/* Dark-mode helpers, defined in control.c and shared with dialog.c. */
+extern BOOL   hwg_should_apps_use_dark_mode( void );
+extern HBRUSH hwg_get_dark_brush( int nKind );
+
 HB_EXTERN_END

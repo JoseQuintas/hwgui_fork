@@ -23,13 +23,15 @@ REQUEST HB_GT_GUI_DEFAULT
 
 STATIC aCustomEvents := { ;
       { WM_NOTIFY, WM_PAINT, WM_CTLCOLORSTATIC, WM_CTLCOLOREDIT, WM_CTLCOLORBTN, ;
-      WM_COMMAND, WM_DRAWITEM, WM_SIZE, WM_DESTROY }, ;
+      WM_CTLCOLORDLG, WM_CTLCOLORLISTBOX, WM_COMMAND, WM_DRAWITEM, WM_SIZE, WM_DESTROY }, ;
       { ;
       { |o, w, l| onNotify( o, w, l ) }                                 , ;
       { |o, w|   iif( o:bPaint != NIL, Eval( o:bPaint, o, w ), - 1 ) }  , ;
       { |o, w, l| onCtlColor( o, w, l ) }                               , ;
       { |o, w, l| onCtlColor( o, w, l ) }                               , ;
       { |o, w, l| onCtlColor( o, w, l ) }                               , ;
+      { |o, w, l| onCtlColor( o, w, l ) }                               , ;
+      { |o, w, l| onCtlColorListBox( o, w, l ) }                        , ;
       { |o, w, l| onCommand( o, w , l ) }                               , ;
       { |o, w, l| onDrawItem( o, w, l ) }                               , ;
       { |o, w, l| onSize( o, w, l ) }                                   , ;
@@ -84,6 +86,9 @@ CLASS HCustomWindow INHERIT HObject
    METHOD Refresh()
    METHOD Move( x1, y1, width, height )
    METHOD SetColor( tcolor, bColor, lRepaint )
+
+   METHOD ApplyDarkMode()
+
    METHOD onEvent( msg, wParam, lParam )
    METHOD End()
    ERROR HANDLER OnError()
@@ -265,6 +270,53 @@ METHOD OnError() CLASS HCustomWindow
 
    RETURN NIL
 
+METHOD ApplyDarkMode() CLASS HCustomWindow
+
+   LOCAL i, oCtrl, nLen
+
+   IF !Empty( ::handle )
+      /* ComboBox needs special handling: its dropdown list is a
+       * separate HWND that SetWindowTheme on the combo does not
+       * reach. */
+      IF ::className() == "HCOMBOBOX"
+         hwg_DarkenComboBox( ::handle )
+      ELSE
+         hwg_DarkenControl( ::handle )
+      ENDIF
+   ENDIF
+
+   /* Blindagem: ::aControls pode ser Nil, vazio, conter Nil ou
+    * conter objetos que ainda não terminaram de inicializar. */
+   IF ValType( ::aControls ) == "A"
+      nLen := Len( ::aControls )
+      FOR i := 1 TO nLen
+         oCtrl := ::aControls[ i ]
+         IF ValType( oCtrl ) == "O"
+            IF __ObjHasMsg( oCtrl, "APPLYDARKMODE" )
+               oCtrl:ApplyDarkMode()
+            ENDIF
+         ENDIF
+      NEXT
+   ENDIF
+
+   RETURN Nil
+
+STATIC FUNCTION onCtlColorListBox( oWnd, wParam, lParam )
+
+   HB_SYMBOL_UNUSED(oWnd)
+   HB_SYMBOL_UNUSED(lParam)
+
+   /* Dark mode: color the ComboBox dropdown items with the dark
+    * palette.  WM_CTLCOLORLISTBOX is sent for every item painted in
+    * the dropdown, so this covers the entire list. */
+   IF hwg_ShouldAppsUseDarkMode()
+      hwg_SetBkColor( wParam, hwg_DarkThemeColor( 2 ) )
+      hwg_SetTextColor( wParam, hwg_DarkThemeColor( 3 ) )
+      RETURN hwg_GetDarkBrush( 2 )
+   ENDIF
+
+   RETURN -1
+
 STATIC FUNCTION onNotify( oWnd, wParam, lParam )
 
    LOCAL iItem, oCtrl, nCode, res, n
@@ -318,15 +370,43 @@ STATIC FUNCTION onCtlColor( oWnd, wParam, lParam )
 
    LOCAL oCtrl := oWnd:FindControl( , lParam )
 
+   /* Dark mode: intercept every WM_CTLCOLOR* variant. */
+   IF hwg_ShouldAppsUseDarkMode()
+
+      /* WM_CTLCOLORDLG: no control, the dialog itself is asking. */
+      IF oCtrl == NIL
+         hwg_SetBkColor( wParam, hwg_DarkThemeColor( 0 ) )
+         RETURN hwg_GetDarkBrush( 0 )
+      ENDIF
+
+      /* Static / line controls: transparent text on parent background. */
+      IF oCtrl:className() == "HSTATIC" .OR. ;
+         oCtrl:className() == "HLINE"
+         hwg_SetBkColor( wParam, hwg_DarkThemeColor( 0 ) )
+         hwg_SetTextColor( wParam, hwg_DarkThemeColor( 1 ) )
+         hwg_SetTransparentMode( wParam, .T. )
+         RETURN hwg_GetStockBrush( 5 )   /* NULL_BRUSH / HOLLOW_BRUSH */
+      ENDIF
+
+      /* Edit-family controls: they own their background. */
+      IF oCtrl:className() == "HEDIT" .OR. ;
+         oCtrl:className() == "HRICHEDIT" .OR. ;
+         oCtrl:className() == "HGET"
+         hwg_SetBkColor( wParam, hwg_DarkThemeColor( 2 ) )
+         hwg_SetTextColor( wParam, hwg_DarkThemeColor( 3 ) )
+         RETURN hwg_GetDarkBrush( 2 )
+      ENDIF
+
+   ENDIF
+
+   /* Light mode - original behaviour */
    IF oCtrl != NIL
       IF oCtrl:tcolor != NIL
          hwg_Settextcolor( wParam, oCtrl:tcolor )
       ENDIF
-
-      //hwg_writelog( octrl:classname )
       IF hwg_bitand( oCtrl:extStyle, WS_EX_TRANSPARENT ) != 0
          hwg_SetTransparentMode( wParam, .T. )
-         RETURN 0  //hwg_getBackBrush( oWnd:handle )
+         RETURN 0
       ELSE
          IF oCtrl:bcolor != NIL
             hwg_Setbkcolor( wParam, oCtrl:bcolor )
@@ -486,14 +566,15 @@ METHOD SetupScrollbars() CLASS HScrollArea
       IF ::nHscrollPos > 0
          nPos := hwg_Getscrollpos( ::handle, SB_HORZ )
          IF nPos < ::nHscrollPos
-            // FIXED: SB_HORZ e a constante de identificacao de barra (vale
-            // 0 no Win32) e nao um incremento de pixels - multiplicar por
-            // ela sempre resultava em 0 (no-op). O fator correto e
-            // HORZ_PTS (como o bloco vertical, logo abaixo, usa VERT_PTS),
-            // e o delta deve ir no argumento X (nao Y) de hwg_Scrollwindow.
+            // FIXED: SB_HORZ is a scroll-bar identifier constant (value 0
+            // on Win32), not a pixel increment - multiplying by it always
+            // yielded 0 (no-op). The correct factor is HORZ_PTS (just as
+            // the vertical block below uses VERT_PTS), and the delta must
+            // be passed in the X argument (not Y) of hwg_Scrollwindow.
             hwg_Scrollwindow( ::Handle, ( ::nHscrollPos - nPos ) * HORZ_PTS, 0 )
-            // FIXED: era ::nVscrollPos (variavel vertical) dentro do bloco
-            // horizontal - outro copy-paste do bloco vertical logo abaixo.
+            // FIXED: was using ::nVscrollPos (the vertical variable) inside
+            // the horizontal block - another copy-paste from the vertical
+            // block just below.
             ::nHscrollPos := nPos
             hwg_Setscrollpos( ::Handle, SB_HORZ, ::nHscrollPos, .T. )
          ENDIF

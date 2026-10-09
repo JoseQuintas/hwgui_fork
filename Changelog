@@ -15,6 +15,25 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-09 00:13 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+    * Win32: full Windows theme support (light + dark)
+      * include/hwingui.h, include/guilib.ch: uxtheme.h + ETDT_* +
+        HWG_APPMODE_* constants
+      * hwgui.hbc: link uxtheme, embed WindowsXP.Manifest
+      * WinidowsXP.Manifest: NEW - comctl32 v6 dependency
+      * source/winapi/control.c: hwg_theme_init_once() + ICC_STANDARD_CLASSES;
+        dark helpers (ShouldAppsUseDarkMode, SetPreferredAppMode,
+        SetDarkTitleBar, DarkenControl, DarkenComboBox, DarkThemeColor,
+        GetDarkBrush, GetStockBrush); TabSubclassProc repaints tab body
+      * source/winapi/window.c: init theme at startup (before RegisterClass)
+      * source/winapi/dialog.c: owner-drawn tab strip honours dark mode
+      * source/winapi/hcwindow.prg: ApplyDarkMode + WM_CTLCOLORDLG /
+        WM_CTLCOLORLISTBOX handlers
+      * source/winapi/hdialog.prg: dark title bar + onEraseBk + correct
+        ApplyDarkMode timing
+      * source/winapi/htab.prg: dark brush + auto TCS_OWNERDRAWFIXED
+      * samples/testtheme.prg: NEW - full light/dark sample
+
 2026-10-08 20:37 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
    * Win32: add Windows theme support (uxtheme)
      * include/hwingui.h, include/guilib.ch: uxtheme.h + ETDT_* constants
