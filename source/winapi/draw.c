@@ -918,14 +918,22 @@ HB_FUNC( HWG_DRAWBUTTON )
       RECT rc;
       HDC hDC = ( HDC ) HB_PARHANDLE( 1 );
       UINT iType = hb_parni( 6 );
+      HBRUSH hFace;
 
       rc.left = hb_parni( 2 );
       rc.top = hb_parni( 3 );
       rc.right = hb_parni( 4 );
       rc.bottom = hb_parni( 5 );
 
+      /* In dark mode use HWGUI's dark brush instead of COLOR_3DFACE,
+       * which Windows does not switch to a dark tone. */
+      if( hwg_should_apps_use_dark_mode() )
+            hFace = hwg_get_dark_brush( 0 );
+      else
+            hFace = ( HBRUSH ) ( COLOR_3DFACE + 1 );
+
       if( iType == 0 )
-            FillRect( hDC, &rc, ( HBRUSH ) ( COLOR_3DFACE + 1 ) );
+            FillRect( hDC, &rc, hFace );
       else
       {
             FillRect( hDC, &rc,
@@ -947,7 +955,7 @@ HB_FUNC( HWG_DRAWBUTTON )
                   rc.right--;
                   rc.bottom--;
             }
-            FillRect( hDC, &rc, ( HBRUSH ) ( COLOR_3DFACE + 1 ) );
+            FillRect( hDC, &rc, hFace );
       }
 }
 
@@ -3863,7 +3871,7 @@ HB_FUNC( HWG_LOADSVGSTRING )
       LONG     lBackColor = ( hb_pcount() >= 4 && !HB_ISNIL( 4 ) )
       ? hb_parnl( 4 ) : 0x00FFFFFFL;
       LONG     lForeColor = ( hb_pcount() >= 5 && !HB_ISNIL( 5 ) )
-      ? hb_parnl( 5 ) : -1L;   /* -1 = no replacement */
+      ? hb_parnl( 5 ) : -1L;
 
       BYTE     rB, gB, bB;
       char    *szPrepared  = NULL;
@@ -3873,6 +3881,7 @@ HB_FUNC( HWG_LOADSVGSTRING )
 
       HBITMAP  hResult = NULL;
       GError  *error   = NULL;
+      BOOL     bTransparent;
 
       if( pBytes == NULL || !HB_IS_STRING( pBytes ) ||
             nWidth <= 0 || nHeight <= 0 )
@@ -3881,11 +3890,16 @@ HB_FUNC( HWG_LOADSVGSTRING )
             return;
       }
 
+      /* nBackColor = -1 means "no background fill" - the SVG is rendered
+       * with its own alpha channel and the caller is expected to use the
+       * bitmap with a TRANSPARENT drawing path. */
+      bTransparent = ( lBackColor == -1L );
+
       rB = ( BYTE ) (  lBackColor        & 0xFF );
       gB = ( BYTE ) ( ( lBackColor >>  8 ) & 0xFF );
       bB = ( BYTE ) ( ( lBackColor >> 16 ) & 0xFF );
 
-      szSrc  = hb_itemGetCPtr( pBytes );
+      szSrc   = hb_itemGetCPtr( pBytes );
       nSrcLen = hb_itemGetCLen( pBytes );
 
       /* Rewrite the icon fill colour, if the caller supplied one. */
@@ -3913,52 +3927,94 @@ HB_FUNC( HWG_LOADSVGSTRING )
 
       if( handle != NULL )
       {
-            BITMAPINFO bmi = {0};
-            bmi.bmiHeader.biSize        = sizeof( BITMAPINFOHEADER );
-            bmi.bmiHeader.biWidth       = nWidth;
-            bmi.bmiHeader.biHeight      = -nHeight;
-            bmi.bmiHeader.biPlanes      = 1;
-            bmi.bmiHeader.biBitCount    = 32;
-            bmi.bmiHeader.biCompression = BI_RGB;
+            /* Render into an ARGB32 cairo image surface so the SVG's alpha
+             * channel survives.  cairo_win32_surface_create() discards alpha
+             * and forces every pixel to be opaque. */
+            cairo_surface_t *surface = cairo_image_surface_create(
+                  CAIRO_FORMAT_ARGB32, nWidth, nHeight );
 
-            void *pBits   = NULL;
-            HDC   hScreen = GetDC( NULL );
-            HBITMAP hDib  = CreateDIBSection( hScreen, &bmi, DIB_RGB_COLORS,
-                                              &pBits, NULL, 0 );
-            ReleaseDC( NULL, hScreen );
-
-            if( hDib != NULL && pBits != NULL )
+            if( surface != NULL )
             {
-                  HBRUSH hBrush  = CreateSolidBrush( RGB( rB, gB, bB ) );
-                  RECT   rc      = { 0, 0, nWidth, nHeight };
-                  HDC    hFillDC = CreateCompatibleDC( NULL );
-                  HBITMAP hOldFill = ( HBITMAP ) SelectObject( hFillDC, hDib );
-                  FillRect( hFillDC, &rc, hBrush );
-                  SelectObject( hFillDC, hOldFill );
-                  DeleteDC( hFillDC );
-                  DeleteObject( hBrush );
-
-                  HDC     hMemDC  = CreateCompatibleDC( NULL );
-                  HBITMAP hOldBmp = ( HBITMAP ) SelectObject( hMemDC, hDib );
-
-                  cairo_surface_t *surface = cairo_win32_surface_create( hMemDC );
-                  cairo_t         *cr      = cairo_create( surface );
+                  cairo_t *cr = cairo_create( surface );
                   RsvgRectangle viewport = { 0.0, 0.0,
                         ( double ) nWidth,
                         ( double ) nHeight };
                         gboolean bOk = rsvg_handle_render_document( handle, cr,
                                                                     &viewport, &error );
                         cairo_surface_flush( surface );
-                        GdiFlush();
-                        cairo_destroy( cr );
-                        cairo_surface_destroy( surface );
-                        SelectObject( hMemDC, hOldBmp );
-                        DeleteDC( hMemDC );
 
                         if( bOk && error == NULL )
-                              hResult = hDib;
-                  else
-                        DeleteObject( hDib );
+                        {
+                              unsigned char *src    = cairo_image_surface_get_data( surface );
+                              int            stride = cairo_image_surface_get_stride( surface );
+
+                              BITMAPINFO bmi = {0};
+                              bmi.bmiHeader.biSize        = sizeof( BITMAPINFOHEADER );
+                              bmi.bmiHeader.biWidth       = nWidth;
+                              bmi.bmiHeader.biHeight      = -nHeight;
+                              bmi.bmiHeader.biPlanes      = 1;
+                              bmi.bmiHeader.biBitCount    = 32;
+                              bmi.bmiHeader.biCompression = BI_RGB;
+
+                              void *pBits   = NULL;
+                              HDC   hScreen = GetDC( NULL );
+                              HBITMAP hDib  = CreateDIBSection( hScreen, &bmi, DIB_RGB_COLORS,
+                                                                &pBits, NULL, 0 );
+                              ReleaseDC( NULL, hScreen );
+
+                              if( hDib != NULL && pBits != NULL )
+                              {
+                                    unsigned char *dst = ( unsigned char * ) pBits;
+                                    int x, y;
+
+                                    /* Copy cairo ARGB32 (premultiplied, BGRA on LE) to the
+                                     * DIB.  If a solid background was requested, composite
+                                     * straight onto it; otherwise keep alpha so HWGUI's
+                                     * TRANSPARENT path blends the icon with its parent. */
+                                    for( y = 0; y < nHeight; y++ )
+                                    {
+                                          const unsigned char *srow = src + y * stride;
+                                          unsigned char       *drow = dst + y * nWidth * 4;
+
+                                          for( x = 0; x < nWidth; x++ )
+                                          {
+                                                unsigned char B = srow[ x * 4 + 0 ];
+                                                unsigned char G = srow[ x * 4 + 1 ];
+                                                unsigned char R = srow[ x * 4 + 2 ];
+                                                unsigned char A = srow[ x * 4 + 3 ];
+
+                                                if( bTransparent )
+                                                {
+                                                      /* Un-premultiply so GDI+ sees straight alpha. */
+                                                      if( A > 0 && A < 255 )
+                                                      {
+                                                         int t;
+                                                         t = ( R * 255 ) / A;  R = ( unsigned char ) ( t > 255 ? 255 : t );
+                                                         t = ( G * 255 ) / A;  G = ( unsigned char ) ( t > 255 ? 255 : t );
+                                                         t = ( B * 255 ) / A;  B = ( unsigned char ) ( t > 255 ? 255 : t );
+                                                      }
+                                                      drow[ x * 4 + 0 ] = B;
+                                                      drow[ x * 4 + 1 ] = G;
+                                                      drow[ x * 4 + 2 ] = R;
+                                                      drow[ x * 4 + 3 ] = A;
+                                                }
+                                                else
+                                                {
+                                                      int invA = 255 - A;
+                                                      drow[ x * 4 + 0 ] = ( unsigned char ) ( ( B * A + bB * invA ) / 255 );
+                                                      drow[ x * 4 + 1 ] = ( unsigned char ) ( ( G * A + gB * invA ) / 255 );
+                                                      drow[ x * 4 + 2 ] = ( unsigned char ) ( ( R * A + rB * invA ) / 255 );
+                                                      drow[ x * 4 + 3 ] = 255;
+                                                }
+                                          }
+                                    }
+
+                                    hResult = hDib;
+                              }
+                        }
+
+                        cairo_destroy( cr );
+                        cairo_surface_destroy( surface );
             }
 
             g_object_unref( handle );

@@ -376,8 +376,9 @@ CLASS HBitmap INHERIT HObject
    DATA nTransparent    INIT - 1
    DATA nWidth, nHeight
    DATA nCounter   INIT 1
+   DATA nBackColor
 
-   METHOD AddResource( name, nFlags, lOEM, nWidth, nHeight )
+   METHOD AddResource( name, nFlags, lOEM, nWidth, nHeight, nBackColor )
    METHOD AddStandard( nId )
    METHOD AddFile( name, hDC, lTransparent, nWidth, nHeight )
    METHOD AddString( name, cVal , nWidth, nHeight )
@@ -404,14 +405,6 @@ METHOD OBMP2FILE( cfilename , name ) CLASS HBitmap
       IF i:name == name
          hbmp := i:handle
       ELSE
-         // not found
-//         hwg_writelog("Bitmap " + name + "not found")
-//         ncoun := 0
-//         * Write out table of contents (TOC)
-//         FOR EACH j IN ::aBitmaps
-//          ncoun := ncoun  + 1
-//          hwg_writelog(ALLTRIM(STR(ncoun)) + ": " + ::name)
-//         NEXT
          RETURN NIL
       ENDIF
    NEXT
@@ -420,7 +413,7 @@ METHOD OBMP2FILE( cfilename , name ) CLASS HBitmap
 
    RETURN NIL
 
-METHOD AddResource( name, nFlags, lOEM, nWidth, nHeight ) CLASS HBitmap
+METHOD AddResource( name, nFlags, lOEM, nWidth, nHeight, nBackColor ) CLASS HBitmap
 
    LOCAL lPreDefined := .F. , i, aBmpSize, oResCnt
    LOCAL cBuf, lSvg := .F., lDark
@@ -438,8 +431,9 @@ METHOD AddResource( name, nFlags, lOEM, nWidth, nHeight ) CLASS HBitmap
 
    FOR EACH i IN ::aBitmaps
       IF i:name == name .AND. i:nFlags == nFlags .AND. ;
-            ( ( nWidth == nil .OR. nHeight == nil ) .OR. ;
-            ( i:nWidth == nWidth .AND. i:nHeight == nHeight ) )
+         i:nBackColor == nBackColor .AND. ;
+         ( ( nWidth == nil .OR. nHeight == nil ) .OR. ;
+         ( i:nWidth == nWidth .AND. i:nHeight == nHeight ) )
          i:nCounter ++
          RETURN i
       ENDIF
@@ -453,11 +447,14 @@ METHOD AddResource( name, nFlags, lOEM, nWidth, nHeight ) CLASS HBitmap
 
          IF lSvg
             lDark := hwg_ShouldAppsUseDarkMode()
+            IF nBackColor == Nil
+               nBackColor := Iif( lDark, hwg_DarkThemeColor( 0 ), 0x00FFFFFF )
+            ENDIF
             ::handle := hwg_LoadSvgString( cBuf, ;
-                                           Iif( nWidth  == Nil, 32, nWidth  ), ;
-                                           Iif( nHeight == Nil, 32, nHeight ), ;
-                                           Iif( lDark, hwg_DarkThemeColor( 0 ), 0x00FFFFFF ), ;
-                                           Iif( lDark, hwg_Rgb( 200, 200, 200 ), hwg_Rgb( 33, 33, 33 ) ) )
+                                     Iif( nWidth  == Nil, 32, nWidth  ), ;
+                                     Iif( nHeight == Nil, 32, nHeight ), ;
+                                     nBackColor, ;
+                                     Iif( lDark, hwg_Rgb( 200, 200, 200 ), hwg_Rgb( 33, 33, 33 ) ) )
          ELSE
             ::handle := hwg_OpenImage( cBuf, .T. )
          ENDIF
@@ -473,6 +470,7 @@ METHOD AddResource( name, nFlags, lOEM, nWidth, nHeight ) CLASS HBitmap
    ENDIF
 
    ::name    := name
+   ::nBackColor := nBackColor
    aBmpSize  := hwg_Getbitmapsize( ::handle )
    ::nWidth  := aBmpSize[ 1 ]
    ::nHeight := aBmpSize[ 2 ]

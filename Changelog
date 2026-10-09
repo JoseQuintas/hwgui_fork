@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-09 19:28 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  * Win32 SVG: nBackColor parameter for HBitmap:AddResource
+    * source/winapi/draw.c
+        + HWG_LOADSVGSTRING( cBytes, w, h [, nBackColor, nForeColor ] )
+          - nBackColor = -1 leaves the DIB transparent, otherwise
+            composites the SVG onto the given colour; nForeColor
+            replaces the icon's dark fill
+    * source/winapi/drawwidg.prg
+    * HBitmap:AddResource() - new optional nBackColor parameter
+
 2026-10-09 16:59 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
   Win32 SVG: render SVG from binary container in HBitmap:AddResource
   * source/winapi/draw.c
