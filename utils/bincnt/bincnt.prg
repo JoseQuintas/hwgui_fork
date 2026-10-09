@@ -532,17 +532,41 @@ STATIC FUNCTION CntPack()
 STATIC FUNCTION CntView()
 
    LOCAL oDlg, oBoa
-   LOCAL name := oContainer:aObjects[oBrw:nCurrent,1], type := Trim( oContainer:aObjects[oBrw:nCurrent,2] )
+   LOCAL name := oContainer:aObjects[oBrw:nCurrent,1]
+   LOCAL type := Lower( Trim( oContainer:aObjects[oBrw:nCurrent,2] ) )
    LOCAL cBuf, handle, aBmpSize
+   LOCAL lDark, nBackColor
 
-   IF !( Trim( type ) $ "bmp;jpg;png;gif;ico" )
+   /* Remove a leading dot if the stored extension came with one
+    * (e.g. ".bmp" instead of "bmp"). */
+   IF Left( type, 1 ) == "."
+      type := SubStr( type, 2 )
+   ENDIF
+
+   IF !( type $ "bmp jpg jpeg png gif ico svg" )
       RETURN Nil
    ENDIF
-   IF !Empty( cBuf := oContainer:Get( name ) ) .AND. !Empty( handle := hwg_OpenImage( cBuf, .T. ) )
-      aBmpSize := hwg_Getbitmapsize( handle )
+
+   cBuf := oContainer:Get( name )
+   IF Empty( cBuf )
+      RETURN Nil
+   ENDIF
+
+   IF type == "svg"
+      lDark := hwg_ShouldAppsUseDarkMode()
+      nBackColor := Iif( lDark, hwg_DarkThemeColor( 0 ), 0x00FFFFFF )
+      handle := hwg_LoadSvgString( cBuf, 400, 400, ;
+                                    nBackColor, ;
+                                    Iif( lDark, hwg_Rgb( 200, 200, 200 ), hwg_Rgb( 33, 33, 33 ) ) )
    ELSE
+      handle := hwg_OpenImage( cBuf, .T. )
+   ENDIF
+
+   IF Empty( handle )
       RETURN Nil
    ENDIF
+
+   aBmpSize := hwg_GetBitmapsize( handle )
 
    INIT DIALOG oDlg TITLE  name + " " + ;
       Ltrim(Str(aBmpSize[1])) + "x" + Ltrim(Str(aBmpSize[2])) ;

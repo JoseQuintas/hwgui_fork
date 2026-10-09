@@ -423,6 +423,7 @@ METHOD OBMP2FILE( cfilename , name ) CLASS HBitmap
 METHOD AddResource( name, nFlags, lOEM, nWidth, nHeight ) CLASS HBitmap
 
    LOCAL lPreDefined := .F. , i, aBmpSize, oResCnt
+   LOCAL cBuf, lSvg := .F., lDark
 
    IF nFlags == nil
       nFlags := LR_DEFAULTCOLOR
@@ -434,6 +435,7 @@ METHOD AddResource( name, nFlags, lOEM, nWidth, nHeight ) CLASS HBitmap
       name := LTrim( Str( name ) )
       lPreDefined := .T.
    ENDIF
+
    FOR EACH i IN ::aBitmaps
       IF i:name == name .AND. i:nFlags == nFlags .AND. ;
             ( ( nWidth == nil .OR. nHeight == nil ) .OR. ;
@@ -444,17 +446,32 @@ METHOD AddResource( name, nFlags, lOEM, nWidth, nHeight ) CLASS HBitmap
    NEXT
 
    IF !Empty( oResCnt := hwg_GetResContainer() )
-      IF !Empty( i := oResCnt:Get( name ) )
-         ::handle := hwg_OpenImage( i, .T. )
+      IF !Empty( cBuf := oResCnt:Get( name ) )
+         IF ValType( cBuf ) == "C" .AND. At( "<svg", Left( cBuf, 500 ) ) > 0
+            lSvg := .T.
+         ENDIF
+
+         IF lSvg
+            lDark := hwg_ShouldAppsUseDarkMode()
+            ::handle := hwg_LoadSvgString( cBuf, ;
+                                           Iif( nWidth  == Nil, 32, nWidth  ), ;
+                                           Iif( nHeight == Nil, 32, nHeight ), ;
+                                           Iif( lDark, hwg_DarkThemeColor( 0 ), 0x00FFFFFF ), ;
+                                           Iif( lDark, hwg_Rgb( 200, 200, 200 ), hwg_Rgb( 33, 33, 33 ) ) )
+         ELSE
+            ::handle := hwg_OpenImage( cBuf, .T. )
+         ENDIF
       ENDIF
    ELSEIF lOEM
       ::handle := hwg_Loadimage( 0, Val( name ), IMAGE_BITMAP, nil, nil, Hwg_bitor( nFlags, LR_SHARED ) )
    ELSE
       ::handle := hwg_Loadimage( nil, iif( lPreDefined, Val( name ), name ), IMAGE_BITMAP, nWidth, nHeight, nFlags )
    ENDIF
+
    IF Empty( ::handle )
       RETURN Nil
    ENDIF
+
    ::name    := name
    aBmpSize  := hwg_Getbitmapsize( ::handle )
    ::nWidth  := aBmpSize[ 1 ]

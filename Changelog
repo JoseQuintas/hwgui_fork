@@ -15,6 +15,32 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-09 16:59 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  Win32 SVG: render SVG from binary container in HBitmap:AddResource
+  * source/winapi/draw.c
+    + HWG_LOADSVGSTRING( cBytes, w, h [, nBack, nFore ] ) - renders
+      in-memory SVG to HBITMAP via librsvg + Cairo; nBack = fill for
+      transparent areas, nFore = replaces the icon's dark fill
+      (Fluent UI ships fill="#212121", invisible on dark bg)
+    + static stub under #else for builds without __USE_LIBRSVG
+
+  * source/winapi/drawwidg.prg
+    * HBitmap:AddResource() - detects "<svg" in container bytes and
+      routes to hwg_LoadSvgString(); other types keep hwg_OpenImage()
+
+  * utils/bincnt/bincnt.prg
+    * CntView() - previews SVG items using hwg_LoadSvgString() with
+      mode-aware background
+  !  Attention!!
+     hbmk2 hwgui.hbp svg.hbc make hwgui with svg support
+     hbmk2 bincnt.hbp ..\..\svg.hbc make \hwgui\bin\bincnt.exe
+     bincnt.exe open and add svg files and show it! (view)
+
+    hwg_SetResContainer('image.rc')
+    file image.rc container bmp, ico, png, gif, svg... files.
+    @ x,y OwnerButton oOwnBnt of oDlg Size a,b ON CLICK {|| ...  } ;
+           FLAT BITMAP HBitMap():AddResource('ic_fluent_person_24_filled') TRANSPARENT COORDINATES 0,0,64,64 ...
+
 2026-10-09 10:17 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * Win32 theme: soften dark-mode text colour
       * control.c: HWG_DARKTHEMECOLOR() index 1 (text on dark bg) and

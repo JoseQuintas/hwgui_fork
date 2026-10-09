@@ -3790,6 +3790,189 @@ HB_FUNC( HWG_LOADSVG )
       hb_retptr( (void *) hResult );
 }
 
+/* Replace every occurrence of szFrom with szTo in a byte buffer.
+ * Returns a newly hb_xgrab()'d buffer (caller must hb_xfree it) or NULL
+ * if nothing was found. */
+static char * s_svg_replace_all( const char *src, HB_SIZE nSrcLen,
+                                 const char *szFrom, const char *szTo,
+                                 HB_SIZE *pOutLen )
+{
+      HB_SIZE nFromLen = strlen( szFrom );
+      HB_SIZE nToLen   = strlen( szTo );
+      const char *p    = src;
+      const char *pEnd = src + nSrcLen;
+      HB_SIZE nOccur   = 0, nOutLen;
+      char *dst, *q;
+
+      if( nFromLen == 0 )
+            return NULL;
+
+      while( p + nFromLen <= pEnd )
+      {
+            if( memcmp( p, szFrom, nFromLen ) == 0 )
+            {
+                  nOccur++;
+                  p += nFromLen;
+            }
+            else
+                  p++;
+      }
+
+      if( nOccur == 0 )
+            return NULL;
+
+      nOutLen = nSrcLen + nOccur * ( ( HB_MAXINT ) nToLen - ( HB_MAXINT ) nFromLen );
+      dst = ( char * ) hb_xgrab( nOutLen + 1 );
+      q = dst;
+      p = src;
+      while( p + nFromLen <= pEnd )
+      {
+            if( memcmp( p, szFrom, nFromLen ) == 0 )
+            {
+                  memcpy( q, szTo, nToLen );
+                  q += nToLen;
+                  p += nFromLen;
+            }
+            else
+                  *q++ = *p++;
+      }
+      while( p < pEnd )
+            *q++ = *p++;
+      *q = 0;
+      *pOutLen = nOutLen;
+      return dst;
+}
+
+/*=============================================================================
+ * HWG_LOADSVGSTRING( cSvgBytes, nWidth, nHeight [, nBackColor, nForeColor ] )
+ *
+ * Renders SVG bytes (as stored in a binary container) into an HBITMAP.
+ *
+ * nBackColor (opt): background fill for transparent areas.
+ * nForeColor (opt): replacement for the icon's own dark fill.
+ *   Fluent UI / MDL2 icons ship with fill="#212121" hardcoded - this
+ *   parameter rewrites it before rsvg sees the SVG, so the icon stays
+ *   visible against a dark background.
+ *   Both colours are HWGUI-native ( 0x00BBGGRR ).
+ *===========================================================================*/
+HB_FUNC( HWG_LOADSVGSTRING )
+{
+      PHB_ITEM pBytes = hb_param( 1, HB_IT_STRING );
+      int      nWidth   = hb_parni( 2 );
+      int      nHeight  = hb_parni( 3 );
+      LONG     lBackColor = ( hb_pcount() >= 4 && !HB_ISNIL( 4 ) )
+      ? hb_parnl( 4 ) : 0x00FFFFFFL;
+      LONG     lForeColor = ( hb_pcount() >= 5 && !HB_ISNIL( 5 ) )
+      ? hb_parnl( 5 ) : -1L;   /* -1 = no replacement */
+
+      BYTE     rB, gB, bB;
+      char    *szPrepared  = NULL;
+      HB_SIZE  nPreparedLen = 0;
+      const char *szSrc    = NULL;
+      HB_SIZE  nSrcLen     = 0;
+
+      HBITMAP  hResult = NULL;
+      GError  *error   = NULL;
+
+      if( pBytes == NULL || !HB_IS_STRING( pBytes ) ||
+            nWidth <= 0 || nHeight <= 0 )
+      {
+            hb_retptr( NULL );
+            return;
+      }
+
+      rB = ( BYTE ) (  lBackColor        & 0xFF );
+      gB = ( BYTE ) ( ( lBackColor >>  8 ) & 0xFF );
+      bB = ( BYTE ) ( ( lBackColor >> 16 ) & 0xFF );
+
+      szSrc  = hb_itemGetCPtr( pBytes );
+      nSrcLen = hb_itemGetCLen( pBytes );
+
+      /* Rewrite the icon fill colour, if the caller supplied one. */
+      if( lForeColor >= 0 )
+      {
+            char szFill[ 10 ];
+            BYTE rF = ( BYTE ) (  lForeColor        & 0xFF );
+            BYTE gF = ( BYTE ) ( ( lForeColor >>  8 ) & 0xFF );
+            BYTE bF = ( BYTE ) ( ( lForeColor >> 16 ) & 0xFF );
+            snprintf( szFill, sizeof( szFill ), "#%02X%02X%02X", rF, gF, bF );
+
+            szPrepared = s_svg_replace_all( szSrc, nSrcLen, "#212121", szFill, &nPreparedLen );
+            if( !szPrepared )
+                  szPrepared = s_svg_replace_all( szSrc, nSrcLen, "#000000", szFill, &nPreparedLen );
+
+            if( szPrepared )
+            {
+                  szSrc   = szPrepared;
+                  nSrcLen = nPreparedLen;
+            }
+      }
+
+      RsvgHandle *handle = rsvg_handle_new_from_data(
+            ( const guint8 * ) szSrc, ( gsize ) nSrcLen, &error );
+
+      if( handle != NULL )
+      {
+            BITMAPINFO bmi = {0};
+            bmi.bmiHeader.biSize        = sizeof( BITMAPINFOHEADER );
+            bmi.bmiHeader.biWidth       = nWidth;
+            bmi.bmiHeader.biHeight      = -nHeight;
+            bmi.bmiHeader.biPlanes      = 1;
+            bmi.bmiHeader.biBitCount    = 32;
+            bmi.bmiHeader.biCompression = BI_RGB;
+
+            void *pBits   = NULL;
+            HDC   hScreen = GetDC( NULL );
+            HBITMAP hDib  = CreateDIBSection( hScreen, &bmi, DIB_RGB_COLORS,
+                                              &pBits, NULL, 0 );
+            ReleaseDC( NULL, hScreen );
+
+            if( hDib != NULL && pBits != NULL )
+            {
+                  HBRUSH hBrush  = CreateSolidBrush( RGB( rB, gB, bB ) );
+                  RECT   rc      = { 0, 0, nWidth, nHeight };
+                  HDC    hFillDC = CreateCompatibleDC( NULL );
+                  HBITMAP hOldFill = ( HBITMAP ) SelectObject( hFillDC, hDib );
+                  FillRect( hFillDC, &rc, hBrush );
+                  SelectObject( hFillDC, hOldFill );
+                  DeleteDC( hFillDC );
+                  DeleteObject( hBrush );
+
+                  HDC     hMemDC  = CreateCompatibleDC( NULL );
+                  HBITMAP hOldBmp = ( HBITMAP ) SelectObject( hMemDC, hDib );
+
+                  cairo_surface_t *surface = cairo_win32_surface_create( hMemDC );
+                  cairo_t         *cr      = cairo_create( surface );
+                  RsvgRectangle viewport = { 0.0, 0.0,
+                        ( double ) nWidth,
+                        ( double ) nHeight };
+                        gboolean bOk = rsvg_handle_render_document( handle, cr,
+                                                                    &viewport, &error );
+                        cairo_surface_flush( surface );
+                        GdiFlush();
+                        cairo_destroy( cr );
+                        cairo_surface_destroy( surface );
+                        SelectObject( hMemDC, hOldBmp );
+                        DeleteDC( hMemDC );
+
+                        if( bOk && error == NULL )
+                              hResult = hDib;
+                  else
+                        DeleteObject( hDib );
+            }
+
+            g_object_unref( handle );
+      }
+
+      if( error != NULL )
+            g_error_free( error );
+
+      if( szPrepared )
+            hb_xfree( szPrepared );
+
+      hb_retptr( ( void * ) hResult );
+}
+
 /* bz2_error_stub.c
  * Stub for bz_internal_error(), required when libbz2.a is linked
  * statically. The default handler is part of the shared library
@@ -3814,6 +3997,12 @@ void bz_internal_error( int errcode )
 /* Stub so that callers do not need to check whether SVG support is
  compiled in. Always retu*rns NULL. */
 HB_FUNC( HWG_LOADSVG )
+{
+      HB_SYMBOL_UNUSED( hb_pcount() );
+      hb_retptr( NULL );
+}
+
+HB_FUNC( HWG_LOADSVGSTRING )
 {
       HB_SYMBOL_UNUSED( hb_pcount() );
       hb_retptr( NULL );
