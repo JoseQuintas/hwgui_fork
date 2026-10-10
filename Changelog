@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-10 14:03 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+    * Win32 dark mode: HBrowse header/cells; TTL cache for dark-mode query
+      * control.c   : hwg_should_apps_use_dark_mode() - read registry
+                      once, cache the result in a static (removes
+                      per-paint registry access)
+      * hbrowse.prg : DrawHeader() - dark-mode aware header background
+      * hbrowse.prg : Paint()      - mode-aware cell palette defaults
+
 2026-10-10 13:35 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * Win32 dark mode: TTL cache; HBrowse header colour
       * control.c   : hwg_should_apps_use_dark_mode() - cache the value

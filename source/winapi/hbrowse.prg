@@ -689,14 +689,25 @@ METHOD Paint( lLostFocus )  CLASS HBrowse
 
    (lLostFocus)
 
-   IF ::tcolor    == Nil ; ::tcolor    := 0 ; ENDIF
-   IF ::bcolor    == Nil ; ::bcolor    := hwg_ColorC2N( "FFFFFF" ) ; ENDIF
-
-   IF ::httcolor  == Nil ; ::httcolor  := hwg_ColorC2N( "FFFFFF" ) ; ENDIF
-   IF ::htbcolor  == Nil ; ::htbcolor  := 2896388  ; ENDIF
-
-   IF ::tcolorSel == Nil ; ::tcolorSel := hwg_ColorC2N( "FFFFFF" ) ; ENDIF
-   IF ::bcolorSel == Nil ; ::bcolorSel := hwg_ColorC2N( "808080" ) ; ENDIF
+   /* Default cell palette, mode-aware.  Previously hard-coded to the
+    * light system scheme; in dark mode we need a dark background with
+    * light text so cells do not stare as white blocks against the
+    * dark dialog background. */
+   IF hwg_ShouldAppsUseDarkMode()
+      IF ::tcolor    == Nil ; ::tcolor    := hwg_DarkThemeColor( 1 ) ; ENDIF
+      IF ::bcolor    == Nil ; ::bcolor    := hwg_DarkThemeColor( 0 ) ; ENDIF
+      IF ::httcolor  == Nil ; ::httcolor  := hwg_DarkThemeColor( 1 ) ; ENDIF
+      IF ::htbcolor  == Nil ; ::htbcolor  := hwg_DarkThemeColor( 2 ) ; ENDIF
+      IF ::tcolorSel == Nil ; ::tcolorSel := hwg_DarkThemeColor( 1 ) ; ENDIF
+      IF ::bcolorSel == Nil ; ::bcolorSel := hwg_Rgb( 0, 120, 215 )  ; ENDIF
+   ELSE
+      IF ::tcolor    == Nil ; ::tcolor    := 0 ; ENDIF
+      IF ::bcolor    == Nil ; ::bcolor    := hwg_ColorC2N( "FFFFFF" ) ; ENDIF
+      IF ::httcolor  == Nil ; ::httcolor  := hwg_ColorC2N( "FFFFFF" ) ; ENDIF
+      IF ::htbcolor  == Nil ; ::htbcolor  := 2896388 ; ENDIF
+      IF ::tcolorSel == Nil ; ::tcolorSel := hwg_ColorC2N( "FFFFFF" ) ; ENDIF
+      IF ::bcolorSel == Nil ; ::bcolorSel := hwg_ColorC2N( "808080" ) ; ENDIF
+   ENDIF
 
    pps := hwg_Definepaintstru()
    hDCReal := hwg_Beginpaint( ::handle, pps )
@@ -881,6 +892,16 @@ METHOD DrawHeader( hDC, nColumn, x1, y1, x2, y2 ) CLASS HBrowse
    //IF !Empty( block := hwg_getPaintCB( aCB, PAINT_HEAD_BACK ) )
    IF !Empty( oCB ) .AND. !Empty( block := oCB:Get( PAINT_HEAD_BACK ) )
       Eval( block, oColumn, hDC, x1, y1, x2, y2, nColumn )
+   ELSEIF hwg_ShouldAppsUseDarkMode()
+      /* In dark mode, override any explicit oStyleHead so the header
+       * background matches the rest of the dialog.  Otherwise, a light
+       * oStyleHead would produce a light strip with light text on top
+       * of a dark browse. */
+      hwg_Fillrect( hDC, x1, y1, x2, y2, hwg_GetDarkBrush( 0 ) )
+      IF oColumn:cGrid != Nil
+         hwg_Selectobject( hDC, ::oPenHdr:handle )
+         /* ... grid lines ... (mantenha o bloco existente abaixo) */
+      ENDIF
    ELSEIF oColumn:oStyleHead != Nil
       oColumn:oStyleHead:Draw( hDC, x1, y1, x2, y2 )
    ELSEIF ::oStyleHead != Nil

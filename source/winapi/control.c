@@ -3540,27 +3540,23 @@ static void s_LoadDarkModeProcs( void )
  *                  when the registry value is absent (rare - some Windows
  *                  Server SKUs).
  *
- * The result is cached for HWG_DARKMODE_TTL_MS milliseconds.  Without a
- * TTL the registry would be queried once per control on every paint,
- * which makes scroll-heavy screens (large browses, dense dialogs) stutter
- * on slower machines.  With a 1-second window, the paint path is
- * essentially free and interactive theme changes are still picked up
- * almost immediately.
+ * The value is read ONCE, on the first call, and cached for the whole
+ * lifetime of the process.  This eliminates all registry access from the
+ * paint path: every control on every paint simply reads s_bResult.
+ *
+ * Trade-off: if the user changes the theme while the application is
+ * running, it will not be reflected until the application is restarted.
  *===========================================================================*/
-#define HWG_DARKMODE_TTL_MS   1000
-
 BOOL hwg_should_apps_use_dark_mode( void )
 {
-      static DWORD s_dwLastCheck = 0;
-      static BOOL  s_bResult    = FALSE;
-      DWORD dwNow = GetTickCount();
+      static int s_iInitialized = 0;   /* 0 = not read yet, 1 = cached */
+      static BOOL s_bResult     = FALSE;
 
-      /* Fast path: still within the TTL window. */
-      if( s_dwLastCheck != 0 &&
-            ( dwNow - s_dwLastCheck ) < HWG_DARKMODE_TTL_MS )
+      /* Fast path: value already cached - return immediately. */
+      if( s_iInitialized )
             return s_bResult;
 
-      /* Slow path: (re)read the registry. */
+      /* Slow path: first call only - read the registry. */
       {
             HKEY  hKey;
             DWORD dwValue = 0;
@@ -3589,9 +3585,10 @@ BOOL hwg_should_apps_use_dark_mode( void )
             }
             else
                   s_bResult = ( dwValue == 0 ) ? TRUE : FALSE;
+
+            s_iInitialized = 1;
       }
 
-      s_dwLastCheck = dwNow;
       return s_bResult;
 }
 
@@ -3600,6 +3597,7 @@ int hwg_set_preferred_app_mode( int nMode )
       s_LoadDarkModeProcs();
       return s_pfnSetPreferredAppMode ? s_pfnSetPreferredAppMode( nMode ) : -1;
 }
+
 /*=============================================================================
  * HWG_SHOULDAPPSUSEDARKMODE()
  * PRG-visible wrapper around hwg_should_apps_use_dark_mode().
