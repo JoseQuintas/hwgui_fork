@@ -380,6 +380,8 @@ METHOD Paint( hDC ) CLASS HStatic
     * invisible against a different background. */
    IF ::tcolor != Nil
       nOldColor := hwg_Settextcolor( hDC, ::tcolor )
+   ELSEIF hwg_ShouldAppsUseDarkMode()
+      nOldColor := hwg_Settextcolor( hDC, hwg_DarkThemeColor( 1 ) )
    ELSE
       nOldColor := hwg_Settextcolor( hDC, hwg_Getsyscolor( COLOR_WINDOWTEXT ) )
    ENDIF

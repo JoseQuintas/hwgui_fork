@@ -367,7 +367,13 @@ METHOD DrawItems( hDC ) CLASS HOwnButton
          hwg_Selectobject( hDC, ::oFont:handle )
       ENDIF
       IF ::lEnabled
-         hwg_Settextcolor( hDC, ::tcolor )
+         IF ::tcolor != Nil .AND. ::tcolor != hwg_Getsyscolor( COLOR_BTNTEXT )
+            hwg_Settextcolor( hDC, ::tcolor )
+         ELSEIF hwg_ShouldAppsUseDarkMode()
+            hwg_Settextcolor( hDC, hwg_DarkThemeColor( 1 ) )
+         ELSE
+            hwg_Settextcolor( hDC, ::tcolor )
+         ENDIF
       ELSE
          hwg_Settextcolor( hDC, hwg_ColorRgb2N( 255, 255, 255 ) )
       ENDIF

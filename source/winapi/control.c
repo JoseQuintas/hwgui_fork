@@ -2616,6 +2616,18 @@ LRESULT APIENTRY TabSubclassProc( HWND hWnd, UINT message, WPARAM wParam,
                      rcInterior = rc;
                      rcInterior.top = nStripHeight;
                      FillRect( hdcMem, &rcInterior, hwg_get_dark_brush( 0 ) );
+
+                     /* Overwrite the light 1px frame SysTabControl32
+                      * draws around the tab body with a dark line. */
+                     {
+                           HPEN   hPen    = CreatePen( PS_SOLID, 1, RGB( 90, 90, 90 ) );
+                           HPEN   hOldPen = ( HPEN ) SelectObject( hdcMem, hPen );
+                           HBRUSH hOldBr  = ( HBRUSH ) SelectObject( hdcMem, GetStockObject( NULL_BRUSH ) );
+                           Rectangle( hdcMem, rc.left, rc.top, rc.right, rc.bottom );
+                           SelectObject( hdcMem, hOldPen );
+                           SelectObject( hdcMem, hOldBr );
+                           DeleteObject( hPen );
+                     }
                }
 
                hwg_tab_draw_disabled_captions( hWnd, hdcMem );
@@ -3497,12 +3509,6 @@ typedef int  ( WINAPI * HWG_PFN_SETPREFERREDAPPMODE )( int );
 static HMODULE s_hUxTheme        = NULL;
 static HWG_PFN_SHOULDAPPSUSEDARKMODE s_pfnShouldAppsUseDarkMode = NULL;
 static HWG_PFN_SETPREFERREDAPPMODE   s_pfnSetPreferredAppMode   = NULL;
-/* Cached result of ShouldAppsUseDarkMode() read BEFORE
- * SetPreferredAppMode() was called.  Once SetPreferredAppMode(FORCEDARK)
- * runs, ShouldAppsUseDarkMode() starts returning TRUE for this process
- * regardless of the user's real preference, so we must capture the
- * original value first. */
-static int s_UserPrefersDark = -1;   /* -1 = not read yet */
 
 static void s_LoadDarkModeProcs( void )
 {
@@ -3550,10 +3556,6 @@ BOOL hwg_should_apps_use_dark_mode( void )
       DWORD dwType  = 0;
       BOOL  lFromRegistry = FALSE;
 
-      /* Already cached? Return it. */
-      if( s_UserPrefersDark >= 0 )
-            return s_UserPrefersDark == 1;
-
       /* Primary source: registry (matches the Settings UI). */
       if( RegOpenKeyEx( HKEY_CURRENT_USER,
             TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"),
@@ -3573,14 +3575,12 @@ BOOL hwg_should_apps_use_dark_mode( void )
       {
             s_LoadDarkModeProcs();
             if( s_pfnShouldAppsUseDarkMode )
-                  s_UserPrefersDark = s_pfnShouldAppsUseDarkMode() ? 1 : 0;
+                  return s_pfnShouldAppsUseDarkMode() ? TRUE : FALSE;
             else
-                  s_UserPrefersDark = 0;   /* assume light */
+                  return FALSE;
       }
-      else
-            s_UserPrefersDark = ( dwValue == 0 ) ? 1 : 0;
 
-      return s_UserPrefersDark == 1;
+      return ( dwValue == 0 ) ? TRUE : FALSE;
 }
 
 int hwg_set_preferred_app_mode( int nMode )
@@ -3744,9 +3744,9 @@ HB_FUNC( HWG_DARKTHEMECOLOR )
       switch( nIdx )
       {
             case 0:  cr = RGB(  32,  32,  32 ); break;   /* dialog background */
-            case 1:  cr = RGB( 200, 200, 200 ); break;   /* text on dark bg   */
+            case 1:  cr = RGB( 235, 235, 235 ); break;   /* text on dark bg   */
             case 2:  cr = RGB(  45,  45,  48 ); break;   /* edit background   */
-            case 3:  cr = RGB( 200, 200, 200 ); break;   /* edit text         */
+            case 3:  cr = RGB( 235, 235, 235 ); break;   /* edit text         */
             default: cr = RGB(  32,  32,  32 );
       }
       /* HWGUI stores colors internally as 0x00BBGGRR (BGR order). */
