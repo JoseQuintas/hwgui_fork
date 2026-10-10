@@ -172,7 +172,7 @@ METHOD End() CLASS HControl
 METHOD onAnchor( x, y, w, h ) CLASS HControl
    RETURN hwg_resize_onAnchor( Self, x, y, w, h )
 
-   //- HStatus
+//- HStatus
 
 CLASS HStatus INHERIT HControl
 
@@ -368,14 +368,27 @@ METHOD DrawFromLpDis( lpDis ) CLASS HStatic
 METHOD Paint( hDC ) CLASS HStatic
 
    LOCAL x1 := 0, y1 := 0, x2 := ::nWidth, y2 := ::nHeight
+   LOCAL nOldColor
 
    IF ::Title == Nil .OR. Empty( ::Title )
       RETURN Nil
    ENDIF
 
+   /* Force the text colour on every paint.  On CS_OWNDC windows the
+    * DC keeps its state between paints, so a colour left behind by a
+    * previous control would leak through and render the caption
+    * invisible against a different background. */
+   IF ::tcolor != Nil
+      nOldColor := hwg_Settextcolor( hDC, ::tcolor )
+   ELSE
+      nOldColor := hwg_Settextcolor( hDC, hwg_Getsyscolor( COLOR_WINDOWTEXT ) )
+   ENDIF
+
    hwg_Settransparentmode( hDC, .T. )
    hwg_Drawtext( hDC, ::title, x1, y1, x2, y2, ::nStyleDraw )
    hwg_Settransparentmode( hDC, .F. )
+
+   hwg_Settextcolor( hDC, nOldColor )
 
    RETURN NIL
 

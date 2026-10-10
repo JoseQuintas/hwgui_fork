@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-10 00:18 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+    * Win32: fix @ SAY invisible inside HTab (dark-mode regression)
+      * htab.prg     : HTab:onEvent() - read HWND from DRAWITEMSTRUCT
+                       via hwg_GetDrawItemHwnd(); wParam is CtlID, not HWND
+      * hcontrol.prg : HStatic:Paint() - force text colour every paint
+      * hcwindow.prg : onCtlColor() - reset DC text colour + skip dark
+                       branch when dialog has a light BACKCOLOR
+
 2026-10-09 21:10 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
   * Win32 SVG: render in-memory SVG to HBITMAP via librsvg + Cairo
    * source/winapi/draw.c

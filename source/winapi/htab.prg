@@ -175,21 +175,29 @@ METHOD Init() CLASS HTab
    RETURN Nil
 
 METHOD onEvent( msg, wParam, lParam ) CLASS HTab
-   LOCAL oCtrl
+   LOCAL oCtrl, hCtl
 
    // SS_OWNERDRAW children (e.g. "@ SAY ... Transparent") send
    // WM_DRAWITEM to their immediate parent, which is the tab control
    // itself. Forward it to the tab's parent (dialog or main window)
    // so the shared owner-draw handler can paint the child.
    //
-   // IMPORTANT: only forward when wParam actually belongs to a child
-   // of THIS tab. Otherwise we would also forward the tab's own
-   // WM_DRAWITEM (when TCS_OWNERDRAWFIXED is set), which breaks the
-   // tab strip rendering and leaves blank/black areas.
+   // IMPORTANT: WM_DRAWITEM's wParam is the CtlID, not the HWND.  The
+   // HWND must be read from the DRAWITEMSTRUCT (lParam->hwndItem),
+   // otherwise hwg_GetWindowObject() receives a small integer and
+   // returns Nil, the forward never happens, and every @ SAY inside
+   // the tab stays invisible.
+   //
+   // We still keep the "only forward for our own children" check, so
+   // the tab's own WM_DRAWITEM (when TCS_OWNERDRAWFIXED is set) is not
+   // incorrectly routed through the dialog and blank areas never appear.
    IF msg == WM_DRAWITEM .AND. ::oParent != Nil
-      oCtrl := hwg_GetWindowObject( wParam )
-      IF oCtrl != Nil .AND. oCtrl:oParent == Self
-         RETURN ::oParent:onEvent( msg, wParam, lParam )
+      hCtl := hwg_GetDrawItemHwnd( lParam )
+      IF hCtl != Nil
+         oCtrl := hwg_GetWindowObject( hCtl )
+         IF oCtrl != Nil .AND. oCtrl:oParent == Self
+            RETURN ::oParent:onEvent( msg, wParam, lParam )
+         ENDIF
       ENDIF
       // Fall through to Super for the tab's own owner-draw handling.
    ENDIF

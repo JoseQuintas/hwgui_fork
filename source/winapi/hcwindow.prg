@@ -285,8 +285,9 @@ METHOD ApplyDarkMode() CLASS HCustomWindow
       ENDIF
    ENDIF
 
-   /* Blindagem: ::aControls pode ser Nil, vazio, conter Nil ou
-    * conter objetos que ainda não terminaram de inicializar. */
+  /* Guards: ::aControls may be Nil (window without controls yet) or
+    * contain Nil entries (controls not fully materialized). Both are
+    * handled here to keep the recursion safe during dialog startup. */
    IF ValType( ::aControls ) == "A"
       nLen := Len( ::aControls )
       FOR i := 1 TO nLen
@@ -309,12 +310,20 @@ STATIC FUNCTION onCtlColorListBox( oWnd, wParam, lParam )
    /* Dark mode: color the ComboBox dropdown items with the dark
     * palette.  WM_CTLCOLORLISTBOX is sent for every item painted in
     * the dropdown, so this covers the entire list. */
+
    IF hwg_ShouldAppsUseDarkMode()
       hwg_SetBkColor( wParam, hwg_DarkThemeColor( 2 ) )
       hwg_SetTextColor( wParam, hwg_DarkThemeColor( 3 ) )
       RETURN hwg_GetDarkBrush( 2 )
    ENDIF
 
+   /*
+   IF hwg_ShouldAppsUseDarkMode()
+      hwg_SetBkColor( wParam, hwg_DarkThemeColor( 2 ) )
+      hwg_SetTextColor( wParam, hwg_RGB( 200, 200, 200 ) )    // softer than the default
+      RETURN hwg_GetDarkBrush( 2 )
+   ENDIF
+   */
    RETURN -1
 
 STATIC FUNCTION onNotify( oWnd, wParam, lParam )
@@ -368,27 +377,39 @@ STATIC FUNCTION onDestroy( oWnd )
 
 STATIC FUNCTION onCtlColor( oWnd, wParam, lParam )
 
-   LOCAL oCtrl := oWnd:FindControl( , lParam )
+   LOCAL oCtrl   := oWnd:FindControl( , lParam )
+   LOCAL lDarkBg := hwg_ShouldAppsUseDarkMode()
+   LOCAL nClr
 
-   /* Dark mode: intercept every WM_CTLCOLOR* variant. */
-   IF hwg_ShouldAppsUseDarkMode()
+   /* If the DIALOG has its own brush and it is LIGHT, we must not
+    * apply light text to SAYs - they would be invisible on the light
+    * background.  Detect by summing the RGB channels (sum >= 384,
+    * i.e. average >= 128, means light). */
+   IF lDarkBg .AND. !Empty( oWnd:brush ) .AND. ValType( oWnd:brush ) != "N"
+      nClr := oWnd:brush:color
+      IF ( hwg_bitand( nClr, 0xFF ) + ;
+           hwg_bitand( Int( nClr / 256 ), 0xFF ) + ;
+           hwg_bitand( Int( nClr / 65536 ), 0xFF ) ) >= 384
+         lDarkBg := .F.
+      ENDIF
+   ENDIF
 
-      /* WM_CTLCOLORDLG: no control, the dialog itself is asking. */
+   /* Dark mode: only if the dialog itself is really dark. */
+   IF lDarkBg
+
       IF oCtrl == NIL
          hwg_SetBkColor( wParam, hwg_DarkThemeColor( 0 ) )
          RETURN hwg_GetDarkBrush( 0 )
       ENDIF
 
-      /* Static / line controls: transparent text on parent background. */
       IF oCtrl:className() == "HSTATIC" .OR. ;
          oCtrl:className() == "HLINE"
          hwg_SetBkColor( wParam, hwg_DarkThemeColor( 0 ) )
          hwg_SetTextColor( wParam, hwg_DarkThemeColor( 1 ) )
          hwg_SetTransparentMode( wParam, .T. )
-         RETURN hwg_GetStockBrush( 5 )   /* NULL_BRUSH / HOLLOW_BRUSH */
+         RETURN hwg_GetStockBrush( 5 )
       ENDIF
 
-      /* Edit-family controls: they own their background. */
       IF oCtrl:className() == "HEDIT" .OR. ;
          oCtrl:className() == "HRICHEDIT" .OR. ;
          oCtrl:className() == "HGET"
@@ -399,10 +420,19 @@ STATIC FUNCTION onCtlColor( oWnd, wParam, lParam )
 
    ENDIF
 
-   /* Light mode - original behaviour */
+   /* Light mode - original HWGUI behaviour, also used when the dialog
+    * has an explicit light BACKCOLOR even if Windows is in dark mode.
+    *
+    * IMPORTANT: when the control has no explicit tcolor we must reset
+    * the text colour to the system default.  Without this reset, a
+    * previous dark-mode pass leaves the DC with a light text colour
+    * that then bleeds through on TRANSPARENT controls (SAYs) - the
+    * text ends up the same colour as the background. */
    IF oCtrl != NIL
       IF oCtrl:tcolor != NIL
          hwg_Settextcolor( wParam, oCtrl:tcolor )
+      ELSE
+         hwg_Settextcolor( wParam, hwg_Getsyscolor( COLOR_WINDOWTEXT ) )
       ENDIF
       IF hwg_bitand( oCtrl:extStyle, WS_EX_TRANSPARENT ) != 0
          hwg_SetTransparentMode( wParam, .T. )
