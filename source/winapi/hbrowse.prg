@@ -911,6 +911,19 @@ METHOD DrawHeader( hDC, nColumn, x1, y1, x2, y2 ) CLASS HBrowse
       NEXT
    ENDIF
    hwg_Settransparentmode( hDC, .T. )
+
+   /* Force the header text colour.  hwg_Drawbutton() now uses
+    * hwg_get_dark_brush(0) when Windows is in dark mode, so the
+    * header background is dark - without this, the text would inherit
+    * a dark colour from the DC and become unreadable. */
+   IF ::headColor != Nil
+      hwg_Settextcolor( hDC, ::headColor )
+   ELSEIF hwg_ShouldAppsUseDarkMode()
+      hwg_Settextcolor( hDC, hwg_DarkThemeColor( 1 ) )
+   ELSE
+      hwg_Settextcolor( hDC, hwg_Getsyscolor( COLOR_BTNTEXT ) )
+   ENDIF
+
    IF ValType( oColumn:heading ) == "C"
       hwg_Drawtext( hDC, oColumn:heading, x1 + 1 + ::aHeadPadding[1],    ;
          y1 + 1 + ::aHeadPadding[2], x2 - ::aHeadPadding[3], ;
@@ -925,6 +938,7 @@ METHOD DrawHeader( hDC, nColumn, x1, y1, x2, y2 ) CLASS HBrowse
          ENDIF
       NEXT
    ENDIF
+
    hwg_Settransparentmode( hDC, .F. )
 
    //IF !Empty( aCB := hwg_getPaintCB( aCB, PAINT_HEAD_ITEM ) )

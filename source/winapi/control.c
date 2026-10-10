@@ -3526,61 +3526,73 @@ static void s_LoadDarkModeProcs( void )
 }
 
 /* C-pure helpers - safe to call from other .c files in this module. */
-
 /*=============================================================================
  * hwg_should_apps_use_dark_mode
  *
- * Returns TRUE only if the user has explicitly selected dark mode for
- * applications.  Reads the registry directly:
+ * Returns TRUE when the user prefers dark mode for applications.
  *
- *   HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize
- *       AppsUseLightTheme  (DWORD)
- *           0x1 -> apps in light mode
- *           0x0 -> apps in dark mode
+ * Primary source:  HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\
+ *                  Personalize\AppsUseLightTheme
+ *                      0x1 -> apps in light mode
+ *                      0x0 -> apps in dark mode
  *
- * Why not ShouldAppsUseDarkMode() (uxtheme ordinal 132)?
- *   On several Windows 10 / 11 builds that API returns TRUE from
- *   inside a process even when the registry says light mode, which
- *   causes the app to render dark against the user's wishes.  The
- *   registry value is what the Settings UI writes, so it is the
- *   reliable source of truth.
+ * Fallback:        uxtheme ShouldAppsUseDarkMode() (ordinal 132), used only
+ *                  when the registry value is absent (rare - some Windows
+ *                  Server SKUs).
  *
- * The value is cached on first read so that a subsequent call to
- * SetPreferredAppMode(FORCEDARK) does not change our own return value.
+ * The result is cached for HWG_DARKMODE_TTL_MS milliseconds.  Without a
+ * TTL the registry would be queried once per control on every paint,
+ * which makes scroll-heavy screens (large browses, dense dialogs) stutter
+ * on slower machines.  With a 1-second window, the paint path is
+ * essentially free and interactive theme changes are still picked up
+ * almost immediately.
  *===========================================================================*/
+#define HWG_DARKMODE_TTL_MS   1000
+
 BOOL hwg_should_apps_use_dark_mode( void )
 {
-      HKEY  hKey;
-      DWORD dwValue = 0;
-      DWORD dwSize  = sizeof( dwValue );
-      DWORD dwType  = 0;
-      BOOL  lFromRegistry = FALSE;
+      static DWORD s_dwLastCheck = 0;
+      static BOOL  s_bResult    = FALSE;
+      DWORD dwNow = GetTickCount();
 
-      /* Primary source: registry (matches the Settings UI). */
-      if( RegOpenKeyEx( HKEY_CURRENT_USER,
-            TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"),
-                        0, KEY_READ, &hKey ) == ERROR_SUCCESS )
+      /* Fast path: still within the TTL window. */
+      if( s_dwLastCheck != 0 &&
+            ( dwNow - s_dwLastCheck ) < HWG_DARKMODE_TTL_MS )
+            return s_bResult;
+
+      /* Slow path: (re)read the registry. */
       {
-            if( RegQueryValueEx( hKey, TEXT("AppsUseLightTheme"), NULL,
-                  &dwType, ( LPBYTE ) &dwValue, &dwSize ) == ERROR_SUCCESS )
+            HKEY  hKey;
+            DWORD dwValue = 0;
+            DWORD dwSize  = sizeof( dwValue );
+            DWORD dwType  = 0;
+            BOOL  lFromRegistry = FALSE;
+
+            if( RegOpenKeyEx( HKEY_CURRENT_USER,
+                  TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"),
+                              0, KEY_READ, &hKey ) == ERROR_SUCCESS )
             {
-                  lFromRegistry = TRUE;
+                  if( RegQueryValueEx( hKey, TEXT("AppsUseLightTheme"), NULL,
+                        &dwType, ( LPBYTE ) &dwValue, &dwSize ) == ERROR_SUCCESS )
+                  {
+                        lFromRegistry = TRUE;
+                  }
+                  RegCloseKey( hKey );
             }
-            RegCloseKey( hKey );
-      }
 
-      /* Fallback: uxtheme API, when the registry key is absent
-       * (rare - e.g. fresh installs of some Windows Server SKUs). */
-      if( !lFromRegistry )
-      {
-            s_LoadDarkModeProcs();
-            if( s_pfnShouldAppsUseDarkMode )
-                  return s_pfnShouldAppsUseDarkMode() ? TRUE : FALSE;
+            if( !lFromRegistry )
+            {
+                  s_LoadDarkModeProcs();
+                  s_bResult = s_pfnShouldAppsUseDarkMode
+                  ? ( s_pfnShouldAppsUseDarkMode() ? TRUE : FALSE )
+                  : FALSE;
+            }
             else
-                  return FALSE;
+                  s_bResult = ( dwValue == 0 ) ? TRUE : FALSE;
       }
 
-      return ( dwValue == 0 ) ? TRUE : FALSE;
+      s_dwLastCheck = dwNow;
+      return s_bResult;
 }
 
 int hwg_set_preferred_app_mode( int nMode )
@@ -3588,7 +3600,6 @@ int hwg_set_preferred_app_mode( int nMode )
       s_LoadDarkModeProcs();
       return s_pfnSetPreferredAppMode ? s_pfnSetPreferredAppMode( nMode ) : -1;
 }
-
 /*=============================================================================
  * HWG_SHOULDAPPSUSEDARKMODE()
  * PRG-visible wrapper around hwg_should_apps_use_dark_mode().

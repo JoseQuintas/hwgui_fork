@@ -15,6 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-10 13:35 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+    * Win32 dark mode: TTL cache; HBrowse header colour
+      * control.c   : hwg_should_apps_use_dark_mode() - cache the value
+                      for 1000 ms (HWG_DARKMODE_TTL_MS); avoids one
+                      registry query per control per paint
+      * hbrowse.prg : HBrowse:DrawHeader() - force header text colour
+                      (::headColor, else hwg_DarkThemeColor(1) in dark,
+                      else COLOR_BTNTEXT)
+
 2026-10-10 00:59 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * Win32: dark-mode text colour and OWNERBUTTON caption
       * control.c    : HWG_DARKTHEMECOLOR() - RGB(235,235,235)
