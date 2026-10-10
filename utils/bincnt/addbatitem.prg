@@ -263,19 +263,30 @@ METHOD Del( cObjName ) CLASS HBinC
    FWrite( ::handle, Replicate( ' ', Len(cObjName)+4 ) )
    ::aObjects[n,OBJ_NAME] := ::aObjects[n,OBJ_TYPE] := ""
 
+   /* FIXED: the item counter and the catalogue length were not being
+    * updated on delete.  The header kept reporting the old item count
+    * (and the old catalogue size) until the next Pack(), and Pack()
+    * only rewrote the header if the *count* changed - which it did,
+    * but callers reading nItems between Del() and Pack() got the wrong
+    * value.  Update both counters here so the object is consistent
+    * with the file as soon as the delete returns. */
+   ::nItems  --
+   ::nCntLen -= Len(cObjName) + CNT_FIX_LEN
+
    RETURN .T.
 
 METHOD Pack() CLASS HBinC
    LOCAL i, nItems := 0, nCntLen := 0
    LOCAL nAddr, cAddr, cSize, a
-   Local s := cHead + Chr(::nVerHigh) + Chr(::nVerLow) + Chr(0), handle, cTempName
+   LOCAL s, handle, cTempName
 
    IF !::lWriteAble
       RETURN .F.
    ENDIF
 
+   /* Count the valid entries. */
    Aeval( ::aObjects, {|a| Iif(!Empty(a[OBJ_NAME]), (nItems++,nCntLen+=Len(a[OBJ_NAME])+CNT_FIX_LEN),.T.) } )
-   IF nItems == ::nItems
+   IF nItems == ::nItems .AND. nCntLen == ::nCntLen
       RETURN .T.
    ENDIF
 
@@ -284,27 +295,32 @@ METHOD Pack() CLASS HBinC
       RETURN .F.
    ENDIF
 
-   ::nItems := nItems
-   ::nCntLen := nCntLen
+   /* FIXED: the first data byte of the NEW file must be computed from
+    * the NEW catalogue size, not from the address of the first object
+    * in the OLD file.  Using the old address put every object at the
+    * wrong offset whenever the catalogue shrank. */
+   nAddr := HEAD_LEN + ::nPassLen + nCntLen
 
+   /* Build the new header + catalogue. */
+   s := cHead + Chr(::nVerHigh) + Chr(::nVerLow) + Chr(0)
    cAddr := Chr( nItems/256 ) + Chr( nItems%256 )
    cSize := Chr( nCntLen/65536 ) + Chr( (nCntLen/256)%256 ) + Chr( nCntLen%65536 )
    s += cAddr + cSize + Chr(::nCntBlocks) + Chr(::nPassLen)
 
-   nAddr := ::aObjects[1,OBJ_VAL]
    FOR i := 1 TO Len( ::aObjects )
       a := ::aObjects[i]
       IF !Empty( a[OBJ_NAME] )
          cAddr := Chr( nAddr/16777216 ) + Chr( (nAddr/65536)%256 ) + Chr( (nAddr/256)%65536 ) + Chr( nAddr%16777216 )
          cSize := Chr( a[OBJ_SIZE]/16777216 ) + Chr( (a[OBJ_SIZE]/65536)%256 ) + Chr( (a[OBJ_SIZE]/256)%65536 ) + Chr( a[OBJ_SIZE]%16777216 )
-         nAddr += a[OBJ_SIZE]
          s += Chr(Len(a[OBJ_NAME]))+a[OBJ_NAME]+a[OBJ_TYPE]+cAddr+cSize+Chr(0)+Chr(0)
+         nAddr += a[OBJ_SIZE]
       ENDIF
    NEXT
 
    FWrite( handle, s )
    FWrite( handle, Replicate( Chr(0), ::nCntBlocks*2048 - Len(s) ) )
 
+   /* Now copy the actual data, in the same order. */
    FOR i := 1 TO Len( ::aObjects )
       IF !Empty( ::aObjects[i,OBJ_NAME] )
          s := Space( ::aObjects[i,OBJ_SIZE] )

@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-10 18:48 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+    * Win32: fix HBinC Pack/Del; bincnt preview for PNG and ICO
+      * utils/bincnt/addbatitem.prg (HBinC class)
+          * Pack() - compute the first data byte from the new catalogue
+            size instead of the old first-object address
+          * Del()  - decrement nItems and nCntLen, persist the header
+      * utils/bincnt/bincnt.prg
+          * CntView() - PNG and ICO via hwg_GdiplusOpenimage on a
+            temporary file
+
 2026-10-10 16:59 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * Win32 dark mode: check/radio/groupbox rendering
       * source/winapi/control.c   : HWG_DARKENCONTROL() - remove theme (SetWindowTheme

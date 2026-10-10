@@ -535,7 +535,7 @@ STATIC FUNCTION CntView()
    LOCAL name := oContainer:aObjects[oBrw:nCurrent,1]
    LOCAL type := Lower( Trim( oContainer:aObjects[oBrw:nCurrent,2] ) )
    LOCAL cBuf, handle, aBmpSize
-   LOCAL lDark, nBackColor
+   LOCAL lDark, nBackColor, cTmp
 
    /* Remove a leading dot if the stored extension came with one
     * (e.g. ".bmp" instead of "bmp"). */
@@ -558,6 +558,14 @@ STATIC FUNCTION CntView()
       handle := hwg_LoadSvgString( cBuf, 400, 400, ;
                                     nBackColor, ;
                                     Iif( lDark, hwg_Rgb( 200, 200, 200 ), hwg_Rgb( 33, 33, 33 ) ) )
+   ELSEIF type == "png" .OR. type == "ico"
+      /* OleLoadPicture (used by hwg_OpenImage) does not handle PNG or
+       * ICO from memory.  Dump the bytes to a temporary file and let
+       * GDI+ read it from disk. */
+      cTmp := hwg_CreateTempfileName( , "." + type )
+      hb_MemoWrit( cTmp, cBuf )
+      handle := hwg_GdiplusOpenimage( cTmp )
+      hb_vfErase( cTmp )
    ELSE
       handle := hwg_OpenImage( cBuf, .T. )
    ENDIF
