@@ -3506,9 +3506,18 @@ HB_FUNC( HWG_CLOSEWINDOWTHEME )
 typedef BOOL ( WINAPI * HWG_PFN_SHOULDAPPSUSEDARKMODE )( void );
 typedef int  ( WINAPI * HWG_PFN_SETPREFERREDAPPMODE )( int );
 
+/* uxtheme ordinal 133 - enables per-window dark mode on Windows 10
+ * 1809+.  Required before SetWindowTheme("DarkMode_Explorer") on
+ * checkboxes, radio buttons and group boxes; without it those controls
+ * keep the light palette even with the theme applied.  Windows 11
+ * ignores the call, so it is safe to invoke on both. */
 static HMODULE s_hUxTheme        = NULL;
 static HWG_PFN_SHOULDAPPSUSEDARKMODE s_pfnShouldAppsUseDarkMode = NULL;
 static HWG_PFN_SETPREFERREDAPPMODE   s_pfnSetPreferredAppMode   = NULL;
+
+#define HWG_ORD_ALLOWDARKMODEFORWINDOW      133
+typedef BOOL ( WINAPI * HWG_PFN_ALLOWDARKMODEFORWINDOW )( HWND, BOOL );
+static HWG_PFN_ALLOWDARKMODEFORWINDOW s_pfnAllowDarkModeForWindow = NULL;
 
 static void s_LoadDarkModeProcs( void )
 {
@@ -3523,6 +3532,8 @@ static void s_LoadDarkModeProcs( void )
       GetProcAddress( s_hUxTheme, MAKEINTRESOURCEA( HWG_ORD_SHOULDAPPSUSEDARKMODE ) );
       s_pfnSetPreferredAppMode   = ( HWG_PFN_SETPREFERREDAPPMODE )
       GetProcAddress( s_hUxTheme, MAKEINTRESOURCEA( HWG_ORD_SETPREFERREDAPPMODE ) );
+      s_pfnAllowDarkModeForWindow = ( HWG_PFN_ALLOWDARKMODEFORWINDOW )
+      GetProcAddress( s_hUxTheme, MAKEINTRESOURCEA( HWG_ORD_ALLOWDARKMODEFORWINDOW ) );
 }
 
 /* C-pure helpers - safe to call from other .c files in this module. */
@@ -3675,18 +3686,68 @@ HB_FUNC( HWG_SETDARKTITLEBAR )
       hb_retl( bResult );
 }
 
+
 /*=============================================================================
  * HWG_DARKENCONTROL( hWnd )
- *   Applies "DarkMode_Explorer" to a single control.
- *   On light mode this is a no-op (theme just doesn't exist -> no change).
- *   Safe to call on any control handle.
+ *   Applies dark rendering to a single control.
+ *
+ *   - Push buttons: untouched (HWGUI paints them with its own palette).
+ *
+ *   - Check boxes, radio buttons and group boxes, in dark mode: the visual
+ *     theme is REMOVED from the control (SetWindowTheme with empty strings).
+ *     A themed BUTTON draws its text with the theme colour and ignores the
+ *     SetTextColor() done in WM_CTLCOLORSTATIC / WM_CTLCOLORBTN, and it
+ *     erases its background through the parent (a tab control paints it
+ *     light).  Without the theme the control is drawn by classic GDI, which
+ *     does honour the text colour and the background brush returned by
+ *     onCtlColor() (hcwindow.prg), so these controls get light text on a
+ *     dark background.  Trade-off: the check / radio square and the group
+ *     frame use the classic look.
+ *
+ *   - Everything else: "DarkMode_Explorer", as before.
  *===========================================================================*/
 HB_FUNC( HWG_DARKENCONTROL )
 {
       HWND hWnd = ( HWND ) HB_PARHANDLE( 1 );
+      TCHAR szClass[ 64 ];
 
-      if( hWnd )
-            SetWindowTheme( hWnd, L"DarkMode_Explorer", NULL );
+      if( !hWnd )
+            return;
+
+      szClass[ 0 ] = 0;
+      GetClassName( hWnd, szClass, HB_SIZEOFARRAY( szClass ) - 1 );
+
+      if( lstrcmpi( szClass, TEXT( "Button" ) ) == 0 )
+      {
+            LONG lStyle = GetWindowLong( hWnd, GWL_STYLE ) & 0x0F;
+
+            /* Push buttons: HWGUI paints them with its own soft palette. */
+            if( lStyle == BS_PUSHBUTTON || lStyle == BS_DEFPUSHBUTTON )
+                  return;
+
+            /* Check boxes, radio buttons and group boxes: classic drawing
+             * so that the colours from WM_CTLCOLORSTATIC are honoured. */
+            if( hwg_should_apps_use_dark_mode() &&
+                  ( lStyle == BS_GROUPBOX      || lStyle == BS_CHECKBOX    ||
+                  lStyle == BS_AUTOCHECKBOX  || lStyle == BS_3STATE      ||
+                  lStyle == BS_AUTO3STATE    || lStyle == BS_RADIOBUTTON ||
+                  lStyle == BS_AUTORADIOBUTTON ) )
+            {
+                  SetWindowTheme( hWnd, L"", L"" );
+                  InvalidateRect( hWnd, NULL, TRUE );
+                  return;
+            }
+      }
+
+      /* Windows 10 (1809+) requires AllowDarkModeForWindow() before the
+       * SetWindowTheme() call, otherwise the control keeps the light
+       * palette even with DarkMode_Explorer applied.  Windows 11 ignores
+       * it, so calling it is safe on both. */
+      s_LoadDarkModeProcs();
+      if( s_pfnAllowDarkModeForWindow )
+            s_pfnAllowDarkModeForWindow( hWnd, TRUE );
+
+      SetWindowTheme( hWnd, L"DarkMode_Explorer", NULL );
 }
 
 /*=============================================================================

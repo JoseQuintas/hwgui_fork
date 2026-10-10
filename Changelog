@@ -15,35 +15,45 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-10 16:59 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+    * Win32 dark mode: check/radio/groupbox rendering
+      * source/winapi/control.c   : HWG_DARKENCONTROL() - remove theme (SetWindowTheme
+                      with empty strings) for check/radio/groupbox;
+                      skip push buttons; add AllowDarkModeForWindow
+      * source/winapi/hcontrol.prg: HStatic owner-draw for SAY with BackColor/border;
+                      vertical centring in Paint()
+      * source/winapi/hcwindow.prg: onCtlColor() - reset text colour on fallback;
+                      light text for check/radio/groupbox in dark mode
+
 2026-10-10 14:03 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * Win32 dark mode: HBrowse header/cells; TTL cache for dark-mode query
-      * control.c   : hwg_should_apps_use_dark_mode() - read registry
+      * source/winapi/control.c   : hwg_should_apps_use_dark_mode() - read registry
                       once, cache the result in a static (removes
                       per-paint registry access)
-      * hbrowse.prg : DrawHeader() - dark-mode aware header background
-      * hbrowse.prg : Paint()      - mode-aware cell palette defaults
+      * source/winapi/hbrowse.prg : DrawHeader() - dark-mode aware header background
+      * source/winapi/hbrowse.prg : Paint()      - mode-aware cell palette defaults
 
 2026-10-10 13:35 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * Win32 dark mode: TTL cache; HBrowse header colour
-      * control.c   : hwg_should_apps_use_dark_mode() - cache the value
+      * source/winapi/control.c   : hwg_should_apps_use_dark_mode() - cache the value
                       for 1000 ms (HWG_DARKMODE_TTL_MS); avoids one
                       registry query per control per paint
-      * hbrowse.prg : HBrowse:DrawHeader() - force header text colour
+      * source/winapi/hbrowse.prg : HBrowse:DrawHeader() - force header text colour
                       (::headColor, else hwg_DarkThemeColor(1) in dark,
                       else COLOR_BTNTEXT)
 
 2026-10-10 00:59 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * Win32: dark-mode text colour and OWNERBUTTON caption
-      * control.c    : HWG_DARKTHEMECOLOR() - RGB(235,235,235)
-      * hcontrol.prg : HStatic:Paint() - force text colour each paint
-      * hownbtn.prg  : DrawItems() - dark-mode caption
+      * source/winapi/control.c    : HWG_DARKTHEMECOLOR() - RGB(235,235,235)
+      * source/winapi/hcontrol.prg : HStatic:Paint() - force text colour each paint
+      * source/winapi/hownbtn.prg  : DrawItems() - dark-mode caption
 
 2026-10-10 00:18 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * Win32: fix @ SAY invisible inside HTab (dark-mode regression)
-      * htab.prg     : HTab:onEvent() - read HWND from DRAWITEMSTRUCT
+      * source/winapi/htab.prg     : HTab:onEvent() - read HWND from DRAWITEMSTRUCT
                        via hwg_GetDrawItemHwnd(); wParam is CtlID, not HWND
-      * hcontrol.prg : HStatic:Paint() - force text colour every paint
-      * hcwindow.prg : onCtlColor() - reset DC text colour + skip dark
+      * source/winapi/hcontrol.prg : HStatic:Paint() - force text colour every paint
+      * source/winapi/hcwindow.prg : onCtlColor() - reset DC text colour + skip dark
                        branch when dialog has a light BACKCOLOR
 
 2026-10-09 21:10 UTC-0300  Itamar Junior  <itamarlins@gmail.com>

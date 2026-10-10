@@ -374,27 +374,18 @@ STATIC FUNCTION onDestroy( oWnd )
    oWnd:End()
 
    RETURN 1
-
 STATIC FUNCTION onCtlColor( oWnd, wParam, lParam )
 
    LOCAL oCtrl   := oWnd:FindControl( , lParam )
    LOCAL lDarkBg := hwg_ShouldAppsUseDarkMode()
-   LOCAL nClr
 
-   /* If the DIALOG has its own brush and it is LIGHT, we must not
-    * apply light text to SAYs - they would be invisible on the light
-    * background.  Detect by summing the RGB channels (sum >= 384,
-    * i.e. average >= 128, means light). */
-   IF lDarkBg .AND. !Empty( oWnd:brush ) .AND. ValType( oWnd:brush ) != "N"
-      nClr := oWnd:brush:color
-      IF ( hwg_bitand( nClr, 0xFF ) + ;
-           hwg_bitand( Int( nClr / 256 ), 0xFF ) + ;
-           hwg_bitand( Int( nClr / 65536 ), 0xFF ) ) >= 384
-         lDarkBg := .F.
-      ENDIF
-   ENDIF
+   /* The previous "light dialog" detection (which disabled dark mode
+    * for the whole dialog when its BACKCOLOR was light) has been
+    * removed.  It broke GETs and other controls in dialogs that keep
+    * a neutral light BACKCOLOR while the rest of the app follows the
+    * Windows theme.  Dialogs that really want a light look should set
+    * tcolor/bcolor on their controls from the PRG. */
 
-   /* Dark mode: only if the dialog itself is really dark. */
    IF lDarkBg
 
       IF oCtrl == NIL
@@ -418,19 +409,30 @@ STATIC FUNCTION onCtlColor( oWnd, wParam, lParam )
          RETURN hwg_GetDarkBrush( 2 )
       ENDIF
 
+      /* Checkboxes, radio buttons and group boxes ignore
+       * WM_CTLCOLORBTN for their drawing, BUT for group boxes we
+       * still need to return a matching background brush so the
+       * frame cutout is dark.  The checkbox / radio square is
+       * themed via SetWindowTheme in HWG_DARKENCONTROL. */
+      IF oCtrl:className() == "HGROUP" .OR. ;
+         oCtrl:className() == "HCHECKBUTTON" .OR. ;
+         oCtrl:className() == "HRADIOBUTTON"
+         hwg_SetBkColor( wParam, hwg_DarkThemeColor( 0 ) )
+         hwg_SetTextColor( wParam, hwg_DarkThemeColor( 1 ) )
+         RETURN hwg_GetDarkBrush( 0 )
+      ENDIF
+
    ENDIF
 
-   /* Light mode - original HWGUI behaviour, also used when the dialog
-    * has an explicit light BACKCOLOR even if Windows is in dark mode.
-    *
-    * IMPORTANT: when the control has no explicit tcolor we must reset
-    * the text colour to the system default.  Without this reset, a
-    * previous dark-mode pass leaves the DC with a light text colour
-    * that then bleeds through on TRANSPARENT controls (SAYs) - the
-    * text ends up the same colour as the background. */
+   /* Fallback (light mode, or controls not covered above: combobox,
+    * group box, checkbox, etc).  Reset the DC text colour so a stale
+    * light colour from a previous dark pass does not leak through on
+    * TRANSPARENT SAYs. */
    IF oCtrl != NIL
       IF oCtrl:tcolor != NIL
          hwg_Settextcolor( wParam, oCtrl:tcolor )
+      ELSEIF lDarkBg
+         hwg_Settextcolor( wParam, hwg_DarkThemeColor( 1 ) )
       ELSE
          hwg_Settextcolor( wParam, hwg_Getsyscolor( COLOR_WINDOWTEXT ) )
       ENDIF

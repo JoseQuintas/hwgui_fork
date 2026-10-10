@@ -278,13 +278,31 @@ METHOD New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, ;
       nStyle := SS_OWNERDRAW
    ENDIF
 
-   // Enabling style for tooltips
+   /* Enabling style for tooltips */
    IF ValType( cTooltip ) == "C"
       IF nStyle == NIL
          nStyle := SS_NOTIFY
       ELSE
          nStyle := Hwg_BitOr( nStyle, SS_NOTIFY )
       ENDIF
+   ENDIF
+
+   /* Force owner-draw when the SAY has a visible background OR a
+    * border.  The native STATIC draws single-line text at the TOP of
+    * its rectangle, misaligning it with HEdit controls that centre
+    * their text.  Windows does not offer any style to vertically
+    * centre text in a STATIC (SS_CENTERIMAGE only works for bitmaps),
+    * so the only way is to take over the painting via HStatic:Paint.
+    *
+    * TRANSPARENT SAYs already go through owner-draw in the block
+    * above - this new case covers SAYs with BackColor and/or
+    * WS_BORDER but without TRANSPARENT. */
+   IF ( bColor != Nil .OR. ;
+        ( nStyle != NIL .AND. hwg_bitand( nStyle, WS_BORDER ) != 0 ) )
+      IF ::nStyleDraw == Nil
+         ::nStyleDraw := iif( Empty( nStyle ), 0, nStyle )
+      ENDIF
+      nStyle := SS_OWNERDRAW
    ENDIF
 
    ::Super:New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, oFont, ;
@@ -368,16 +386,22 @@ METHOD DrawFromLpDis( lpDis ) CLASS HStatic
 METHOD Paint( hDC ) CLASS HStatic
 
    LOCAL x1 := 0, y1 := 0, x2 := ::nWidth, y2 := ::nHeight
-   LOCAL nOldColor
+   LOCAL nOldColor, nStyleDraw
 
    IF ::Title == Nil .OR. Empty( ::Title )
       RETURN Nil
    ENDIF
 
-   /* Force the text colour on every paint.  On CS_OWNDC windows the
-    * DC keeps its state between paints, so a colour left behind by a
-    * previous control would leak through and render the caption
-    * invisible against a different background. */
+   /* SS_OWNERDRAW does not receive WM_CTLCOLORSTATIC, so if the SAY
+    * has an explicit background we paint it here.  Otherwise the SAY
+    * is transparent and the dialog background shows through. */
+   IF ::brush != Nil
+      hwg_Fillrect( hDC, 0, 0, ::nWidth, ::nHeight, ::brush:handle )
+   ENDIF
+
+   /* Text colour: honour an explicit tcolor, otherwise use the
+    * mode-appropriate system default (light text on dark, dark text
+    * on light). */
    IF ::tcolor != Nil
       nOldColor := hwg_Settextcolor( hDC, ::tcolor )
    ELSEIF hwg_ShouldAppsUseDarkMode()
@@ -386,8 +410,21 @@ METHOD Paint( hDC ) CLASS HStatic
       nOldColor := hwg_Settextcolor( hDC, hwg_Getsyscolor( COLOR_WINDOWTEXT ) )
    ENDIF
 
+   /* When this SAY was forced to owner-draw (has a BackColor or a
+    * border), centre the caption vertically.  Keep the horizontal
+    * alignment bits from the original SS_* style, add DT_VCENTER and
+    * DT_SINGLELINE.  Otherwise (already-owner-draw TRANSPARENT SAYs)
+    * honour ::nStyleDraw unchanged. */
+   IF ::nStyleDraw != Nil .AND. ;
+      ( ::brush != Nil .OR. hwg_bitand( ::nStyleDraw, WS_BORDER ) != 0 )
+      nStyleDraw := Hwg_BitOr( Hwg_BitAnd( ::nStyleDraw, 0x0F ), ;
+                               DT_VCENTER + DT_SINGLELINE )
+   ELSE
+      nStyleDraw := ::nStyleDraw
+   ENDIF
+
    hwg_Settransparentmode( hDC, .T. )
-   hwg_Drawtext( hDC, ::title, x1, y1, x2, y2, ::nStyleDraw )
+   hwg_Drawtext( hDC, ::title, x1, y1, x2, y2, nStyleDraw )
    hwg_Settransparentmode( hDC, .F. )
 
    hwg_Settextcolor( hDC, nOldColor )
