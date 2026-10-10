@@ -15,11 +15,22 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-09 21:10 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  * Win32 SVG: render in-memory SVG to HBITMAP via librsvg + Cairo
+   * source/winapi/draw.c
+   + HWG_LOADSVGSTRING( cBytes, w, h [, nBackColor, nForeColor ] )
+   * cairo_scale() + viewport = intrinsic size so librsvg
+     reconstructs vector curves at target resolution
+   * 4x supersampling + downsample for smooth edges
+   * nBackColor = -1 = transparent; nForeColor replaces the
+     icon's dark fill
+   * HWG_DRAWBUTTON() - dark-mode aware
+
 2026-10-09 19:28 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
   * Win32 SVG: nBackColor parameter for HBitmap:AddResource
     * source/winapi/draw.c
         + HWG_LOADSVGSTRING( cBytes, w, h [, nBackColor, nForeColor ] )
-          - nBackColor = -1 leaves the DIB transparent, otherwise
+          * nBackColor = -1 leaves the DIB transparent, otherwise
             composites the SVG onto the given colour; nForeColor
             replaces the icon's dark fill
     * source/winapi/drawwidg.prg

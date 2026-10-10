@@ -3890,9 +3890,6 @@ HB_FUNC( HWG_LOADSVGSTRING )
             return;
       }
 
-      /* nBackColor = -1 means "no background fill" - the SVG is rendered
-       * with its own alpha channel and the caller is expected to use the
-       * bitmap with a TRANSPARENT drawing path. */
       bTransparent = ( lBackColor == -1L );
 
       rB = ( BYTE ) (  lBackColor        & 0xFF );
@@ -3927,94 +3924,130 @@ HB_FUNC( HWG_LOADSVGSTRING )
 
       if( handle != NULL )
       {
-            /* Render into an ARGB32 cairo image surface so the SVG's alpha
-             * channel survives.  cairo_win32_surface_create() discards alpha
-             * and forces every pixel to be opaque. */
+            /* Read the SVG's intrinsic size (typically 24x24 for Fluent UI
+             * icons).  We need it because rsvg_handle_render_document()
+             * interprets the viewport in USER units, not in pixels of the
+             * target surface: without cairo_scale the SVG is rendered at
+             * its intrinsic resolution and then Cairo stretches the bitmap,
+             * producing visible aliasing at larger sizes.
+             *
+             * Solution: scale the Cairo context by the target/intrinsic
+             * ratio BEFORE rendering, and give rsvg a viewport equal to
+             * the intrinsic size.  librsvg then reconstructs the vector
+             * curves at full target resolution. */
+
+            double wIntr = 24.0, hIntr = 24.0;
+
+            if( !rsvg_handle_get_intrinsic_size_in_pixels( handle, &wIntr, &hIntr )
+                  || wIntr <= 0.0 || hIntr <= 0.0 )
+            {
+                  wIntr = 24.0;
+                  hIntr = 24.0;
+            }
+
+            /* Render at 4x for extra smoothness (also works well on HiDPI). */
+            int nSuperW = nWidth  * 4;
+            int nSuperH = nHeight * 4;
+
             cairo_surface_t *surface = cairo_image_surface_create(
-                  CAIRO_FORMAT_ARGB32, nWidth, nHeight );
+                  CAIRO_FORMAT_ARGB32, nSuperW, nSuperH );
 
             if( surface != NULL )
             {
                   cairo_t *cr = cairo_create( surface );
-                  RsvgRectangle viewport = { 0.0, 0.0,
-                        ( double ) nWidth,
-                        ( double ) nHeight };
-                        gboolean bOk = rsvg_handle_render_document( handle, cr,
-                                                                    &viewport, &error );
-                        cairo_surface_flush( surface );
+                  cairo_set_antialias( cr, CAIRO_ANTIALIAS_BEST );
 
-                        if( bOk && error == NULL )
+                  /* Scale so that one SVG user unit maps to the correct
+                   * number of pixels on the target surface. */
+                  cairo_scale( cr,
+                               ( double ) nSuperW / wIntr,
+                               ( double ) nSuperH / hIntr );
+
+                  /* Viewport in SVG user units = intrinsic size. */
+                  RsvgRectangle viewport = { 0.0, 0.0, wIntr, hIntr };
+
+                  gboolean bOk = rsvg_handle_render_document( handle, cr,
+                                                              &viewport, &error );
+                  cairo_surface_flush( surface );
+
+                  if( bOk && error == NULL )
+                  {
+                        unsigned char *src    = cairo_image_surface_get_data( surface );
+                        int            stride = cairo_image_surface_get_stride( surface );
+
+                        BITMAPINFO bmi = {0};
+                        bmi.bmiHeader.biSize        = sizeof( BITMAPINFOHEADER );
+                        bmi.bmiHeader.biWidth       = nWidth;
+                        bmi.bmiHeader.biHeight      = -nHeight;
+                        bmi.bmiHeader.biPlanes      = 1;
+                        bmi.bmiHeader.biBitCount    = 32;
+                        bmi.bmiHeader.biCompression = BI_RGB;
+
+                        void *pBits   = NULL;
+                        HDC   hScreen = GetDC( NULL );
+                        HBITMAP hDib  = CreateDIBSection( hScreen, &bmi, DIB_RGB_COLORS,
+                                                          &pBits, NULL, 0 );
+                        ReleaseDC( NULL, hScreen );
+
+                        if( hDib != NULL && pBits != NULL )
                         {
-                              unsigned char *src    = cairo_image_surface_get_data( surface );
-                              int            stride = cairo_image_surface_get_stride( surface );
+                              unsigned char *dst = ( unsigned char * ) pBits;
+                              int x, y, dy, dx;
+                              const int SCALE = 4;
+                              const int NPIX  = SCALE * SCALE;
 
-                              BITMAPINFO bmi = {0};
-                              bmi.bmiHeader.biSize        = sizeof( BITMAPINFOHEADER );
-                              bmi.bmiHeader.biWidth       = nWidth;
-                              bmi.bmiHeader.biHeight      = -nHeight;
-                              bmi.bmiHeader.biPlanes      = 1;
-                              bmi.bmiHeader.biBitCount    = 32;
-                              bmi.bmiHeader.biCompression = BI_RGB;
-
-                              void *pBits   = NULL;
-                              HDC   hScreen = GetDC( NULL );
-                              HBITMAP hDib  = CreateDIBSection( hScreen, &bmi, DIB_RGB_COLORS,
-                                                                &pBits, NULL, 0 );
-                              ReleaseDC( NULL, hScreen );
-
-                              if( hDib != NULL && pBits != NULL )
+                              for( y = 0; y < nHeight; y++ )
                               {
-                                    unsigned char *dst = ( unsigned char * ) pBits;
-                                    int x, y;
+                                    unsigned char *drow = dst + y * nWidth * 4;
 
-                                    /* Copy cairo ARGB32 (premultiplied, BGRA on LE) to the
-                                     * DIB.  If a solid background was requested, composite
-                                     * straight onto it; otherwise keep alpha so HWGUI's
-                                     * TRANSPARENT path blends the icon with its parent. */
-                                    for( y = 0; y < nHeight; y++ )
+                                    for( x = 0; x < nWidth; x++ )
                                     {
-                                          const unsigned char *srow = src + y * stride;
-                                          unsigned char       *drow = dst + y * nWidth * 4;
+                                          unsigned int sB = 0, sG = 0, sR = 0, sA = 0;
 
-                                          for( x = 0; x < nWidth; x++ )
+                                          for( dy = 0; dy < SCALE; dy++ )
                                           {
-                                                unsigned char B = srow[ x * 4 + 0 ];
-                                                unsigned char G = srow[ x * 4 + 1 ];
-                                                unsigned char R = srow[ x * 4 + 2 ];
-                                                unsigned char A = srow[ x * 4 + 3 ];
+                                                const unsigned char *srow =
+                                                src + ( y * SCALE + dy ) * stride;
 
-                                                if( bTransparent )
+                                                for( dx = 0; dx < SCALE; dx++ )
                                                 {
-                                                      /* Un-premultiply so GDI+ sees straight alpha. */
-                                                      if( A > 0 && A < 255 )
-                                                      {
-                                                         int t;
-                                                         t = ( R * 255 ) / A;  R = ( unsigned char ) ( t > 255 ? 255 : t );
-                                                         t = ( G * 255 ) / A;  G = ( unsigned char ) ( t > 255 ? 255 : t );
-                                                         t = ( B * 255 ) / A;  B = ( unsigned char ) ( t > 255 ? 255 : t );
-                                                      }
-                                                      drow[ x * 4 + 0 ] = B;
-                                                      drow[ x * 4 + 1 ] = G;
-                                                      drow[ x * 4 + 2 ] = R;
-                                                      drow[ x * 4 + 3 ] = A;
-                                                }
-                                                else
-                                                {
-                                                      int invA = 255 - A;
-                                                      drow[ x * 4 + 0 ] = ( unsigned char ) ( ( B * A + bB * invA ) / 255 );
-                                                      drow[ x * 4 + 1 ] = ( unsigned char ) ( ( G * A + gB * invA ) / 255 );
-                                                      drow[ x * 4 + 2 ] = ( unsigned char ) ( ( R * A + rB * invA ) / 255 );
-                                                      drow[ x * 4 + 3 ] = 255;
+                                                      const unsigned char *sp = srow + ( x * SCALE + dx ) * 4;
+                                                      sB += sp[0];
+                                                      sG += sp[1];
+                                                      sR += sp[2];
+                                                      sA += sp[3];
                                                 }
                                           }
+
+                                          unsigned int B = sB / NPIX;
+                                          unsigned int G = sG / NPIX;
+                                          unsigned int R = sR / NPIX;
+                                          unsigned int A = sA / NPIX;
+
+                                          if( bTransparent )
+                                          {
+                                                drow[x*4+0] = ( unsigned char ) B;
+                                                drow[x*4+1] = ( unsigned char ) G;
+                                                drow[x*4+2] = ( unsigned char ) R;
+                                                drow[x*4+3] = ( unsigned char ) A;
+                                          }
+                                          else
+                                          {
+                                                int invA = 255 - ( int ) A;
+                                                drow[x*4+0] = ( unsigned char ) ( ( B * A + bB * invA ) / 255 );
+                                                drow[x*4+1] = ( unsigned char ) ( ( G * A + gB * invA ) / 255 );
+                                                drow[x*4+2] = ( unsigned char ) ( ( R * A + rB * invA ) / 255 );
+                                                drow[x*4+3] = 255;
+                                          }
                                     }
-
-                                    hResult = hDib;
                               }
-                        }
 
-                        cairo_destroy( cr );
-                        cairo_surface_destroy( surface );
+                              hResult = hDib;
+                        }
+                  }
+
+                  cairo_destroy( cr );
+                  cairo_surface_destroy( surface );
             }
 
             g_object_unref( handle );

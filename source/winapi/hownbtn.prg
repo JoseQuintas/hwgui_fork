@@ -105,12 +105,14 @@ METHOD New( oWndParent, nId, aStyles, nLeft, nTop, nWidth, nHeight, ;
       IF ValType( bmp ) == "O"
          ::oBitmap := bmp
       ELSE
-         // Keep the original path (string) before loading as HBITMAP
          IF ValType( bmp ) == "C" .AND. ! lResour
             ::cGifPath := iif( ::cPath != Nil, ::cPath + bmp, bmp )
          ENDIF
+         /* Pass the button's own background colour (::bcolor) so the
+          * AddResource renders SVGs with a matching background.
+          * When ::bcolor is Nil, AddResource falls back to its default. */
          ::oBitmap := iif( ( lResour != Nil .AND. lResour ) .OR. ValType( bmp ) == "N", ;
-                           HBitmap():AddResource( bmp ), ;
+                           HBitmap():AddResource( bmp, , , , , ::bcolor ), ;
                            HBitmap():AddFile( ::cGifPath ) )
       ENDIF
 
@@ -254,7 +256,8 @@ METHOD Redefine( oWndParent, nId, bInit, bSize, bPaint, bClick, lflat, ;
          IF ValType( bmp ) == "C" .AND. ! lResour
             ::cGifPath := bmp
          ENDIF
-         ::oBitmap := iif( lResour, HBitmap():AddResource( bmp ), HBitmap():AddFile( ::cGifPath ) )
+         ::oBitmap := iif( lResour, HBitmap():AddResource( bmp, , , , , ::bcolor ), ;
+                           HBitmap():AddFile( ::cGifPath ) )
       ENDIF
       IF ::cGifPath != Nil
          ::nFrameCount := hwg_GifFrameCount( ::cGifPath )
