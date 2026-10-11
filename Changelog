@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-11 15:00 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  * source/winapi/hcontrol.prg
+    ! HStatic: regression from the owner-draw switch for dark mode.
+      Native STATIC erased its text on WM_SETTEXT; the SS_OWNERDRAW
+      replacement did not.
+      * Paint(): fill background before the empty-caption early return.
+      * SetText(): force RedrawWindow for SS_OWNERDRAW statics.
+
 2026-10-11 12:50 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
   * source/winapi/hbrowse.prg
     + New HBrowse:sepColorHdr (default 12632256) - header dividers

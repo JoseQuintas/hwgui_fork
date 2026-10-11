@@ -388,15 +388,16 @@ METHOD Paint( hDC ) CLASS HStatic
    LOCAL x1 := 0, y1 := 0, x2 := ::nWidth, y2 := ::nHeight
    LOCAL nOldColor, nStyleDraw
 
-   IF ::Title == Nil .OR. Empty( ::Title )
-      RETURN Nil
-   ENDIF
-
-   /* SS_OWNERDRAW does not receive WM_CTLCOLORSTATIC, so if the SAY
-    * has an explicit background we paint it here.  Otherwise the SAY
-    * is transparent and the dialog background shows through. */
+   /* Always fill the background first.  If the caption was just
+    * emptied (or shortened) the previous glyphs are still in the
+    * device context - Windows does not erase them for SS_OWNERDRAW
+    * statics.  Only after this do we decide whether to draw text. */
    IF ::brush != Nil
       hwg_Fillrect( hDC, 0, 0, ::nWidth, ::nHeight, ::brush:handle )
+   ENDIF
+
+   IF ::Title == Nil .OR. Empty( ::Title )
+      RETURN Nil
    ENDIF
 
    /* Text colour: honour an explicit tcolor, otherwise use the
@@ -434,9 +435,17 @@ METHOD Paint( hDC ) CLASS HStatic
 METHOD SetText( c ) CLASS HStatic
 
    ::Super:SetText( c )
+
    IF hwg_bitand( ::extStyle, WS_EX_TRANSPARENT ) != 0
+      /* Transparent SAY: repaint the parent so its own background is
+       * redrawn underneath the new text. */
       hwg_Invalidaterect( ::oParent:handle, 1, ::nLeft, ::nTop, ::nLeft + ::nWidth, ::nTop + ::nHeight )
       hwg_Sendmessage( ::oParent:handle, WM_PAINT, 0, 0 )
+   ELSEIF hwg_bitand( ::style, SS_OWNERDRAW ) != 0
+      /* Owner-draw SAY (forced by BackColor / WS_BORDER): Windows does
+       * not refresh it on WM_SETTEXT, so the previous caption remains
+       * visible until an unrelated WM_PAINT repaints the area. */
+      hwg_Redrawwindow( ::handle, RDW_ERASE + RDW_INVALIDATE + RDW_UPDATENOW )
    ENDIF
 
    RETURN NIL
