@@ -15,6 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-11 12:50 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  * source/winapi/hbrowse.prg
+    + New HBrowse:sepColorHdr (default 12632256) - header dividers
+      can be coloured independently from the body separators.
+    * Rebuild(): oPenHdr uses sepColorHdr (was hard-coded black).
+      Dark mode swaps light-mode defaults of sepColor/sepColorHdr
+      when the caller left them untouched.
+    * Paint(): keeps oPenHdr in sync when sepColorHdr changes.
+    * DrawHeader(): removed duplicated background block that shadowed
+      the text-colour assignment; 1px border in dark mode.
+    * HeaderOut(): vertical separators extend up through the header.
+
 2026-10-11 22:10 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
   * source/winapi/control.c
     ! HWG_DARKENCONTROL(): in dark mode, check boxes, radio buttons and

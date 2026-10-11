@@ -160,7 +160,8 @@ CLASS HBrowse INHERIT HControl
    DATA oStyleFoot                             // An HStyle object to draw the footer
    DATA oStyleCell                             // An HStyle object to draw the cell
    DATA headColor                              // Header text color
-   DATA sepColor   INIT 12632256               // Separators color
+   DATA sepColor    INIT 12632256              // Separators color
+   DATA sepColorHdr INIT 12632256              // Separators color header
    DATA oPenSep, oPenHdr, oPen3d
    DATA lSep3d     INIT .F.
    DATA aPadding   INIT { 4, 2, 4, 2 }
@@ -597,15 +598,25 @@ METHOD Rebuild( hDC ) CLASS HBrowse
 
    LOCAL i, j, oColumn, xSize, nColLen, nHdrLen, nCount, arr
 
+   /* In dark mode, if the caller left the separator colours at their
+    * light-mode defaults, swap them for a dark-appropriate tone.
+    * Explicitly set values are preserved - only the documented light
+    * default (12632256) is replaced. */
+   IF hwg_ShouldAppsUseDarkMode()
+      IF ::sepColor    == 12632256 ; ::sepColor    := 0x505050 ; ENDIF
+      IF ::sepColorHdr == 12632256 ; ::sepColorHdr := 0x707070 ; ENDIF
+   ENDIF
+
    IF ::oPenSep == Nil
       ::oPenSep := HPen():Add( PS_SOLID, 1, ::sepColor )
+   ENDIF
+   IF ::oPenHdr == Nil
+      ::oPenHdr := HPen():Add( BS_SOLID, 1, ::sepColorHdr )
    ENDIF
    IF ::oPen3d == Nil
       ::oPen3d := HPen():Add( PS_SOLID, 1, hwg_Getsyscolor( COLOR_3DHILIGHT ) )
    ENDIF
-   IF ::oPenHdr == Nil
-      ::oPenHdr := HPen():Add( BS_SOLID, 1, 0 )
-   ENDIF
+
    IF ::brush != Nil
       ::brush:Release()
    ENDIF
@@ -723,6 +734,16 @@ METHOD Paint( lLostFocus )  CLASS HBrowse
       ::oPenSep:Release()
       ::oPenSep := HPen():Add( PS_SOLID, 1, ::sepColor )
    ENDIF
+
+   /* Keep the header pen in sync as well. Previously it was created
+    * once in Rebuild() with a fixed colour and never refreshed, so
+    * changing ::sepColor at runtime updated the body separators but
+    * left the header dividers unchanged. */
+   IF ::oPenHdr != Nil .AND. ::oPenHdr:color != ::sepColorHdr
+      ::oPenHdr:Release()
+      ::oPenHdr := HPen():Add( BS_SOLID, 1, ::sepColorHdr )
+   ENDIF
+
    aCoors := hwg_Getclientrect( ::handle )
 
    ::height := iif( ::nRowHeight > 0, ::nRowHeight, ;
@@ -884,28 +905,31 @@ METHOD DrawHeader( hDC, nColumn, x1, y1, x2, y2 ) CLASS HBrowse
    LOCAL cStr, oColumn := ::aColumns[nColumn], cNWSE, nLine, ya, yb
    LOCAL nHeight := ::nRowTextHeight, oCB := oColumn:oPaintCB, aCB, block, i
 
-   //IF !Empty( block := hwg_getPaintCB( aCB, PAINT_HEAD_ALL ) )
    IF !Empty( oCB ) .AND. !Empty( block := oCB:Get( PAINT_HEAD_ALL ) )
       RETURN Eval( block, oColumn, hDC, x1, y1, x2, y2, nColumn )
    ENDIF
 
-   //IF !Empty( block := hwg_getPaintCB( aCB, PAINT_HEAD_BACK ) )
+   /* Draw the header cell background. */
    IF !Empty( oCB ) .AND. !Empty( block := oCB:Get( PAINT_HEAD_BACK ) )
       Eval( block, oColumn, hDC, x1, y1, x2, y2, nColumn )
-   ELSEIF hwg_ShouldAppsUseDarkMode()
-      /* In dark mode, override any explicit oStyleHead so the header
-       * background matches the rest of the dialog.  Otherwise, a light
-       * oStyleHead would produce a light strip with light text on top
-       * of a dark browse. */
-      hwg_Fillrect( hDC, x1, y1, x2, y2, hwg_GetDarkBrush( 0 ) )
-      IF oColumn:cGrid != Nil
-         hwg_Selectobject( hDC, ::oPenHdr:handle )
-         /* ... grid lines ... (mantenha o bloco existente abaixo) */
-      ENDIF
    ELSEIF oColumn:oStyleHead != Nil
       oColumn:oStyleHead:Draw( hDC, x1, y1, x2, y2 )
    ELSEIF ::oStyleHead != Nil
       ::oStyleHead:Draw( hDC, x1, y1, x2, y2 )
+   ELSEIF hwg_ShouldAppsUseDarkMode()
+      /* No explicit style was set - use the dark brush so the header
+       * does not become a light strip against the dark dialog.
+       * Draw a 1px border with the header pen so column dividers stay
+       * visible: hwg_GetDarkBrush() is a flat fill, unlike the 3-D
+       * button frame used in light mode. */
+      hwg_Fillrect( hDC, x1, y1, x2, y2, hwg_GetDarkBrush( 0 ) )
+      IF ::oPenHdr != Nil
+         hwg_Selectobject( hDC, ::oPenHdr:handle )
+         hwg_Drawline( hDC, x1, y1, x2, y1 )
+         hwg_Drawline( hDC, x2, y1, x2, y2 )
+         hwg_Drawline( hDC, x2, y2, x1, y2 )
+         hwg_Drawline( hDC, x1, y2, x1, y1 )
+      ENDIF
    ELSE
       hwg_Drawbutton( hDC, x1, y1, x2, y2, iif( oColumn:cGrid == Nil, 1, 0 ) )
    ENDIF
@@ -933,14 +957,13 @@ METHOD DrawHeader( hDC, nColumn, x1, y1, x2, y2 ) CLASS HBrowse
    ENDIF
    hwg_Settransparentmode( hDC, .T. )
 
-   /* Force the header text colour.  hwg_Drawbutton() now uses
-    * hwg_get_dark_brush(0) when Windows is in dark mode, so the
-    * header background is dark - without this, the text would inherit
-    * a dark colour from the DC and become unreadable. */
-   IF ::headColor != Nil
-      hwg_Settextcolor( hDC, ::headColor )
-   ELSEIF hwg_ShouldAppsUseDarkMode()
+   /* Force the header text colour. hwg_Drawbutton() uses the dark
+    * brush in dark mode, so a light-mode headColor would be unreadable
+    * on top of it. In dark mode the dark-theme foreground wins. */
+   IF hwg_ShouldAppsUseDarkMode()
       hwg_Settextcolor( hDC, hwg_DarkThemeColor( 1 ) )
+   ELSEIF ::headColor != Nil
+      hwg_Settextcolor( hDC, ::headColor )
    ELSE
       hwg_Settextcolor( hDC, hwg_Getsyscolor( COLOR_BTNTEXT ) )
    ENDIF
@@ -962,7 +985,6 @@ METHOD DrawHeader( hDC, nColumn, x1, y1, x2, y2 ) CLASS HBrowse
 
    hwg_Settransparentmode( hDC, .F. )
 
-   //IF !Empty( aCB := hwg_getPaintCB( aCB, PAINT_HEAD_ITEM ) )
    IF !Empty( oCB ) .AND. !Empty( aCB := oCB:Get( PAINT_HEAD_ITEM ) )
       FOR i := 1 TO Len( aCB )
          Eval( aCB[i], oColumn, hDC, x1, y1, x2, y2, nColumn )
@@ -997,21 +1019,28 @@ METHOD HeaderOut( hDC ) CLASS HBrowse
       IF ::lRefrHead .AND. ::lDispHead .AND. !::lAppMode
          ::DrawHeader( hDC, fif, x - 1, y1, x + xSize - 1, ::y1 + 1 )
       ENDIF
-      hwg_Selectobject( hDC, ::oPenSep:handle )
+
       IF ::lDispSep .AND. x > ::x1
          IF ::lSep3d
             hwg_Selectobject( hDC, ::oPen3d:handle )
-            hwg_Drawline( hDC, x - 1, ::y1 + 1, x - 1, ::y1 + ( ::height + 1 ) * nRows )
+            hwg_Drawline( hDC, x - 1, y1, x - 1, ::y1 + ( ::height + 1 ) * nRows )
             hwg_Selectobject( hDC, ::oPenSep:handle )
-            hwg_Drawline( hDC, x - 2, ::y1 + 1, x - 2, ::y1 + ( ::height + 1 ) * nRows )
+            hwg_Drawline( hDC, x - 2, y1, x - 2, ::y1 + ( ::height + 1 ) * nRows )
          ELSE
-            hwg_Drawline( hDC, x - 1, ::y1 + 1, x - 1, ::y1 + ( ::height + 1 ) * nRows )
+            /* Vertical separator: from top of header down through the
+             * body, using the header pen so it matches the header
+             * grid line colour set by ::sepColorHdr. */
+            hwg_Selectobject( hDC, ::oPenHdr:handle )
+            hwg_Drawline( hDC, x - 1, y1, x - 1, ::y1 + ( ::height + 1 ) * nRows )
          ENDIF
       ENDIF
+
       x += xSize
       IF ! ::lAdjRight .AND. fif == Len( ::aColumns )
+         hwg_Selectobject( hDC, ::oPenHdr:handle )
          hwg_Drawline( hDC, x - 1, y1, x - 1, ::y1 + ( ::height + 1 ) * nRows )
       ENDIF
+
       fif := iif( fif = ::freeze, ::nLeftCol, fif + 1 )
       IF fif > Len( ::aColumns )
          EXIT
