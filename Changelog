@@ -15,6 +15,10 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-11 17:34 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  * source/winapi/control.c
+    + hwg_tab_soften_edges(): soft tab header/page edges (WM_PAINT).
+
 2026-10-11 15:00 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
   * source/winapi/hcontrol.prg
     ! HStatic: regression from the owner-draw switch for dark mode.

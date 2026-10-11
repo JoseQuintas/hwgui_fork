@@ -2604,6 +2604,151 @@ HB_FUNC( HWG_INITTABPROC )
          GWLP_WNDPROC, ( LONG_PTR ) TabSubclassProc );
 }
 
+#define HWG_DARKTAB_LINE_RGB   RGB( 90, 90, 90 )
+
+/*=============================================================================
+ * hwg_tab_hline()
+ *
+ * Fills a 1px high horizontal segment from x1 to x2 (exclusive) at row y,
+ * skipping the span [xs1, xs2).  An empty skip span means "no skip".
+ *===========================================================================*/
+static void hwg_tab_hline( HDC hdc, int x1, int x2, int y, HBRUSH hBr,
+                           int xs1, int xs2 )
+{
+      RECT r;
+
+      if( x2 <= x1 )
+            return;
+
+      if( xs2 <= xs1 || xs2 <= x1 || xs1 >= x2 )
+      {
+            SetRect( &r, x1, y, x2, y + 1 );
+            FillRect( hdc, &r, hBr );
+            return;
+      }
+
+      if( xs1 > x1 )
+      {
+            SetRect( &r, x1, y, xs1, y + 1 );
+            FillRect( hdc, &r, hBr );
+      }
+      if( xs2 < x2 )
+      {
+            SetRect( &r, xs2, y, x2, y + 1 );
+            FillRect( hdc, &r, hBr );
+      }
+}
+
+/*=============================================================================
+ * hwg_tab_soften_edges()
+ *
+ * The tab control draws the edges of its tabs and the frame of its page with
+ * the classic 3D system colours (white highlight, light grey, grey shadow,
+ * dark shadow), each edge being 2px thick.  On a dark window that shows up
+ * as bright lines around every tab.  Called in dark mode, on the memory DC,
+ * after the control and the disabled captions have been painted, this
+ * repaints only those edge pixels: the outer pixel of each edge in a muted
+ * grey and the inner pixel in the page colour, so every edge becomes a thin
+ * soft 1px line.  Tab faces and captions are left untouched.
+ *
+ * Geometry comes from TabCtrl_GetItemRect(), so nothing is hard-coded except
+ * the 2px edge thickness.  Assumes the tabs are on top (no TCS_BOTTOM).
+ *===========================================================================*/
+static void hwg_tab_soften_edges( HWND hTab, HDC hdc )
+{
+      RECT   rc, rcItem, rcSel, r;
+      int    nCount, nSel, i, pass, yb = 0;
+      BOOL   bHaveSel = FALSE, bHaveBase = FALSE;
+      HBRUSH hBrLine, hBrFill;
+
+      nCount = TabCtrl_GetItemCount( hTab );
+      if( nCount <= 0 )
+            return;
+
+      GetClientRect( hTab, &rc );
+      nSel = TabCtrl_GetCurSel( hTab );
+      SetRect( &rcSel, 0, 0, 0, 0 );
+
+      hBrLine = CreateSolidBrush( HWG_DARKTAB_LINE_RGB );
+      hBrFill = hwg_get_dark_brush( 0 );
+
+      /* 1) Inner pixel of the 2px frame around the whole control. */
+      r = rc;
+      InflateRect( &r, -1, -1 );
+      FrameRect( hdc, &r, hBrFill );
+
+      /* 2) Locate the selected tab and the baseline of the strip (the
+       *    bottom of a non-selected tab). */
+      for( i = 0; i < nCount; i++ )
+      {
+            if( !TabCtrl_GetItemRect( hTab, i, &rcItem ) )
+                  continue;
+
+            if( i == nSel )
+            {
+                  rcSel = rcItem;
+                  bHaveSel = TRUE;
+            }
+            else if( !bHaveBase )
+            {
+                  yb = rcItem.bottom;
+                  bHaveBase = TRUE;
+            }
+      }
+
+      /* 3) Line between the strip and the page: a muted line and a page
+       *    coloured line, except under the selected tab, which stays open
+       *    so that it merges with the page. */
+      if( bHaveBase )
+      {
+            hwg_tab_hline( hdc, rc.left + 1, rc.right - 1, yb, hBrLine,
+                           bHaveSel ? rcSel.left : 0, bHaveSel ? rcSel.right : 0 );
+            hwg_tab_hline( hdc, rc.left + 1, rc.right - 1, yb + 1, hBrFill,
+                           bHaveSel ? rcSel.left : 0, bHaveSel ? rcSel.right : 0 );
+      }
+
+      /* 4) Edges of every tab.  Non-selected tabs first, the selected one
+       *    last so that its (larger) rectangle wins where tabs overlap.
+       *    Adjacent tabs share a single muted separator: only the left edge
+       *    is drawn muted (the right edge is muted just for the selected
+       *    tab and for the last tab). */
+      for( pass = 0; pass < 2; pass++ )
+      {
+            for( i = 0; i < nCount; i++ )
+            {
+                  BOOL bSelTab  = ( i == nSel );
+                  BOOL bLast    = ( i == nCount - 1 );
+                  BOOL bPrevSel = ( i > 0 && ( i - 1 ) == nSel );
+
+                  if( ( pass == 0 ) == bSelTab )
+                        continue;
+
+                  if( !TabCtrl_GetItemRect( hTab, i, &rcItem ) )
+                        continue;
+
+                  /* Top edge: outer pixel muted, inner pixel page coloured. */
+                  SetRect( &r, rcItem.left, rcItem.top, rcItem.right, rcItem.top + 1 );
+                  FillRect( hdc, &r, hBrLine );
+                  SetRect( &r, rcItem.left + 1, rcItem.top + 1, rcItem.right - 1, rcItem.top + 2 );
+                  FillRect( hdc, &r, hBrFill );
+
+                  /* Left edge. */
+                  SetRect( &r, rcItem.left, rcItem.top, rcItem.left + 1, rcItem.bottom );
+                  FillRect( hdc, &r, ( bSelTab || !bPrevSel ) ? hBrLine : hBrFill );
+                  SetRect( &r, rcItem.left + 1, rcItem.top + 1, rcItem.left + 2, rcItem.bottom );
+                  FillRect( hdc, &r, hBrFill );
+
+                  /* Right edge. */
+                  SetRect( &r, rcItem.right - 1, rcItem.top, rcItem.right, rcItem.bottom );
+                  FillRect( hdc, &r, ( bSelTab || bLast ) ? hBrLine : hBrFill );
+                  SetRect( &r, rcItem.right - 2, rcItem.top + 1, rcItem.right - 1, rcItem.bottom );
+                  FillRect( hdc, &r, hBrFill );
+            }
+      }
+
+      DeleteObject( hBrLine );
+}
+
 /*=============================================================================
  * TabSubclassProc()
  * Tab control subclass procedure with disabled tab support
@@ -2699,6 +2844,9 @@ LRESULT APIENTRY TabSubclassProc( HWND hWnd, UINT message, WPARAM wParam,
                }
 
                hwg_tab_draw_disabled_captions( hWnd, hdcMem );
+
+               if( hwg_should_apps_use_dark_mode() )
+                   hwg_tab_soften_edges( hWnd, hdcMem );
 
                BitBlt( hdc, 0, 0, rc.right - rc.left, rc.bottom - rc.top, hdcMem, 0, 0, SRCCOPY );
 
