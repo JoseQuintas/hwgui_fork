@@ -2246,6 +2246,71 @@ HB_FUNC( HWG_INITEDITPROC )
          GWLP_WNDPROC, ( LONG_PTR ) EditSubclassProc );
 }
 
+#define HWG_DARKEDIT_BORDER_RGB   RGB( 90, 90, 90 )
+
+/*=============================================================================
+ * hwg_dark_edit_ncpaint()
+ *
+ * HWGUI creates GETs with WS_EX_CLIENTEDGE: a 2px sunken edge that, on a dark
+ * window, shows up as a bright white double line.  In dark mode this paints
+ * the non-client border ourselves, keeping the SAME 2px so layout does not
+ * change: the outer pixel in a muted grey and the inner pixel in the edit
+ * background colour - the result looks like a thin, soft 1px border.
+ *
+ * Returns TRUE when the border was painted (caller returns 0 from
+ * WM_NCPAINT).  Returns FALSE - and the default painting runs - when not in
+ * dark mode, when the edit has no client edge, or when it has scroll bars
+ * (the default procedure must keep drawing those).
+ *===========================================================================*/
+static BOOL hwg_dark_edit_ncpaint( HWND hWnd )
+{
+      LONG   lStyle, lExStyle;
+      HDC    hdc;
+      RECT   rcw, rcc, r;
+      int    nB, i;
+      HBRUSH hBorder;
+
+      if( !hwg_should_apps_use_dark_mode() )
+            return FALSE;
+
+      lStyle   = GetWindowLong( hWnd, GWL_STYLE );
+      lExStyle = GetWindowLong( hWnd, GWL_EXSTYLE );
+
+      if( !( lExStyle & WS_EX_CLIENTEDGE ) ||
+            ( lStyle & ( WS_VSCROLL | WS_HSCROLL ) ) )
+            return FALSE;
+
+      GetWindowRect( hWnd, &rcw );
+      OffsetRect( &rcw, -rcw.left, -rcw.top );
+      GetClientRect( hWnd, &rcc );
+
+      /* Border thickness = (window width - client width) / 2 */
+      nB = ( rcw.right - rcc.right ) / 2;
+      if( nB < 1 )
+            return FALSE;
+      if( nB > 8 )
+            nB = 8;
+
+      hdc = GetWindowDC( hWnd );
+      if( !hdc )
+            return FALSE;
+
+      hBorder = CreateSolidBrush( HWG_DARKEDIT_BORDER_RGB );
+
+      r = rcw;
+      FrameRect( hdc, &r, hBorder );                       /* outer pixel */
+      for( i = 1; i < nB; i++ )
+      {
+            InflateRect( &r, -1, -1 );
+            FrameRect( hdc, &r, hwg_get_dark_brush( 2 ) ); /* inner pixel(s) */
+      }
+
+      DeleteObject( hBorder );
+      ReleaseDC( hWnd, hdc );
+
+      return TRUE;
+}
+
 /*=============================================================================
  * EditSubclassProc()
  * Edit control subclass procedure
@@ -2255,6 +2320,9 @@ LRESULT APIENTRY EditSubclassProc( HWND hWnd, UINT message, WPARAM wParam,
 {
    long int res;
    PHB_ITEM pObject = ( PHB_ITEM ) GetWindowLongPtr( hWnd, GWLP_USERDATA );
+
+   if( message == WM_NCPAINT && hwg_dark_edit_ncpaint( hWnd ) )
+       return 0;
 
    if( !pSym_onEvent )
       pSym_onEvent = hb_dynsymFindName( "ONEVENT" );
@@ -3687,6 +3755,110 @@ HB_FUNC( HWG_SETDARKTITLEBAR )
 }
 
 
+#ifndef DT_HIDEPREFIX
+#define DT_HIDEPREFIX  0x00100000
+#endif
+
+#define HWG_DARKGROUP_PROP         TEXT( "HWGUI_OLD_DARKGROUP_PROC" )
+#define HWG_DARKGROUP_FRAME_RGB    RGB(  85,  85,  85 )   /* frame line       */
+#define HWG_DARKGROUP_TEXT_RGB     RGB( 235, 235, 235 )   /* caption          */
+#define HWG_DARKGROUP_TEXTOFF_RGB  RGB( 130, 130, 130 )   /* caption disabled */
+
+/*=============================================================================
+ * hwg_DarkGroupProc()
+ *
+ * Window procedure used for group boxes in dark mode.  Without a visual
+ * theme the classic group box frame is an etched edge (white highlight +
+ * grey shadow), which is far too bright on a dark window.  Here the frame
+ * is drawn as a single 1px line in a muted grey and the caption in the dark
+ * palette.  Only the frame and the caption are painted; the inside of the
+ * group box stays untouched, so controls placed over it are not affected.
+ *
+ * The original procedure is kept in a window property (same approach as
+ * HWG_INITSTATICPROC), so this can be installed on any number of group
+ * boxes.
+ *===========================================================================*/
+static LRESULT CALLBACK hwg_DarkGroupProc( HWND hWnd, UINT message,
+                                           WPARAM wParam, LPARAM lParam )
+{
+      WNDPROC pOld = ( WNDPROC ) GetProp( hWnd, HWG_DARKGROUP_PROP );
+
+      if( pOld == NULL )
+            return DefWindowProc( hWnd, message, wParam, lParam );
+
+      if( message == WM_PAINT )
+      {
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint( hWnd, &ps );
+
+            if( hdc )
+            {
+                  RECT   rc, rcText;
+                  TCHAR  szText[ 256 ];
+                  SIZE   szH;
+                  int    nLen, nCapW = 0, nTop;
+                  HFONT  hFont, hOldFont = NULL;
+                  HPEN   hPen, hOldPen;
+                  HBRUSH hOldBr;
+
+                  GetClientRect( hWnd, &rc );
+
+                  hFont = ( HFONT ) SendMessage( hWnd, WM_GETFONT, 0, 0 );
+                  if( hFont )
+                        hOldFont = ( HFONT ) SelectObject( hdc, hFont );
+
+                  nLen = GetWindowText( hWnd, szText, HB_SIZEOFARRAY( szText ) );
+                  GetTextExtentPoint32( hdc, TEXT( "Ag" ), 2, &szH );
+
+                  if( nLen > 0 )
+                  {
+                        SetRect( &rcText, 0, 0, 0, 0 );
+                        DrawText( hdc, szText, nLen, &rcText,
+                                  DT_SINGLELINE | DT_LEFT | DT_TOP | DT_CALCRECT );
+                        nCapW = rcText.right - rcText.left;
+                  }
+
+                  /* Frame: the top line runs through the middle of the caption. */
+                  nTop = szH.cy / 2;
+                  hPen    = CreatePen( PS_SOLID, 1, HWG_DARKGROUP_FRAME_RGB );
+                  hOldPen = ( HPEN ) SelectObject( hdc, hPen );
+                  hOldBr  = ( HBRUSH ) SelectObject( hdc, GetStockObject( NULL_BRUSH ) );
+                  Rectangle( hdc, rc.left, rc.top + nTop, rc.right, rc.bottom );
+                  SelectObject( hdc, hOldBr );
+                  SelectObject( hdc, hOldPen );
+                  DeleteObject( hPen );
+
+                  /* Caption: cut a gap in the line and write the text. */
+                  if( nLen > 0 )
+                  {
+                        SetRect( &rcText, 8, 0, 8 + nCapW + 4, szH.cy );
+                        FillRect( hdc, &rcText, hwg_get_dark_brush( 0 ) );
+                        rcText.left += 2;
+                        SetBkMode( hdc, TRANSPARENT );
+                        SetTextColor( hdc, IsWindowEnabled( hWnd )
+                        ? HWG_DARKGROUP_TEXT_RGB
+                        : HWG_DARKGROUP_TEXTOFF_RGB );
+                        DrawText( hdc, szText, nLen, &rcText,
+                                  DT_SINGLELINE | DT_LEFT | DT_TOP | DT_HIDEPREFIX );
+                  }
+
+                  if( hOldFont )
+                        SelectObject( hdc, hOldFont );
+
+                  EndPaint( hWnd, &ps );
+            }
+            return 0;
+      }
+
+      if( message == WM_NCDESTROY )
+      {
+            SetWindowLongPtr( hWnd, GWLP_WNDPROC, ( LONG_PTR ) pOld );
+            RemoveProp( hWnd, HWG_DARKGROUP_PROP );
+      }
+
+      return CallWindowProc( pOld, hWnd, message, wParam, lParam );
+}
+
 /*=============================================================================
  * HWG_DARKENCONTROL( hWnd )
  *   Applies dark rendering to a single control.
@@ -3701,8 +3873,8 @@ HB_FUNC( HWG_SETDARKTITLEBAR )
  *     light).  Without the theme the control is drawn by classic GDI, which
  *     does honour the text colour and the background brush returned by
  *     onCtlColor() (hcwindow.prg), so these controls get light text on a
- *     dark background.  Trade-off: the check / radio square and the group
- *     frame use the classic look.
+ *     dark background.  Group boxes additionally get hwg_DarkGroupProc() to
+ *     replace the bright etched frame by a soft grey line.
  *
  *   - Everything else: "DarkMode_Explorer", as before.
  *===========================================================================*/
@@ -3734,6 +3906,16 @@ HB_FUNC( HWG_DARKENCONTROL )
                   lStyle == BS_AUTORADIOBUTTON ) )
             {
                   SetWindowTheme( hWnd, L"", L"" );
+
+                  /* Soft frame for group boxes (installed only once). */
+                  if( lStyle == BS_GROUPBOX &&
+                        GetProp( hWnd, HWG_DARKGROUP_PROP ) == NULL )
+                  {
+                        WNDPROC pOld = ( WNDPROC ) SetWindowLongPtr( hWnd, GWLP_WNDPROC,
+                                                                     ( LONG_PTR ) hwg_DarkGroupProc );
+                        SetProp( hWnd, HWG_DARKGROUP_PROP, ( HANDLE ) pOld );
+                  }
+
                   InvalidateRect( hWnd, NULL, TRUE );
                   return;
             }

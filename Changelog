@@ -15,6 +15,28 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-11 22:10 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  * source/winapi/control.c
+    ! HWG_DARKENCONTROL(): in dark mode, check boxes, radio buttons and
+      group boxes no longer receive "DarkMode_Explorer". Their visual
+      theme is removed (SetWindowTheme with empty strings) so they are
+      drawn by classic GDI and honour the text colour and background
+      brush returned by onCtlColor() (hcwindow.prg). Result: light text
+      on a dark background. Light mode is unchanged.
+    + Added hwg_DarkGroupProc(): window procedure installed on group
+      boxes in dark mode. Replaces the bright etched frame by a single
+      1px muted grey line and draws the caption in the dark palette.
+      Only the frame and caption are painted; the inside of the group
+      box is untouched. Colours are set by HWG_DARKGROUP_*_RGB.
+    + Added hwg_dark_edit_ncpaint(), called from EditSubclassProc() on
+      WM_NCPAINT: in dark mode the 2px WS_EX_CLIENTEDGE border of GETs
+      is painted as a muted grey pixel plus an edit-background pixel,
+      giving a thin, soft border without changing the layout. Edits with
+      scroll bars or without a client edge keep the default painting.
+      Colour is set by HWG_DARKEDIT_BORDER_RGB.
+    * Known limitation: the check box / radio square keeps the classic
+      look (white square). ComboBox and DatePicker borders were not changed.
+
 2026-10-10 22:10 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
   * source/winapi/drawwidg.prg
       * HBitmap:AddFile(): honour nWidth/nHeight for PNG/JPG/GIF/ICO,
