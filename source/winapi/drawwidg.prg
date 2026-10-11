@@ -505,57 +505,116 @@ METHOD AddStandard( nId ) CLASS HBitmap
 METHOD AddFile( name, hDC, lTransparent, nWidth, nHeight ) CLASS HBitmap
 
    LOCAL i, aBmpSize, cname := CutPath( name ), cCurDir
+   LOCAL hSrc, hDst, hDCDst, hOldDst
+   LOCAL hDCScreen, lReleaseDC := .F.
 
-   IF nWidth == nil
-      nWidth := 0
-   ENDIF
-   IF nHeight == nil
-      nHeight := 0
-   ENDIF
+   IF nWidth  == Nil ; nWidth  := 0 ; ENDIF
+   IF nHeight == Nil ; nHeight := 0 ; ENDIF
 
    FOR EACH i IN ::aBitmaps
-      IF i:name == cname && .AND. ( nWidth == Nil .OR. nHeight == Nil )
+      IF i:name == cname .AND. ( nWidth == Nil .OR. i:nWidth == nWidth ) ;
+            .AND. ( nHeight == Nil .OR. i:nHeight == nHeight )
          i:nCounter ++
          RETURN i
       ENDIF
    NEXT
 
    name := AddPath( name, ::cPath )
-   name := iif( ! File( name ) .AND. File( cname ), cname, name )
+   name := iif( !File( name ) .AND. File( cname ), cname, name )
    IF ::lSelFile .AND. !File( name )
       cCurDir  := DiskName() + ':\' + CurDir()
-      name := hwg_Selectfile( "Image Files( *.jpg;*.gif;*.bmp;*.ico )", CutPath( name ), FilePath( name ), "Locate " + name ) //"*.jpg;*.gif;*.bmp;*.ico"
+      name := hwg_Selectfile( "Image Files( *.jpg;*.gif;*.bmp;*.ico;*.png )", ;
+                              CutPath( name ), FilePath( name ), "Locate " + name )
       DirChange( cCurDir )
    ENDIF
 
-   IF Lower( Right( name, 4 ) ) != ".bmp" .OR. ( nWidth == nil .AND. nHeight == nil .AND. lTransparent == Nil )
+   IF Lower( Right( name, 4 ) ) == ".bmp" .AND. Empty( lTransparent )
+      /* Keep the previous fast path for plain BMPs without transparency */
+      ::handle := hwg_Openbitmap( name, hDC )
+   ELSE
+      /* Load the original (PNG/JPG/GIF/ICO/BMP-with-transparency).
+       * Previously, non-BMP images were loaded at their intrinsic size
+       * and nWidth/nHeight were silently ignored, while BMPs were
+       * scaled by LoadImage(). That asymmetry is why PNG backgrounds
+       * "did not stretch" - the bitmap arrived at the draw call with
+       * its natural size, so hwg_DrawBitmap() had nothing to scale. */
       IF Lower( Right( name, 4 ) ) == ".bmp"
-         ::handle := hwg_Openbitmap( name, hDC )
+         hSrc := hwg_Openbitmap( name, hDC )
       ELSE
-         IF Empty( ::handle := hwg_Openimage( name ) )
-            ::handle := hwg_GdiplusOpenimage( name )
+         hSrc := hwg_Openimage( name )
+         IF Empty( hSrc )
+            hSrc := hwg_GdiplusOpenimage( name )
          ENDIF
       ENDIF
-   ELSE
-      IF lTransparent != Nil .AND. lTransparent
-         ::handle := hwg_Loadimage( nil, name, IMAGE_BITMAP, nWidth, nHeight, LR_LOADFROMFILE + LR_LOADTRANSPARENT + LR_LOADMAP3DCOLORS )
+
+      IF Empty( hSrc )
+         RETURN Nil
+      ENDIF
+
+      /* If the caller requested a specific size, resize now */
+      IF nWidth > 0 .AND. nHeight > 0
+         aBmpSize := hwg_Getbitmapsize( hSrc )
+         IF aBmpSize[1] != nWidth .OR. aBmpSize[2] != nHeight
+            /* Get a REAL DC (screen or caller-supplied) for
+             * CreateCompatibleBitmap().
+             *
+             * WARNING: CreateCompatibleDC(NULL) returns a memory DC
+             * with a 1x1 monochrome bitmap selected; any bitmap then
+             * created with CreateCompatibleBitmap() from THAT DC is
+             * also 1bpp monochrome, which is why the resized image
+             * came out in black-and-white dithered form. */
+            IF Empty( hDC )
+               hDCScreen  := hwg_Getdc( Nil )
+               lReleaseDC := .T.
+            ELSE
+               hDCScreen  := hDC
+            ENDIF
+
+            hDCDst := hwg_Createcompatibledc( hDCScreen )
+            hDst   := hwg_Createcompatiblebitmap( hDCScreen, nWidth, nHeight )
+
+            hOldDst := hwg_Selectobject( hDCDst, hDst )
+
+            /* HWG_DRAWBITMAP() performs StretchBlt() internally
+             * whenever the destination size differs from the source
+             * size; the HALFTONE mode is set there (bilinear
+             * interpolation, which produces much smoother results
+             * than COLORONCOLOR).
+             *
+             * NOTE: do NOT pre-select hSrc into any DC. A bitmap can
+             * only be selected into one DC at a time, and
+             * HWG_DRAWBITMAP() creates its own memory DC for the
+             * source. Selecting it beforehand makes the internal
+             * SelectObject() fail and the StretchBlt() renders
+             * garbage (black). */
+            hwg_Drawbitmap( hDCDst, hSrc, , 0, 0, nWidth, nHeight )
+
+            hwg_Selectobject( hDCDst, hOldDst )
+            hwg_Deletedc( hDCDst )
+            hwg_Deleteobject( hSrc )
+
+            IF lReleaseDC
+               hwg_Releasedc( Nil, hDCScreen )
+            ENDIF
+
+            ::handle := hDst
+         ELSE
+            ::handle := hSrc
+         ENDIF
       ELSE
-         ::handle := hwg_Loadimage( nil, name, IMAGE_BITMAP, nWidth, nHeight, LR_LOADFROMFILE )
+         ::handle := hSrc
       ENDIF
    ENDIF
+
    IF Empty( ::handle )
       RETURN Nil
    ENDIF
+
    ::name := cname
    aBmpSize  := hwg_Getbitmapsize( ::handle )
    ::nWidth  := aBmpSize[ 1 ]
    ::nHeight := aBmpSize[ 2 ]
    AAdd( ::aBitmaps, Self )
-
-   // ::name is here the filename
-   // hwg_Writelog("nWidth=" + ALLTRIM(STR(:: nWidth)) + ;
-   //            " nHeight="  + ALLTRIM(STR(::nHeight)) + ;
-   //            " name=" +  ::name )
 
    RETURN Self
 
@@ -674,7 +733,7 @@ CLASS HIcon INHERIT HObject
    METHOD AddResource( name, nWidth, nHeight, nFlags, lOEM )
    METHOD AddFile( name, nWidth, nHeight )
    METHOD AddString( name, cVal , nWidth, nHeight )
-   METHOD Draw( hDC, x, y )   INLINE hwg_DrawiconEx( hDC, ::handle, x, y )
+   METHOD Draw( hDC, x, y, nW, nH )
    METHOD RELEASE()
    // PNG support prepared for further Windows releases
    METHOD AddPngString( name, cVal )
@@ -685,53 +744,71 @@ ENDCLASS
 METHOD AddResource( name, nWidth, nHeight, nFlags, lOEM ) CLASS HIcon
 
    LOCAL lPreDefined := .F. , i, aIconSize, oResCnt
+   LOCAL cBuf
 
-   IF nWidth == nil
-      nWidth := 0
-   ENDIF
-   IF nHeight == nil
-      nHeight := 0
-   ENDIF
-   IF nFlags == nil
-      nFlags := 0
-   ENDIF
-   IF lOEM == nil
-      lOEM := .F.
-   ENDIF
-   // hwg_writelog( "HIcon:AddResource " + Str(nWidth)+"/"+str(nHeight) )
+   IF nWidth  == Nil ; nWidth  := 0 ; ENDIF
+   IF nHeight == Nil ; nHeight := 0 ; ENDIF
+   IF nFlags  == Nil ; nFlags  := 0 ; ENDIF
+   IF lOEM    == Nil ; lOEM    := .F. ; ENDIF
+
    IF ValType( name ) == "N"
       name := LTrim( Str( name ) )
       lPreDefined := .T.
    ENDIF
+
    FOR EACH i IN ::aIcons
       IF i:name == name
          i:nCounter ++
          RETURN i
       ENDIF
    NEXT
+
    IF !Empty( oResCnt := hwg_GetResContainer() )
-      IF !Empty( i := oResCnt:Get( name ) )
-         ::handle := hwg_OpenImage( i, .T. , IMAGE_CURSOR )
-         //hwg_writelog( Str(Len(i))+"/"+Iif(Empty(::handle),"Err","Ok") )
+      IF !Empty( cBuf := oResCnt:Get( name ) )
+         /* FIXED: this branch used IMAGE_CURSOR, which makes
+          * hwg_OpenImage() call CopyImage() with IMAGE_CURSOR and
+          * return an HCURSOR instead of an HICON. HIcon:Draw() uses
+          * DrawIconEx(), which expects an HICON - passing an HCURSOR
+          * is undefined behaviour. nWidth/nHeight are intentionally
+          * not passed here: hwg_OpenImage() loads at the intrinsic
+          * size, and Draw() resizes via DrawIconEx(). */
+         ::handle := hwg_OpenImage( cBuf, .T., IMAGE_ICON )
       ENDIF
-   ELSEIF lOEM // LR_SHARED is required for OEM images
-      ::handle := hwg_Loadimage( 0, Val( name ), IMAGE_ICON, nWidth, nHeight, Hwg_bitor( nFlags, LR_SHARED ) )
+   ELSEIF lOEM
+      /* LR_SHARED is required for OEM images */
+      ::handle := hwg_Loadimage( 0, Val( name ), IMAGE_ICON, nWidth, nHeight, ;
+                                 Hwg_bitor( nFlags, LR_SHARED ) )
    ELSE
-      ::handle := hwg_Loadimage( nil, iif( lPreDefined, Val( name ), name ), IMAGE_ICON, nWidth, nHeight, nFlags )
+      ::handle := hwg_Loadimage( nil, iif( lPreDefined, Val( name ), name ), ;
+                                 IMAGE_ICON, nWidth, nHeight, nFlags )
    ENDIF
+
    IF Empty( ::handle )
       RETURN Nil
    ENDIF
-   ::name   := name
+
+   ::name    := name
    aIconSize := hwg_Geticonsize( ::handle )
    ::nWidth  := aIconSize[ 1 ]
    ::nHeight := aIconSize[ 2 ]
-   //hwg_writelog( Str(::nWidth)+"/"+str(::nHeight) )
 
    AAdd( ::aIcons, Self )
 
    RETURN Self
 
+METHOD Draw( hDC, x, y, nW, nH ) CLASS HIcon
+
+   /* When nW/nH are not given (or invalid), draw at the icon's
+    * intrinsic size - this keeps the previous behaviour and stays
+    * backward compatible with existing 3-argument callers.
+    * When both are given, DrawIconEx() scales the icon accordingly. */
+   IF nW == Nil .OR. nH == Nil .OR. nW <= 0 .OR. nH <= 0
+      hwg_DrawIconEx( hDC, ::handle, x, y )
+   ELSE
+      hwg_DrawIconEx( hDC, ::handle, x, y, nW, nH )
+   ENDIF
+
+   RETURN Nil
 
  /* Added by DF7BE
  name : Name of resource

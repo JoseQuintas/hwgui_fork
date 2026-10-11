@@ -15,6 +15,23 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-10 22:10 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  * source/winapi/drawwidg.prg
+      * HBitmap:AddFile(): honour nWidth/nHeight for PNG/JPG/GIF/ICO,
+        not just BMP. Use a real screen DC for CreateCompatibleBitmap
+        (CreateCompatibleDC(NULL) produced 1bpp dithered output).
+      * HIcon:AddResource(): load container resources as IMAGE_ICON,
+        not IMAGE_CURSOR (returned HCURSOR where HICON was expected).
+      * HIcon:Draw(): new optional nW/nH parameters for scaled drawing.
+  * source/winapi/draw.c
+      * HWG_GETICONSIZE(): read hbmColor dimensions instead of
+        xHotspot*2/yHotspot*2 (which is only correct for cursors).
+      * HWG_DRAWBITMAP(): use HALFTONE instead of COLORONCOLOR;
+        fixed off-by-one in the hb_pcount() argument checks.
+  * utils/bincnt/bincnt.prg
+      * Simple fix.
+  ! Screen png stretch -> https://pctoledo.org/viewtopic.php?t=29201
+
 2026-10-10 18:48 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
     * Win32: fix HBinC Pack/Del; bincnt preview for PNG and ICO
       * utils/bincnt/addbatitem.prg (HBinC class)

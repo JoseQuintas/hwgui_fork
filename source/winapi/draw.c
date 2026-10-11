@@ -1083,10 +1083,8 @@ HB_FUNC( HWG_DRAWBITMAP )
       DWORD dwraster = ( HB_ISNIL( 3 ) ) ? SRCCOPY : ( DWORD ) hb_parnl( 3 );
       HBITMAP hBitmap = ( HBITMAP ) HB_PARHANDLE( 2 );
       BITMAP bitmap;
-      int nWidthDest = ( hb_pcount(  ) >= 5 &&
-      !HB_ISNIL( 6 ) ) ? hb_parni( 6 ) : 0;
-      int nHeightDest = ( hb_pcount(  ) >= 6 &&
-      !HB_ISNIL( 7 ) ) ? hb_parni( 7 ) : 0;
+      int nWidthDest  = ( hb_pcount() >= 6 && !HB_ISNIL( 6 ) ) ? hb_parni( 6 ) : 0;
+      int nHeightDest = ( hb_pcount() >= 7 && !HB_ISNIL( 7 ) ) ? hb_parni( 7 ) : 0;
 
       HGDIOBJ hOldObj = SelectObject( hDCmem, hBitmap );
 
@@ -1094,7 +1092,12 @@ HB_FUNC( HWG_DRAWBITMAP )
       if( nWidthDest && ( nWidthDest != bitmap.bmWidth ||
             nHeightDest != bitmap.bmHeight ) )
       {
-            SetStretchBltMode( hDC, COLORONCOLOR );
+            /* Use HALFTONE instead of COLORONCOLOR: bilinear
+             * interpolation, visibly better for PNGs and photographs.
+             * Also required so the destination bitmap's alpha is not
+             * discarded when the target surface is 32bpp. */
+            SetStretchBltMode( hDC, HALFTONE );
+            SetBrushOrgEx( hDC, 0, 0, NULL );
             StretchBlt( hDC, hb_parni( 4 ), hb_parni( 5 ), nWidthDest, nHeightDest,
                         hDCmem, 0, 0, bitmap.bmWidth, bitmap.bmHeight, dwraster );
       }
@@ -1304,18 +1307,42 @@ HB_FUNC( HWG_GETBITMAPSIZE )
 HB_FUNC( HWG_GETICONSIZE )
 {
       ICONINFO iinfo;
+      BITMAP   bm;
       PHB_ITEM aMetr = hb_itemArrayNew( 3 );
-      PHB_ITEM temp = hb_itemNew( NULL );
-      int nret;
+      PHB_ITEM temp  = hb_itemNew( NULL );
+      int      nW = 0, nH = 0, nret = 0;
 
       memset( &iinfo, 0, sizeof( ICONINFO ) );
+      memset( &bm,    0, sizeof( BITMAP   ) );
 
       nret = GetIconInfo( ( HICON ) HB_PARHANDLE( 1 ), &iinfo );
 
-      hb_itemPutNL( temp, iinfo.xHotspot * 2 );
+      if( nret && iinfo.hbmColor )
+      {
+            /* FIXED: the previous implementation used xHotspot * 2 and
+             * yHotspot * 2 as the icon size. That is only correct for
+             * cursors whose hotspot is centered - for plain icons the
+             * hotspot is usually 0,0 and the computed size is wrong.
+             * Read the colour bitmap dimensions instead. */
+            if( GetObject( iinfo.hbmColor, sizeof( BITMAP ), &bm ) )
+            {
+                  nW = bm.bmWidth;
+                  nH = bm.bmHeight;
+            }
+      }
+
+      /* Fallback to the system icon metrics when hbmColor is absent
+       * (monochrome icons) or GetObject() failed. */
+      if( nW == 0 || nH == 0 )
+      {
+            nW = GetSystemMetrics( SM_CXICON );
+            nH = GetSystemMetrics( SM_CYICON );
+      }
+
+      hb_itemPutNL( temp, nW );
       hb_itemArrayPut( aMetr, 1, temp );
 
-      hb_itemPutNL( temp, iinfo.yHotspot * 2 );
+      hb_itemPutNL( temp, nH );
       hb_itemArrayPut( aMetr, 2, temp );
 
       hb_itemPutNL( temp, nret );

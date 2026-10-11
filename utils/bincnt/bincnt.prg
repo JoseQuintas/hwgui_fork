@@ -131,7 +131,7 @@ FUNCTION Main( cContainer )
       ON SIZE { |o, x, y|o:Move( , , x, y - 32 ) }
 
    oBrw:aArray := {}
-   oBrw:AddColumn( HColumn():New( "Name",{ |value,o|o:aArray[o:nCurrent,1] },"C",32 ) )
+   oBrw:AddColumn( HColumn():New( "Name",{ |value,o|o:aArray[o:nCurrent,1] },"C",48 ) )
    oBrw:AddColumn( HColumn():New( "Type",{ |value,o|o:aArray[o:nCurrent,2] },"C",8 ) )
    oBrw:AddColumn( HColumn():New( "Size",{ |value,o|o:aArray[o:nCurrent,4] },"N",14,0 ) )
 
@@ -326,7 +326,7 @@ STATIC FUNCTION CntAdd()
       LOCAL cFile := hwg_Selectfile( "All files( *.* )", "*.*" )
       IF !Empty( cFile )
          oEdit1:value := cFile
-         oEdit2:value := Left( CutExten( CutPath(cFile ) ), 32 )
+         oEdit2:value := Left( CutExten( CutPath(cFile ) ), 48 )
          oEdit3:value := Left( FilExten( cFile ), 4 )
       ENDIF
       RETURN .T.
@@ -351,7 +351,7 @@ STATIC FUNCTION CntAdd()
    @ 210, 20 BUTTON "Browse" SIZE 80, 26 ON CLICK bFile
 
    @ 10, 70 SAY "Object name:" SIZE 120, 22
-   @ 130, 70 GET oEdit2 VAR cObjName SIZE 160, 26 PICTURE Replicate( 'X', 32 ) MAXLENGTH 0
+   @ 130, 70 GET oEdit2 VAR cObjName SIZE 160, 26 PICTURE Replicate( 'X', 48 ) MAXLENGTH 0
 
    @ 10, 100 SAY "Type:" SIZE 120, 22
    @ 10, 100 GET oEdit3 VAR cType SIZE 80, 26 PICTURE "XXXX" MAXLENGTH 0
@@ -430,7 +430,18 @@ STATIC FUNCTION CntExport2Bin( fname )
    RETURN Nil
 
 STATIC FUNCTION CntDel()
-   LOCAL n := oBrw:nCurrent
+   LOCAL n
+
+   /* Defensive: the container may have been closed or may have failed
+    * to reopen after a previous operation.  Bail out cleanly instead of
+    * raising "No exported method: AOBJECTS". */
+   IF oContainer == Nil .OR. !__ObjHasMsg( oContainer, "AOBJECTS" ) .OR. ;
+      Empty( oContainer:aObjects )
+      hwg_MsgStop( "Container not open or empty." )
+      RETURN Nil
+   ENDIF
+
+   n := oBrw:nCurrent
 
    IF hwg_MsgYesNo( "Really delete " + oContainer:aObjects[n,1] + "?" )
       oContainer:Del( oContainer:aObjects[n,1] )
