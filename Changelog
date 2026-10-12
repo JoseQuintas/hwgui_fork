@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-11 23:41 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  * source/winapi/freeimg.c
+    + Implemented HWG_FI_GETPIXELCOLOR() and HWG_FI_SETPIXELCOLOR().
+    + Implemented HWG_FI_GETSCANLINE() and HWG_FI_CONVERTTORAWBITS().
+      The four function pointers (pGetPixelColor, pSetPixelColor,
+      pGetScanline, pConvertToRawBits) were already declared and reset
+      in HWG_FI_END() but never wired through s_getFunction() - the
+      typedefs and a "todo" comment were already in place. Wiring them
+      also clears four -Wunused-but-set-global warnings on recent Clang.
+
 2026-10-11 17:34 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
   * source/winapi/control.c
     + hwg_tab_soften_edges(): soft tab header/page edges (WM_PAINT).

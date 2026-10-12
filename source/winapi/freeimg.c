@@ -383,6 +383,128 @@ HB_FUNC( HWG_FI_2BITMAP )
    ReleaseDC( 0, hDC );
 }
 
+HB_FUNC( HWG_FI_GETPIXELCOLOR )
+{
+      RGBQUAD value;
+      BOOL lRes;
+
+      pGetPixelColor =
+      ( FREEIMAGE_GETPIXELCOLOR ) s_getFunction( ( FARPROC ) ( void * ) pGetPixelColor,
+                                                 "_FreeImage_GetPixelColor@16" );
+
+      if( !pGetPixelColor )
+      {
+            hb_retl( FALSE );
+            return;
+      }
+
+      lRes = pGetPixelColor( ( FIBITMAP * ) hb_parptr( 1 ),
+                             hb_parni( 2 ), hb_parni( 3 ), &value );
+
+      if( lRes )
+      {
+            PHB_ITEM a = hb_itemArrayNew( 3 );
+            hb_itemArrayPut( a, 1, hb_itemPutNI( NULL, value.rgbRed   ) );
+            hb_itemArrayPut( a, 2, hb_itemPutNI( NULL, value.rgbGreen ) );
+            hb_itemArrayPut( a, 3, hb_itemPutNI( NULL, value.rgbBlue  ) );
+            hb_itemReturnRelease( a );
+      }
+      else
+            hb_ret();
+}
+
+HB_FUNC( HWG_FI_SETPIXELCOLOR )
+{
+      RGBQUAD value;
+
+      pSetPixelColor =
+      ( FREEIMAGE_SETPIXELCOLOR ) s_getFunction( ( FARPROC ) ( void * ) pSetPixelColor,
+                                                 "_FreeImage_SetPixelColor@16" );
+
+      if( !pSetPixelColor )
+      {
+            hb_retl( FALSE );
+            return;
+      }
+
+      value.rgbRed      = ( BYTE ) hb_parni( 4 );
+      value.rgbGreen    = ( BYTE ) hb_parni( 5 );
+      value.rgbBlue     = ( BYTE ) hb_parni( 6 );
+      value.rgbReserved = 0;
+
+      hb_retl( pSetPixelColor( ( FIBITMAP * ) hb_parptr( 1 ),
+                               hb_parni( 2 ), hb_parni( 3 ), &value ) );
+}
+
+/*=============================================================================
+ * HWG_FI_GETSCANLINE()
+ * Returns a pointer to the first pixel of a scanline.
+ * The caller must not free it - it belongs to the FIBITMAP.
+ *===========================================================================*/
+HB_FUNC( HWG_FI_GETSCANLINE )
+{
+      pGetScanline =
+      ( FREEIMAGE_GETSCANLINE ) s_getFunction( ( FARPROC ) ( void * ) pGetScanline,
+                                               "_FreeImage_GetScanLine@8" );
+
+      hb_retptr( ( pGetScanline ) ?
+      ( void * ) pGetScanline( ( FIBITMAP * ) hb_parptr( 1 ), hb_parni( 2 ) ) :
+      NULL );
+}
+
+/*=============================================================================
+ * HWG_FI_CONVERTTORAWBITS()
+ * Copies the FIBITMAP pixels into a caller-supplied buffer.
+ *
+ * Parameters (matching FreeImage_ConvertToRawBits):
+ *   1 - cBits     : output buffer (Harbour string, updated by reference)
+ *   2 - pDib      : FIBITMAP handle
+ *   3 - nPitch    : bytes per scanline
+ *   4 - nBpp      : bits per pixel
+ *   5 - nRedMask  : red channel mask
+ *   6 - nGreenMask: green channel mask
+ *   7 - nBlueMask : blue channel mask
+ *   8 - lTopDown  : TRUE for top-down rows
+ *===========================================================================*/
+HB_FUNC( HWG_FI_CONVERTTORAWBITS )
+{
+      PHB_ITEM pBits;
+      HB_SIZE  nLen;
+
+      pConvertToRawBits =
+      ( FREEIMAGE_CONVERTTORAWBITS ) s_getFunction( ( FARPROC ) ( void * ) pConvertToRawBits,
+                                                    "_FreeImage_ConvertToRawBits@32" );
+
+      if( !pConvertToRawBits )
+      {
+            hb_retl( FALSE );
+            return;
+      }
+
+      pBits = hb_param( 1, HB_IT_STRING );
+      if( !pBits )
+      {
+            hb_retl( FALSE );
+            return;
+      }
+
+      nLen = hb_itemGetCLen( pBits );
+
+      pConvertToRawBits( ( BYTE * ) hb_itemGetCPtr( pBits ),
+                         ( FIBITMAP * ) hb_parptr( 2 ),
+                         hb_parni( 3 ),
+                         ( unsigned ) hb_parni( 4 ),
+                         ( unsigned ) hb_parnl( 5 ),
+                         ( unsigned ) hb_parnl( 6 ),
+                         ( unsigned ) hb_parnl( 7 ),
+                         ( BOOL ) hb_parl( 8 ) );
+
+      /* Notify Harbour that parameter 1 (the string) was modified in place. */
+      hb_storclen( hb_itemGetCPtr( pBits ), nLen, 1 );
+
+      hb_retl( TRUE );
+}
+
 /* 24/02/2005 - <maurilio.longo@libero.it>
   from internet, possibly code from win32 sdk
 */
