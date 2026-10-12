@@ -1073,8 +1073,60 @@ HB_FUNC( HWG_WINDOW2BITMAP )
 }
 
 /*=============================================================================
+ * hwg_bmp_has_alpha()
+ * Returns TRUE only when the given HBITMAP carries a REAL alpha channel,
+ * i.e. at least one pixel with an "intermediate" alpha value (1..254).
+ *
+ * Uniform alpha (all 0 or all 255) means the file was saved as 32bpp but
+ * without meaningful transparency - that happens with BMPs saved by many
+ * tools and with bitmaps that merely have padding bytes.  Treating those
+ * as alpha-blended would make the image disappear entirely.
+ *===========================================================================*/
+static BOOL hwg_bmp_has_alpha( HBITMAP hBitmap )
+{
+      BITMAP bm = {0};
+      BYTE  *pix;
+      int    x, y, w, h, stride;
+
+      if( GetObject( hBitmap, sizeof( BITMAP ), &bm ) == 0 )
+            return FALSE;
+
+      if( bm.bmBitsPixel != 32 || bm.bmWidth < 1 || bm.bmHeight < 1 )
+            return FALSE;
+
+      /* Only DIB sections expose their pixels directly.  Classic GDI
+       * bitmaps have bmBits == NULL and are always treated as opaque. */
+      if( bm.bmBits == NULL )
+            return FALSE;
+
+      w      = bm.bmWidth;
+      h      = bm.bmHeight;
+      stride = w * 4;
+      pix    = (BYTE *) bm.bmBits;
+
+      for( y = 0; y < h; y++ )
+      {
+            BYTE *row = pix + y * stride;
+            for( x = 0; x < w; x++ )
+            {
+                  BYTE a = row[x*4 + 3];
+                  if( a > 0 && a < 255 )
+                        return TRUE;
+            }
+      }
+
+      return FALSE;
+}
+
+/*=============================================================================
  * HWG_DRAWBITMAP()
  * Draws a bitmap
+ *
+ * When the source HBITMAP is 32bpp with a real alpha channel (e.g. a PNG
+ * or SVG produced by hwg_LoadSvgString), plain BitBlt/StretchBlt copy the
+ * raw RGB values and ignore alpha, so transparent pixels show as opaque
+ * black.  In that case fall back to AlphaBlend, which honours the alpha
+ * channel.  Non-alpha bitmaps keep the previous code path.
  *===========================================================================*/
 HB_FUNC( HWG_DRAWBITMAP )
 {
@@ -1085,26 +1137,55 @@ HB_FUNC( HWG_DRAWBITMAP )
       BITMAP bitmap;
       int nWidthDest  = ( hb_pcount() >= 6 && !HB_ISNIL( 6 ) ) ? hb_parni( 6 ) : 0;
       int nHeightDest = ( hb_pcount() >= 7 && !HB_ISNIL( 7 ) ) ? hb_parni( 7 ) : 0;
+      BOOL bHasAlpha  = FALSE;
 
       HGDIOBJ hOldObj = SelectObject( hDCmem, hBitmap );
 
       GetObject( hBitmap, sizeof( BITMAP ), ( LPVOID ) & bitmap );
+
+      /* Only 32bpp bitmaps can carry a meaningful alpha channel. */
+      if( bitmap.bmBitsPixel == 32 )
+            bHasAlpha = hwg_bmp_has_alpha( hBitmap );
+
       if( nWidthDest && ( nWidthDest != bitmap.bmWidth ||
             nHeightDest != bitmap.bmHeight ) )
       {
-            /* Use HALFTONE instead of COLORONCOLOR: bilinear
-             * interpolation, visibly better for PNGs and photographs.
-             * Also required so the destination bitmap's alpha is not
-             * discarded when the target surface is 32bpp. */
-            SetStretchBltMode( hDC, HALFTONE );
-            SetBrushOrgEx( hDC, 0, 0, NULL );
-            StretchBlt( hDC, hb_parni( 4 ), hb_parni( 5 ), nWidthDest, nHeightDest,
-                        hDCmem, 0, 0, bitmap.bmWidth, bitmap.bmHeight, dwraster );
+            if( bHasAlpha )
+            {
+                  BLENDFUNCTION bf = { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
+                  AlphaBlend( hDC,
+                              hb_parni( 4 ), hb_parni( 5 ),
+                              nWidthDest, nHeightDest,
+                              hDCmem,
+                              0, 0, bitmap.bmWidth, bitmap.bmHeight, bf );
+            }
+            else
+            {
+                  /* Use HALFTONE instead of COLORONCOLOR: bilinear
+                   * interpolation, visibly better for PNGs and photographs.
+                   * SetBrushOrgEx is required after HALFTONE. */
+                  SetStretchBltMode( hDC, HALFTONE );
+                  SetBrushOrgEx( hDC, 0, 0, NULL );
+                  StretchBlt( hDC, hb_parni( 4 ), hb_parni( 5 ), nWidthDest, nHeightDest,
+                              hDCmem, 0, 0, bitmap.bmWidth, bitmap.bmHeight, dwraster );
+            }
       }
       else
       {
-            BitBlt( hDC, hb_parni( 4 ), hb_parni( 5 ), bitmap.bmWidth,
-                    bitmap.bmHeight, hDCmem, 0, 0, dwraster );
+            if( bHasAlpha )
+            {
+                  BLENDFUNCTION bf = { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
+                  AlphaBlend( hDC,
+                              hb_parni( 4 ), hb_parni( 5 ),
+                              bitmap.bmWidth, bitmap.bmHeight,
+                              hDCmem,
+                              0, 0, bitmap.bmWidth, bitmap.bmHeight, bf );
+            }
+            else
+            {
+                  BitBlt( hDC, hb_parni( 4 ), hb_parni( 5 ), bitmap.bmWidth,
+                          bitmap.bmHeight, hDCmem, 0, 0, dwraster );
+            }
       }
 
       SelectObject( hDCmem, hOldObj );

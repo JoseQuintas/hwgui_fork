@@ -47,6 +47,7 @@ CLASS HControl INHERIT HCustomWindow
       ::handle, 1 ), hwg_Setfocus( ::handle  ) )
    METHOD GetText()     INLINE hwg_Getwindowtext( ::handle )
    METHOD SetText( c )  INLINE hwg_Setwindowtext( ::Handle, ::title := c )
+   METHOD DrawFromLpDis( lpDis )
    METHOD End()
    METHOD onAnchor( x, y, w, h )
    METHOD SetTooltip( cText )
@@ -171,6 +172,25 @@ METHOD End() CLASS HControl
 
 METHOD onAnchor( x, y, w, h ) CLASS HControl
    RETURN hwg_resize_onAnchor( Self, x, y, w, h )
+
+
+/*===========================================================================
+ * HControl:DrawFromLpDis()
+ *
+ * Default handler for WM_DRAWITEM, called by the parent window when an
+ * owner-draw control needs to be painted.  Subclasses that need custom
+ * handling (HStatic, which decodes the DRAWITEMSTRUCT and forwards an
+ * HDC) override this method; everything else - HSayBmp, HLine, HBoard -
+ * falls back to the existing bPaint code block, so no change is needed
+ * on their side.
+ *=========================================================================*/
+METHOD DrawFromLpDis( lpDis ) CLASS HControl
+
+   IF !Empty( ::bPaint )
+      Eval( ::bPaint, Self, lpDis )
+   ENDIF
+
+   RETURN Nil
 
 //- HStatus
 

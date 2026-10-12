@@ -15,6 +15,19 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-12 13:55 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+  * source/winapi/hcontrol.prg
+    + HControl:DrawFromLpDis(): default WM_DRAWITEM handler (bPaint fallback).
+    * HStatic:Paint(): fill background before empty-caption return.
+    * HStatic:SetText(): RedrawWindow for SS_OWNERDRAW statics.
+  * source/winapi/hwindow.prg
+    + FindOwnerDrawCtrl(): recursive HWND lookup (depth 8).
+    * hwg_OnDrawItem(): route through DrawFromLpDis(lParam) instead of
+      Paint(hDC); fallback when control is not registered.
+  * source/winapi/draw.c
+    + hwg_bmp_has_alpha(): detects real alpha in 32bpp DIB sections.
+    * HWG_DRAWBITMAP(): AlphaBlend when bitmap has real alpha.
+
 2026-10-11 23:41 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
   * source/winapi/freeimg.c
     + Implemented HWG_FI_GETPIXELCOLOR() and HWG_FI_SETPIXELCOLOR().

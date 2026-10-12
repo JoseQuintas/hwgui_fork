@@ -387,6 +387,16 @@ METHOD Activate( lShow, lMaximized, lMinimized, lCentered, bActivate ) CLASS HMa
 
    hwg_CreateGetList( Self )
 
+   /* Dark mode: ask Windows for the dark look, apply to title bar
+    * and recursively to every control.  Must run before the window
+    * is shown so the user never sees the light frame "flash". */
+   IF hwg_ShouldAppsUseDarkMode()
+      hwg_SetPreferredAppMode( HWG_APPMODE_FORCEDARK )
+      IF !Empty( ::handle )
+         hwg_SetDarkTitleBar( ::handle, .T. )
+      ENDIF
+   ENDIF
+
    IF ::type == WND_MDI
 
       oWndClient := HWindow():New( , , , ::style, ::title, , ::bInit, ::bDestroy, ::bSize, ;
@@ -397,6 +407,11 @@ METHOD Activate( lShow, lMaximized, lMinimized, lCentered, bActivate ) CLASS HMa
       IF !Empty( lCentered )
          ::Center()
       ENDIF
+
+      IF hwg_ShouldAppsUseDarkMode() .AND. !Empty( ::handle )
+         ::ApplyDarkMode()
+      ENDIF
+
       Hwg_ActivateMdiWindow( ( lShow == Nil .OR. lShow ), ::hAccel, lMaximized, lMinimized )
 
    ELSEIF ::type == WND_MAIN
@@ -404,6 +419,11 @@ METHOD Activate( lShow, lMaximized, lMinimized, lCentered, bActivate ) CLASS HMa
       IF !Empty( lCentered )
          ::Center()
       ENDIF
+
+      IF hwg_ShouldAppsUseDarkMode() .AND. !Empty( ::handle )
+         ::ApplyDarkMode()
+      ENDIF
+
       Hwg_ActivateMainWindow( ( lShow == Nil .OR. lShow ), ::hAccel, lMaximized, lMinimized )
    ENDIF
 
@@ -710,11 +730,42 @@ STATIC FUNCTION onEraseBk( oWnd, hDC )
 
    RETURN -1
 
+/*=============================================================================
+ * FindOwnerDrawCtrl()
+ *
+ * Recursive search of a control by its HWND inside oParent:aControls and in
+ * the aControls of nested containers (a tab, for instance).  Used as a
+ * fallback by hwg_OnDrawItem() when the window handle has no Harbour object
+ * registered through hwg_SetWindowObject().
+ *===========================================================================*/
+STATIC FUNCTION FindOwnerDrawCtrl( oParent, hCtl, nLevel )
+
+   LOCAL oCtrl, oRes
+
+   IF nLevel > 8 .OR. ValType( oParent:aControls ) != "A"
+      RETURN Nil
+   ENDIF
+
+   FOR EACH oCtrl IN oParent:aControls
+      IF ValType( oCtrl ) == "O"
+         IF hwg_Isptreq( oCtrl:handle, hCtl )
+            RETURN oCtrl
+         ENDIF
+         IF __ObjHasMsg( oCtrl, "ACONTROLS" ) .AND. ;
+            ValType( oCtrl:aControls ) == "A" .AND. !Empty( oCtrl:aControls )
+            IF ( oRes := FindOwnerDrawCtrl( oCtrl, hCtl, nLevel + 1 ) ) != Nil
+               RETURN oRes
+            ENDIF
+         ENDIF
+      ENDIF
+   NEXT
+
+   RETURN Nil
+
 FUNCTION hwg_OnDrawItem( oWnd, wParam, lParam )
 
    LOCAL oCtrl, drawInfo, hDC, hCtl
 
-   HB_SYMBOL_UNUSED( oWnd )
    HB_SYMBOL_UNUSED( wParam )
 
    hCtl := hwg_Getdrawitemhwnd( lParam )
@@ -729,17 +780,38 @@ FUNCTION hwg_OnDrawItem( oWnd, wParam, lParam )
    // hwg_GetWindowObject returns whatever object was registered
    // with hwg_SetWindowObject - which HStatic:Init always does.
    oCtrl := hwg_GetWindowObject( hCtl )
+
+   // Fallback: several owner-draw controls (HSayBmp, HLine, ...) never
+   // register themselves with hwg_SetWindowObject, so the lookup above
+   // returns Nil and nothing was painted for them.  Find the control by
+   // its handle in the control tree instead.
+   IF oCtrl == Nil
+      oCtrl := FindOwnerDrawCtrl( oWnd, hCtl, 0 )
+   ENDIF
    IF oCtrl == Nil
       RETURN -1
    ENDIF
 
-   drawInfo := hwg_Getdrawiteminfo( lParam )
-   hDC := drawInfo[ 3 ]
-   IF hDC == Nil
-      RETURN -1
+   /* Preferred path: hand the raw DRAWITEMSTRUCT to the control and
+    * let it decide how to paint.  HStatic overrides DrawFromLpDis
+    * and decodes the struct into an HDC before calling Paint(hDC);
+    * HSayBmp / HLine expect the lpDis directly (they read the target
+    * rectangle and call hwg_Getdrawiteminfo themselves).
+    *
+    * Previously this function passed drawInfo[3] (the HDC) to every
+    * Paint() method - which worked for HStatic but silently broke
+    * HSayBmp and HLine, because their Paint() feeds the value to
+    * hwg_Getdrawiteminfo() and expects a DRAWITEMSTRUCT, not an HDC. */
+   IF __ObjHasMsg( oCtrl, "DRAWFROMLPDIS" )
+      oCtrl:DrawFromLpDis( lParam )
+      RETURN 0
    ENDIF
 
-   IF __ObjHasMsg( oCtrl, "PAINT" )
+   /* Fallback: legacy direct Paint(hDC) - kept for any control that
+    * was never updated to the DrawFromLpDis flow. */
+   drawInfo := hwg_Getdrawiteminfo( lParam )
+   hDC := drawInfo[ 3 ]
+   IF hDC != Nil .AND. __ObjHasMsg( oCtrl, "PAINT" )
       oCtrl:Paint( hDC )
       RETURN 0
    ENDIF
