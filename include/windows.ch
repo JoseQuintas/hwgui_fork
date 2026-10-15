@@ -452,6 +452,7 @@
 #define BS_USERBUTTON       8       // 0x00000008L
 #define BS_AUTORADIOBUTTON  9       // 0x00000009L
 #define BS_OWNERDRAW        11      // 0x0000000BL
+#define BS_TYPEMASK         15      // 0x0000000FL
 #define BS_LEFTTEXT         32      // 0x00000020L
 
 #define BS_SPLITBUTTON      12        // 0x0000000C
@@ -1764,8 +1765,6 @@ ComboBox
 #define SM_MEDIACENTER 87
 #define SM_STARTER 88
 #define SM_SERVERR2 89
-
-#define OPAQUE 2
 
 #define DMPAPER_A3                   8  /* DIN A3 297 x 420 mm  */
 #define DMPAPER_A4                   9  /* DIN A4 210 x 297 mm  */

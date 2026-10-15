@@ -487,7 +487,7 @@ METHOD Refresh() CLASS HStatic
 
    RETURN NIL
 
-   //- HButton
+//- HButton
 
 CLASS HButton INHERIT HControl
 
@@ -500,12 +500,14 @@ CLASS HButton INHERIT HControl
       cCaption, oFont, bInit, bSize, bPaint, bClick, cTooltip, ;
       tcolor, bColor, oImg )
    METHOD Activate()
-   METHOD Redefine( oWndParent, nId, oFont, bInit, bSize, bPaint, bClick, cTooltip, ;
-      tcolor, bColor, cCaption )
+   METHOD Redefine( oWndParent, nId, oFont, bInit, bSize, bPaint, bClick, ;
+      cTooltip, tcolor, bColor, cCaption, oImg )
    METHOD Init()
    METHOD GetText()     INLINE hwg_Getwindowtext( ::handle )
    METHOD SetText( c )
    METHOD SetImage( oImg )
+   METHOD DrawFromLpDis( lParam )
+   METHOD Paint( hDC )
 
 ENDCLASS
 
@@ -513,15 +515,27 @@ METHOD New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, ;
       cCaption, oFont, bInit, bSize, bPaint, bClick, cTooltip, ;
       tcolor, bColor, oImg ) CLASS HButton
 
-   nStyle := Hwg_BitOr( iif( nStyle == NIL, 0, nStyle ), BS_PUSHBUTTON + WS_TABSTOP )
+   nStyle := iif( nStyle == NIL, 0, nStyle )
+
+   /* BS_PUSHBUTTON (0) and BS_OWNERDRAW (11) share the same four bits
+      of the style field - they cannot be OR-ed together.  Clear the old
+      type first, then set the one matching the presence of an image. */
+   nStyle := hb_BitAnd( nStyle, hb_BitNot( BS_TYPEMASK ) )
+   IF !Empty( oImg )
+      nStyle := hb_BitOr( nStyle, BS_OWNERDRAW )
+   ELSE
+      nStyle := hb_BitOr( nStyle, BS_PUSHBUTTON )
+   ENDIF
+   nStyle := hb_BitOr( nStyle, WS_TABSTOP )
 
    ::Super:New( oWndParent, nId, nStyle, nLeft, nTop, ;
       iif( nWidth  == NIL, 90, nWidth  ), ;
       iif( nHeight == NIL, 30, nHeight ), ;
       oFont, bInit, bSize, bPaint, cTooltip, tcolor, bColor )
+
    ::bClick  := bClick
    ::title   := cCaption
-   ::oImg := oImg
+   ::oImg    := oImg
    ::Activate()
 
    IF ::id != IDOK .AND. ::id != IDCANCEL
@@ -546,12 +560,23 @@ METHOD Activate() CLASS HButton
    RETURN NIL
 
 METHOD Redefine( oWndParent, nId, oFont, bInit, bSize, bPaint, bClick, ;
-      cTooltip, tcolor, bColor, cCaption ) CLASS HButton
+      cTooltip, tcolor, bColor, cCaption, oImg ) CLASS HButton
 
    ::Super:New( oWndParent, nId, 0, 0, 0, 0, 0, oFont, bInit, ;
       bSize, bPaint, cTooltip, tcolor, bColor )
-   ::bClick  := bClick
-   ::title   := cCaption
+
+   ::bClick := bClick
+   ::title  := cCaption
+   ::oImg   := oImg
+
+   /* For a REDEFINEd dialog, the handle already exists with whatever
+      style the .rc/.res gave it.  Force ownerdraw when an image was
+      supplied; otherwise leave it as a plain push button. */
+   IF !Empty( oImg )
+      hwg_Modifystyle( ::handle, BS_TYPEMASK, BS_OWNERDRAW )
+   ELSE
+      hwg_Modifystyle( ::handle, BS_TYPEMASK, BS_PUSHBUTTON )
+   ENDIF
 
    IF bClick != NIL
       ::oParent:AddEvent( 0, ::id, { |o, id| onClick( o,id ) } )
@@ -565,11 +590,13 @@ METHOD Init() CLASS HButton
    IF ::Title != NIL
       hwg_Setwindowtext( ::handle, ::title )
    ENDIF
+
    IF !Empty( ::oImg )
-      ::SetImage( ::oImg )
+      hwg_Modifystyle( ::handle, BS_TYPEMASK, BS_OWNERDRAW )
+      hwg_Redrawwindow( ::handle, RDW_ERASE + RDW_INVALIDATE + RDW_UPDATENOW )
    ENDIF
 
-   RETURN  NIL
+   RETURN NIL
 
 METHOD SetText( c ) CLASS HButton
 
@@ -578,15 +605,193 @@ METHOD SetText( c ) CLASS HButton
 
    RETURN NIL
 
+/*=============================================================================
+ * HButton:SetImage()
+ *
+ * Attaches an image (HIcon or HBitmap) to the button.  Switches the
+ * control to BS_OWNERDRAW so the image and the caption can coexist -
+ * BS_ICON / BS_BITMAP would suppress the caption and hide the focus
+ * rectangle.  Actual painting is done by DrawFromLpDis().
+ *===========================================================================*/
 METHOD SetImage( oImg ) CLASS HButton
 
-   hwg_Sendmessage( ::handle, BM_SETIMAGE, Iif( oImg:Classname() == "HICON", ;
-      IMAGE_ICON, IMAGE_BITMAP ), oImg:handle )
-   ::Refresh()
+   IF Empty( oImg )
+      RETURN NIL
+   ENDIF
+
+   // Force ownerdraw: that's the only style that lets us paint both
+   // the image and the text, and draw the focus rectangle ourselves.
+   hwg_Modifystyle( ::handle, BS_TYPEMASK, BS_OWNERDRAW )
+
+   // Keep a reference so the image object is not released while the
+   // button is still using its handle.
+   ::oImg := oImg
+
+   hwg_Redrawwindow( ::handle, RDW_ERASE + RDW_INVALIDATE + RDW_UPDATENOW )
 
    RETURN NIL
 
-   //- HGroup
+/*=============================================================================
+ * HButton:DrawFromLpDis()
+ *
+ * Ownerdraw path.  The button is created with BS_OWNERDRAW when an
+ * image is present (BS_ICON / BS_BITMAP suppress the caption and hide
+ * the focus rectangle).
+ *
+ * Frame painting goes through hwg_DrawButton() instead of the native
+ * DrawFrameControl(DFC_BUTTON): the latter always paints with
+ * COLOR_3DFACE / COLOR_3DHILIGHT, which Windows keeps light even in
+ * dark theme.  hwg_DrawButton() switches to HWGUI's dark brush when
+ * apps-use-dark-mode is on, so the button matches the rest of the UI.
+ *===========================================================================*/
+METHOD DrawFromLpDis( lParam ) CLASS HButton
+
+   LOCAL drawInfo, hDC, itemAction, itemState
+   LOCAL nLeft, nTop, nRight, nBottom, nH
+   LOCAL lPressed, lFocused, lDisabled
+   LOCAL hOldFont, hOldBkMode, hOldTextColor
+   LOCAL nImgW, nImgH, nImgX, nImgY, nOffset
+   LOCAL lIcon, aRect, nTxtColor
+   LOCAL nBtnType
+
+   drawInfo := hwg_Getdrawiteminfo( lParam )
+   IF Empty( drawInfo )
+      RETURN NIL
+   ENDIF
+
+   hDC := drawInfo[ 3 ]
+   IF hDC == Nil
+      RETURN NIL
+   ENDIF
+
+   /* Honour an ON PAINT block, exactly like the base class does.
+      It runs before the default painting, so a caller-supplied handler
+      can draw its own background and let the standard frame / image /
+      caption finish on top. */
+   IF !Empty( ::bPaint )
+      Eval( ::bPaint, Self, lParam )
+   ENDIF
+
+   nLeft      := drawInfo[ 4 ]
+   nTop       := drawInfo[ 5 ]
+   nRight     := drawInfo[ 6 ]
+   nBottom    := drawInfo[ 7 ]
+   itemAction := drawInfo[ 2 ]
+   itemState  := drawInfo[ 9 ]
+
+   nH := nBottom - nTop
+
+   lPressed  := ( Hwg_BitAnd( itemState, ODS_SELECTED ) != 0 )
+   lDisabled := ( Hwg_BitAnd( itemState, ODS_DISABLED ) != 0 )
+
+   /* ODS_FOCUS is only present when the whole item is redrawn.  When
+      only the focus changes, Windows sends ODA_FOCUS instead - handle
+      both so the focus rectangle never gets lost. */
+   lFocused  := ( Hwg_BitAnd( itemState,  ODS_FOCUS ) != 0 ) .OR. ;
+                ( Hwg_BitAnd( itemAction, ODA_FOCUS ) != 0 )
+
+   // 1-pixel offset gives the classic Win32 "sunken" look while pressed.
+   nOffset := iif( lPressed, 1, 0 )
+
+   /* ---------- 1) Frame ---------- */
+   /* Type mapping for hwg_DrawButton():
+    *   0 -> flat fill (disabled)
+    *   1 -> raised (normal)
+    *   3 -> sunken (pressed)
+    * The 0x04 bit would double the border; keep it off for now. */
+   nBtnType := iif( lDisabled, 0, ;
+                    iif( lPressed,  3, 1 ) )
+   hwg_DrawButton( hDC, nLeft, nTop, nRight, nBottom, nBtnType )
+
+   /* ---------- 2) Image (left, vertically centred) ---------- */
+   nImgW := 0
+   IF !Empty( ::oImg )
+      lIcon := ( Upper( ::oImg:ClassName() ) == "HICON" )
+
+      nImgW := iif( ::oImg:nWidth  != Nil .AND. ::oImg:nWidth  > 0, ::oImg:nWidth,  16 )
+      nImgH := iif( ::oImg:nHeight != Nil .AND. ::oImg:nHeight > 0, ::oImg:nHeight, 16 )
+
+      nImgX := nLeft + 6 + nOffset
+      nImgY := nTop  + ( nH - nImgH ) / 2 + nOffset
+
+      IF lIcon
+         hwg_DrawIconEx( hDC, ::oImg:handle, nImgX, nImgY, nImgW, nImgH )
+      ELSEIF ::oImg:nTransparent < 0
+         hwg_DrawBitmap( hDC, ::oImg:handle, , nImgX, nImgY, nImgW, nImgH )
+      ELSE
+         hwg_DrawTransparentBitmap( hDC, ::oImg:handle, nImgX, nImgY, ;
+                                    ::oImg:nTransparent, nImgW, nImgH )
+      ENDIF
+
+      nImgW += 6   // gap between image and caption
+   ENDIF
+
+   /* ---------- 3) Caption ---------- */
+   IF !Empty( ::title )
+      IF ::oFont != Nil .AND. ::oFont:handle != Nil
+         hOldFont := hwg_SelectObject( hDC, ::oFont:handle )
+      ENDIF
+
+      /* 1 = TRANSPARENT for SetBkMode().  Do NOT use the symbolic
+         name: HWGUI declares TRANSPARENT as a #xcommand clause on
+         @ SAY, so #defining it as a numeric constant breaks that
+         command across the whole codebase. */
+      hOldBkMode := hwg_SetBkMode( hDC, 1 )
+
+      nTxtColor := iif( lDisabled, hwg_GetSysColor( COLOR_GRAYTEXT ), ;
+                        iif( ::tColor != Nil, ::tColor, ;
+                             hwg_GetSysColor( COLOR_BTNTEXT ) ) )
+      hOldTextColor := hwg_SetTextColor( hDC, nTxtColor )
+
+      aRect := { nLeft + 6 + nImgW + nOffset, ;
+                 nTop  + nOffset, ;
+                 nRight - 6, ;
+                 nBottom }
+
+      hwg_DrawText( hDC, ::title, aRect, ;
+         Hwg_BitOr( DT_CENTER, DT_VCENTER, DT_SINGLELINE ) )
+
+      hwg_SetTextColor( hDC, hOldTextColor )
+      hwg_SetBkMode( hDC, hOldBkMode )
+      IF hOldFont != Nil
+         hwg_SelectObject( hDC, hOldFont )
+      ENDIF
+   ENDIF
+
+   /* ---------- 4) Focus rectangle ---------- */
+   IF lFocused .AND. !lDisabled
+      aRect := { nLeft + 3, nTop + 3, nRight - 3, nBottom - 3 }
+      hwg_DrawFocusRect( hDC, aRect )
+   ENDIF
+
+   RETURN NIL
+
+/*=============================================================================
+ * HButton:Paint()
+ *
+ * Legacy compatibility shim.  The new ownerdraw path goes through
+ * DrawFromLpDis(lpDis) - this method exists only so that external code
+ * calling oBtn:Paint(hDC) directly does not raise a runtime error.
+ * It draws a plain push button without the image, which is the best
+ * that can be done without the DRAWITEMSTRUCT (no itemState, no
+ * rcItem, no pressed/disabled flags).
+ *===========================================================================*/
+METHOD Paint( hDC ) CLASS HButton
+
+   LOCAL aRect
+
+   aRect := { 0, 0, ::nWidth, ::nHeight }
+
+   hwg_DrawFrameControl( hDC, aRect, DFC_BUTTON, DFCS_BUTTONPUSH )
+
+   IF !Empty( ::title )
+      hwg_DrawText( hDC, ::title, aRect, ;
+         Hwg_BitOr( DT_CENTER, DT_VCENTER, DT_SINGLELINE ) )
+   ENDIF
+
+   RETURN NIL
+
+//- HGroup
 
 CLASS HGroup INHERIT HControl
 

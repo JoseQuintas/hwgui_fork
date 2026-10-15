@@ -571,9 +571,10 @@
             [ ON PAINT <bDraw> ]       ;
             [ ON CLICK <bClick> ]      ;
             [ TOOLTIP <ctoolt> ]       ;
+            [ IMAGE <oImg> ]           ;
           => ;
     [<oBut> := ] HButton():Redefine( <oWnd>,<nId>,<oFont>,<bInit>,<bSize>,<bDraw>, ;
-                    <bClick>,<ctoolt>,<color>,<bcolor>,<cCaption> );
+                    <bClick>,<ctoolt>,<color>,<bcolor>,<cCaption>,<oImg> );
     [; hwg_SetCtrlName( <oBut>,<(oBut)> )]
 
 #xcommand @ <x>,<y> GROUPBOX [ <oGroup> CAPTION ] <caption> ;

@@ -15,6 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-15 13:55 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+   * hcontrol.prg: HButton now shows image + caption via BS_OWNERDRAW
+     (new DrawFromLpDis / SetImage), keeping Tab navigation and the
+     focus rectangle; New/Redefine/Init updated accordingly.
+   * guilib.ch:   @ BUTTON / REDEFINE BUTTON accept [ IMAGE <oImg> ].
+   * windows.ch:  added BS_TYPEMASK (0x000F).  TRANSPARENT deliberately
+     not defined (conflicts with the @ SAY clause).
+   * samples:     new button_image.prg / .hbp / .txt (INIT DIALOG demo).
+
 2026-10-12 13:55 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
   * source/winapi/hcontrol.prg
     + HControl:DrawFromLpDis(): default WM_DRAWITEM handler (bPaint fallback).
