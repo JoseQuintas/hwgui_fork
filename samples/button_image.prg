@@ -101,7 +101,9 @@ FUNCTION Main()
       IMAGE oIconHwgui ;
       SIZE 150, 40
 
-   oBtnDisabled:Disable()
+   hwg_Enablewindow( oBtnDisabled:handle, .F. )
+   hwg_Redrawwindow( oBtnDisabled:handle, ;
+                     RDW_ERASE + RDW_INVALIDATE + RDW_UPDATENOW )
 
    /* Row 4: runtime image swap.  The button starts as text-only and
       becomes image + text at click time, proving SetImage() can be
@@ -164,18 +166,15 @@ STATIC FUNCTION SwapImage( oBtn, oIcon )
 /*-----------------------------------------------------------------------------
  * ToggleEnabled()
  *
- * Flips the WS_DISABLED bit on the target button and forces a redraw.
- * Ownerdraw buttons do not repaint automatically when the state
- * changes, so RedrawWindow() is called explicitly.
+ * Flips the enabled state of the target button.  Uses the HWGUI wrappers
+ * hwg_Iswindowenabled() / hwg_Enablewindow(), which are the only functions
+ * the library exposes for this purpose (see window.c).
  *---------------------------------------------------------------------------*/
 STATIC FUNCTION ToggleEnabled( oBtn )
 
-   IF oBtn:IsEnabled()
-      oBtn:Disable()
-   ELSE
-      oBtn:Enable()
-   ENDIF
+   LOCAL lEnabled := hwg_Iswindowenabled( oBtn:handle )
 
+   hwg_Enablewindow( oBtn:handle, !lEnabled )
    hwg_Redrawwindow( oBtn:handle, ;
                      RDW_ERASE + RDW_INVALIDATE + RDW_UPDATENOW )
 

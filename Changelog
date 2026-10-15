@@ -15,7 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2026-10-15 13:55 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+2026-10-15 16:55 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+   ! fix samples/button_image.prg uses hwg_Iswindowenabled() /
+                  hwg_Enablewindow(). "Toggle disable" button
+
+2026-10-15 14:55 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
    * hcontrol.prg: HButton now shows image + caption via BS_OWNERDRAW
      (new DrawFromLpDis / SetImage), keeping Tab navigation and the
      focus rectangle; New/Redefine/Init updated accordingly.
