@@ -241,38 +241,59 @@ FUNCTION Hwg_EndMenu()
 
    RETURN .T.
 
-FUNCTION Hwg_DefineMenuItem( cItem, nId, bItem, lDisabled, accFlag, accKey, lBitmap, lResource, lCheck )
+FUNCTION Hwg_DefineMenuItem( cItem, nId, bItem, lDisabled, accFlag, accKey, ;
+                             lBitmap, lResource, lCheck, ;
+                             nWidth, nHeight, nBackColor )
 
    LOCAL aMenu, i, oBmp, nFlag
 
-   lCheck := IIf( lCheck == Nil, .F., lCheck )
-   lDisabled := IIf( lDisabled == Nil, .f., lDisabled )
-   nFlag := Hwg_BitOr( IIf( lCheck, FLAG_CHECK, 0 ), IIf( lDisabled, FLAG_DISABLED, 0 ) )
+   lCheck    := IIf( lCheck    == Nil, .F., lCheck )
+   lDisabled := IIf( lDisabled == Nil, .F., lDisabled )
+   nFlag     := Hwg_BitOr( IIf( lCheck, FLAG_CHECK, 0 ), ;
+                           IIf( lDisabled, FLAG_DISABLED, 0 ) )
 
    aMenu := _aMenuDef
    FOR i := 1 TO _nLevel
       aMenu := ATail( aMenu )[ 1 ]
    NEXT
+
    IF ! Empty( cItem )
       cItem := StrTran( cItem, "\t", Chr( 9 ) )
    ENDIF
+
    nId := IIf( nId == Nil .AND. cItem != Nil, ++ _Id, nId )
    AAdd( aMenu, { bItem, cItem, nId, nFlag } )
-   /* FIXED: era .OR., o que disparava o carregamento do bitmap mesmo
-    * quando lBitmap era uma string vazia "" (nao Nil, porem vazia).
-    * Com .AND. so tenta carregar quando ha de fato um valor informado
-    * e nao-vazio. */
+
+   /* FIXED: was .OR., which triggered bitmap loading even when
+    * lBitmap was an empty string "" (not Nil, but empty).  With .AND.
+    * it only tries to load when a non-empty value is actually given.
+    *
+    * nWidth / nHeight / nBackColor are optional.  When Nil, HBitmap()
+    * falls back to its own defaults (32x32 for SVG, white background
+    * in light mode).  Pass them explicitly to get 16x16 icons with a
+    * background that matches the sidebar - 16x16 is the canonical
+    * size for Windows menu icons, and a mismatched background is
+    * what makes the icon look "pasted" over the menu strip. */
    IF lBitmap != Nil .AND. ! Empty( lBitmap )
-      IF lResource == Nil ;lResource := .F. ; ENDIF
+      IF lResource == Nil ; lResource := .F. ; ENDIF
+
       IF ! lResource
-         oBmp := HBitmap():AddFile( lBitmap )
+         // Plain file on disk.  AddFile()'s signature is
+         // ( name, hDC, lTransparent, nWidth, nHeight ) - the two
+         // empty slots leave hDC and lTransparent at their defaults.
+         oBmp := HBitmap():AddFile( lBitmap, , , nWidth, nHeight )
       ELSE
-         oBmp := HBitmap():AddResource( lBitmap )
+         // Resource inside the container (myimage.rc, etc.).
+         // AddResource()'s signature is
+         // ( name, nFlags, lOEM, nWidth, nHeight, nBackColor ).
+         oBmp := HBitmap():AddResource( lBitmap, , , nWidth, nHeight, nBackColor )
       ENDIF
+
       AAdd( _oBitmap, { .t., oBmp:Handle, cItem, nId } )
    ELSE
       AAdd( _oBitmap, { .F., "", cItem, nId } )
    ENDIF
+
    IF accFlag != Nil .AND. accKey != Nil
       AAdd( _aAccel, { accFlag, accKey, nId } )
    ENDIF

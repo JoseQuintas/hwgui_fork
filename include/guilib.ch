@@ -1462,21 +1462,33 @@
 
 #xcommand ENDMENU           => Hwg_EndMenu()
 
-#xcommand MENUITEM <item> [ ID <nId> ]    ;
-            ACTION <act>                  ;
-            [ BITMAP <bmp> ]               ; //ADDED by Sandro Freire
-            [<res: FROM RESOURCE>]        ; //true use image from resource
-            [ ACCELERATOR <flag>, <key> ] ;
-            [<lDisabled: DISABLED>]       ;
+#xcommand MENUITEM <item> [ ID <nId> ]      ;
+            ACTION <act>                    ;
+            [ BITMAP <bmp> ]                ;
+            [ WIDTH <nW> ]                  ;
+            [ HEIGHT <nH> ]                 ;
+            [ BACKCOLOR <nBg> ]             ;
+            [<res: FROM RESOURCE>]          ;
+            [ ACCELERATOR <flag>, <key> ]   ;
+            [<lDisabled: DISABLED>]         ;
           => ;
-    Hwg_DefineMenuItem( <item>, <nId>, <{act}>, <.lDisabled.>, <flag>, <key>, <bmp>, <.res.>, .f. )
+    Hwg_DefineMenuItem( <item>, <nId>, <{act}>, <.lDisabled.>, ;
+                        <flag>, <key>, <bmp>, <.res.>, .f., ;
+                        <nW>, <nH>, <nBg> )
 
-#xcommand MENUITEMCHECK <item> [ ID <nId> ]    ;
-            [ ACTION <act> ]              ;
-            [ ACCELERATOR <flag>, <key> ] ;
-            [<lDisabled: DISABLED>]       ;
+#xcommand MENUITEMCHECK <item> [ ID <nId> ] ;
+            ACTION <act>                    ;
+            [ BITMAP <bmp> ]                ;
+            [ WIDTH <nW> ]                  ;
+            [ HEIGHT <nH> ]                 ;
+            [ BACKCOLOR <nBg> ]             ;
+            [<res: FROM RESOURCE>]          ;
+            [ ACCELERATOR <flag>, <key> ]   ;
+            [<lDisabled: DISABLED>]         ;
           => ;
-    Hwg_DefineMenuItem( <item>, <nId>, <{act}>, <.lDisabled.>, <flag>, <key>,,, .t. )
+    Hwg_DefineMenuItem( <item>, <nId>, <{act}>, <.lDisabled.>, ;
+                        <flag>, <key>, <bmp>, <.res.>, .t., ;
+                        <nW>, <nH>, <nBg> )
 
 #xcommand MENUITEMBITMAP <oMain>  ID <nId> ;
             BITMAP <bmp>                  ;

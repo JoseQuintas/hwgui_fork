@@ -15,6 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-15 21:36 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+   * menu.prg:  Hwg_DefineMenuItem() gains optional nWidth/nHeight/
+                nBackColor; -1 as nBackColor loads the icon with real
+                alpha (menu highlight shows through).  Omitted values
+                keep the old defaults.
+   * guilib.ch: MENUITEM/MENUITEMCHECK accept WIDTH/HEIGHT/BACKCOLOR.
+   link show result https://pctoledo.org/viewtopic.php?p=172623#p172623
+
 2026-10-15 16:55 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
    ! fix samples/button_image.prg uses hwg_Iswindowenabled() /
                   hwg_Enablewindow(). "Toggle disable" button
