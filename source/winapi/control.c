@@ -508,19 +508,31 @@ HB_FUNC( HWG_SETWINDOWLONG )
  *===========================================================================*/
 HB_FUNC( HWG_CREATEBUTTON )
 {
-   void * hStr;
-   HWND hBtn = CreateWindow( TEXT( "BUTTON" ),
-         HB_PARSTR( 8, &hStr, NULL ),
-         WS_CHILD | WS_VISIBLE | hb_parnl( 3 ),
-         hb_parni( 4 ), hb_parni( 5 ),
-         hb_parni( 6 ), hb_parni( 7 ),
-         ( HWND ) HB_PARHANDLE( 1 ),
-         ( HMENU )( UINT_PTR ) hb_parni( 2 ),
-         GetModuleHandle( NULL ),
-         NULL );
-   hb_strfree( hStr );
+      void * hStr;
+      ULONG ulStyle = hb_parnl( 3 );
+      ULONG ulExStyle = 0;
 
-   HB_RETHANDLE( hBtn );
+      /* FIX: For GroupBoxes, ensure it is transparent (no grey bg) and
+       * add WS_CLIPCHILDREN so it doesn't paint over the GETs inside it. */
+      if( ( ulStyle & 0x0F ) == BS_GROUPBOX )
+      {
+            ulExStyle |= WS_EX_TRANSPARENT;
+            ulStyle   |= WS_CLIPCHILDREN;
+      }
+
+      HWND hBtn = CreateWindowEx( ulExStyle,
+                                  TEXT( "BUTTON" ),
+                                  HB_PARSTR( 8, &hStr, NULL ),
+                                  WS_CHILD | WS_VISIBLE | ulStyle,
+                                  hb_parni( 4 ), hb_parni( 5 ),
+                                  hb_parni( 6 ), hb_parni( 7 ),
+                                  ( HWND ) HB_PARHANDLE( 1 ),
+                                  ( HMENU )( UINT_PTR ) hb_parni( 2 ),
+                                  GetModuleHandle( NULL ),
+                                  NULL );
+      hb_strfree( hStr );
+
+      HB_RETHANDLE( hBtn );
 }
 
 /*=============================================================================
@@ -2330,6 +2342,16 @@ LRESULT APIENTRY EditSubclassProc( HWND hWnd, UINT message, WPARAM wParam,
    long int res;
    PHB_ITEM pObject = ( PHB_ITEM ) GetWindowLongPtr( hWnd, GWLP_USERDATA );
 
+   /* ADDED FIX: When the GET becomes visible (e.g., switching tabs),
+    * force the non-client area (border) to be redrawn immediately.
+    * This ensures the dark border appears on GETs inside GroupBoxes without
+    * needing to hover the mouse over them. */
+   if( message == WM_SHOWWINDOW && wParam )
+   {
+         SetWindowPos( hWnd, NULL, 0, 0, 0, 0,
+                       SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED );
+   }
+
    if( message == WM_NCPAINT && hwg_dark_edit_ncpaint( hWnd ) )
        return 0;
 
@@ -2761,18 +2783,22 @@ static void hwg_tab_soften_edges( HWND hTab, HDC hdc )
  *===========================================================================*/
 static HBRUSH hwg_tab_background_brush( HWND hWnd )
 {
-      HBRUSH hBg = hwg_GetControlBrush( GetParent( hWnd ) );
-      if( !hBg ) hBg = hwg_GetControlBrush( hWnd );
+      /* 1. Try the tab's own brush first.
+       * It will contain the developer's custom BACKCOLOR,
+       * or the default White/Dark brush created in HTab:Init(). */
+      HBRUSH hBg = hwg_GetControlBrush( hWnd );
 
-      /* If the developer defined a background color, use it. */
+      /* 2. Fallback to the parent's brush only if the tab has none
+       * (e.g., during a transition or if created outside the PRG class). */
+      if( !hBg ) hBg = hwg_GetControlBrush( GetParent( hWnd ) );
+
       if( hBg )
             return hBg;
 
-      /* Otherwise, use the Windows theme. */
+      /* 3. Last resort: standard system colors */
       if( hwg_should_apps_use_dark_mode() )
             return hwg_get_dark_brush( 0 );
 
-      /* Light mode: use the standard window background (White) */
       return ( HBRUSH ) GetSysColorBrush( COLOR_WINDOW );
 }
 
@@ -3100,6 +3126,57 @@ static void hwg_tab_paint_to_dc( HWND hWnd, HDC hdc )
 }
 
 /*=============================================================================
+ * hwg_ForceChildFrames()
+ * Recursively forces all visible child windows to redraw their non-client
+ * area (borders) immediately. This ensures GET borders are drawn on top of
+ * GroupBoxes after a Tab change.
+ *===========================================================================*/
+static void hwg_ForceChildFrames( HWND hParent )
+{
+      HWND hChild = GetWindow( hParent, GW_CHILD );
+      while( hChild )
+      {
+            if( IsWindowVisible( hChild ) )
+            {
+                  /* RDW_UPDATENOW forces immediate WM_NCPAINT.
+                   * RDW_NOERASE prevents the background from being erased again. */
+                  RedrawWindow( hChild, NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW | RDW_NOERASE );
+            }
+            hwg_ForceChildFrames( hChild );
+            hChild = GetWindow( hChild, GW_HWNDNEXT );
+      }
+}
+
+/*=============================================================================
+ * hwg_ForceEditBorders()
+ * Recursively finds all Edit controls and forces their non-client frame
+ * to be drawn immediately. This is required because when switching tabs,
+ * the Tab and GroupBox paint over the Edit's border, making it invisible
+ * until the mouse hovers over it.
+ *===========================================================================*/
+static void hwg_ForceEditBorders( HWND hParent )
+{
+      HWND hChild = GetWindow( hParent, GW_CHILD );
+      while( hChild )
+      {
+            TCHAR szClass[ 32 ];
+            GetClassName( hChild, szClass, HB_SIZEOFARRAY( szClass ) - 1 );
+
+            /* If it's an Edit control, force the frame to redraw */
+            if( lstrcmpi( szClass, TEXT( "Edit" ) ) == 0 )
+            {
+                  /* RDW_FRAME sends WM_NCPAINT. RDW_UPDATENOW makes it happen immediately. */
+                  RedrawWindow( hChild, NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW );
+            }
+
+            /* Recursively check children (for Edit controls inside GroupBoxes) */
+            hwg_ForceEditBorders( hChild );
+
+            hChild = GetWindow( hChild, GW_HWNDNEXT );
+      }
+}
+
+/*=============================================================================
  * TabSubclassProc()
  *===========================================================================*/
 LRESULT APIENTRY TabSubclassProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
@@ -3121,10 +3198,11 @@ LRESULT APIENTRY TabSubclassProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM
             {
                   int iCur = TabCtrl_GetCurSel( hWnd );
                   if( iCur == iTab ) return 0;
+                  /* Removido o RedrawWindow daqui, pois a aba ainda não mudou */
             }
       }
 
-      /* Handle TabControl non-client border to prevent it from becoming white (DARK MODE ONLY) */
+      /* Trata a borda não-cliente do TabControl para não ficar branca (DARK MODE ONLY) */
       if( message == WM_NCPAINT )
       {
             if( !hwg_should_apps_use_dark_mode() )
@@ -3154,7 +3232,6 @@ LRESULT APIENTRY TabSubclassProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM
                   WNDPROC pOld = ( WNDPROC ) SetWindowLongPtr( hUpDown, GWLP_WNDPROC, ( LONG_PTR ) TabUpDownSubclassProc );
                   SetProp( hUpDown, TEXT( "HWGUI_OLD_UPDOWN_PROC" ), ( HANDLE ) pOld );
 
-                  /* Apply the dark theme to the scroll arrows if necessary */
                   if( hwg_should_apps_use_dark_mode() )
                         SetWindowTheme( hUpDown, L"DarkMode_Explorer", NULL );
                   else
@@ -3169,12 +3246,15 @@ LRESULT APIENTRY TabSubclassProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM
                   hwg_tab_paint_to_dc( hWnd, hdc );
                   s_bTabPainting = bOld;
                   EndPaint( hWnd, &ps );
+
+                  /* ADDED FIX: Force the borders of all Edit controls to be painted
+                   * AFTER the Tab and GroupBox have finished painting. */
+                  hwg_ForceEditBorders( hWnd );
             }
             return 0;
       }
       else if( message == WM_ERASEBKGND )
       {
-            /* Let Windows erase the background natively in Light Mode */
             if( !hwg_should_apps_use_dark_mode() )
                   return CallWindowProc( wpOrigTabProc, hWnd, message, wParam, lParam );
 
@@ -3217,6 +3297,21 @@ LRESULT APIENTRY TabSubclassProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM
             HB_PUSHITEM( wParam );
             HB_PUSHITEM( lParam );
             hb_vmSend( 3 );
+
+            /* FIX: After HWGUI processes the tab change (TCN_SELCHANGE),
+             * we force the Tab and its children to paint synchronously.
+             * Then we force the borders of the GETs to be redrawn on top,
+             * ensuring dark borders appear even inside GroupBoxes. */
+            if( message == WM_NOTIFY )
+            {
+                  LPNMHDR pnmh = ( LPNMHDR ) lParam;
+                  if( pnmh && pnmh->code == TCN_SELCHANGE )
+                  {
+                        UpdateWindow( hWnd );
+                        hwg_ForceChildFrames( hWnd );
+                  }
+            }
+
             if( HB_ISPOINTER( -1 ) )
                   return (LRESULT) HB_PARHANDLE( -1 );
             else
@@ -4271,6 +4366,16 @@ static LRESULT CALLBACK hwg_DarkGroupProc( HWND hWnd, UINT message,
       if( pOld == NULL )
             return DefWindowProc( hWnd, message, wParam, lParam );
 
+      /* Handle background erasing to prevent grey artifacts/stripes */
+      if( message == WM_ERASEBKGND )
+      {
+            HDC hdc = ( HDC ) wParam;
+            RECT rc;
+            GetClientRect( hWnd, &rc );
+            FillRect( hdc, &rc, hwg_GetEffectiveBrush( hWnd ) );
+            return 1;
+      }
+
       if( message == WM_PAINT )
       {
             PAINTSTRUCT ps;
@@ -4284,7 +4389,13 @@ static LRESULT CALLBACK hwg_DarkGroupProc( HWND hWnd, UINT message,
                   int    nLen, nCapW = 0, nTop;
                   HFONT  hFont, hOldFont = NULL;
                   HPEN   hPen, hOldPen;
-                  HBRUSH hOldBr;
+                  HBRUSH hOldBr, hBg;
+                  BOOL   bDark = hwg_should_apps_use_dark_mode();
+
+                  /* Dynamic colors for Light or Dark Mode */
+                  COLORREF crFrame   = bDark ? HWG_DARKGROUP_FRAME_RGB : GetSysColor( COLOR_3DSHADOW );
+                  COLORREF crText    = bDark ? HWG_DARKGROUP_TEXT_RGB  : GetSysColor( COLOR_BTNTEXT );
+                  COLORREF crTextOff = bDark ? HWG_DARKGROUP_TEXTOFF_RGB : GetSysColor( COLOR_GRAYTEXT );
 
                   GetClientRect( hWnd, &rc );
 
@@ -4305,10 +4416,12 @@ static LRESULT CALLBACK hwg_DarkGroupProc( HWND hWnd, UINT message,
 
                   /* Frame: the top line runs through the middle of the caption. */
                   nTop = szH.cy / 2;
-                  hPen    = CreatePen( PS_SOLID, 1, HWG_DARKGROUP_FRAME_RGB );
+                  hPen    = CreatePen( PS_SOLID, 1, crFrame );
                   hOldPen = ( HPEN ) SelectObject( hdc, hPen );
                   hOldBr  = ( HBRUSH ) SelectObject( hdc, GetStockObject( NULL_BRUSH ) );
+
                   Rectangle( hdc, rc.left, rc.top + nTop, rc.right, rc.bottom );
+
                   SelectObject( hdc, hOldBr );
                   SelectObject( hdc, hOldPen );
                   DeleteObject( hPen );
@@ -4316,13 +4429,12 @@ static LRESULT CALLBACK hwg_DarkGroupProc( HWND hWnd, UINT message,
                   /* Caption: cut a gap in the line and write the text. */
                   if( nLen > 0 )
                   {
+                        hBg = hwg_GetEffectiveBrush( hWnd );
                         SetRect( &rcText, 8, 0, 8 + nCapW + 4, szH.cy );
-                        FillRect( hdc, &rcText, hwg_get_dark_brush( 0 ) );
+                        FillRect( hdc, &rcText, hBg ); /* Use effective brush to blend with Tab */
                         rcText.left += 2;
                         SetBkMode( hdc, TRANSPARENT );
-                        SetTextColor( hdc, IsWindowEnabled( hWnd )
-                        ? HWG_DARKGROUP_TEXT_RGB
-                        : HWG_DARKGROUP_TEXTOFF_RGB );
+                        SetTextColor( hdc, IsWindowEnabled( hWnd ) ? crText : crTextOff );
                         DrawText( hdc, szText, nLen, &rcText,
                                   DT_SINGLELINE | DT_LEFT | DT_TOP | DT_HIDEPREFIX );
                   }
@@ -4367,6 +4479,7 @@ HB_FUNC( HWG_DARKENCONTROL )
 {
       HWND hWnd = ( HWND ) HB_PARHANDLE( 1 );
       TCHAR szClass[ 64 ];
+      BOOL bDark = hwg_should_apps_use_dark_mode();
 
       if( !hWnd )
             return;
@@ -4382,39 +4495,41 @@ HB_FUNC( HWG_DARKENCONTROL )
             if( lStyle == BS_PUSHBUTTON || lStyle == BS_DEFPUSHBUTTON )
                   return;
 
-            /* Check boxes, radio buttons and group boxes: classic drawing
-             * so that the colours from WM_CTLCOLORSTATIC are honoured. */
-            if( hwg_should_apps_use_dark_mode() &&
-                  ( lStyle == BS_GROUPBOX      || lStyle == BS_CHECKBOX    ||
-                  lStyle == BS_AUTOCHECKBOX  || lStyle == BS_3STATE      ||
-                  lStyle == BS_AUTO3STATE    || lStyle == BS_RADIOBUTTON ||
-                  lStyle == BS_AUTORADIOBUTTON ) )
+            /* GroupBoxes: always subclass them to override the grey background
+             * and prevent stripes in both Light and Dark modes. */
+            if( lStyle == BS_GROUPBOX )
             {
-                  SetWindowTheme( hWnd, L"", L"" );
-
-                  /* Soft frame for group boxes (installed only once). */
-                  if( lStyle == BS_GROUPBOX &&
-                        GetProp( hWnd, HWG_DARKGROUP_PROP ) == NULL )
+                  if( GetProp( hWnd, HWG_DARKGROUP_PROP ) == NULL )
                   {
                         WNDPROC pOld = ( WNDPROC ) SetWindowLongPtr( hWnd, GWLP_WNDPROC,
                                                                      ( LONG_PTR ) hwg_DarkGroupProc );
                         SetProp( hWnd, HWG_DARKGROUP_PROP, ( HANDLE ) pOld );
                   }
+                  InvalidateRect( hWnd, NULL, TRUE );
+                  return;
+            }
 
+            /* Check boxes and radio buttons: apply native drawing only in Dark Mode */
+            if( bDark && (
+                  lStyle == BS_CHECKBOX      || lStyle == BS_AUTOCHECKBOX  ||
+                  lStyle == BS_3STATE        || lStyle == BS_AUTO3STATE    ||
+                  lStyle == BS_RADIOBUTTON   || lStyle == BS_AUTORADIOBUTTON ) )
+            {
+                  SetWindowTheme( hWnd, L"", L"" );
                   InvalidateRect( hWnd, NULL, TRUE );
                   return;
             }
       }
 
-      /* Windows 10 (1809+) requires AllowDarkModeForWindow() before the
-       * SetWindowTheme() call, otherwise the control keeps the light
-       * palette even with DarkMode_Explorer applied.  Windows 11 ignores
-       * it, so calling it is safe on both. */
-      s_LoadDarkModeProcs();
-      if( s_pfnAllowDarkModeForWindow )
-            s_pfnAllowDarkModeForWindow( hWnd, TRUE );
+      /* For other controls, apply the DarkMode theme only if bDark is true */
+      if( bDark )
+      {
+            s_LoadDarkModeProcs();
+            if( s_pfnAllowDarkModeForWindow )
+                  s_pfnAllowDarkModeForWindow( hWnd, TRUE );
 
-      SetWindowTheme( hWnd, L"DarkMode_Explorer", NULL );
+            SetWindowTheme( hWnd, L"DarkMode_Explorer", NULL );
+      }
 }
 
 /*=============================================================================

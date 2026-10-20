@@ -15,6 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+
+2026-10-20 20:20 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+   * source\winapi\control.c: Fixed GroupBox background artifacts and GET borders.
+                * Added WS_CLIPCHILDREN to GroupBoxes to prevent them from painting
+                  grey stripes/shadows over the Tab background.
+                * Added a recursive function to force the repaint of the non-client
+                  area (borders) of GET controls inside GroupBoxes when switching
+                  tabs, ensuring dark borders appear instantly.
+   * source\winapi\hcontrol.prg: Fixed HStatic background.
+                * Forced text controls (SAY) inside GroupBoxes to be transparent,
+                  eliminating the grey shadow/boxes left over the Tab background.
+
 2026-10-20 00:53 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
    * source\winapi\control.c: Fixed white column artifact under TabControl's UpDown arrows
                 (SaveDC/RestoreDC). Added WS_CLIPCHILDREN and adjusted frame

@@ -62,10 +62,10 @@ METHOD New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, oFont, ;
    ::style   := Hwg_BitOr( iif( nStyle == NIL, 0, nStyle ), ;
       WS_VISIBLE + WS_CHILD )
    ::oFont   := oFont
-   ::nLeft   := nLeft
-   ::nTop    := nTop
-   ::nWidth  := nWidth
-   ::nHeight := nHeight
+   ::nLeft   := iif( nLeft   == NIL, 0, nLeft )
+   ::nTop    := iif( nTop    == NIL, 0, nTop )
+   ::nWidth  := iif( nWidth  == NIL, 0, nWidth )
+   ::nHeight := iif( nHeight == NIL, 0, nHeight )
    ::bInit   := bInit
    IF ValType( bSize ) == "N"
       ::Anchor := bSize
@@ -292,9 +292,17 @@ METHOD New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, ;
       cCaption, oFont, bInit, bSize, bPaint, cTooltip, tcolor, ;
       bColor, lTransp ) CLASS HStatic
 
-   LOCAL nType := hwg_bitand( iif( nStyle == NIL, SS_LEFT, nStyle ), 0x1F )
-   LOCAL lTextStatic := ( nType == SS_LEFT .OR. nType == SS_CENTER .OR. ;
-                          nType == SS_RIGHT .OR. nType == SS_LEFTNOWORDWRAP )
+   LOCAL lAutoTransp := .F.
+
+   /* AUTO-TRANSP: plain text label without explicit background.
+    * Removed the parent check (HTAB) so it also works inside HGROUP (GroupBox).
+    * This prevents grey rectangles appearing behind labels. */
+   IF Empty( lTransp ) .AND. bColor == NIL .AND. bPaint == NIL
+      IF Iif( nStyle == NIL, 0, hwg_bitand( nStyle, 0x1F ) ) <= 2   // SS_LEFT, SS_CENTER, SS_RIGHT
+         lTransp := .T.
+         lAutoTransp := .T.
+      ENDIF
+   ENDIF
 
    IF lTransp != NIL .AND. lTransp
       ::extStyle += WS_EX_TRANSPARENT
@@ -311,11 +319,9 @@ METHOD New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, ;
       ENDIF
    ENDIF
 
-   /* Force owner-draw for ALL text statics. This allows us to:
-    * 1. Inherit the parent's background color automatically if no BackColor is given.
-    * 2. Draw borders and padding correctly.
-    * 3. Eliminate the native grey box of standard STATIC controls. */
-   IF lTextStatic
+   /* Force owner-draw when the SAY has a visible background OR a border. */
+   IF ( bColor != Nil .OR. ;
+        ( nStyle != NIL .AND. hwg_bitand( nStyle, WS_BORDER ) != 0 ) )
       IF ::nStyleDraw == Nil
          ::nStyleDraw := iif( Empty( nStyle ), 0, nStyle )
       ENDIF
@@ -324,6 +330,15 @@ METHOD New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, ;
 
    ::Super:New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, oFont, ;
       bInit, bSize, bPaint, cTooltip, tcolor, bColor )
+
+   /* AUTO-TRANSP (2/2): drop the COLOR_3DFACE brush that
+    * HCustomWindow:SetColor() created for a label that has a text colour
+    * but no back colour, so the label paints no background of its own. */
+   IF lAutoTransp .AND. ::brush != NIL
+      ::brush:Release()
+      ::brush  := NIL
+      ::bcolor := NIL
+   ENDIF
 
    ::title := cCaption
 
@@ -404,102 +419,102 @@ METHOD Paint( hDC ) CLASS HStatic
 
    LOCAL x1 := 0, y1 := 0, x2 := ::nWidth, y2 := ::nHeight
    LOCAL nOldColor, nStyleDraw, oPen, oParent
-   LOCAL hDCmem, hBmp, hOldBmp
-   LOCAL nBrColor, nR, nG, nB, nBrightness
-   LOCAL nBgColor, oBgBrush
+   LOCAL nBgColor, nBrColor, nR, nG, nB, nBrightness
+   LOCAL hDCmem, hBmp, hOldBmp, oBgBrush
 
-   /* --- DOUBLE BUFFERING START --- */
-   hDCmem  := hwg_CreateCompatibleDC( hDC )
-   hBmp    := hwg_CreateCompatibleBitmap( hDC, ::nWidth, ::nHeight )
-   hOldBmp := hwg_SelectObject( hDCmem, hBmp )
+   /* Vertical centering for owner-draw statics */
+   IF ::nStyleDraw != Nil .AND. ;
+      ( ::brush != Nil .OR. hwg_bitand( ::nStyleDraw, WS_BORDER ) != 0 )
+      nStyleDraw := Hwg_BitOr( Hwg_BitAnd( ::nStyleDraw, 0x0F ), ;
+                               DT_VCENTER + DT_SINGLELINE )
+   ELSE
+      nStyleDraw := ::nStyleDraw
+   ENDIF
 
-   /* Determine the exact background color to fill the memory DC. */
+   /* Determine the exact background color */
    IF ::brush != Nil
       nBgColor := ::brush:COLOR
    ELSE
-      /* Walk up the parent hierarchy to find the first object with a brush.
-       * We MUST use __ObjHasMsg to prevent runtime crashes if a parent
-       * (like HPanel) does not implement the brush property. */
       oParent := ::oParent
       DO WHILE oParent != Nil
          IF __ObjHasMsg( oParent, "BRUSH" ) .AND. oParent:brush != Nil
             nBgColor := oParent:brush:COLOR
             EXIT
          ENDIF
-         /* Move to the next parent safely */
          IF __ObjHasMsg( oParent, "OPARENT" )
             oParent := oParent:oParent
          ELSE
             oParent := Nil
          ENDIF
       ENDDO
-
-      /* Fallback if no brush is found anywhere in the chain */
       IF Empty( nBgColor )
          nBgColor := Iif( hwg_ShouldAppsUseDarkMode(), hwg_DarkThemeColor( 0 ), hwg_Getsyscolor( COLOR_WINDOW ) )
       ENDIF
    ENDIF
 
-   /* Fill the memory DC with the calculated background color */
-   oBgBrush := HBrush():Add( nBgColor )
-   hwg_Fillrect( hDCmem, 0, 0, ::nWidth, ::nHeight, oBgBrush:handle )
-   oBgBrush:Release()
+   /* If the control has a custom BackColor or a Border, use solid background with double buffering */
+   IF ::brush != Nil .OR. hwg_bitand( ::nStyleDraw, WS_BORDER ) != 0
+      hDCmem  := hwg_CreateCompatibleDC( hDC )
+      hBmp    := hwg_CreateCompatibleBitmap( hDC, ::nWidth, ::nHeight )
+      hOldBmp := hwg_SelectObject( hDCmem, hBmp )
 
-   /* Draw the border manually if required */
-   IF ::nStyleDraw != Nil .AND. hwg_bitand( ::nStyleDraw, WS_BORDER ) != 0
-      oPen := HPen():Add( BS_SOLID, 1, hwg_Getsyscolor( COLOR_WINDOWFRAME ) )
-      hwg_Selectobject( hDCmem, oPen:handle )
-      hwg_Rectangle( hDCmem, 0, 0, ::nWidth - 1, ::nHeight - 1 )
-      oPen:Release()
+      oBgBrush := HBrush():Add( nBgColor )
+      hwg_Fillrect( hDCmem, 0, 0, ::nWidth, ::nHeight, oBgBrush:handle )
+      oBgBrush:Release()
 
-      x1 := 6
-      y1 := 0
-      x2 := ::nWidth - 6
-      y2 := ::nHeight
-   ENDIF
+      IF hwg_bitand( ::nStyleDraw, WS_BORDER ) != 0
+         oPen := HPen():Add( BS_SOLID, 1, hwg_Getsyscolor( COLOR_WINDOWFRAME ) )
+         hwg_Selectobject( hDCmem, oPen:handle )
+         hwg_Rectangle( hDCmem, 0, 0, ::nWidth - 1, ::nHeight - 1 )
+         oPen:Release()
+         x1 := 6
+         x2 := ::nWidth - 6
+      ENDIF
 
-   IF !Empty( ::Title )
-      /* Smart Text Color: calculate contrast based on the background brush */
-      IF ::tcolor != Nil
-         nOldColor := hwg_Settextcolor( hDCmem, ::tcolor )
-      ELSE
-         nBrColor := nBgColor
-         nR := hwg_BitAnd( nBrColor, 0xFF )
-         nG := hwg_BitAnd( hb_BitShift( nBrColor, -8 ), 0xFF )
-         nB := hwg_BitAnd( hb_BitShift( nBrColor, -16 ), 0xFF )
-         nBrightness := ( nR * 299 + nG * 587 + nB * 114 ) / 1000
-
-         IF nBrightness > 128
-            nOldColor := hwg_Settextcolor( hDCmem, hwg_Rgb( 0, 0, 0 ) )     // Black text
+      IF !Empty( ::Title )
+         IF ::tcolor != Nil
+            nOldColor := hwg_Settextcolor( hDCmem, ::tcolor )
          ELSE
-            nOldColor := hwg_Settextcolor( hDCmem, hwg_Rgb( 255, 255, 255 ) ) // White text
+            nBrColor := nBgColor
+            nR := hwg_BitAnd( nBrColor, 0xFF )
+            nG := hwg_BitAnd( hb_BitShift( nBrColor, -8 ), 0xFF )
+            nB := hwg_BitAnd( hb_BitShift( nBrColor, -16 ), 0xFF )
+            nBrightness := ( nR * 299 + nG * 587 + nB * 114 ) / 1000
+
+            IF nBrightness > 128
+               nOldColor := hwg_Settextcolor( hDCmem, hwg_Rgb( 0, 0, 0 ) )
+            ELSE
+               nOldColor := hwg_Settextcolor( hDCmem, hwg_Rgb( 255, 255, 255 ) )
+            ENDIF
          ENDIF
+
+         hwg_SetBkMode( hDCmem, 2 ) // OPAQUE
+         hwg_SetBkColor( hDCmem, nBgColor )
+         hwg_Drawtext( hDCmem, ::title, x1, y1, x2, y2, nStyleDraw )
+         hwg_Settextcolor( hDCmem, nOldColor )
       ENDIF
 
-      IF ::nStyleDraw != Nil .AND. ;
-         ( ::brush != Nil .OR. hwg_bitand( ::nStyleDraw, WS_BORDER ) != 0 )
-         nStyleDraw := Hwg_BitOr( Hwg_BitAnd( ::nStyleDraw, 0x0F ), ;
-                                  DT_VCENTER + DT_SINGLELINE )
-      ELSE
-         nStyleDraw := ::nStyleDraw
+      hwg_BitBlt( hDC, 0, 0, ::nWidth, ::nHeight, hDCmem, 0, 0, SRCCOPY )
+      hwg_SelectObject( hDCmem, hOldBmp )
+      hwg_DeleteObject( hBmp )
+      hwg_DeleteDC( hDCmem )
+   ELSE
+      /* Transparent background: draw directly to the screen to preserve GroupBox lines */
+      IF !Empty( ::Title )
+         IF ::tcolor != Nil
+            nOldColor := hwg_Settextcolor( hDC, ::tcolor )
+         ELSE
+            IF hwg_ShouldAppsUseDarkMode()
+               nOldColor := hwg_Settextcolor( hDC, hwg_DarkThemeColor( 1 ) )
+            ELSE
+               nOldColor := hwg_Settextcolor( hDC, hwg_Getsyscolor( COLOR_WINDOWTEXT ) )
+            ENDIF
+         ENDIF
+         hwg_SetBkMode( hDC, 1 ) // TRANSPARENT
+         hwg_Drawtext( hDC, ::title, x1, y1, x2, y2, nStyleDraw )
+         hwg_Settextcolor( hDC, nOldColor )
       ENDIF
-
-      /* Draw text OPAQUELY over the memory DC.
-       * 2 = OPAQUE for SetBkMode(). Do NOT use the symbolic name:
-       * HWGUI declares OPAQUE in multiple headers, causing an ambiguous reference error. */
-      hwg_SetBkMode( hDCmem, 2 )
-      hwg_SetBkColor( hDCmem, nBgColor )
-      hwg_Drawtext( hDCmem, ::title, x1, y1, x2, y2, nStyleDraw )
-
-      hwg_Settextcolor( hDCmem, nOldColor )
    ENDIF
-
-   /* Blit the whole result to the screen at once (no flicker) */
-   hwg_BitBlt( hDC, 0, 0, ::nWidth, ::nHeight, hDCmem, 0, 0, SRCCOPY )
-
-   hwg_SelectObject( hDCmem, hOldBmp )
-   hwg_DeleteObject( hBmp )
-   hwg_DeleteDC( hDCmem )
 
    RETURN NIL
 
@@ -867,6 +882,12 @@ METHOD New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, cCaption, ;
    nStyle := Hwg_BitOr( iif( nStyle == NIL, 0, nStyle ), BS_GROUPBOX )
    ::Super:New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, ;
       oFont, bInit, bSize, bPaint, , tcolor, bColor )
+
+   /* FIX: Make the GroupBox transparent.
+    * Native BS_GROUPBOX paints its background with COLOR_3DFACE (grey),
+    * which creates grey stripes/boxes over the white Tab background.
+    * WS_EX_TRANSPARENT forces it to let the parent (Tab) paint the background. */
+   ::extStyle := hwg_BitOr( ::extStyle, WS_EX_TRANSPARENT )
 
    ::title   := cCaption
    ::Activate()
