@@ -292,6 +292,10 @@ METHOD New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, ;
       cCaption, oFont, bInit, bSize, bPaint, cTooltip, tcolor, ;
       bColor, lTransp ) CLASS HStatic
 
+   LOCAL nType := hwg_bitand( iif( nStyle == NIL, SS_LEFT, nStyle ), 0x1F )
+   LOCAL lTextStatic := ( nType == SS_LEFT .OR. nType == SS_CENTER .OR. ;
+                          nType == SS_RIGHT .OR. nType == SS_LEFTNOWORDWRAP )
+
    IF lTransp != NIL .AND. lTransp
       ::extStyle += WS_EX_TRANSPARENT
       ::nStyleDraw := iif( Empty( nStyle ), 0, nStyle )
@@ -307,18 +311,11 @@ METHOD New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, ;
       ENDIF
    ENDIF
 
-   /* Force owner-draw when the SAY has a visible background OR a
-    * border.  The native STATIC draws single-line text at the TOP of
-    * its rectangle, misaligning it with HEdit controls that centre
-    * their text.  Windows does not offer any style to vertically
-    * centre text in a STATIC (SS_CENTERIMAGE only works for bitmaps),
-    * so the only way is to take over the painting via HStatic:Paint.
-    *
-    * TRANSPARENT SAYs already go through owner-draw in the block
-    * above - this new case covers SAYs with BackColor and/or
-    * WS_BORDER but without TRANSPARENT. */
-   IF ( bColor != Nil .OR. ;
-        ( nStyle != NIL .AND. hwg_bitand( nStyle, WS_BORDER ) != 0 ) )
+   /* Force owner-draw for ALL text statics. This allows us to:
+    * 1. Inherit the parent's background color automatically if no BackColor is given.
+    * 2. Draw borders and padding correctly.
+    * 3. Eliminate the native grey box of standard STATIC controls. */
+   IF lTextStatic
       IF ::nStyleDraw == Nil
          ::nStyleDraw := iif( Empty( nStyle ), 0, nStyle )
       ENDIF
@@ -406,66 +403,127 @@ METHOD DrawFromLpDis( lpDis ) CLASS HStatic
 METHOD Paint( hDC ) CLASS HStatic
 
    LOCAL x1 := 0, y1 := 0, x2 := ::nWidth, y2 := ::nHeight
-   LOCAL nOldColor, nStyleDraw
+   LOCAL nOldColor, nStyleDraw, oPen, oParent
+   LOCAL hDCmem, hBmp, hOldBmp
+   LOCAL nBrColor, nR, nG, nB, nBrightness
+   LOCAL nBgColor, oBgBrush
 
-   /* Always fill the background first.  If the caption was just
-    * emptied (or shortened) the previous glyphs are still in the
-    * device context - Windows does not erase them for SS_OWNERDRAW
-    * statics.  Only after this do we decide whether to draw text. */
+   /* --- DOUBLE BUFFERING START --- */
+   hDCmem  := hwg_CreateCompatibleDC( hDC )
+   hBmp    := hwg_CreateCompatibleBitmap( hDC, ::nWidth, ::nHeight )
+   hOldBmp := hwg_SelectObject( hDCmem, hBmp )
+
+   /* Determine the exact background color to fill the memory DC. */
    IF ::brush != Nil
-      hwg_Fillrect( hDC, 0, 0, ::nWidth, ::nHeight, ::brush:handle )
-   ENDIF
-
-   IF ::Title == Nil .OR. Empty( ::Title )
-      RETURN Nil
-   ENDIF
-
-   /* Text colour: honour an explicit tcolor, otherwise use the
-    * mode-appropriate system default (light text on dark, dark text
-    * on light). */
-   IF ::tcolor != Nil
-      nOldColor := hwg_Settextcolor( hDC, ::tcolor )
-   ELSEIF hwg_ShouldAppsUseDarkMode()
-      nOldColor := hwg_Settextcolor( hDC, hwg_DarkThemeColor( 1 ) )
+      nBgColor := ::brush:COLOR
    ELSE
-      nOldColor := hwg_Settextcolor( hDC, hwg_Getsyscolor( COLOR_WINDOWTEXT ) )
+      /* Walk up the parent hierarchy to find the first object with a brush.
+       * We MUST use __ObjHasMsg to prevent runtime crashes if a parent
+       * (like HPanel) does not implement the brush property. */
+      oParent := ::oParent
+      DO WHILE oParent != Nil
+         IF __ObjHasMsg( oParent, "BRUSH" ) .AND. oParent:brush != Nil
+            nBgColor := oParent:brush:COLOR
+            EXIT
+         ENDIF
+         /* Move to the next parent safely */
+         IF __ObjHasMsg( oParent, "OPARENT" )
+            oParent := oParent:oParent
+         ELSE
+            oParent := Nil
+         ENDIF
+      ENDDO
+
+      /* Fallback if no brush is found anywhere in the chain */
+      IF Empty( nBgColor )
+         nBgColor := Iif( hwg_ShouldAppsUseDarkMode(), hwg_DarkThemeColor( 0 ), hwg_Getsyscolor( COLOR_WINDOW ) )
+      ENDIF
    ENDIF
 
-   /* When this SAY was forced to owner-draw (has a BackColor or a
-    * border), centre the caption vertically.  Keep the horizontal
-    * alignment bits from the original SS_* style, add DT_VCENTER and
-    * DT_SINGLELINE.  Otherwise (already-owner-draw TRANSPARENT SAYs)
-    * honour ::nStyleDraw unchanged. */
-   IF ::nStyleDraw != Nil .AND. ;
-      ( ::brush != Nil .OR. hwg_bitand( ::nStyleDraw, WS_BORDER ) != 0 )
-      nStyleDraw := Hwg_BitOr( Hwg_BitAnd( ::nStyleDraw, 0x0F ), ;
-                               DT_VCENTER + DT_SINGLELINE )
-   ELSE
-      nStyleDraw := ::nStyleDraw
+   /* Fill the memory DC with the calculated background color */
+   oBgBrush := HBrush():Add( nBgColor )
+   hwg_Fillrect( hDCmem, 0, 0, ::nWidth, ::nHeight, oBgBrush:handle )
+   oBgBrush:Release()
+
+   /* Draw the border manually if required */
+   IF ::nStyleDraw != Nil .AND. hwg_bitand( ::nStyleDraw, WS_BORDER ) != 0
+      oPen := HPen():Add( BS_SOLID, 1, hwg_Getsyscolor( COLOR_WINDOWFRAME ) )
+      hwg_Selectobject( hDCmem, oPen:handle )
+      hwg_Rectangle( hDCmem, 0, 0, ::nWidth - 1, ::nHeight - 1 )
+      oPen:Release()
+
+      x1 := 6
+      y1 := 0
+      x2 := ::nWidth - 6
+      y2 := ::nHeight
    ENDIF
 
-   hwg_Settransparentmode( hDC, .T. )
-   hwg_Drawtext( hDC, ::title, x1, y1, x2, y2, nStyleDraw )
-   hwg_Settransparentmode( hDC, .F. )
+   IF !Empty( ::Title )
+      /* Smart Text Color: calculate contrast based on the background brush */
+      IF ::tcolor != Nil
+         nOldColor := hwg_Settextcolor( hDCmem, ::tcolor )
+      ELSE
+         nBrColor := nBgColor
+         nR := hwg_BitAnd( nBrColor, 0xFF )
+         nG := hwg_BitAnd( hb_BitShift( nBrColor, -8 ), 0xFF )
+         nB := hwg_BitAnd( hb_BitShift( nBrColor, -16 ), 0xFF )
+         nBrightness := ( nR * 299 + nG * 587 + nB * 114 ) / 1000
 
-   hwg_Settextcolor( hDC, nOldColor )
+         IF nBrightness > 128
+            nOldColor := hwg_Settextcolor( hDCmem, hwg_Rgb( 0, 0, 0 ) )     // Black text
+         ELSE
+            nOldColor := hwg_Settextcolor( hDCmem, hwg_Rgb( 255, 255, 255 ) ) // White text
+         ENDIF
+      ENDIF
+
+      IF ::nStyleDraw != Nil .AND. ;
+         ( ::brush != Nil .OR. hwg_bitand( ::nStyleDraw, WS_BORDER ) != 0 )
+         nStyleDraw := Hwg_BitOr( Hwg_BitAnd( ::nStyleDraw, 0x0F ), ;
+                                  DT_VCENTER + DT_SINGLELINE )
+      ELSE
+         nStyleDraw := ::nStyleDraw
+      ENDIF
+
+      /* Draw text OPAQUELY over the memory DC.
+       * 2 = OPAQUE for SetBkMode(). Do NOT use the symbolic name:
+       * HWGUI declares OPAQUE in multiple headers, causing an ambiguous reference error. */
+      hwg_SetBkMode( hDCmem, 2 )
+      hwg_SetBkColor( hDCmem, nBgColor )
+      hwg_Drawtext( hDCmem, ::title, x1, y1, x2, y2, nStyleDraw )
+
+      hwg_Settextcolor( hDCmem, nOldColor )
+   ENDIF
+
+   /* Blit the whole result to the screen at once (no flicker) */
+   hwg_BitBlt( hDC, 0, 0, ::nWidth, ::nHeight, hDCmem, 0, 0, SRCCOPY )
+
+   hwg_SelectObject( hDCmem, hOldBmp )
+   hwg_DeleteObject( hBmp )
+   hwg_DeleteDC( hDCmem )
 
    RETURN NIL
 
 METHOD SetText( c ) CLASS HStatic
 
+   /* Avoid unnecessary repaints if the text did not change.
+    * This is critical for Browse interactions: moving the cursor
+    * re-evaluates the text block continuously, and we don't want
+    * to trigger a redraw on every navigation. */
+   IF ::title == c
+      RETURN NIL
+   ENDIF
+
    ::Super:SetText( c )
 
    IF hwg_bitand( ::extStyle, WS_EX_TRANSPARENT ) != 0
-      /* Transparent SAY: repaint the parent so its own background is
-       * redrawn underneath the new text. */
-      hwg_Invalidaterect( ::oParent:handle, 1, ::nLeft, ::nTop, ::nLeft + ::nWidth, ::nTop + ::nHeight )
-      hwg_Sendmessage( ::oParent:handle, WM_PAINT, 0, 0 )
+      /* Transparent SAY: invalidate only the SAY's own rectangle. */
+      hwg_Invalidaterect( ::handle, 0, 0, 0, ::nWidth, ::nHeight )
+      hwg_Redrawwindow( ::handle, RDW_INVALIDATE + RDW_UPDATENOW + RDW_NOERASE )
    ELSEIF hwg_bitand( ::style, SS_OWNERDRAW ) != 0
-      /* Owner-draw SAY (forced by BackColor / WS_BORDER): Windows does
-       * not refresh it on WM_SETTEXT, so the previous caption remains
-       * visible until an unrelated WM_PAINT repaints the area. */
-      hwg_Redrawwindow( ::handle, RDW_ERASE + RDW_INVALIDATE + RDW_UPDATENOW )
+      /* Owner-draw SAY: RDW_NOERASE is the key to killing the flicker.
+       * It tells Windows not to fill the background before painting,
+       * because our Paint() method already handles the double buffering. */
+      hwg_Redrawwindow( ::handle, RDW_INVALIDATE + RDW_UPDATENOW + RDW_NOERASE )
    ENDIF
 
    RETURN NIL

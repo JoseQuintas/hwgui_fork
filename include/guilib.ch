@@ -626,6 +626,8 @@
             [ SIZE <width>, <height> ] ;
             [ STYLE <nStyle> ]         ;
             [ FONT <oFont> ]           ;
+            [ COLOR <tColor> ]         ;
+            [ BACKCOLOR <bColor> ]     ;
             [ ON INIT <bInit> ]        ;
             [ ON SIZE <bSize> ]        ;
             [ ON PAINT <bDraw> ]       ;
@@ -637,7 +639,7 @@
           => ;
     [<oTab> := ] HTab():New( <oWnd>,<nId>,<nStyle>,<x>,<y>,<width>, ;
              <height>,<oFont>,<bInit>,<bSize>,<bDraw>,<aItems>,<bChange>, <aBmp>, <.res.>,<nBC>,;
-             <bClick>, <bGetFocus>, <bLostFocus> );
+             <bClick>, <bGetFocus>, <bLostFocus>, .F., <tColor>, <bColor> );
     [; hwg_SetCtrlName( <oTab>,<(oTab)> )]
 
 #xcommand BEGIN PAGE <cname> OF <oTab> ;

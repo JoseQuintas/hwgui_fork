@@ -15,6 +15,24 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-20 00:53 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+   * source\winapi\control.c: Fixed white column artifact under TabControl's UpDown arrows
+                (SaveDC/RestoreDC). Added WS_CLIPCHILDREN and adjusted frame
+                width to span the full control.
+                Added full Dark Mode support: manual GDI rendering for tabs
+                (dark bg, soft text, seamless borders) and custom-drawn arrows.
+                Interception of WM_NCPAINT/WM_ERASEBKGND now occurs only in
+                Dark Mode. Light mode correctly falls back to COLOR_WINDOW.
+   * source\winapi\htab.prg: Updated TabControl initialization to sync with new theme logic.
+                Added TColor and BColor to HTab:New() and implemented HTab:End()
+                to prevent crashes during theme changes.
+   * source\winapi\hcontrol.prg: Adjusted child controls' background handling for Dark Mode.
+                Forced owner-draw for ALL text statics (HStatic) to inherit the parent's
+                background. Implemented double buffering in HStatic:Paint to eliminate
+                flicker and added automatic text contrast based on background brightness.
+   * include\guilib.ch: Updated theme constants and definitions for TabControl.
+                Added [ COLOR <tColor> ] and [ BACKCOLOR <bColor> ] to the TAB command.
+
 2026-10-15 21:36 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
    * menu.prg:  Hwg_DefineMenuItem() gains optional nWidth/nHeight/
                 nBackColor; -1 as nBackColor loads the icon with real

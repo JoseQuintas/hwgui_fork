@@ -36,8 +36,8 @@ CLASS HTab INHERIT HControl
    DATA  nPrevSel INIT 0      // PATCH: (retained if you already use it in other logic)
 
    METHOD New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, ;
-      oFont, bInit, bSize, bPaint, aTabs, bChange, aImages, lResour, nBC, ;
-      bClick, bGetFocus, bLostFocus, lOwnerDraw )
+               oFont, bInit, bSize, bPaint, aTabs, bChange, aImages, lResour, nBC, ;
+               bClick, bGetFocus, bLostFocus, lOwnerDraw, tColor, bColor )
    METHOD Activate()
    METHOD Init()
    METHOD onEvent( msg, wParam, lParam )
@@ -56,6 +56,7 @@ CLASS HTab INHERIT HControl
    METHOD SetTabDisabled( nTab, lDisabled )
    /* PATCH: API compatível com versões antigas */
    METHOD Page( nTab )
+   METHOD End()
 
    HIDDEN:
    DATA  nActive  INIT 0         // Active Page
@@ -64,7 +65,8 @@ ENDCLASS
 
 METHOD New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, ;
       oFont, bInit, bSize, bPaint, aTabs, bChange, aImages, lResour, nBC, ;
-      bClick, bGetFocus, bLostFocus, lOwnerDraw ) CLASS HTab
+      bClick, bGetFocus, bLostFocus, lOwnerDraw, tColor, bColor ) CLASS HTab
+
    LOCAL i, aBmpSize
 
    /* Owner-draw is required to properly theme the tab strip in dark
@@ -85,21 +87,17 @@ METHOD New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, ;
       nStyle := Hwg_BitOr( nStyle, TCS_OWNERDRAWFIXED )
    ENDIF
 
+   /* IMPORTANT: Pass tColor and bColor to Super:New.
+    * This is what actually creates ::brush, allowing the Tab
+    * to assume the custom BACKCOLOR. */
    ::Super:New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, ;
-      oFont, bInit, bSize, bPaint )
+      oFont, bInit, bSize, bPaint, , tColor, bColor )
 
    ::title    := ""
    ::oFont    := iif( oFont == Nil, ::oParent:oFont, oFont )
    ::aTabs    := iif( aTabs == Nil, {}, aTabs )
    ::bChange  := bChange
    ::bChange2 := bChange
-
-   // nBC is currently used only for the image list mask color.
-   // When no BACKCOLOR is later assigned, use it as a hint so the
-   // tab can paint its own background consistently with its parent.
-   IF ::brush == Nil .AND. ValType( nBC ) == "N"
-      ::brush := hwg_CreateSolidBrush( nBC )
-   ENDIF
 
    ::bGetFocus  := iif( bGetFocus == Nil, Nil, bGetFocus )
    ::bLostFocus := iif( bLostFocus == Nil, Nil, bLostFocus )
@@ -139,6 +137,7 @@ METHOD Init() CLASS HTab
 
    IF !::lInit
       ::Super:Init()
+      hwg_SetWindowObject( ::handle, Self )
 
       // Owner-draw children (SS_OWNERDRAW) rely on their parent's
       // brush to erase the background before painting. HTabPage and
@@ -175,7 +174,7 @@ METHOD Init() CLASS HTab
    RETURN Nil
 
 METHOD onEvent( msg, wParam, lParam ) CLASS HTab
-   LOCAL oCtrl, hCtl
+   LOCAL oCtrl, hCtl, hBrush
 
    // SS_OWNERDRAW children (e.g. "@ SAY ... Transparent") send
    // WM_DRAWITEM to their immediate parent, which is the tab control
@@ -202,8 +201,38 @@ METHOD onEvent( msg, wParam, lParam ) CLASS HTab
       // Fall through to Super for the tab's own owner-draw handling.
    ENDIF
 
+      /* Native Tab Controls ignore WM_CTLCOLOR. We must explicitly fill
+    * the background using WM_ERASEBKGND to respect BackColor / dark mode. */
+   IF msg == WM_ERASEBKGND
+
+      // Ensure we have a valid brush (dark or inherited from parent)
+      IF ::brush == Nil
+         IF hwg_ShouldAppsUseDarkMode()
+            ::brush := HBrush():Add( hwg_DarkThemeColor( 0 ) )
+         ELSEIF ::oParent != Nil .AND. __ObjHasMsg( ::oParent, "brush" ) .AND. ::oParent:brush != Nil
+            ::brush := ::oParent:brush
+         ENDIF
+      ENDIF
+
+
+      IF ::brush != Nil
+         hBrush := ::brush:handle
+      ELSE
+         // Last resort: effective brush from C side (already handles dark mode)
+         hBrush := hwg_GetEffectiveBrush( ::handle )
+      ENDIF
+
+      IF hBrush != Nil .AND. hBrush != 0
+         // Paint the entire client area (this kills the inner white rectangle)
+         hwg_FillRect( wParam, 0, 0, ::nWidth, ::nHeight, hBrush )
+         RETURN 1   // Tell Windows: we already erased, do not paint white
+      ENDIF
+
+   ENDIF
+
    RETURN ::Super:onEvent( msg, wParam, lParam )
 
+//SetTab
 METHOD SetTab( n ) CLASS HTab
 
    hwg_Sendmessage( ::handle, TCM_SETCURFOCUS, n - 1, 0 )
@@ -650,3 +679,22 @@ METHOD AddNotify( nMsg, nId, bAction ) CLASS HTabPage
    ENDIF
 
 RETURN NIL
+
+/*=============================================================================
+ * METHOD End()
+ *
+ * Releases the HTab object and clears its reference from the window handle.
+ * This prevents ACCESS_VIOLATION crashes when the application theme changes
+ * (which causes windows to be destroyed and recreated).
+ *===========================================================================*/
+METHOD End() CLASS HTab
+
+   IF !Empty( ::handle )
+      /* Tell Windows to forget the Harbour object to avoid stale pointers
+       * during the WM_PAINT after the theme change. */
+      hwg_SetWindowObject( ::handle, Nil )
+   ENDIF
+
+   ::Super:End()
+
+   RETURN NIL

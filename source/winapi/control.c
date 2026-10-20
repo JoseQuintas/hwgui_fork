@@ -104,7 +104,7 @@ int  hwg_set_preferred_app_mode( int nMode );
 
 static void CALLBACK s_timerProc( HWND, UINT, UINT_PTR, DWORD );
 
-/* Forward declaration: definida mais abaixo neste arquivo. */
+/* Forward declaration: defined further below in this file. */
 static void s_InitCommonControls( void );
 
 static HWND hWndTT = 0;
@@ -119,44 +119,56 @@ static LONG_PTR wpOrigButtonProc;
  * Returns the HBRUSH stored on the HWGUI object attached to hWnd, or
  * NULL if the window has no PRG object / no brush set.
  *
- * HControl stores its background brush as ::brush. A few older
- * subclasses also used ::hBrush, so we probe both names. The probe
- * uses hb_objHasMessage() to avoid a runtime error when the DATA
- * is not declared on the object.
+ * HControl stores its background brush as ::brush (an HBrush object).
+ * Older subclasses also used ::hBrush (numeric handle), so we probe both.
  *===========================================================================*/
 static HBRUSH hwg_GetControlBrush( HWND hWnd )
 {
       PHB_ITEM pObj;
-      PHB_ITEM pVal;
+      PHB_ITEM pBrush;
+      PHB_ITEM pHandle;
       HBRUSH   hBr = NULL;
-      static PHB_DYNS s_pSymBrush  = NULL;
-      static PHB_DYNS s_pSymHBrush = NULL;
+      static PHB_DYNS s_pSymHandle = NULL;
 
-      if( hWnd == NULL )
-            return NULL;
+      if( hWnd == NULL ) return NULL;
 
+      /* Get the HWGUI object attached to the window */
       pObj = ( PHB_ITEM ) GetWindowLongPtr( hWnd, GWLP_USERDATA );
-      if( pObj == NULL )
+
+      /* Safety check: if the object was released (theme change), return NULL */
+      if( pObj == NULL || !HB_IS_OBJECT( pObj ) )
             return NULL;
 
-      if( s_pSymBrush == NULL )
-            s_pSymBrush = hb_dynsymFindName( "BRUSH" );
-      if( s_pSymHBrush == NULL )
-            s_pSymHBrush = hb_dynsymFindName( "HBRUSH" );
+      /* Try to read the DATA ::brush */
+      pBrush = GetObjectVar( pObj, "BRUSH" );
+      if( pBrush == NULL )
+            return NULL;
 
-      if( s_pSymBrush != NULL && hb_objHasMessage( pObj, s_pSymBrush ) )
+      if( HB_IS_NUMERIC( pBrush ) )
       {
-            pVal = hb_objSendMsg( pObj, "BRUSH", 0 );
-            if( pVal != NULL && HB_IS_NUMERIC( pVal ) )
-                  hBr = ( HBRUSH ) ( HB_PTRUINT ) hb_itemGetNInt( pVal );
+            hBr = ( HBRUSH ) ( HB_PTRUINT ) hb_itemGetNInt( pBrush );
       }
-
-      if( hBr == NULL && s_pSymHBrush != NULL &&
-            hb_objHasMessage( pObj, s_pSymHBrush ) )
+      else if( HB_IS_POINTER( pBrush ) )
       {
-            pVal = hb_objSendMsg( pObj, "HBRUSH", 0 );
-            if( pVal != NULL && HB_IS_NUMERIC( pVal ) )
-                  hBr = ( HBRUSH ) ( HB_PTRUINT ) hb_itemGetNInt( pVal );
+            hBr = ( HBRUSH ) hb_itemGetPtr( pBrush );
+      }
+      else if( HB_IS_OBJECT( pBrush ) )
+      {
+            /* It's an HBrush object. Verify the ::handle DATA exists before reading */
+            if( s_pSymHandle == NULL )
+                  s_pSymHandle = hb_dynsymFindName( "HANDLE" );
+
+            if( s_pSymHandle != NULL && hb_objHasMessage( pBrush, s_pSymHandle ) )
+            {
+                  pHandle = GetObjectVar( pBrush, "HANDLE" );
+                  if( pHandle != NULL )
+                  {
+                        if( HB_IS_NUMERIC( pHandle ) )
+                              hBr = ( HBRUSH ) ( HB_PTRUINT ) hb_itemGetNInt( pHandle );
+                        else if( HB_IS_POINTER( pHandle ) )
+                              hBr = ( HBRUSH ) hb_itemGetPtr( pHandle );
+                  }
+            }
       }
 
       return hBr;
@@ -167,8 +179,8 @@ static HBRUSH hwg_GetControlBrush( HWND hWnd )
  *
  * Returns a valid background brush for an owner-draw control by
  * walking up the parent chain until a non-NULL brush is found.
- * Falls back to WHITE_BRUSH so owner-draw controls never paint
- * pure black inside tabs or nested containers.
+ * Falls back to WHITE_BRUSH (or dark brush) so owner-draw controls
+ * never paint pure black inside tabs or nested containers.
  *===========================================================================*/
 HBRUSH hwg_GetEffectiveBrush( HWND hWnd )
 {
@@ -178,12 +190,10 @@ HBRUSH hwg_GetEffectiveBrush( HWND hWnd )
 
       if( hWnd == NULL )
       {
-            /* Dark mode: never fall back to WHITE_BRUSH, or the tab
-             * interior (and any owner-draw control that relies on this
-             * function) would paint a bright area on a dark dialog. */
             if( hwg_should_apps_use_dark_mode() )
                   return hwg_get_dark_brush( 0 );
-            return ( HBRUSH ) GetStockObject( WHITE_BRUSH );
+
+            return ( HBRUSH ) GetSysColorBrush( COLOR_3DFACE );
       }
 
       hParent = GetParent( hWnd );
@@ -197,11 +207,10 @@ HBRUSH hwg_GetEffectiveBrush( HWND hWnd )
             hParent = GetParent( hParent );
       }
 
-      /* Same dark-mode fallback when no parent has an explicit brush. */
       if( hwg_should_apps_use_dark_mode() )
             return hwg_get_dark_brush( 0 );
 
-      return ( HBRUSH ) GetStockObject( WHITE_BRUSH );
+      return ( HBRUSH ) GetSysColorBrush( COLOR_3DFACE );
 }
 
 /*=============================================================================
@@ -2596,29 +2605,55 @@ LRESULT APIENTRY TrackSubclassProc( HWND hWnd, UINT message, WPARAM wParam,
 
 /*=============================================================================
  * HWG_INITTABPROC()
- * Subclasses tab control
  *===========================================================================*/
 HB_FUNC( HWG_INITTABPROC )
 {
-   wpOrigTabProc = ( WNDPROC ) SetWindowLongPtr( ( HWND ) HB_PARHANDLE( 1 ),
-         GWLP_WNDPROC, ( LONG_PTR ) TabSubclassProc );
+      HWND     hTab  = ( HWND ) HB_PARHANDLE( 1 );
+      LONG_PTR style = GetWindowLongPtr( hTab, GWL_STYLE );
+
+      /* WS_CLIPCHILDREN is required so that repainting the tab area
+       * does not erase the child controls (buttons, edits, etc.) */
+      style |= WS_CLIPCHILDREN;
+      SetWindowLongPtr( hTab, GWL_STYLE, style );
+
+      /* Apply the native Windows theme to the TabControl headers */
+      if( hwg_should_apps_use_dark_mode() )
+      {
+            /* Enable dark mode for this specific window (Windows 10 1809+). */
+            typedef BOOL ( WINAPI * HWG_PFN_ALLOWDARKMODEFORWINDOW )( HWND, BOOL );
+            HWG_PFN_ALLOWDARKMODEFORWINDOW pfnAllowDark = NULL;
+            HMODULE hUx = LoadLibrary( TEXT( "uxtheme.dll" ) );
+            if( hUx )
+            {
+                  pfnAllowDark = ( HWG_PFN_ALLOWDARKMODEFORWINDOW ) GetProcAddress( hUx, MAKEINTRESOURCEA( 133 ) );
+                  if( pfnAllowDark )
+                        pfnAllowDark( hTab, TRUE );
+                  FreeLibrary( hUx );
+            }
+            SetWindowTheme( hTab, L"DarkMode_Explorer", NULL );
+      }
+      else
+      {
+            SetWindowTheme( hTab, L"", L"" );
+      }
+
+      wpOrigTabProc = ( WNDPROC ) SetWindowLongPtr( hTab,
+                                                    GWLP_WNDPROC,
+                                                    ( LONG_PTR ) TabSubclassProc );
 }
 
 #define HWG_DARKTAB_LINE_RGB   RGB( 90, 90, 90 )
 
 /*=============================================================================
  * hwg_tab_hline()
- *
- * Fills a 1px high horizontal segment from x1 to x2 (exclusive) at row y,
- * skipping the span [xs1, xs2).  An empty skip span means "no skip".
  *===========================================================================*/
+/*
 static void hwg_tab_hline( HDC hdc, int x1, int x2, int y, HBRUSH hBr,
                            int xs1, int xs2 )
 {
       RECT r;
 
-      if( x2 <= x1 )
-            return;
+      if( x2 <= x1 ) return;
 
       if( xs2 <= xs1 || xs2 <= x1 || xs1 >= x2 )
       {
@@ -2638,22 +2673,11 @@ static void hwg_tab_hline( HDC hdc, int x1, int x2, int y, HBRUSH hBr,
             FillRect( hdc, &r, hBr );
       }
 }
-
+*/
 /*=============================================================================
  * hwg_tab_soften_edges()
- *
- * The tab control draws the edges of its tabs and the frame of its page with
- * the classic 3D system colours (white highlight, light grey, grey shadow,
- * dark shadow), each edge being 2px thick.  On a dark window that shows up
- * as bright lines around every tab.  Called in dark mode, on the memory DC,
- * after the control and the disabled captions have been painted, this
- * repaints only those edge pixels: the outer pixel of each edge in a muted
- * grey and the inner pixel in the page colour, so every edge becomes a thin
- * soft 1px line.  Tab faces and captions are left untouched.
- *
- * Geometry comes from TabCtrl_GetItemRect(), so nothing is hard-coded except
- * the 2px edge thickness.  Assumes the tabs are on top (no TCS_BOTTOM).
  *===========================================================================*/
+/*
 static void hwg_tab_soften_edges( HWND hTab, HDC hdc )
 {
       RECT   rc, rcItem, rcSel, r;
@@ -2662,8 +2686,7 @@ static void hwg_tab_soften_edges( HWND hTab, HDC hdc )
       HBRUSH hBrLine, hBrFill;
 
       nCount = TabCtrl_GetItemCount( hTab );
-      if( nCount <= 0 )
-            return;
+      if( nCount <= 0 ) return;
 
       GetClientRect( hTab, &rc );
       nSel = TabCtrl_GetCurSel( hTab );
@@ -2672,18 +2695,13 @@ static void hwg_tab_soften_edges( HWND hTab, HDC hdc )
       hBrLine = CreateSolidBrush( HWG_DARKTAB_LINE_RGB );
       hBrFill = hwg_get_dark_brush( 0 );
 
-      /* 1) Inner pixel of the 2px frame around the whole control. */
       r = rc;
       InflateRect( &r, -1, -1 );
       FrameRect( hdc, &r, hBrFill );
 
-      /* 2) Locate the selected tab and the baseline of the strip (the
-       *    bottom of a non-selected tab). */
       for( i = 0; i < nCount; i++ )
       {
-            if( !TabCtrl_GetItemRect( hTab, i, &rcItem ) )
-                  continue;
-
+            if( !TabCtrl_GetItemRect( hTab, i, &rcItem ) ) continue;
             if( i == nSel )
             {
                   rcSel = rcItem;
@@ -2696,9 +2714,6 @@ static void hwg_tab_soften_edges( HWND hTab, HDC hdc )
             }
       }
 
-      /* 3) Line between the strip and the page: a muted line and a page
-       *    coloured line, except under the selected tab, which stays open
-       *    so that it merges with the page. */
       if( bHaveBase )
       {
             hwg_tab_hline( hdc, rc.left + 1, rc.right - 1, yb, hBrLine,
@@ -2707,11 +2722,6 @@ static void hwg_tab_soften_edges( HWND hTab, HDC hdc )
                            bHaveSel ? rcSel.left : 0, bHaveSel ? rcSel.right : 0 );
       }
 
-      /* 4) Edges of every tab.  Non-selected tabs first, the selected one
-       *    last so that its (larger) rectangle wins where tabs overlap.
-       *    Adjacent tabs share a single muted separator: only the left edge
-       *    is drawn muted (the right edge is muted just for the selected
-       *    tab and for the last tab). */
       for( pass = 0; pass < 2; pass++ )
       {
             for( i = 0; i < nCount; i++ )
@@ -2720,25 +2730,19 @@ static void hwg_tab_soften_edges( HWND hTab, HDC hdc )
                   BOOL bLast    = ( i == nCount - 1 );
                   BOOL bPrevSel = ( i > 0 && ( i - 1 ) == nSel );
 
-                  if( ( pass == 0 ) == bSelTab )
-                        continue;
+                  if( ( pass == 0 ) == bSelTab ) continue;
+                  if( !TabCtrl_GetItemRect( hTab, i, &rcItem ) ) continue;
 
-                  if( !TabCtrl_GetItemRect( hTab, i, &rcItem ) )
-                        continue;
-
-                  /* Top edge: outer pixel muted, inner pixel page coloured. */
                   SetRect( &r, rcItem.left, rcItem.top, rcItem.right, rcItem.top + 1 );
                   FillRect( hdc, &r, hBrLine );
                   SetRect( &r, rcItem.left + 1, rcItem.top + 1, rcItem.right - 1, rcItem.top + 2 );
                   FillRect( hdc, &r, hBrFill );
 
-                  /* Left edge. */
                   SetRect( &r, rcItem.left, rcItem.top, rcItem.left + 1, rcItem.bottom );
                   FillRect( hdc, &r, ( bSelTab || !bPrevSel ) ? hBrLine : hBrFill );
                   SetRect( &r, rcItem.left + 1, rcItem.top + 1, rcItem.left + 2, rcItem.bottom );
                   FillRect( hdc, &r, hBrFill );
 
-                  /* Right edge. */
                   SetRect( &r, rcItem.right - 1, rcItem.top, rcItem.right, rcItem.bottom );
                   FillRect( hdc, &r, ( bSelTab || bLast ) ? hBrLine : hBrFill );
                   SetRect( &r, rcItem.right - 2, rcItem.top + 1, rcItem.right - 1, rcItem.bottom );
@@ -2748,151 +2752,484 @@ static void hwg_tab_soften_edges( HWND hTab, HDC hdc )
 
       DeleteObject( hBrLine );
 }
+*/
+/*=============================================================================
+ * hwg_tab_background_brush()
+ * 1. Developer custom brush (from parent or tab itself)
+ * 2. Dark theme brush
+ * 3. Windows theme color (COLOR_WINDOW)
+ *===========================================================================*/
+static HBRUSH hwg_tab_background_brush( HWND hWnd )
+{
+      HBRUSH hBg = hwg_GetControlBrush( GetParent( hWnd ) );
+      if( !hBg ) hBg = hwg_GetControlBrush( hWnd );
+
+      /* If the developer defined a background color, use it. */
+      if( hBg )
+            return hBg;
+
+      /* Otherwise, use the Windows theme. */
+      if( hwg_should_apps_use_dark_mode() )
+            return hwg_get_dark_brush( 0 );
+
+      /* Light mode: use the standard window background (White) */
+      return ( HBRUSH ) GetSysColorBrush( COLOR_WINDOW );
+}
+
+/*=============================================================================
+ * TabUpDownSubclassProc()
+ *===========================================================================*/
+static LRESULT CALLBACK TabUpDownSubclassProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
+{
+      WNDPROC pOld = ( WNDPROC ) GetProp( hWnd, TEXT( "HWGUI_OLD_UPDOWN_PROC" ) );
+      if( !pOld ) return DefWindowProc( hWnd, message, wParam, lParam );
+
+      if( message == WM_ERASEBKGND )
+      {
+            return 1; /* Blocks the white background erase */
+      }
+
+      if( message == WM_NCPAINT )
+      {
+            return 0; /* Prevents the white border from appearing */
+      }
+
+      if( message == WM_PAINT || message == WM_PRINTCLIENT )
+      {
+            HDC hdc;
+            PAINTSTRUCT ps;
+            RECT rc;
+            BOOL bPrint = (message == WM_PRINTCLIENT);
+            HBRUSH hBg;
+            BOOL bIsDarkBg = FALSE;
+            LOGBRUSH lb;
+
+            if( bPrint )
+                  hdc = ( HDC ) wParam;
+            else
+                  hdc = BeginPaint( hWnd, &ps );
+
+            GetClientRect( hWnd, &rc );
+
+            /* Fill background with the tab's color to avoid the white background */
+            hBg = hwg_tab_background_brush( GetParent( hWnd ) );
+            if( hBg )
+            {
+                  FillRect( hdc, &rc, hBg );
+
+                  if( GetObject( hBg, sizeof( lb ), &lb ) && lb.lbStyle == BS_SOLID )
+                  {
+                        COLORREF cr = lb.lbColor;
+                        if( GetRValue(cr) < 128 && GetGValue(cr) < 128 && GetBValue(cr) < 128 )
+                              bIsDarkBg = TRUE;
+                  }
+            }
+            else if( hwg_should_apps_use_dark_mode() )
+            {
+                  bIsDarkBg = TRUE;
+            }
+
+            if( bIsDarkBg )
+            {
+                  /* Draw a subtle border around the UpDown control to retain visual structure */
+                  HBRUSH hBorder = CreateSolidBrush( HWG_DARKTAB_LINE_RGB );
+                  FrameRect( hdc, &rc, hBorder );
+                  DeleteObject( hBorder );
+            }
+
+            if( GetWindowLong( hWnd, GWL_STYLE ) & UDS_HORZ )
+            {
+                  int mid = ( rc.left + rc.right ) / 2;
+                  RECT r1 = rc, r2 = rc;
+                  r1.right = mid;
+                  r2.left = mid;
+
+                  if( bIsDarkBg )
+                  {
+                        HBRUSH hArrow = CreateSolidBrush( RGB( 220, 220, 220 ) );
+                        HBRUSH hOldBr = SelectObject( hdc, hArrow );
+                        HPEN hOldPen = SelectObject( hdc, GetStockObject( NULL_PEN ) );
+                        POINT pt[3];
+
+                        int cx_left  = ( rc.left + mid ) / 2;
+                        int cx_right = ( mid + rc.right ) / 2;
+                        int cy       = ( rc.top + rc.bottom ) / 2;
+                        int size     = 6; /* Increased size for better visibility */
+
+                        /* Left arrow */
+                        pt[0].x = cx_left - size; pt[0].y = cy;
+                        pt[1].x = cx_left + size; pt[1].y = cy - size;
+                        pt[2].x = cx_left + size; pt[2].y = cy + size;
+                        Polygon( hdc, pt, 3 );
+
+                        /* Right arrow */
+                        pt[0].x = cx_right + size; pt[0].y = cy;
+                        pt[1].x = cx_right - size; pt[1].y = cy - size;
+                        pt[2].x = cx_right - size; pt[2].y = cy + size;
+                        Polygon( hdc, pt, 3 );
+
+                        SelectObject( hdc, hOldPen );
+                        SelectObject( hdc, hOldBr );
+                        DeleteObject( hArrow );
+                  }
+                  else
+                  {
+                        DrawFrameControl( hdc, &r1, DFC_SCROLL, DFCS_SCROLLLEFT | DFCS_TRANSPARENT );
+                        DrawFrameControl( hdc, &r2, DFC_SCROLL, DFCS_SCROLLRIGHT | DFCS_TRANSPARENT );
+                  }
+            }
+            else
+            {
+                  int mid = ( rc.top + rc.bottom ) / 2;
+                  RECT r1 = rc, r2 = rc;
+                  r1.bottom = mid;
+                  r2.top = mid;
+
+                  if( bIsDarkBg )
+                  {
+                        HBRUSH hArrow = CreateSolidBrush( RGB( 220, 220, 220 ) );
+                        HBRUSH hOldBr = SelectObject( hdc, hArrow );
+                        HPEN hOldPen = SelectObject( hdc, GetStockObject( NULL_PEN ) );
+                        POINT pt[3];
+
+                        int cy_top    = ( rc.top + mid ) / 2;
+                        int cy_bottom = ( mid + rc.bottom ) / 2;
+                        int cx        = ( rc.left + rc.right ) / 2;
+                        int size      = 6; /* Increased size for better visibility */
+
+                        /* Up arrow */
+                        pt[0].x = cx; pt[0].y = cy_top - size;
+                        pt[1].x = cx - size; pt[1].y = cy_top + size;
+                        pt[2].x = cx + size; pt[2].y = cy_top + size;
+                        Polygon( hdc, pt, 3 );
+
+                        /* Down arrow */
+                        pt[0].x = cx; pt[0].y = cy_bottom + size;
+                        pt[1].x = cx - size; pt[1].y = cy_bottom - size;
+                        pt[2].x = cx + size; pt[2].y = cy_bottom - size;
+                        Polygon( hdc, pt, 3 );
+
+                        SelectObject( hdc, hOldPen );
+                        SelectObject( hdc, hOldBr );
+                        DeleteObject( hArrow );
+                  }
+                  else
+                  {
+                        DrawFrameControl( hdc, &r1, DFC_SCROLL, DFCS_SCROLLUP | DFCS_TRANSPARENT );
+                        DrawFrameControl( hdc, &r2, DFC_SCROLL, DFCS_SCROLLDOWN | DFCS_TRANSPARENT );
+                  }
+            }
+
+            if( !bPrint )
+                  EndPaint( hWnd, &ps );
+            return 0;
+      }
+
+      return CallWindowProc( pOld, hWnd, message, wParam, lParam );
+}
+
+static BOOL s_bTabPainting = FALSE;
+
+/*=============================================================================
+ * hwg_tab_paint_to_dc()
+ *===========================================================================*/
+static void hwg_tab_paint_to_dc( HWND hWnd, HDC hdc )
+{
+      RECT    rc, rcItem, rcBody, rcUpDown, rcRight, rT;
+      HBRUSH  hBg, hLine, hTabBg;
+      HRGN    hTabRgn;
+      HWND    hUpDown;
+      int     nCount, i, nHeaderBottom = 0;
+      int     nSavedDC, nSel;
+
+      GetClientRect( hWnd, &rc );
+      if( rc.right <= rc.left || rc.bottom <= rc.top ) return;
+
+      hBg = hwg_tab_background_brush( hWnd );
+      if( !hBg ) hBg = ( HBRUSH ) GetSysColorBrush( COLOR_WINDOW );
+
+      /* 1. Background */
+      FillRect( hdc, &rc, hBg );
+
+      nCount  = TabCtrl_GetItemCount( hWnd );
+      hUpDown = FindWindowEx( hWnd, NULL, UPDOWN_CLASS, NULL );
+      nSel    = TabCtrl_GetCurSel( hWnd );
+
+      if( hwg_should_apps_use_dark_mode() )
+      {
+            /* --- DARK MODE: Draw tabs manually to enforce dark background,
+             * soft white text, and correct borders. --- */
+            hTabBg = hwg_get_dark_brush( 0 );
+            hLine  = CreateSolidBrush( HWG_DARKTAB_LINE_RGB );
+
+            for( i = 0; i < nCount; i++ )
+            {
+                  if( TabCtrl_GetItemRect( hWnd, i, &rcItem ) )
+                  {
+                        BOOL bSel     = ( i == nSel );
+                        BOOL bPrevSel = ( i > 0 && ( i - 1 ) == nSel );
+
+                        /* Draw background */
+                        FillRect( hdc, &rcItem, hTabBg );
+
+                        /* Draw top border */
+                        SetRect( &rT, rcItem.left, rcItem.top, rcItem.right, rcItem.top + 1 );
+                        FillRect( hdc, &rT, hLine );
+
+                        /* Draw left border (skip if previous is selected to merge them) */
+                        if( !bPrevSel || i == 0 )
+                        {
+                              SetRect( &rT, rcItem.left, rcItem.top, rcItem.left + 1, rcItem.bottom );
+                              FillRect( hdc, &rT, hLine );
+                        }
+
+                        /* Draw right border */
+                        SetRect( &rT, rcItem.right - 1, rcItem.top, rcItem.right, rcItem.bottom );
+                        FillRect( hdc, &rT, hLine );
+
+                        /* Draw bottom border (skip for selected tab so it merges with the body) */
+                        if( !bSel )
+                        {
+                              SetRect( &rT, rcItem.left, rcItem.bottom - 1, rcItem.right, rcItem.bottom );
+                              FillRect( hdc, &rT, hLine );
+                        }
+
+                        /* Draw text */
+                        TCITEM tie;
+                        TCHAR  szText[ 256 ];
+                        ZeroMemory( &tie, sizeof( tie ) );
+                        tie.mask = TCIF_TEXT;
+                        tie.pszText = szText;
+                        tie.cchTextMax = 256;
+
+                        if( TabCtrl_GetItem( hWnd, i, &tie ) )
+                        {
+                              SetBkMode( hdc, TRANSPARENT );
+                              SetTextColor( hdc, bSel ? RGB( 255, 255, 255 ) : RGB( 180, 180, 180 ) );
+                              DrawText( hdc, szText, -1, &rcItem, DT_CENTER | DT_VCENTER | DT_SINGLELINE );
+                        }
+                  }
+            }
+            DeleteObject( hLine );
+      }
+      else
+      {
+            /* --- LIGHT MODE: Native drawing --- */
+            nSavedDC = SaveDC( hdc );
+            CallWindowProc( wpOrigTabProc, hWnd, WM_PRINTCLIENT,
+                            ( WPARAM ) hdc, ( LPARAM ) PRF_CLIENT );
+            RestoreDC( hdc, nSavedDC );
+      }
+
+      SetRect( &rcUpDown, 0, 0, 0, 0 );
+      if( hUpDown )
+      {
+            GetWindowRect( hUpDown, &rcUpDown );
+            MapWindowPoints( NULL, hWnd, ( LPPOINT ) &rcUpDown, 2 );
+      }
+
+      if( nCount > 0 && TabCtrl_GetItemRect( hWnd, 0, &rcItem ) )
+            nHeaderBottom = rcItem.bottom;
+      if( hUpDown && rcUpDown.bottom > nHeaderBottom )
+            nHeaderBottom = rcUpDown.bottom;
+
+      /* 3. Body (except tabs) */
+      if( nCount > 0 )
+      {
+            hTabRgn = CreateRectRgn( rc.left, rc.top, rc.right, rc.bottom );
+            for( i = 0; i < nCount; i++ )
+            {
+                  RECT rcT;
+                  if( TabCtrl_GetItemRect( hWnd, i, &rcT ) )
+                  {
+                        InflateRect( &rcT, 1, 1 );
+                        HRGN hR = CreateRectRgn( rcT.left, rcT.top,
+                                                 rcT.right, rcT.bottom );
+                        CombineRgn( hTabRgn, hTabRgn, hR, RGN_DIFF );
+                        DeleteObject( hR );
+                  }
+            }
+            FillRgn( hdc, hTabRgn, hBg );
+            DeleteObject( hTabRgn );
+      }
+      else
+      {
+            RECT rcB = rc;
+            if( hUpDown ) rcB.top = rcUpDown.bottom;
+            FillRect( hdc, &rcB, hBg );
+      }
+
+      /* 4. Right column - always */
+      if( hUpDown )
+      {
+            rcRight = rc;
+            rcRight.left = rcUpDown.left;
+            FillRect( hdc, &rcRight, hBg );
+      }
+
+      /* 5. Frame */
+      if( nCount > 0 )
+      {
+            rcBody.left   = rc.left + 1;
+            rcBody.top    = nHeaderBottom + 1; /* Starts below the tabs and arrows */
+            rcBody.bottom = rc.bottom - 1;
+            rcBody.right  = rc.right - 1;
+
+            if( hwg_should_apps_use_dark_mode() )
+            {
+                  HBRUSH hBrLine = CreateSolidBrush( HWG_DARKTAB_LINE_RGB );
+                  FrameRect( hdc, &rcBody, hBrLine );
+                  DeleteObject( hBrLine );
+            }
+            else
+            {
+                  DrawEdge( hdc, &rcBody, EDGE_SUNKEN, BF_RECT );
+            }
+      }
+
+      /* 6. Scroll arrows */
+      if( hUpDown )
+      {
+            POINT ptOld;
+            SetViewportOrgEx( hdc, rcUpDown.left, rcUpDown.top, &ptOld );
+            SendMessage( hUpDown, WM_PRINTCLIENT, ( WPARAM ) hdc, PRF_CLIENT );
+            SetViewportOrgEx( hdc, ptOld.x, ptOld.y, NULL );
+      }
+
+      hwg_tab_draw_disabled_captions( hWnd, hdc );
+}
 
 /*=============================================================================
  * TabSubclassProc()
- * Tab control subclass procedure with disabled tab support
  *===========================================================================*/
-LRESULT APIENTRY TabSubclassProc( HWND hWnd, UINT message, WPARAM wParam,
-      LPARAM lParam )
+LRESULT APIENTRY TabSubclassProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
-   long int res;
-   PHB_ITEM pObject = ( PHB_ITEM ) GetWindowLongPtr( hWnd, GWLP_USERDATA );
+      long int res;
+      PHB_ITEM pObject = ( PHB_ITEM ) GetWindowLongPtr( hWnd, GWLP_USERDATA );
 
-   /* Click suppression on disabled tabs */
-   if( message == WM_LBUTTONDOWN || message == WM_LBUTTONDBLCLK || message == WM_LBUTTONUP )
-   {
-         TCHITTESTINFO ht;
-         int iTab;
-
-         ht.pt.x = GET_X_LPARAM( lParam );
-         ht.pt.y = GET_Y_LPARAM( lParam );
-         ht.flags = 0;
-         iTab = TabCtrl_HitTest( hWnd, &ht );
-
-         /* 1) If the tab is inactive: consume and does NOT steal focus */
-         if( iTab >= 0 && hwg_tab_is_disabled( hWnd, iTab + 1 ) )
-               return 0;
-
-         /* 2) If the already active tab was clicked: consume to avoid stealing focus */
-         if( iTab >= 0 )
-         {
-               int iCur = TabCtrl_GetCurSel( hWnd );
-               if( iCur == iTab )
-                     return 0;
-         }
-   }
-
-   /* Paint hook: overlay disabled captions in gray */
-   /* Paint hook: overlay disabled captions in gray */
-   if( message == WM_PAINT )
-   {
-         PAINTSTRUCT ps;
-         HDC hdc = BeginPaint( hWnd, &ps );
-
-         if( hdc )
-         {
-               RECT rc, rcInterior, rcItem;
-               HDC hdcMem;
-               HBITMAP hbmMem;
-               HBITMAP hbmOld;
-               HBRUSH hBg;
-               int  nStripHeight = 24;   /* sensible fallback */
-
-               GetClientRect( hWnd, &rc );
-
-               hdcMem = CreateCompatibleDC( hdc );
-               hbmMem = CreateCompatibleBitmap( hdc, rc.right - rc.left, rc.bottom - rc.top );
-               hbmOld = ( HBITMAP ) SelectObject( hdcMem, hbmMem );
-
-               /* Pre-fill the memory DC with the effective background
-                * brush, so nothing shows through as black during the
-                * subsequent WM_PRINTCLIENT call. */
-               hBg = hwg_GetEffectiveBrush( hWnd );
-               if( hBg )
-                     FillRect( hdcMem, &rc, hBg );
-
-               /* Let the original tab control paint its strip. */
-               CallWindowProc( wpOrigTabProc, hWnd, WM_PRINTCLIENT, ( WPARAM ) hdcMem,
-                               ( LPARAM ) PRF_CLIENT );
-
-               /* IMPORTANT: SysTabControl32 paints the interior area (below
-                * the tab strip) with the current theme's light body colour,
-                * overriding whatever we filled before WM_PRINTCLIENT.  The
-                * only reliable fix is to repaint the interior AFTER the
-                * strip has been drawn.  Compute the strip height from the
-                * first tab item's rectangle and cover everything below it. */
-               if( hwg_should_apps_use_dark_mode() )
-               {
-                     if( TabCtrl_GetItemRect( hWnd, 0, &rcItem ) )
-                           nStripHeight = rcItem.bottom + 2;
-                     rcInterior = rc;
-                     rcInterior.top = nStripHeight;
-                     FillRect( hdcMem, &rcInterior, hwg_get_dark_brush( 0 ) );
-
-                     /* Overwrite the light 1px frame SysTabControl32
-                      * draws around the tab body with a dark line. */
-                     {
-                           HPEN   hPen    = CreatePen( PS_SOLID, 1, RGB( 90, 90, 90 ) );
-                           HPEN   hOldPen = ( HPEN ) SelectObject( hdcMem, hPen );
-                           HBRUSH hOldBr  = ( HBRUSH ) SelectObject( hdcMem, GetStockObject( NULL_BRUSH ) );
-                           Rectangle( hdcMem, rc.left, rc.top, rc.right, rc.bottom );
-                           SelectObject( hdcMem, hOldPen );
-                           SelectObject( hdcMem, hOldBr );
-                           DeleteObject( hPen );
-                     }
-               }
-
-               hwg_tab_draw_disabled_captions( hWnd, hdcMem );
-
-               if( hwg_should_apps_use_dark_mode() )
-                   hwg_tab_soften_edges( hWnd, hdcMem );
-
-               BitBlt( hdc, 0, 0, rc.right - rc.left, rc.bottom - rc.top, hdcMem, 0, 0, SRCCOPY );
-
-               SelectObject( hdcMem, hbmOld );
-               DeleteObject( hbmMem );
-               DeleteDC( hdcMem );
-
-               EndPaint( hWnd, &ps );
-         }
-         return 0;
-   }
-
-   else if( message == WM_PRINTCLIENT )
-   {
-         LRESULT lr = CallWindowProc( wpOrigTabProc, hWnd, message, wParam, lParam );
-         if( ( HDC ) wParam )
-               hwg_tab_draw_disabled_captions( hWnd, ( HDC ) wParam );
-         return lr;
-   }
-
-   if( !pSym_onEvent )
-      pSym_onEvent = hb_dynsymFindName( "ONEVENT" );
-
-   if( pSym_onEvent && pObject )
-   {
-      hb_vmPushSymbol( hb_dynsymSymbol( pSym_onEvent ) );
-      hb_vmPush( pObject );
-      hb_vmPushLong( ( LONG ) message );
-      HB_PUSHITEM( wParam );
-      HB_PUSHITEM( lParam );
-      hb_vmSend( 3 );
-      if( HB_ISPOINTER( -1 ) )
-         return (LRESULT) HB_PARHANDLE( -1 );
-      else
+      if( message == WM_LBUTTONDOWN || message == WM_LBUTTONDBLCLK || message == WM_LBUTTONUP )
       {
-         res = hb_parnl( -1 );
-         if( res == -1 )
-            return ( CallWindowProc( wpOrigTabProc, hWnd, message, wParam,
-                        lParam ) );
-         else
-            return res;
+            TCHITTESTINFO ht;
+            int iTab;
+            ht.pt.x = GET_X_LPARAM( lParam );
+            ht.pt.y = GET_Y_LPARAM( lParam );
+            ht.flags = 0;
+            iTab = TabCtrl_HitTest( hWnd, &ht );
+
+            if( iTab >= 0 && hwg_tab_is_disabled( hWnd, iTab + 1 ) ) return 0;
+            if( iTab >= 0 )
+            {
+                  int iCur = TabCtrl_GetCurSel( hWnd );
+                  if( iCur == iTab ) return 0;
+            }
       }
-   }
-   else
-      return ( CallWindowProc( wpOrigTabProc, hWnd, message, wParam,
-                  lParam ) );
+
+      /* Handle TabControl non-client border to prevent it from becoming white (DARK MODE ONLY) */
+      if( message == WM_NCPAINT )
+      {
+            if( !hwg_should_apps_use_dark_mode() )
+                  return CallWindowProc( wpOrigTabProc, hWnd, message, wParam, lParam );
+
+            HDC hdc = GetWindowDC( hWnd );
+            RECT rc;
+            HBRUSH hBg = hwg_tab_background_brush( hWnd );
+            GetWindowRect( hWnd, &rc );
+            OffsetRect( &rc, -rc.left, -rc.top );
+            if( hBg )
+            {
+                  FillRect( hdc, &rc, hBg );
+            }
+            ReleaseDC( hWnd, hdc );
+            return 0;
+      }
+
+      if( message == WM_PAINT )
+      {
+            HWND        hUpDown = FindWindowEx( hWnd, NULL, UPDOWN_CLASS, NULL );
+            PAINTSTRUCT ps;
+            HDC         hdc;
+
+            if( hUpDown && GetProp( hUpDown, TEXT( "HWGUI_OLD_UPDOWN_PROC" ) ) == NULL )
+            {
+                  WNDPROC pOld = ( WNDPROC ) SetWindowLongPtr( hUpDown, GWLP_WNDPROC, ( LONG_PTR ) TabUpDownSubclassProc );
+                  SetProp( hUpDown, TEXT( "HWGUI_OLD_UPDOWN_PROC" ), ( HANDLE ) pOld );
+
+                  /* Apply the dark theme to the scroll arrows if necessary */
+                  if( hwg_should_apps_use_dark_mode() )
+                        SetWindowTheme( hUpDown, L"DarkMode_Explorer", NULL );
+                  else
+                        SetWindowTheme( hUpDown, L"", L"" );
+            }
+
+            hdc = BeginPaint( hWnd, &ps );
+            if( hdc )
+            {
+                  BOOL bOld = s_bTabPainting;
+                  s_bTabPainting = TRUE;
+                  hwg_tab_paint_to_dc( hWnd, hdc );
+                  s_bTabPainting = bOld;
+                  EndPaint( hWnd, &ps );
+            }
+            return 0;
+      }
+      else if( message == WM_ERASEBKGND )
+      {
+            /* Let Windows erase the background natively in Light Mode */
+            if( !hwg_should_apps_use_dark_mode() )
+                  return CallWindowProc( wpOrigTabProc, hWnd, message, wParam, lParam );
+
+            HBRUSH hBg = hwg_tab_background_brush( hWnd );
+            RECT   rcClip;
+            HDC    hdcErase = ( HDC ) wParam;
+
+            if( hBg && hdcErase && GetClipBox( hdcErase, &rcClip ) != ERROR )
+            {
+                  FillRect( hdcErase, &rcClip, hBg );
+                  return 1;
+            }
+      }
+      else if( message == WM_PRINTCLIENT )
+      {
+            HDC hdcPrint = ( HDC ) wParam;
+
+            if( hdcPrint && !s_bTabPainting && ( lParam & PRF_CLIENT ) )
+            {
+                  s_bTabPainting = TRUE;
+                  hwg_tab_paint_to_dc( hWnd, hdcPrint );
+                  s_bTabPainting = FALSE;
+                  return 0;
+            }
+            else
+            {
+                  LRESULT lr = CallWindowProc( wpOrigTabProc, hWnd, message, wParam, lParam );
+                  if( hdcPrint ) hwg_tab_draw_disabled_captions( hWnd, hdcPrint );
+                  return lr;
+            }
+      }
+
+      if( !pSym_onEvent ) pSym_onEvent = hb_dynsymFindName( "ONEVENT" );
+
+      if( pSym_onEvent && pObject )
+      {
+            hb_vmPushSymbol( hb_dynsymSymbol( pSym_onEvent ) );
+            hb_vmPush( pObject );
+            hb_vmPushLong( ( LONG ) message );
+            HB_PUSHITEM( wParam );
+            HB_PUSHITEM( lParam );
+            hb_vmSend( 3 );
+            if( HB_ISPOINTER( -1 ) )
+                  return (LRESULT) HB_PARHANDLE( -1 );
+            else
+            {
+                  res = hb_parnl( -1 );
+                  if( res == -1 )
+                        return ( CallWindowProc( wpOrigTabProc, hWnd, message, wParam, lParam ) );
+                  else
+                        return res;
+            }
+      }
+      else
+            return ( CallWindowProc( wpOrigTabProc, hWnd, message, wParam, lParam ) );
 }
 
 /*=============================================================================
@@ -2932,7 +3269,7 @@ HB_FUNC( HWG_TOOLBARADDBUTTONS )
       TBBUTTON *tb =
       ( struct _TBBUTTON * ) hb_xgrab( iButtons * sizeof( TBBUTTON ) );
       PHB_ITEM pTemp;
-      ULONG ulCount, ulID;   // <-- ADICIONADO: ulID declarado aqui
+      ULONG ulCount, ulID;
       DWORD style = GetWindowLong( hWndCtrl, GWL_STYLE );
 
       SetWindowLongPtr( hWndCtrl, GWL_STYLE,
