@@ -2,7 +2,7 @@
 # $Id$
 #
 
--stop={linux}
+-stop={!win}
 
 ../../hwgui.hbc
 

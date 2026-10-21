@@ -16,6 +16,14 @@
 */
 
 
+2026-10-21 15:21 UTC-0300  Jose Quintas  <jmcquintas@gmail.com>
+  * include\guilib.ch
+    ! MENUITEMCHECK: ACTION optional again (syntax error on samples)
+  * samples\allhbp.hbp
+    ! removed {win} filter, not valid on container, -stop is inside hbp
+  * contrib\hwmake\hwmake.hbp
+    * -stop={linux} to -stop={!win}
+
 2026-10-21 14:35 UTC-0300  Jose Quintas  <jmcquintas@gmail.com>
   * source\winapi\nice.c
     ! Gradient() now static, avoid conflict with external lib (FiveWin)

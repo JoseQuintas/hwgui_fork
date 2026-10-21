@@ -1479,7 +1479,7 @@
                         <nW>, <nH>, <nBg> )
 
 #xcommand MENUITEMCHECK <item> [ ID <nId> ] ;
-            ACTION <act>                    ;
+            [ ACTION <act> ]                ;
             [ BITMAP <bmp> ]                ;
             [ WIDTH <nW> ]                  ;
             [ HEIGHT <nH> ]                 ;

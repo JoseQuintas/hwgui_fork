@@ -36,7 +36,8 @@
 # Be shure, that QHTM is installed before build -- Windows only --
 #../contrib/hwg_qhtm.hbp
 #
-{win}../contrib/hwmake/hwmake.hbp
+# Windows only, stop inside hbp (filter not valid here in container)
+../contrib/hwmake/hwmake.hbp
 # HWMAKE uses Windows only functions, port to GTK needed:
 # HB_GT_GUI_DEFAULT(), HWG_SAVEFILE(), HWG_SELECTMULTIPLEFILES()
 
@@ -56,17 +57,18 @@
 ../samples/pseudocm.hbp
 ../samples/stretch.hbp
 ../samples/winprn.hbp
+../samples/testrtf.hbp
+../samples/tstscrlbar.hbp
 #
 # Samples WinAPI only
+# Each hbp has -stop for non Windows (filter not valid here in container)
 #
-{win}../samples/a.hbp
-{win}../samples/buildpelles.hbp
-{win}../samples/demomdi.hbp
-{win}../samples/demoonother.hbp
-{win}../samples/hello.hbp
-{win}../samples/testrtf.hbp
-{win}../samples/tstscrlbar.hbp
-{win}../samples/tstsplash.hbp
+../samples/a.hbp
+../samples/buildpelles.hbp
+../samples/demomdi.hbp
+../samples/demoonother.hbp
+../samples/hello.hbp
+../samples/tstsplash.hbp
 #
 # Programs not runable
 # ../samples/nice2.prg
