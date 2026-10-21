@@ -16,6 +16,10 @@
 */
 
 
+2026-10-21 14:35 UTC-0300  Jose Quintas  <jmcquintas@gmail.com>
+  * source\winapi\nice.c
+    ! Gradient() now static, avoid conflict with external lib (FiveWin)
+
 2026-10-20 20:20 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
    * source\winapi\control.c: Fixed GroupBox background artifacts and GET borders.
                 * Added WS_CLIPCHILDREN to GroupBoxes to prevent them from painting

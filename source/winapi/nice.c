@@ -89,7 +89,7 @@ void Draw_Gradient( HDC hdc, int x, int y, int w, int h, int r, int g, int b )
  * Gradient()
  * Draws a gradient between two colors
  *===========================================================================*/
-void Gradient( HDC hdc, int x, int y, int w, int h, int color1, int color2, int nmode )
+static void Gradient( HDC hdc, int x, int y, int w, int h, int color1, int color2, int nmode )
 {
    TRIVERTEX Vert[2];
    GRADIENT_RECT Rect;
