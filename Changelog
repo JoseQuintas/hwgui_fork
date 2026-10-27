@@ -15,6 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-27 15:48 UTC-0300  Jose Quintas  <jmcquintas@gmail.com>
+  * source\winapi\draw.c
+    + HWG_GETDEVICECAPS(), used by contrib\misc\richtext.prg (r3945)
+      and missing, link error on samples\testrtf
+
 2026-10-27 15:26 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
    * source/gtk4/window.c: HWG_SHOWWINDOW honours optional lShow parameter.
                 HWG_ISWINDOWACTIVE added.

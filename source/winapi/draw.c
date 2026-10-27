@@ -1767,6 +1767,17 @@ HB_FUNC( HWG_RELEASEDC )
 }
 
 /*=============================================================================
+ * HWG_GETDEVICECAPS()
+ * Gets device capabilities
+ * Param 1: DC
+ * Param 2: Index (LOGPIXELSX, LOGPIXELSY, ...)
+ *===========================================================================*/
+HB_FUNC( HWG_GETDEVICECAPS )
+{
+      hb_retni( GetDeviceCaps( ( HDC ) HB_PARHANDLE( 1 ), hb_parni( 2 ) ) );
+}
+
+/*=============================================================================
  * HWG_GETDRAWITEMINFO()
  * Gets draw item info
  *===========================================================================*/
