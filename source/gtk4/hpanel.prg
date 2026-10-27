@@ -267,6 +267,8 @@ METHOD Drag( xPos, yPos ) CLASS HPanel
 
 METHOD Collapse() CLASS HPanel
 
+   LOCAL i, oCtrl
+
    IF ::lCollapsed
       RETURN Nil
    ENDIF
@@ -274,7 +276,25 @@ METHOD Collapse() CLASS HPanel
    ::nFullWidth := ::nWidth
    ::nWidth     := 6
 
-   hwg_MoveWindow( ::handle, ::nLeft, ::nTop, ::nWidth, ::nHeight )
+   /* Hide buttons FIRST. While visible they keep fbox at its natural
+    * 208px width, which in turn forces the GtkBox min-size above the
+    * requested 6px, so set_size_request is ignored. */
+   IF ValType( ::aControls ) == "A"
+      FOR i := 1 TO Len( ::aControls )
+         oCtrl := ::aControls[ i ]
+         IF HB_ISOBJECT( oCtrl ) .AND. __ObjHasMsg( oCtrl, "HANDLE" ) .AND. ;
+            !Empty( oCtrl:handle )
+            hwg_ShowWindow( oCtrl:handle, .F. )
+         ENDIF
+      NEXT
+   ENDIF
+
+   /* Now shrink the inner drawing area and the outer box. */
+   hwg_MoveWindow( ::handle, 0, 0, ::nWidth, ::nHeight )
+
+   IF __ObjHasMsg( Self, "_HBOX" ) .AND. ::_HBOX != Nil
+      hwg_MoveWindow( ::_HBOX, ::nLeft, ::nTop, ::nWidth, ::nHeight )
+   ENDIF
 
    ::lCollapsed := .T.
 
@@ -284,14 +304,34 @@ METHOD Collapse() CLASS HPanel
 
    RETURN Nil
 
+
 METHOD Expand() CLASS HPanel
+
+   LOCAL i, oCtrl
 
    IF !::lCollapsed
       RETURN Nil
    ENDIF
 
    ::nWidth := ::nFullWidth
-   hwg_MoveWindow( ::handle, ::nLeft, ::nTop, ::nWidth, ::nHeight )
+
+   /* Restore containers first, while buttons are still hidden, so no
+    * flicker. */
+   IF __ObjHasMsg( Self, "_HBOX" ) .AND. ::_HBOX != Nil
+      hwg_MoveWindow( ::_HBOX, ::nLeft, ::nTop, ::nWidth, ::nHeight )
+   ENDIF
+   hwg_MoveWindow( ::handle, 0, 0, ::nWidth, ::nHeight )
+
+   /* Then show buttons inside the already-restored 220px area. */
+   IF ValType( ::aControls ) == "A"
+      FOR i := 1 TO Len( ::aControls )
+         oCtrl := ::aControls[ i ]
+         IF HB_ISOBJECT( oCtrl ) .AND. __ObjHasMsg( oCtrl, "HANDLE" ) .AND. ;
+            !Empty( oCtrl:handle )
+            hwg_ShowWindow( oCtrl:handle, .T. )
+         ENDIF
+      NEXT
+   ENDIF
 
    ::lCollapsed := .F.
 
@@ -342,20 +382,26 @@ METHOD SetAutoCollapse( lOn, nDelayMs ) CLASS HPanel
             RETURN Nil
          ENDIF
 
-         aPos := hwg_GetMotionPos()
+         /* If the main window lost focus (a modal dialog opened),
+          * collapse immediately. The motion tracker stops receiving
+          * events when the pointer is over the dialog, so hwg_GetMotionPos()
+          * would otherwise stay frozen at the last position inside the panel. */
+         IF !hwg_IsWindowActive( oSelf:oParent:handle )
+            IF !oSelf:lCollapsed
+               oSelf:Collapse()
+            ENDIF
+            RETURN Nil
+         ENDIF
 
-         lInside := ( aPos[ 1 ] >= oSelf:nLeft .AND. ;
-                      aPos[ 1 ] <= oSelf:nLeft + oSelf:nWidth .AND. ;
-                      aPos[ 2 ] >= oSelf:nTop  .AND. ;
-                      aPos[ 2 ] <= oSelf:nTop  + oSelf:nHeight )
+         aPos := hwg_GetMotionPos()
+         lInside := ( aPos[ 1 ] >= oSelf:nLeft .AND. aPos[ 1 ] <= oSelf:nLeft + oSelf:nWidth .AND. aPos[ 2 ] >= oSelf:nTop .AND. aPos[ 2 ] <= oSelf:nTop + oSelf:nHeight )
 
          IF lInside
             oSelf:nLastMoveTime := hb_MilliSeconds()
             IF oSelf:lCollapsed
                oSelf:Expand()
             ENDIF
-         ELSEIF !oSelf:lCollapsed .AND. ;
-                ( hb_MilliSeconds() - oSelf:nLastMoveTime > nDelayMs )
+         ELSEIF !oSelf:lCollapsed .AND. ( hb_MilliSeconds() - oSelf:nLastMoveTime > nDelayMs )
             oSelf:Collapse()
          ENDIF
 

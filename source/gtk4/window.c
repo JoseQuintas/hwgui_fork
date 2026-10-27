@@ -2553,4 +2553,18 @@ HB_FUNC( HWG_POSTMESSAGE )
     hb_retl( TRUE );
 }
 
+/*=============================================================================
+ * HWG_ISWINDOWACTIVE( hWnd )
+ * Returns TRUE if the GTK window is currently active (has focus).
+ *===========================================================================*/
+HB_FUNC( HWG_ISWINDOWACTIVE )
+{
+    GtkWidget *w = (GtkWidget *) HB_PARHANDLE( 1 );
+
+    if( w && GTK_IS_WINDOW( w ) )
+        hb_retl( gtk_window_is_active( GTK_WINDOW( w ) ) );
+    else
+        hb_retl( FALSE );
+}
+
 /* ================== EOF of window.c ========================== */
