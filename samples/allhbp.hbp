@@ -57,12 +57,12 @@
 ../samples/pseudocm.hbp
 ../samples/stretch.hbp
 ../samples/winprn.hbp
-../samples/testrtf.hbp
 ../samples/tstscrlbar.hbp
 #
 # Samples WinAPI only
 # Each hbp has -stop for non Windows (filter not valid here in container)
 #
+../samples/testrtf.hbp
 ../samples/a.hbp
 ../samples/buildpelles.hbp
 ../samples/demomdi.hbp

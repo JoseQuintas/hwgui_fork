@@ -3,7 +3,8 @@
 #
 # auto included hbmk.hbm
 
-#-stop={linux}
+# richtext uses Windows only functions (EMF, GDI+)
+-stop={!win}
 
 -lhwg_misc
 
