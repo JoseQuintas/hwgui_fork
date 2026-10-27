@@ -146,7 +146,10 @@ CLASS HBrowse INHERIT HControl
    DATA oStyleFoot
    DATA oStyleCell
    DATA headColor
-   DATA sepColor   INIT 12632256
+
+   DATA sepColor    INIT 12632256
+   DATA sepColorHdr INIT 12632256
+
    DATA oPenSep, oPenHdr, oPen3d
    DATA lSep3d     INIT .F.
    DATA aPadding   INIT { 4, 2, 4, 2 }
@@ -627,7 +630,7 @@ METHOD Rebuild( hDC ) CLASS HBrowse
       ::oPen3d := HPen():Add( PS_SOLID, 1, hwg_Getsyscolor( COLOR_3DHILIGHT ) )
    ENDIF
    IF ::oPenHdr == Nil
-      ::oPenHdr := HPen():Add( BS_SOLID, 1, 0 )
+      ::oPenHdr := HPen():Add( BS_SOLID, 1, ::sepColorHdr )
    ENDIF
    IF ::brush != Nil
       ::brush:Release()
@@ -741,6 +744,10 @@ METHOD Paint()  CLASS HBrowse
    IF ::oPenSep:color != ::sepColor
       ::oPenSep:Release()
       ::oPenSep := HPen():Add( PS_SOLID, 1, ::sepColor )
+   ENDIF
+   IF ::oPenHdr != Nil .AND. ::oPenHdr:color != ::sepColorHdr
+      ::oPenHdr:Release()
+      ::oPenHdr := HPen():Add( BS_SOLID, 1, ::sepColorHdr )
    ENDIF
    aCoors := hwg_Getclientrect( ::handle )
 

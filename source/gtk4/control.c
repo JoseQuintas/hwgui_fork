@@ -2316,47 +2316,6 @@ HB_FUNC( HWG_SETTOOLTIPBALLOON )
 
 
 /* =====================================================================
- *  Timers
- * ===================================================================== */
-static gint cb_timer( gchar *data )
-{
-    HB_LONG p1;
-    sscanf( (char*) data, "%ld", &p1 );
-
-    if( !pSymTimerProc )
-        pSymTimerProc = hb_dynsymFind( "HWG_TIMERPROC" );
-
-    if( pSymTimerProc ) {
-        hb_vmPushSymbol( hb_dynsymSymbol( pSymTimerProc ) );
-        hb_vmPushNil();
-        hb_vmPushLong( (HB_LONG) p1 );
-        hb_vmDo( 1 );
-        return hb_parnl( -1 );
-    }
-    return 0;
-}
-
-HB_FUNC( HWG_SETTIMER )
-{
-    char buf[10] = {0};
-    sprintf( buf, "%ld", hb_parnl( 1 ) );
-    hb_retni( (gint) g_timeout_add_full( G_PRIORITY_DEFAULT,
-                                         (guint32) hb_parnl( 2 ),
-                                         (GSourceFunc) cb_timer,
-                                         g_strdup( buf ),
-                                         g_free ) );
-}
-
-HB_FUNC( HWG_KILLTIMER )
-{
-    guint tag = (guint) hb_parni( 1 );
-
-    if( tag > 0 )
-        g_source_remove( tag );
-}
-
-
-/* =====================================================================
  *  Parents / cursors / misc
  * ===================================================================== */
 HB_FUNC( HWG_GETPARENT )
@@ -3573,4 +3532,216 @@ HB_FUNC( HWG_WEBVIEWRUNJS )
                                              js, -1, NULL, NULL, NULL,
                                              NULL, NULL );
 }
+
+/*=============================================================================
+ * Cursor position tracking (GTK4 native)
+ *
+ * GTK4 does not expose a synchronous "where is the mouse now" API.
+ * The correct approach is a GtkEventControllerMotion that updates
+ * static variables whenever the pointer moves over a widget.
+ *===========================================================================*/
+static double   s_cursorX     = 0.0;
+static double   s_cursorY     = 0.0;
+static gboolean s_cursorValid = FALSE;
+
+static void hwg_on_motion( GtkEventControllerMotion *controller,
+                           double x, double y, gpointer user_data )
+{
+    ( void ) controller;
+    ( void ) user_data;
+    s_cursorX     = x;
+    s_cursorY     = y;
+    s_cursorValid = TRUE;
+}
+
+/*=============================================================================
+ * HWG_INSTALLMOTIONTRACKER( hWidget )
+ *
+ * Installs a GtkEventControllerMotion on the widget.  Every mouse motion
+ * over the widget updates the process-wide cursor position, which can then
+ * be queried with HWG_GETMOTIONPOS().
+ *===========================================================================*/
+HB_FUNC( HWG_INSTALLMOTIONTRACKER )
+{
+    GtkWidget *widget = ( GtkWidget * ) HB_PARHANDLE( 1 );
+    GtkEventController *ctrl;
+
+    if( !widget || !GTK_IS_WIDGET( widget ) )
+        return;
+
+    ctrl = gtk_event_controller_motion_new();
+    g_signal_connect( ctrl, "motion", G_CALLBACK( hwg_on_motion ), NULL );
+    gtk_widget_add_controller( widget, ctrl );
+}
+
+/*=============================================================================
+ * HWG_GETMOTIONPOS() -> { x, y }
+ *
+ * Returns the last known cursor position, in coordinates relative to the
+ * widget that received the GtkEventControllerMotion.  Returns { 0, 0 } if
+ * no motion has been captured yet.
+ *===========================================================================*/
+HB_FUNC( HWG_GETMOTIONPOS )
+{
+    PHB_ITEM pArr = hb_itemArrayNew( 2 );
+    PHB_ITEM tmp;
+
+    tmp = hb_itemPutND( NULL, s_cursorValid ? s_cursorX : 0.0 );
+    hb_itemArrayPut( pArr, 1, tmp ); hb_itemRelease( tmp );
+
+    tmp = hb_itemPutND( NULL, s_cursorValid ? s_cursorY : 0.0 );
+    hb_itemArrayPut( pArr, 2, tmp ); hb_itemRelease( tmp );
+
+    hb_itemReturnRelease( pArr );
+}
+
+/*=============================================================================
+ * Timer registry with codeblock callback
+ *
+ * Supports two call signatures:
+ *
+ *   HWG_SETTIMER( nId, nMs )
+ *     Legacy mode: fires HWG_TIMERPROC( nId ) on every tick.
+ *
+ *   HWG_SETTIMER( hWidget, nId, nMs, bBlock )
+ *     Codeblock mode: evaluates bBlock on every tick.  Preferred for
+ *     control-owned timers (HPanel:SetAutoCollapse, etc.).
+ *
+ *   HWG_KILLTIMER( nSourceId )      -- legacy
+ *   HWG_KILLTIMER( hWidget, nId )   -- codeblock mode
+ *===========================================================================*/
+#define HWG_MAX_TIMERS 128
+
+typedef struct {
+    GtkWidget *widget;
+    int        nId;
+    guint      source_id;
+    PHB_ITEM   pBlock;
+} HWG_TIMER_ENTRY;
+
+static HWG_TIMER_ENTRY s_timers[ HWG_MAX_TIMERS ];
+
+/* Legacy dispatcher: calls HWG_TIMERPROC(id) in the PRG VM. */
+static gint cb_timer_legacy( gchar *data )
+{
+    HB_LONG p1;
+
+    sscanf( data, "%ld", &p1 );
+
+    if( !pSymTimerProc )
+        pSymTimerProc = hb_dynsymFind( "HWG_TIMERPROC" );
+
+    if( pSymTimerProc )
+    {
+        hb_vmPushSymbol( hb_dynsymSymbol( pSymTimerProc ) );
+        hb_vmPushNil();
+        hb_vmPushLong( p1 );
+        hb_vmDo( 1 );
+        return ( gint ) hb_parnl( -1 );
+    }
+    return 0;
+}
+
+/* Codeblock dispatcher: evaluates the stored block. */
+static gboolean s_timerProcBlock( gpointer user_data )
+{
+    HWG_TIMER_ENTRY *entry = ( HWG_TIMER_ENTRY * ) user_data;
+    PHB_ITEM         pRet;
+
+    if( entry && entry->pBlock )
+    {
+        pRet = hb_itemDo( entry->pBlock, 0 );
+        if( pRet ) hb_itemRelease( pRet );
+        return G_SOURCE_CONTINUE;
+    }
+    return G_SOURCE_REMOVE;
+}
+
+HB_FUNC( HWG_SETTIMER )
+{
+    /* Codeblock mode: widget, id, ms, block */
+    if( HB_ISPOINTER( 1 ) && HB_ISBLOCK( 4 ) )
+    {
+        GtkWidget *widget = ( GtkWidget * ) HB_PARHANDLE( 1 );
+        int        nId    = hb_parni( 2 );
+        int        nMs    = hb_parni( 3 );
+        PHB_ITEM   pBlock = hb_param( 4, HB_IT_BLOCK );
+        int        i;
+
+        if( !widget || !pBlock ) { hb_retni( 0 ); return; }
+
+        /* Reuse slot for same (widget, id) or allocate a free one. */
+        for( i = 0; i < HWG_MAX_TIMERS; i++ )
+        {
+            if( s_timers[ i ].pBlock == NULL ||
+                ( s_timers[ i ].widget == widget && s_timers[ i ].nId == nId ) )
+                break;
+        }
+        if( i == HWG_MAX_TIMERS ) { hb_retni( 0 ); return; }
+
+        if( s_timers[ i ].pBlock )
+        {
+            g_source_remove( s_timers[ i ].source_id );
+            hb_itemRelease( s_timers[ i ].pBlock );
+        }
+
+        s_timers[ i ].widget    = widget;
+        s_timers[ i ].nId       = nId;
+        s_timers[ i ].pBlock    = hb_itemNew( pBlock );
+        s_timers[ i ].source_id = g_timeout_add( nMs, s_timerProcBlock, &s_timers[ i ] );
+
+        hb_retni( ( int ) s_timers[ i ].source_id );
+        return;
+    }
+
+    /* Legacy mode: id, ms → HWG_TIMERPROC(id) */
+    {
+        char buf[16] = {0};
+        sprintf( buf, "%ld", hb_parnl( 1 ) );
+        hb_retni( ( gint ) g_timeout_add_full( G_PRIORITY_DEFAULT,
+                                               ( guint32 ) hb_parnl( 2 ),
+                                               ( GSourceFunc ) cb_timer_legacy,
+                                               g_strdup( buf ),
+                                               g_free ) );
+    }
+}
+
+HB_FUNC( HWG_KILLTIMER )
+{
+    /* Codeblock mode: widget, id */
+    if( HB_ISPOINTER( 1 ) )
+    {
+        GtkWidget *widget = ( GtkWidget * ) HB_PARHANDLE( 1 );
+        int        nId    = hb_parni( 2 );
+        int        i;
+
+        for( i = 0; i < HWG_MAX_TIMERS; i++ )
+        {
+            if( s_timers[ i ].widget == widget &&
+                s_timers[ i ].nId    == nId &&
+                s_timers[ i ].pBlock )
+            {
+                g_source_remove( s_timers[ i ].source_id );
+                hb_itemRelease( s_timers[ i ].pBlock );
+                s_timers[ i ].pBlock    = NULL;
+                s_timers[ i ].widget    = NULL;
+                s_timers[ i ].nId       = 0;
+                s_timers[ i ].source_id = 0;
+                hb_retl( TRUE );
+                return;
+            }
+        }
+        hb_retl( FALSE );
+        return;
+    }
+
+    /* Legacy mode: source_id */
+    {
+        guint tag = ( guint ) hb_parni( 1 );
+        if( tag > 0 )
+            g_source_remove( tag );
+        hb_retl( TRUE );
+    }
+}
+
 /* ====================== EOF of control.c ======================= */

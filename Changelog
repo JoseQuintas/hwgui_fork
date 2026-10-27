@@ -15,6 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-27 14:35 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+   * source\gtk4\hcontrol.prg: Restored missing GetText() and SetText()
+                methods to HControl to fix "Invalid class member" errors
+                in controls that rely on the base class (e.g., HOwnButton).
+   * source\gtk4\hbrowse.prg: Added missing sepColorHdr DATA and synchronized
+                the oPenHdr creation/update in Rebuild() and Paint() to fix
+                "Invalid class member" errors in _SepColorHdr.
+   * source\gtk4\hpanel.prg: Added missing bOnCollapse and bOnExpand DATA
+                to support the sidebar collapse/expand callbacks.
+   * source\gtk4\control.c: added missing HWG_MOVEWINDOW and
+                HWG_SHOWWINDOW functions.
+
 2026-10-27 11:53 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
    * source/gtk4/misc.c: Ported HWG_GETCURSORPOS to GTK4 using gdk_device_get_surface_at_position.
                 HWG_SETCURSORPOS is implemented as a no-op stub, as GTK4/Wayland

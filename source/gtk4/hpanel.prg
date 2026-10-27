@@ -43,6 +43,17 @@ CLASS HPanel INHERIT HControl
    DATA nScrollV  INIT 0
    DATA nScrollH  INIT 0
    DATA bVScroll, bHScroll
+
+   DATA lCollapsed     INIT .F.
+   DATA nFullWidth     INIT 0
+   DATA lAutoCollapse  INIT .F.
+   DATA nAutoTimerId   INIT 0
+   DATA nLastMoveTime  INIT 0
+   DATA bOnCollapse    INIT Nil
+   DATA bOnExpand      INIT Nil
+
+   DATA aChildControls INIT {}
+
    METHOD New( oWndParent, nId, nStyle, nLeft, nTop, nWidth, nHeight, ;
       bInit, bSize, bPaint, bColor, oStyle )
    METHOD Activate()
@@ -54,6 +65,11 @@ CLASS HPanel INHERIT HControl
    METHOD Hide()
    METHOD Show()
    METHOD Drag( xPos, yPos )
+
+   METHOD Collapse()
+   METHOD Expand()
+   METHOD ToggleCollapse()
+   METHOD SetAutoCollapse( lOn, nDelayMs )
 
 ENDCLASS
 
@@ -245,6 +261,108 @@ METHOD Drag( xPos, yPos ) CLASS HPanel
    ENDIF
    IF Abs( xPos - ::nOldX ) > 1 .OR. Abs( yPos - ::nOldY ) > 1
       oWnd:Move( oWnd:nLeft + ( xPos - ::nOldX ), oWnd:nTop + ( yPos - ::nOldY ) )
+   ENDIF
+
+   RETURN Nil
+
+METHOD Collapse() CLASS HPanel
+
+   IF ::lCollapsed
+      RETURN Nil
+   ENDIF
+
+   ::nFullWidth := ::nWidth
+   ::nWidth     := 6
+
+   hwg_MoveWindow( ::handle, ::nLeft, ::nTop, ::nWidth, ::nHeight )
+
+   ::lCollapsed := .T.
+
+   IF ::bOnCollapse != Nil
+      Eval( ::bOnCollapse, Self )
+   ENDIF
+
+   RETURN Nil
+
+METHOD Expand() CLASS HPanel
+
+   IF !::lCollapsed
+      RETURN Nil
+   ENDIF
+
+   ::nWidth := ::nFullWidth
+   hwg_MoveWindow( ::handle, ::nLeft, ::nTop, ::nWidth, ::nHeight )
+
+   ::lCollapsed := .F.
+
+   IF ::bOnExpand != Nil
+      Eval( ::bOnExpand, Self )
+   ENDIF
+
+   RETURN Nil
+
+METHOD ToggleCollapse() CLASS HPanel
+
+   IF ::lCollapsed
+      ::Expand()
+   ELSE
+      ::Collapse()
+   ENDIF
+
+   RETURN Nil
+
+METHOD SetAutoCollapse( lOn, nDelayMs ) CLASS HPanel
+
+   LOCAL oSelf := Self
+   LOCAL aPos, lInside
+   LOCAL bTick
+
+   IF nDelayMs == Nil
+      nDelayMs := 1500
+   ENDIF
+
+   /* Kill any pre-existing auto-collapse timer. */
+   IF ::nAutoTimerId != 0
+      hwg_KillTimer( ::handle, ::nAutoTimerId )
+      ::nAutoTimerId := 0
+   ENDIF
+
+   ::lAutoCollapse := lOn
+
+   IF lOn
+      /* Install the motion tracker on the parent form (once). */
+      IF __ObjHasMsg( ::oParent, "HANDLE" ) .AND. ::oParent:handle != Nil
+         hwg_InstallMotionTracker( ::oParent:handle )
+      ENDIF
+
+      ::nLastMoveTime := hb_MilliSeconds()
+
+      bTick := {||
+         IF !oSelf:lAutoCollapse
+            RETURN Nil
+         ENDIF
+
+         aPos := hwg_GetMotionPos()
+
+         lInside := ( aPos[ 1 ] >= oSelf:nLeft .AND. ;
+                      aPos[ 1 ] <= oSelf:nLeft + oSelf:nWidth .AND. ;
+                      aPos[ 2 ] >= oSelf:nTop  .AND. ;
+                      aPos[ 2 ] <= oSelf:nTop  + oSelf:nHeight )
+
+         IF lInside
+            oSelf:nLastMoveTime := hb_MilliSeconds()
+            IF oSelf:lCollapsed
+               oSelf:Expand()
+            ENDIF
+         ELSEIF !oSelf:lCollapsed .AND. ;
+                ( hb_MilliSeconds() - oSelf:nLastMoveTime > nDelayMs )
+            oSelf:Collapse()
+         ENDIF
+
+         RETURN Nil
+      }
+
+      ::nAutoTimerId := hwg_SetTimer( ::handle, 1, 200, bTick )
    ENDIF
 
    RETURN Nil

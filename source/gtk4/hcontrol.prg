@@ -79,6 +79,8 @@ CLASS HControl INHERIT HCustomWindow
    METHOD SetFont( oFont )
 
    METHOD Setfocus() INLINE hwg_SetFocus( ::handle )
+   METHOD GetText()     INLINE hwg_GetWindowText( ::handle )
+   METHOD SetText( c )  INLINE hwg_SetWindowText( ::handle, ::title := c )
    METHOD Move( x1, y1, width, height, lMoveParent )
    METHOD End()
    METHOD onAnchor( x, y, w, h )
