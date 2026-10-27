@@ -473,6 +473,69 @@ HB_FUNC( HWG_SENDMESSAGE )
     hb_retnl( 0 );
 }
 
+/*=============================================================================
+ * HWG_GETCURSORPOS()
+ * Gets cursor position
+ *
+ * GTK4 implementation using gdk_device_get_surface_at_position().
+ * Returns coordinates relative to the surface (window) under the cursor.
+ * Since HWGUI's ScreenToClient is a no-op on GTK4, this perfectly matches
+ * the behaviour of Win32's GetCursorPos() followed by ScreenToClient().
+ *===========================================================================*/
+HB_FUNC( HWG_GETCURSORPOS )
+{
+    PHB_ITEM aPoint = hb_itemArrayNew( 2 );
+    PHB_ITEM temp;
+    int x = 0, y = 0;
+
+    GdkDisplay *display = gdk_display_get_default();
+    if( display )
+    {
+        GdkSeat *seat = gdk_display_get_default_seat( display );
+        if( seat )
+        {
+            GdkDevice *pointer = gdk_seat_get_pointer( seat );
+            if( pointer )
+            {
+                double px, py;
+                /* Queries the surface under the pointer and the relative coords */
+                GdkSurface *surface = gdk_device_get_surface_at_position( pointer, &px, &py );
+                if( surface )
+                {
+                    x = (int)px;
+                    y = (int)py;
+                    g_object_unref( surface );
+                }
+            }
+        }
+    }
+
+    temp = hb_itemPutNL( NULL, x );
+    hb_itemArrayPut( aPoint, 1, temp );
+    hb_itemRelease( temp );
+
+    temp = hb_itemPutNL( NULL, y );
+    hb_itemArrayPut( aPoint, 2, temp );
+    hb_itemRelease( temp );
+
+    hb_itemReturn( aPoint );
+    hb_itemRelease( aPoint );
+}
+
+/*=============================================================================
+ * HWG_SETCURSORPOS()
+ * Sets cursor position
+ *
+ * NOTE: GTK4 (especially Wayland) prevents applications from warping the
+ * global mouse cursor for security reasons. gdk_device_warp() was removed.
+ * This is a no-op stub to avoid breaking PRG code.
+ *===========================================================================*/
+HB_FUNC( HWG_SETCURSORPOS )
+{
+    HB_SYMBOL_UNUSED( hb_parni( 1 ) );
+    HB_SYMBOL_UNUSED( hb_parni( 2 ) );
+}
+
 /* =====================================================================
  *  HWG_ISCTRLSHIFT
  *

@@ -15,6 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-27 11:53 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+   * source/gtk4/misc.c: Ported HWG_GETCURSORPOS to GTK4 using gdk_device_get_surface_at_position.
+                HWG_SETCURSORPOS is implemented as a no-op stub, as GTK4/Wayland
+                prevents applications from warping the global mouse cursor.
+
 2026-10-27 11:45 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
    * source/gtk4/draw.c: Added GTK4 support for HWG_LOADSVGSTRING (using librsvg
                 and cairo). Added stubs/implementations for HWG_SHOULDAPPSUSEDARKMODE
