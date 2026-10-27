@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-10-27 11:45 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+   * source/gtk4/draw.c: Added GTK4 support for HWG_LOADSVGSTRING (using librsvg
+                and cairo). Added stubs/implementations for HWG_SHOULDAPPSUSEDARKMODE
+                and HWG_DARKTHEMECOLOR. Fixed missing extern declaration for
+                hwg_legacy_gtk_name.
+   * hwguiGTK4.hbp: Added librsvg-2.0 to pkg-config flags and fixed a syntax
+                error in the webkitgtk-6.0 lflag.
+   * hwguiGTK4.hbc: Added librsvg-2.0 to pkg-config and fixed a bug where CFLAGS
+                were being overwritten instead of appended, losing UNICODE and
+                WEBKIT definitions.
 
 2026-10-21 15:21 UTC-0300  Jose Quintas  <jmcquintas@gmail.com>
   * include\guilib.ch

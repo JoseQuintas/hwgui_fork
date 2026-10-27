@@ -1,5 +1,5 @@
 #
-# $Id: hwgui.hbp 3578 2025-04-11 23:17:28Z ItamarLins $
+# $Id: hwguiGTK4.hbp 3578 2025-04-11 23:17:28Z ItamarLins $
 #
 
 hwguiGTK4.hbc
@@ -17,11 +17,9 @@ hwguiGTK4.hbc
 -cflag=-DUNICODE
 #
 -cflag=-DHWG_USE_POINTER_ITEM
-"{unix}-cflag=`pkg-config --cflags gtk4`"
-"{unix}-cflag=`pkg-config --cflags webkitgtk-6.0`"
-"{unix}-lflag=`pkg-config --libs webkitgtk-6.0"
+"{unix}-cflag=`pkg-config --cflags gtk4 webkitgtk-6.0 librsvg-2.0`"
+"{unix}-lflag=`pkg-config --libs webkitgtk-6.0 librsvg-2.0`"
 
 @hwguiGTK4.hbm
 
 # ============== EOF of hwguiGTK4.hbp ====================
-
