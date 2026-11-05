@@ -15,6 +15,46 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-11-05 15:14 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+   * source/gtk/draw.c: HWG_LOADSVGSTRING added to the GTK2 backend
+                (guarded by __USE_LIBRSVG). Renders SVG bytes into a
+                GdkPixbuf via librsvg + Cairo at 4x supersampling, with
+                optional background fill and foreground colour replacement.
+                HWG_SHOULDAPPSUSEDARKMODE rewritten GTK2-safe: reads
+                gtk-theme-name and the GTK_THEME env var, since the
+                gtk-application-prefer-dark-theme property is GTK 3.0+.
+                HWG_DARKTHEMECOLOR and HWG_GDIPLUSOPENIMAGE stubs added so
+                PRG code shared with the Windows backend links cleanly
+                against GTK. Helpers hwg_pixbuf_from_cairo_surface() (GTK2
+                replacement for gdk_pixbuf_get_from_surface(), GDK 3.0+)
+                and hwg_svg_replace() (byte-wise colour substitution) added.
+   * source/gtk/window.c: background colour policy made runtime-configurable
+                and theme-first. HWG_SETDEFAULTBGCOLOR / HWG_GETDEFAULTBGCOLOR
+                plus the HWGUI_BGCOLOR env var expose three modes:
+                   0 (default)  respect the active GTK theme
+                   1            force RGB(240,240,240) — modern Windows chrome
+                   >1           force the packed 0xRRGGBB value
+                hwg_apply_bg() centralises the modify_bg loop. The five
+                hardcoded blocks from r3852/r3853 (CREATEDLG,
+                CREATETABCONTROL, ADDTAB, CREATEOWNBTN, CREATEPANEL) were
+                folded into calls to it, fixing the stray RGB(212,208,200)
+                in CREATEPANEL that was inconsistent with the 240,240,240
+                used elsewhere.
+   * source/gtk/control.c: hwg_apply_bg() calls replace the per-function
+                GdkColor blocks. HWG_SETBGCOLOR now propagates BACKCOLOR to
+                NORMAL/ACTIVE/PRELIGHT/SELECTED instead of NORMAL only, so
+                user overrides win over the default policy in every state.
+  * hwgui.hbc: librsvg-2.0 hook added (via pkg-config), consumed by the
+                HWGUI build when SVG support is requested.
+  * hwgui.hbp: build line updated to pull the librsvg-2.0 flags from
+                hwgui.hbc. Build with: hbmk2 hwgui.hbp
+  * hwgui.hbp: build notes updated for both platforms:
+                    Linux:    hbmk2 hwgui.hbp
+                    Windows:  hbmk2 hwgui.hbp svg.hbc
+                Requires librsvg2-dev at build time, librsvg2-common at
+                run time.
+  ! Now /bin/binct works with SVG files on gtk2
+
 2026-10-27 16:01 UTC-0300  Jose Quintas  <jmcquintas@gmail.com>
   * samples\testrtf.hbp
     ! -stop={!win}, richtext uses Windows only functions (EMF, GDI+)

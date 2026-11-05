@@ -24,6 +24,10 @@
 
 #include <math.h>
 
+#ifdef __USE_LIBRSVG
+   #include <librsvg/rsvg.h>
+#endif
+
 /* Avoid warnings from GCC */
 #include "warnings.h"
 
@@ -45,6 +49,107 @@ extern GtkFixed *getFixedBox( GObject * handle );
 
 static void * bmp_fileimg ; /* Pointer to file image of a bitmap */
 static long int nCurrPenClr = 0, nCurrBrushClr = 0xffffff;
+
+/* GTK2 replacement for gdk_pixbuf_get_from_surface().
+ * Converts a CAIRO_FORMAT_ARGB32 surface to a GdkPixbuf (RGBA, 8bpc).
+ * Handles the Cairo premultiplied-alpha → GdkPixbuf straight-alpha
+ * conversion and the ARGB32 (BGRA on LE) → RGBA byte reorder. */
+static GdkPixbuf *hwg_pixbuf_from_cairo_surface( cairo_surface_t *surface,
+                                                 int width, int height )
+{
+  cairo_surface_flush( surface );
+
+  const guchar *data   = cairo_image_surface_get_data( surface );
+  int           stride = cairo_image_surface_get_stride( surface );
+
+  GdkPixbuf *pb        = gdk_pixbuf_new( GDK_COLORSPACE_RGB, TRUE, 8, width, height );
+  guchar    *px        = gdk_pixbuf_get_pixels( pb );
+  int        pb_stride = gdk_pixbuf_get_rowstride( pb );
+
+  int x, y;
+  for( y = 0; y < height; y++ )
+  {
+    const guint32 *src = (const guint32 *)( data + y * stride );
+    guchar        *dst = px + y * pb_stride;
+
+    for( x = 0; x < width; x++ )
+    {
+      guint32 p = src[ x ];
+      guint8  a = ( p >> 24 ) & 0xFF;
+      guint8  r = ( p >> 16 ) & 0xFF;
+      guint8  g = ( p >>  8 ) & 0xFF;
+      guint8  b =   p         & 0xFF;
+
+      /* Cairo stores premultiplied alpha; GdkPixbuf expects straight. */
+      if( a > 0 && a < 255 )
+      {
+        r = (guint8)( ( r * 255u ) / a );
+        g = (guint8)( ( g * 255u ) / a );
+        b = (guint8)( ( b * 255u ) / a );
+      }
+
+      dst[ x * 4 + 0 ] = r;
+      dst[ x * 4 + 1 ] = g;
+      dst[ x * 4 + 2 ] = b;
+      dst[ x * 4 + 3 ] = a;
+    }
+  }
+
+  return pb;
+}
+
+/* Simple byte-wise string replacement. Returns a newly allocated buffer
+ * (caller must hb_xfree) or NULL if the needle was not found. */
+static char *hwg_svg_replace( const char *src, HB_SIZE srcLen,
+                              const char *needle, const char *replace,
+                              HB_SIZE *outLen )
+{
+  HB_SIZE needleLen  = strlen( needle );
+  HB_SIZE replaceLen = strlen( replace );
+  HB_SIZE i, count = 0, allocLen;
+  char *out, *p;
+
+  if( !src || !needle || !replace || !needleLen || !srcLen )
+    return NULL;
+
+  for( i = 0; i + needleLen <= srcLen; )
+  {
+    if( memcmp( src + i, needle, needleLen ) == 0 )
+    {
+      count++;
+      i += needleLen;
+    }
+    else
+      i++;
+  }
+  if( !count )
+    return NULL;
+
+  allocLen = srcLen + 1;
+  if( replaceLen > needleLen )
+    allocLen += count * ( replaceLen - needleLen );
+
+  out = (char *) hb_xgrab( allocLen );
+  p   = out;
+  for( i = 0; i + needleLen <= srcLen; )
+  {
+    if( memcmp( src + i, needle, needleLen ) == 0 )
+    {
+      memcpy( p, replace, replaceLen );
+      p += replaceLen;
+      i += needleLen;
+    }
+    else
+      *p++ = src[i++];
+  }
+  while( i < srcLen )
+    *p++ = src[i++];
+  *p = '\0';
+
+  if( outLen )
+    *outLen = (HB_SIZE)( p - out );
+  return out;
+}
 
 void hwg_parse_color( HB_ULONG ncolor, GdkColor * pColor )
 {
@@ -76,7 +181,6 @@ void hwg_setcolor( cairo_t * cr, long int nColor )
           ( ( double ) g ) / 255., ( ( double ) b ) / 255. );
 
 }
-
 
 void hwg_SelectObject( PHWGUI_HDC hDC, HWGUI_HDC_OBJECT * obj )
 {
@@ -2400,6 +2504,230 @@ for (i = 0 ; i < nlen ; i++ )
 
 }
 
+/*=============================================================================
+ * HWG_LOADSVGSTRING( cSvgBytes, nWidth, nHeight [, nBackColor, nForeColor ] )
+ *
+ * GTK2 implementation: Renders SVG bytes into a GdkPixbuf (PHWGUI_PIXBUF).
+ * Requires librsvg2 (>= 2.46 for RsvgRectangle / rsvg_handle_render_document)
+ * and the library to be built with -D__USE_LIBRSVG.
+ *===========================================================================*/
+#ifdef __USE_LIBRSVG
+HB_FUNC( HWG_LOADSVGSTRING )
+{
+  PHB_ITEM pBytes = hb_param( 1, HB_IT_STRING );
+  int      nWidth  = hb_parni( 2 );
+  int      nHeight = hb_parni( 3 );
+  long     lBackColor = ( hb_pcount() >= 4 && !HB_ISNIL( 4 ) )
+  ? hb_parnl( 4 ) : 0x00FFFFFFL;
+  long     lForeColor = ( hb_pcount() >= 5 && !HB_ISNIL( 5 ) )
+  ? hb_parnl( 5 ) : -1L;
+
+  unsigned char rB, gB, bB;
+  char    *szPrepared   = NULL;
+  HB_SIZE  nPreparedLen = 0;
+  const char *szSrc     = NULL;
+  HB_SIZE  nSrcLen      = 0;
+
+  GdkPixbuf *pixbuf = NULL;
+  GError    *error  = NULL;
+  gboolean   bTransparent;
+
+  if( pBytes == NULL || !HB_IS_STRING( pBytes ) ||
+    nWidth <= 0 || nHeight <= 0 )
+  {
+    hb_retptr( NULL );
+    return;
+  }
+
+  bTransparent = ( lBackColor == -1L );
+
+  rB = ( unsigned char ) (  lBackColor        & 0xFF );
+  gB = ( unsigned char ) ( ( lBackColor >>  8 ) & 0xFF );
+  bB = ( unsigned char ) ( ( lBackColor >> 16 ) & 0xFF );
+
+  szSrc   = hb_itemGetCPtr( pBytes );
+  nSrcLen = hb_itemGetCLen( pBytes );
+
+  /* Rewrite the icon fill colour, if the caller supplied one. */
+  if( lForeColor >= 0 )
+  {
+    char szFill[ 10 ];
+    unsigned char rF = ( unsigned char ) (  lForeColor        & 0xFF );
+    unsigned char gF = ( unsigned char ) ( ( lForeColor >>  8 ) & 0xFF );
+    unsigned char bF = ( unsigned char ) ( ( lForeColor >> 16 ) & 0xFF );
+    snprintf( szFill, sizeof( szFill ), "#%02X%02X%02X", rF, gF, bF );
+
+    szPrepared = hwg_svg_replace( szSrc, nSrcLen, "#212121", szFill, &nPreparedLen );
+    if( !szPrepared )
+      szPrepared = hwg_svg_replace( szSrc, nSrcLen, "#000000", szFill, &nPreparedLen );
+
+    if( szPrepared )
+    {
+      szSrc   = szPrepared;
+      nSrcLen = nPreparedLen;
+    }
+  }
+
+  RsvgHandle *handle = rsvg_handle_new_from_data(
+    ( const guint8 * ) szSrc, ( gsize ) nSrcLen, &error );
+
+  if( handle != NULL )
+  {
+    double wIntr = 24.0, hIntr = 24.0;
+
+    if( !rsvg_handle_get_intrinsic_size_in_pixels( handle, &wIntr, &hIntr )
+      || wIntr <= 0.0 || hIntr <= 0.0 )
+    {
+      wIntr = 24.0;
+      hIntr = 24.0;
+    }
+
+    /* Render at 4x for extra smoothness (anti-aliasing) */
+    int nSuperW = nWidth  * 4;
+    int nSuperH = nHeight * 4;
+
+    cairo_surface_t *surface4x = cairo_image_surface_create(
+      CAIRO_FORMAT_ARGB32, nSuperW, nSuperH );
+
+    if( surface4x != NULL )
+    {
+      cairo_t *cr4x = cairo_create( surface4x );
+      cairo_set_antialias( cr4x, CAIRO_ANTIALIAS_BEST );
+
+      cairo_scale( cr4x,
+                   ( double ) nSuperW / wIntr,
+                   ( double ) nSuperH / hIntr );
+
+      RsvgRectangle viewport = { 0.0, 0.0, wIntr, hIntr };
+
+      gboolean bOk = rsvg_handle_render_document( handle, cr4x,
+                                                  &viewport, &error );
+
+      if( bOk && error == NULL )
+      {
+        /* Create the final 1x surface */
+        cairo_surface_t *surface1x = cairo_image_surface_create(
+          CAIRO_FORMAT_ARGB32, nWidth, nHeight );
+        cairo_t *cr1x = cairo_create( surface1x );
+
+        /* Fill with background colour if not transparent */
+        if( !bTransparent )
+        {
+          cairo_set_source_rgb( cr1x,
+                                rB / 255.0,
+                                gB / 255.0,
+                                bB / 255.0 );
+          cairo_paint( cr1x );
+        }
+
+        /* Scale down the 4x surface to 1x with best filtering */
+        cairo_scale( cr1x, 1.0 / 4.0, 1.0 / 4.0 );
+        cairo_set_source_surface( cr1x, surface4x, 0, 0 );
+        cairo_pattern_set_filter( cairo_get_source( cr1x ),
+                                  CAIRO_FILTER_BEST );
+
+        if( bTransparent )
+          cairo_paint( cr1x );
+        else
+          cairo_paint_with_alpha( cr1x, 1.0 );
+
+        /* GTK2: manual conversion instead of gdk_pixbuf_get_from_surface() */
+        pixbuf = hwg_pixbuf_from_cairo_surface( surface1x,
+                                                nWidth, nHeight );
+
+        cairo_destroy( cr1x );
+        cairo_surface_destroy( surface1x );
+      }
+
+      cairo_destroy( cr4x );
+      cairo_surface_destroy( surface4x );
+    }
+
+    g_object_unref( handle );
+  }
+
+  if( error != NULL )
+    g_error_free( error );
+
+  if( szPrepared )
+    hb_xfree( szPrepared );
+
+  /* Wrap the GdkPixbuf into HWGUI's PHWGUI_PIXBUF structure */
+  if( pixbuf )
+  {
+    PHWGUI_PIXBUF hpix = (PHWGUI_PIXBUF) hb_xgrab( sizeof(HWGUI_PIXBUF) );
+    hpix->type    = HWGUI_OBJECT_PIXBUF;
+    hpix->handle  = pixbuf;
+    hpix->trcolor = -1;
+    HB_RETHANDLE( hpix );
+  }
+  else
+    hb_retptr( NULL );
+}
+#else
+   HB_FUNC( HWG_LOADSVGSTRING )
+   {
+     hb_retptr( NULL );   /* built without -D__USE_LIBRSVG */
+   }
+#endif
+
+/* GTK2-safe dark mode detection.
+ * The 'gtk-application-prefer-dark-theme' property does not exist in GTK2
+ * (added in GTK 3.0). On GTK2 we sniff the theme name and GTK_THEME env var. */
+HB_FUNC( HWG_SHOULDAPPSUSEDARKMODE )
+{
+  gboolean dark = FALSE;
+
+  /* 1) gtk-theme-name setting, e.g. "Adwaita-dark", "Raleigh-Dark" */
+  {
+    GtkSettings *settings = gtk_settings_get_default();
+    if( settings )
+    {
+      gchar *themeName = NULL;
+      g_object_get( settings, "gtk-theme-name", &themeName, NULL );
+      if( themeName )
+      {
+        gchar *lower = g_ascii_strdown( themeName, -1 );
+        if( lower && strstr( lower, "dark" ) )
+          dark = TRUE;
+        if( lower ) g_free( lower );
+        g_free( themeName );
+      }
+    }
+  }
+
+  /* 2) GTK_THEME=Adwaita:dark override */
+  {
+    const char *env = g_getenv( "GTK_THEME" );
+    if( env && *env )
+    {
+      gchar *lower = g_ascii_strdown( env, -1 );
+      if( lower && strstr( lower, "dark" ) )
+        dark = TRUE;
+      if( lower ) g_free( lower );
+    }
+  }
+
+  hb_retl( dark );
+}
+
+HB_FUNC( HWG_DARKTHEMECOLOR )
+{
+  int nIdx = hb_parni( 1 );
+  switch( nIdx )
+  {
+    case 0:  hb_retni( 0x00202020 ); break;   /* dialog background */
+    case 1:  hb_retni( 0x00EBEBEB ); break;   /* text on dark bg   */
+    case 2:  hb_retni( 0x00302D2D ); break;   /* edit background   */
+    case 3:  hb_retni( 0x00EBEBEB ); break;   /* edit text         */
+    default: hb_retni( 0x00202020 );
+  }
+}
+
+HB_FUNC( HWG_GDIPLUSOPENIMAGE )
+{
+  hb_retptr( NULL );
+}
 
 /* ================== EOF of draw.c ========================== */
 

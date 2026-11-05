@@ -22,11 +22,13 @@ libpaths=lib
 
 #PRGFLAGS=-DUNICODE -q -m -n -es2
 {win}CFLAGS=-DUNICODE -DHWG_USE_POINTER_ITEM
-#{unix}CFLAGS=-DUNICODE -DHWG_USE_POINTER_ITEM "`pkg-config --cflags gtk+-2.0`"
+{unix}CFLAGS=-DUNICODE -DHWG_USE_POINTER_ITEM "`pkg-config --cflags gtk+-2.0 librsvg-2.0`"
 
 PRGFLAGS=-q -m -n -es2
 {win}CFLAGS=-DHWG_USE_POINTER_ITEM
-{unix}CFLAGS=-DHWG_USE_POINTER_ITEM "`pkg-config --cflags gtk+-2.0`"
+{unix}CFLAGS=-DHWG_USE_POINTER_ITEM "`pkg-config --cflags gtk+-2.0 librsvg-2.0`"
+{unix}ldflags+="`pkg-config --libs webkit2gtk librsvg-2.0`"
+{unix}CFLAGS="`pkg-config --cflags webkit2gtk librsvg-2.0`"
 
 {allmingw}libs=gdiplus
 
@@ -36,8 +38,6 @@ PRGFLAGS=-q -m -n -es2
 # Activate for GCC > V8
 #-Wold-style-cast
 # Always done in "warnings.h" as PRAGMA declaration
-
-# "{unix}-cflag=`pkg-config --cflags gtk+-2.0`"
 
 # =============================== EOF of hwgui.hbc ====================================
 

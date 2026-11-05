@@ -95,6 +95,71 @@ static HW_SIGNAL aSignals[NUMBER_OF_SIGNALS] = { { "destroy",2 } };
 
 static gchar szAppLocale[] = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
+/* ============================================================================
+ * Background policy — runtime, per-application, theme-first.
+ *
+ *   HWG_BG_THEME   (0, default) : do not touch anything; the active GTK theme
+ *                                 decides the background of every widget.
+ *   HWG_BG_WINDOWS (1)          : force RGB(240,240,240) — modern Windows chrome.
+ *   > 1                         : force the packed 0xRRGGBB value.
+ *
+ * Can be set from .prg:      hwg_SetDefaultBgColor( 0 | 1 | 0xRRGGBB )
+ * Or from the environment:   HWGUI_BGCOLOR=auto|windows|0xD4D0C8
+ * ============================================================================ */
+#define HWG_BG_THEME    0
+#define HWG_BG_WINDOWS  1
+
+static guint32 g_hwg_bg_mode = HWG_BG_THEME;
+
+static gboolean hwg_resolve_bg( GdkColor *color )
+{
+      switch( g_hwg_bg_mode )
+      {
+            case HWG_BG_THEME:
+                  return FALSE;                       /* let the GTK theme paint */
+            case HWG_BG_WINDOWS:
+                  color->red = color->green = color->blue = 240 * 257;
+                  return TRUE;
+            default:
+                  color->red   = ( ( g_hwg_bg_mode >> 16 ) & 0xFF ) * 257;
+                  color->green = ( ( g_hwg_bg_mode >>  8 ) & 0xFF ) * 257;
+                  color->blue  = (   g_hwg_bg_mode         & 0xFF ) * 257;
+                  return TRUE;
+      }
+}
+
+/* Apply the resolved color to all relevant GTK states. No-op in theme mode. */
+void hwg_apply_bg( GtkWidget *w, gboolean bSelected )
+{
+      GdkColor color;
+      if( !w || !hwg_resolve_bg( &color ) )
+            return;
+      gtk_widget_modify_bg( w, GTK_STATE_NORMAL,   &color );
+      gtk_widget_modify_bg( w, GTK_STATE_ACTIVE,   &color );
+      gtk_widget_modify_bg( w, GTK_STATE_PRELIGHT, &color );
+      if( bSelected )
+            gtk_widget_modify_bg( w, GTK_STATE_SELECTED, &color );
+}
+
+/* Boot-time policy override, read once from the environment. */
+static void hwg_bg_load_env( void )
+{
+      const char *s = g_getenv( "HWGUI_BGCOLOR" );
+      guint32 v;
+      if( !s || !*s || g_ascii_strcasecmp( s, "auto" ) == 0 )
+            return;
+      if( g_ascii_strcasecmp( s, "windows" ) == 0 )
+      {
+            g_hwg_bg_mode = HWG_BG_WINDOWS;
+            return;
+      }
+      v = (guint32) g_ascii_strtoull( s, NULL, 0 );
+      if( v )
+            g_hwg_bg_mode = v;
+}
+
+HB_FUNC( HWG_SETDEFAULTBGCOLOR ) { g_hwg_bg_mode = (guint32) hb_parnl( 1 ); }
+HB_FUNC( HWG_GETDEFAULTBGCOLOR ) { hb_retnl( (long) g_hwg_bg_mode ); }
 
 gboolean cb_delete_event( GtkWidget *widget, gchar* data )
 {
@@ -152,7 +217,39 @@ static void hwg_gtk_log_handler( const gchar *log_domain,
 HB_FUNC( HWG_GTK_INIT )
 {
       gtk_init( 0,0 );
+/* ============================================================================
+ * HB_FUNC( HWG_GTK_INIT )
+ * Core GUI initialization wrapper
+ * ============================================================================
+ */
+HB_FUNC( HWG_GTK_INIT )
+{
+      gtk_init( 0,0 );
 
+      hwg_bg_load_env();
+
+      /*
+       * CORE LOG BINDING: Redirect GLib and Gtk critical assertion logs
+       * to our custom filter to prevent terminal spam on legacy engines.
+       */
+      g_log_set_handler( "GLib-GObject", G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_WARNING,
+                         hwg_gtk_log_handler, NULL );
+      g_log_set_handler( "Gtk", G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_WARNING,
+                         hwg_gtk_log_handler, NULL );
+
+      #if GTK_MAJOR_VERSION -0 < 3   /* Only for GTK 2 */
+      /* Disable automatic text selection when GtkEntry widgets (used in GETs) receive focus */
+      {
+            GtkSettings *settings = gtk_settings_get_default();
+            if (settings) {
+                  g_object_set(settings, "gtk-entry-select-on-focus", FALSE, NULL);
+            }
+      }
+      #endif
+
+      setlocale( LC_NUMERIC, "C" );
+      setlocale( LC_CTYPE, "" );
+}
       /*
        * CORE LOG BINDING: Redirect GLib and Gtk critical assertion logs
        * to our custom filter to prevent terminal spam on legacy engines.
@@ -350,23 +447,8 @@ HB_FUNC( HWG_CREATEDLG )
 
       hWnd = ( GtkWidget * ) gtk_window_new( GTK_WINDOW_TOPLEVEL );
 
-      /*
-       * VISUAL FIX (GTK2): Match the exact background color used in the application's
-       * bitmap (.bmp) icons to ensure complete visual blending (RGB: 214, 211, 206).
-       */
-      if( hWnd )
-      {
-            GdkColor color;
-            /* Modern Windows Dialog Background (Off-White / White Smoke RGB: 240, 240, 240) */
-            color.red   = 240 * 257;
-            color.green = 240 * 257;
-            color.blue  = 240 * 257;
-
-            gtk_widget_modify_bg( hWnd, GTK_STATE_NORMAL, &color );
-            gtk_widget_modify_bg( hWnd, GTK_STATE_ACTIVE, &color );
-            gtk_widget_modify_bg( hWnd, GTK_STATE_PRELIGHT, &color );
-            gtk_widget_modify_bg( hWnd, GTK_STATE_SELECTED, &color );
-      }
+      /* Runtime background policy — no-op when theme mode is active (default). */
+      hwg_apply_bg( hWnd, TRUE );
 
       #if ! ( GTK_MAJOR_VERSION -0 < 3 )
       /* GTK 3 */

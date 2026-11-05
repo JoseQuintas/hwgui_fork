@@ -68,6 +68,7 @@ extern gint cb_signal_size( GtkWidget *widget, GtkAllocation *allocation, gpoint
 extern void all_signal_connect( gpointer hWnd );
 extern GtkWidget *GetActiveWindow( void );
 extern GdkPixbuf *alpha2pixbuf( GdkPixbuf * hPixIn, long int nColor );
+extern void hwg_apply_bg( GtkWidget *w, gboolean bSelected );
 
 static PHB_DYNS pSymTimerProc = NULL;
 
@@ -1027,22 +1028,8 @@ HB_FUNC( HWG_CREATETABCONTROL )
       if( hb_parni(3) & TCS_BOTTOM )
             gtk_notebook_set_tab_pos( (GtkNotebook*) hCtrl, GTK_POS_BOTTOM );
 
-      /*
-       * VISUAL FIX (GTK2): Force the notebook background, active tabs,
-       * and lower layout borders to match the uniform Windows classic gray style.
-       */
-      if( hCtrl )
-      {
-            GdkColor color;
-            color.red   = 240 * 257;
-            color.green = 240 * 257;
-            color.blue  = 240 * 257;
-
-            /* Force color on all operational states to eliminate the white bottom border */
-            gtk_widget_modify_bg( hCtrl, GTK_STATE_NORMAL, &color );
-            gtk_widget_modify_bg( hCtrl, GTK_STATE_ACTIVE, &color );
-            gtk_widget_modify_bg( hCtrl, GTK_STATE_PRELIGHT, &color );
-      }
+      /* Runtime background policy — no-op when theme mode is active (default). */
+      hwg_apply_bg( hCtrl, FALSE );
 
       g_signal_connect( hCtrl, "switch-page",
                         G_CALLBACK (cb_signal_tab), NULL );
@@ -1064,20 +1051,8 @@ HB_FUNC( HWG_ADDTAB )
       char        *cTooltip = ( HB_ISNIL(3) ? NULL : hwg_convert_to_utf8( hb_parc(3) ) );
       guint        nIdx;
 
-      /*
-       * VISUAL FIX (GTK2): Match the exact background color used in the application's
-       * bitmap (.bmp) icons to ensure complete visual blending inside the tab container (RGB: 214, 211, 206).
-       */
-      if( box )
-      {
-            GdkColor color;
-            color.red   = 240 * 257;
-            color.green = 240 * 257;
-            color.blue  = 240 * 257;
-
-            gtk_widget_modify_bg( GTK_WIDGET( box ), GTK_STATE_NORMAL, &color );
-            gtk_widget_modify_bg( GTK_WIDGET( box ), GTK_STATE_ACTIVE, &color );
-      }
+      /* Runtime background policy — no-op when theme mode is active (default). */
+      hwg_apply_bg( GTK_WIDGET( box ), FALSE );
 
       hLabel  = gtk_label_new( cLabel );
       g_free( cLabel );
@@ -1208,34 +1183,10 @@ HB_FUNC( HWG_CREATEPANEL )
       hbox = gtk_hbox_new( FALSE, 0 );
       vbox = gtk_vbox_new( FALSE, 0 );
 
-      /*
-       * VISUAL FIX (GTK2): Force the custom toolbars, layout containers,
-       * and alignment box wrappers (hbox/vbox) to match the uniform Windows
-       * classic gray style (RGB: 212, 208, 200), eliminating the white background.
-       */
-      if( fbox || hbox || vbox )
-      {
-            GdkColor color;
-            color.red   = 212 * 257;
-            color.green = 208 * 257;
-            color.blue  = 200 * 257;
-
-            /* Paint the inner layout anchor */
-            if( fbox ) {
-                  gtk_widget_modify_bg( GTK_WIDGET( fbox ), GTK_STATE_NORMAL, &color );
-                  gtk_widget_modify_bg( GTK_WIDGET( fbox ), GTK_STATE_ACTIVE, &color );
-            }
-            /* Paint the horizontal structural container wrapper */
-            if( hbox ) {
-                  gtk_widget_modify_bg( GTK_WIDGET( hbox ), GTK_STATE_NORMAL, &color );
-                  gtk_widget_modify_bg( GTK_WIDGET( hbox ), GTK_STATE_ACTIVE, &color );
-            }
-            /* Paint the vertical structural container wrapper */
-            if( vbox ) {
-                  gtk_widget_modify_bg( GTK_WIDGET( vbox ), GTK_STATE_NORMAL, &color );
-                  gtk_widget_modify_bg( GTK_WIDGET( vbox ), GTK_STATE_ACTIVE, &color );
-            }
-      }
+      /* Runtime background policy — no-op when theme mode is active (default). */
+      if( fbox ) hwg_apply_bg( GTK_WIDGET( fbox ), FALSE );
+      if( hbox ) hwg_apply_bg( GTK_WIDGET( hbox ), FALSE );
+      if( vbox ) hwg_apply_bg( GTK_WIDGET( vbox ), FALSE );
 
 
       if( ( ulStyle & SS_OWNERDRAW ) == SS_OWNERDRAW )
@@ -1350,22 +1301,8 @@ HB_FUNC( HWG_CREATEOWNBTN )
             gtk_fixed_put( box, hCtrl, hb_parni( 3 ), hb_parni( 4 ) );
       gtk_widget_set_size_request( hCtrl, hb_parni( 5 ), hb_parni( 6 ) );
 
-      /*
-       * VISUAL FIX (GTK2): Force custom drawing buttons (Owner Draw) to match
-       * the standard modern Windows off-white theme color (RGB: 240, 240, 240)
-       * to completely unmask bitmap borders.
-       */
-      if( hCtrl )
-      {
-            GdkColor color;
-            color.red   = 240 * 257;
-            color.green = 240 * 257;
-            color.blue  = 240 * 257;
-
-            gtk_widget_modify_bg( hCtrl, GTK_STATE_NORMAL, &color );
-            gtk_widget_modify_bg( hCtrl, GTK_STATE_ACTIVE, &color );
-            gtk_widget_modify_bg( hCtrl, GTK_STATE_PRELIGHT, &color );
-      }
+      /* Runtime background policy — no-op when theme mode is active (default). */
+      hwg_apply_bg( hCtrl, FALSE );
 
       #if GTK_MAJOR_VERSION -0 < 3
       set_event( ( gpointer ) hCtrl, "expose_event", WM_PAINT, 0, 0 );
@@ -1873,18 +1810,26 @@ HB_FUNC( HWG_SETBGCOLOR )
       GtkWidget *hCtrl = ( GtkWidget * ) HB_PARHANDLE( 1 );
       HB_ULONG hColor = hb_parnl( 2 );
       GdkColor color;
+      GtkStateType aStates[4] = { GTK_STATE_NORMAL, GTK_STATE_ACTIVE,
+            GTK_STATE_PRELIGHT, GTK_STATE_SELECTED };
+            int i;
 
-      hwg_parse_color( hColor, &color );
-      if( GTK_IS_ENTRY( hCtrl ) )
-      {
-            GtkStyle * style = gtk_style_copy( gtk_widget_get_style( hCtrl ) );
-            hwg_parse_color( hColor, &(style->bg[GTK_STATE_NORMAL]) );
-            hwg_parse_color( hColor, &(style->base[GTK_STATE_NORMAL]) );
-            gtk_widget_set_style( hCtrl, style );
-            //gtk_widget_modify_base( hCtrl, GTK_STATE_NORMAL, &color );
-      }
-      else
-            gtk_widget_modify_bg( hCtrl, GTK_STATE_NORMAL, &color );
+            hwg_parse_color( hColor, &color );
+            if( GTK_IS_ENTRY( hCtrl ) )
+            {
+                  GtkStyle * style = gtk_style_copy( gtk_widget_get_style( hCtrl ) );
+                  for( i = 0; i < 4; i++ )
+                  {
+                        hwg_parse_color( hColor, &(style->bg[aStates[i]]) );
+                        hwg_parse_color( hColor, &(style->base[aStates[i]]) );
+                  }
+                  gtk_widget_set_style( hCtrl, style );
+            }
+            else
+            {
+                  for( i = 0; i < 4; i++ )
+                        gtk_widget_modify_bg( hCtrl, aStates[i], &color );
+            }
 }
 
 #else

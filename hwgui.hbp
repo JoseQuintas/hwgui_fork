@@ -18,10 +18,11 @@ hwgui.hbc
 -w3
 
 #Uncomment these two lines to build HwGUI in Unicode mode
-#-prgflag=-DUNICODE
-#-cflag=-DUNICODE
+-prgflag=-DUNICODE
+-cflag=-DUNICODE
 
-#Uncomment these line to build HwGUI with LIBRSVG SVG files command $>hbmk2 hwgui.hbp svg.hbc
+#Uncomment these line to build HwGUI with LIBRSVG SVG files command Windows $>hbmk2 hwgui.hbp svg.hbc
+#Uncomment these line to build HwGUI with LIBRSVG SVG files command Linux $>hbmk2 hwgui.hbp
 #-cflag=-D__USE_LIBRSVG
 
 #
