@@ -15,6 +15,9 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-11-05 20:25 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+   * hwgui.hbc disable option SVG, WebKit2gtk Linux Default is off.
+
 2026-11-05 15:14 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
    * source/gtk/draw.c: HWG_LOADSVGSTRING added to the GTK2 backend
                 (guarded by __USE_LIBRSVG). Renders SVG bytes into a

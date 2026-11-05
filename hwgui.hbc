@@ -18,17 +18,17 @@ libpaths=lib
 
 {unix}ldflags+="`pkg-config --libs gtk+-2.0`"
 
-# Change 3 lines to build HwGUI in Unicode mode
-
-#PRGFLAGS=-DUNICODE -q -m -n -es2
-{win}CFLAGS=-DUNICODE -DHWG_USE_POINTER_ITEM
-{unix}CFLAGS=-DUNICODE -DHWG_USE_POINTER_ITEM "`pkg-config --cflags gtk+-2.0 librsvg-2.0`"
-
 PRGFLAGS=-q -m -n -es2
 {win}CFLAGS=-DHWG_USE_POINTER_ITEM
-{unix}CFLAGS=-DHWG_USE_POINTER_ITEM "`pkg-config --cflags gtk+-2.0 librsvg-2.0`"
-{unix}ldflags+="`pkg-config --libs webkit2gtk librsvg-2.0`"
-{unix}CFLAGS="`pkg-config --cflags webkit2gtk librsvg-2.0`"
+
+#Uncomment 2 lines to build HwGUI in Unicode mode Windows
+#PRGFLAGS=-DUNICODE -q -m -n -es2
+#{win}CFLAGS=-DUNICODE -DHWG_USE_POINTER_ITEM
+
+{unix}CFLAGS=-DHWG_USE_POINTER_ITEM "`pkg-config --cflags gtk+-2.0`"
+#Uncomment 2 lines to build HwGUI webkit2gtk and librsvg
+#{unix}ldflags+="`pkg-config --libs webkit2gtk-4.1 librsvg-2.0`"
+#{unix}CFLAGS=-DUNICODE -DHWG_USE_POINTER_ITEM "`pkg-config --cflags webkit2gtk-4.1 librsvg-2.0`"
 
 {allmingw}libs=gdiplus
 
@@ -40,4 +40,3 @@ PRGFLAGS=-q -m -n -es2
 # Always done in "warnings.h" as PRAGMA declaration
 
 # =============================== EOF of hwgui.hbc ====================================
-
