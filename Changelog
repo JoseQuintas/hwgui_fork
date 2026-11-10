@@ -15,6 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+2026-11-10 14:30 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+   * source/gtk4/misc.c: HWG_SHOWWINDOW honours optional lShow parameter.
+                Was always calling gtk_widget_set_visible(w, TRUE),
+                ignoring the 2nd arg.  HPanel:Collapse relies on
+                hwg_ShowWindow(ctrl, .F.) to hide its child controls, so
+                the panel shrank to 6px but kept its buttons on screen.
+                Now honours lShow; omitted/Nil defaults to TRUE (keeps
+                the 1-arg form working).  Completes the 2026-10-27
+                SetAutoCollapse commit (HWG_ISWINDOWACTIVE + hpanel.prg).
+
 2026-11-05 20:25 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
    * hwgui.hbc disable option SVG, WebKit2gtk Linux Default is off.
 

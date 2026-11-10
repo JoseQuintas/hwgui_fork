@@ -427,9 +427,11 @@ HB_FUNC( HWG_HIDEWINDOW )
 
 HB_FUNC( HWG_SHOWWINDOW )
 {
-    GtkWidget *w = (GtkWidget *) HB_PARHANDLE( 1 );
+    GtkWidget *w     = (GtkWidget *) HB_PARHANDLE( 1 );
+    gboolean   bShow = HB_ISNIL( 2 ) ? TRUE : hb_parl( 2 );
+
     if( w && GTK_IS_WIDGET( w ) )
-        gtk_widget_set_visible( w, TRUE );
+        gtk_widget_set_visible( w, bShow );
 }
 
 HB_FUNC( HWG_SHOWALL )
