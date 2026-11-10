@@ -171,7 +171,7 @@ FUNCTION Hwg_GetSubMenuHandle( aMenu, nId )
 
 FUNCTION hwg_BuildMenu( aMenuInit, hWnd, oWnd, nPosParent, lPopup )
 
-   LOCAL hMenu, nPos, aMenu
+   LOCAL hMenu, nPos, oBmp, aMenu
 
    IF nPosParent == Nil
       IF lPopup == Nil .OR. !lPopup
@@ -211,6 +211,12 @@ FUNCTION hwg_BuildMenu( aMenuInit, hWnd, oWnd, nPosParent, lPopup )
              */
             aMenu[1,npos,5] := hwg__AddMenuItem( hMenu, aMenu[1,npos,2], ;
                nPos, hWnd, aMenu[1,nPos,3], aMenu[1,npos,4], .F. )
+
+            oBmp := SearchPosBitmap( aMenu[ 1, nPos, 3 ] )
+            IF oBmp[ 1 ]
+               hwg__Setmenuitembitmaps( hMenu, aMenu[ 1, nPos, 3 ], oBmp[ 2 ], "" )
+            ENDIF
+
          ENDIF
       ENDIF
       nPos ++
@@ -294,11 +300,11 @@ FUNCTION Hwg_EndMenu()
 
    RETURN .T.
 
-
 FUNCTION Hwg_DefineMenuItem( cItem, nId, bItem, lDisabled, accFlag, accKey, ;
-                             lBitmap, lResource, lCheck )
+                             lBitmap, lResource, lCheck, ;
+                             nWidth, nHeight, nBackColor )
 
-   LOCAL aMenu, i, nFlag
+   LOCAL aMenu, i, oBmp, nFlag
 
    HB_SYMBOL_UNUSED( lBitmap )
    HB_SYMBOL_UNUSED( lResource )
@@ -321,6 +327,24 @@ FUNCTION Hwg_DefineMenuItem( cItem, nId, bItem, lDisabled, accFlag, accKey, ;
    ENDIF
 
    AAdd( aMenu, { bItem, cItem, nId, nFlag, 0 } )
+
+   IF lBitmap != Nil .AND. ! Empty( lBitmap )
+      IF lResource == Nil ; lResource := .F. ; ENDIF
+
+      IF ! lResource
+         oBmp := HBitmap():AddFile( lBitmap, , , nWidth, nHeight )
+      ELSE
+         oBmp := HBitmap():AddResource( lBitmap, , , nWidth, nHeight, nBackColor )
+      ENDIF
+
+      IF hwg_ShouldAppsUseDarkMode()
+         hwg_InvertPixbuf( oBmp:Handle )
+      ENDIF
+
+      AAdd( _oBitmap, { .t., oBmp:Handle, cItem, nId } )
+   ELSE
+      AAdd( _oBitmap, { .F., "", cItem, nId } )
+   ENDIF
 
    IF accFlag != Nil .AND. accKey != Nil
       AAdd( _aAccel, { accFlag, accKey, nId } )
@@ -506,3 +530,36 @@ FUNCTION hwg_gtk_convertkey( nKey )
    ENDIF
 
    RETURN nKey
+
+STATIC FUNCTION SearchPosBitmap( nPos_Id )
+   LOCAL nPos := 1, lBmp := { .F., "" }
+   IF _oBitmap != Nil
+      DO WHILE nPos <= Len( _oBitmap )
+         IF _oBitmap[ nPos ][ 4 ] == nPos_Id
+            lBmp := { _oBitmap[ nPos ][ 1 ], _oBitmap[ nPos ][ 2 ], _oBitmap[ nPos ][ 3 ] }
+         ENDIF
+         nPos ++
+      ENDDO
+   ENDIF
+   RETURN lBmp
+
+FUNCTION Hwg_SetMenuItemBitmaps( aMenu, nId, abmp1, abmp2 )
+   LOCAL aSubMenu := Hwg_FindMenuItem( aMenu, nId )
+   LOCAL oMenu
+   oMenu := IIf( aSubMenu == Nil, 0, aSubMenu[ 5 ] )
+   hwg__Setmenuitembitmaps( oMenu, nId, abmp1, abmp2 )
+   RETURN Nil
+
+FUNCTION Hwg_InsertBitmapMenu( aMenu, nId, lBitmap, oResource )
+   LOCAL aSubMenu := Hwg_FindMenuItem( aMenu, nId )
+   LOCAL oBmp, oMenu
+   IF oResource == Nil .or. ! oResource
+      oBmp := HBitmap():AddFile( lBitmap )
+   ELSE
+      oBmp := HBitmap():AddResource( lBitmap )
+   ENDIF
+   oMenu := IIf( aSubMenu == Nil, 0, aSubMenu[ 5 ] )
+   hwg__InsertBitmapMenu( oMenu, nId, oBmp:handle )
+   RETURN Nil
+
+/* ========= EOF of menu.prg ============ */

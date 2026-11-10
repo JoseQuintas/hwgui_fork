@@ -15,7 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2026-11-10 15:51 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+2026-11-10 20:06 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+   * source/gtk4/menu.prg: Support for bitmaps in context menus.
+                Loads bitmaps into _oBitmap and inverts them in dark mode.
+   * source/gtk4/menu_c.c: Implements HWG__SETMENUITEMBITMAPS.
+                Applies GIcon to GMenuItem. Uses CSS and widget traversal
+                on 'map' to force GtkImage visibility. Fixes popover
+                destruction warning on window close.
+
+2026-11-10 17:59 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
    * source/gtk4/hownbtn.prg: Fix dark mode support (text and icons).
                 Text color defaults to theme foreground (hwg_GetThemeColors()[2])
                 instead of hardcoded black. Icons are inverted (RGB only) when

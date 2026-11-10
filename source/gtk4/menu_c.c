@@ -105,6 +105,32 @@ typedef struct {
     gboolean   bSubmenu;   /* TRUE for top-level items that open a submenu */
 } HWG_MENU_ACTION;
 
+static GIcon *hwg_pixbuf_to_icon(GdkPixbuf *pixbuf) {
+    gchar *buffer = NULL;
+    gsize buffer_size = 0;
+    GIcon *icon = NULL;
+    GdkPixbuf *pixbuf_alpha = NULL;
+
+    if (!pixbuf) return NULL;
+
+    /* Ensure the pixbuf has an alpha channel before saving to PNG */
+    if (!gdk_pixbuf_get_has_alpha(pixbuf)) {
+        pixbuf_alpha = gdk_pixbuf_add_alpha(pixbuf, FALSE, 0, 0, 0);
+    } else {
+        pixbuf_alpha = g_object_ref(pixbuf);
+    }
+
+    if (pixbuf_alpha) {
+        if (gdk_pixbuf_save_to_buffer(pixbuf_alpha, &buffer, &buffer_size, "png", NULL, NULL)) {
+            GBytes *bytes = g_bytes_new_take(buffer, buffer_size);
+            icon = g_bytes_icon_new(bytes);
+            g_bytes_unref(bytes);
+        }
+        g_object_unref(pixbuf_alpha);
+    }
+
+    return icon;
+}
 
 /* =====================================================================
  *  Per-window action group
@@ -375,6 +401,7 @@ HB_FUNC( HWG__ADDMENUITEM )
         g_free( gcLabel );
 
         g_menu_item_set_submenu( item, G_MENU_MODEL( submenu ) );
+        g_menu_item_set_attribute( item, "hwg-nid", "i", (gint32)nId );
         g_menu_append_item( model, item );
 
         /*
@@ -442,6 +469,7 @@ HB_FUNC( HWG__ADDMENUITEM )
     gcLabel = hwg_convert_to_utf8( cCaption );
     item    = g_menu_item_new( gcLabel, action_full_name );
     g_free( gcLabel );
+    g_menu_item_set_attribute( item, "hwg-nid", "i", (gint32)nId );
 
     if( bCheck )
     {
@@ -785,19 +813,14 @@ HB_FUNC( HWG__ISENABLEDMENUITEM )
  * handler each one stays parented to the window for the rest of the
  * session, and GTK complains at shutdown:
  *   "Finalizing GtkWindow ... but it still has children left".
- */
-/* Destroy the popover once the user dismisses it.  HWG_TRACKMENU
- * creates a fresh GtkPopoverMenu on every right-click; without this
- * handler each one stays parented to the window for the rest of the
- * session, and GTK complains at shutdown:
- *   "Finalizing GtkWindow ... but it still has children left".
  *
  * The unparent is deferred to an idle callback because "closed" fires
  * BEFORE the item's GAction activation.  Destroying the popover
  * synchronously here would tear it down mid-dispatch, and the click
  * on the item would be lost.  g_idle_add schedules the unparent for
  * the next main loop iteration, by which time the action has already
- * been delivered to cb_signal(). */
+ * been delivered to cb_signal().
+ */
 static gboolean hwg_popover_unparent_idle( gpointer data )
 {
     GtkWidget *popover = GTK_WIDGET( data );
@@ -817,6 +840,87 @@ static void hwg_popover_closed_cb( GtkPopover *popover, gpointer user_data )
 
     g_object_ref( popover );
     g_idle_add( hwg_popover_unparent_idle, popover );
+}
+
+/* If the parent window is destroyed while the popover is still active,
+ * force the unparent so GTK doesn't complain about remaining children. */
+static void hwg_popover_parent_destroy_cb( GtkWidget *parent, gpointer user_data )
+{
+    GtkWidget *popover = GTK_WIDGET( user_data );
+
+    if( popover && GTK_IS_WIDGET( popover ) ) {
+        if( gtk_widget_get_parent( popover ) == parent ) {
+            gtk_widget_unparent( popover );
+        }
+    }
+}
+
+
+/* =====================================================================
+ *  hwg_install_menu_icon_css()
+ *
+ *  GTK4 hides icons when a label is present. This CSS forces the
+ *  icons to be visible and pulls them slightly to the left without
+ *  breaking the text alignment.
+ * ===================================================================== */
+static void hwg_install_menu_icon_css(void)
+{
+    static gboolean installed = FALSE;
+    if (installed) return;
+
+    GtkCssProvider *provider = gtk_css_provider_new();
+    gtk_css_provider_load_from_string(provider,
+                                      /* 1. Force the image to be visible and have a minimum size.
+                                       * 2. Apply a negative left margin to pull the icon to the left.
+                                       * Note: GTK4 CSS does NOT support the "display" property. */
+                                      "popover.menu image, "
+                                      "popover.menu .image { "
+                                      "  min-width: 16px; "
+                                      "  min-height: 16px; "
+                                      "  opacity: 1; "
+                                      "  margin-left: -6px; "
+                                      "  margin-right: 6px; "
+                                      "}"
+    );
+
+    gtk_style_context_add_provider_for_display(
+        gdk_display_get_default(),
+                                               GTK_STYLE_PROVIDER(provider),
+                                               GTK_STYLE_PROVIDER_PRIORITY_USER + 10
+    );
+
+    g_object_unref(provider);
+    installed = TRUE;
+}
+
+
+/* =====================================================================
+ *  force_show_menu_icons( GtkWidget *widget )
+ *
+ *  GTK4 sometimes ignores the CSS visibility for GtkImage nodes inside
+ *  GtkModelButton when a label is present. This function forces the
+ *  node to be visible as a fallback.
+ * ===================================================================== */
+static void force_show_menu_icons(GtkWidget *widget)
+{
+    if (!widget) return;
+
+    if (GTK_IS_IMAGE(widget)) {
+        gtk_widget_set_visible(widget, TRUE);
+    }
+
+    for (GtkWidget *child = gtk_widget_get_first_child(widget);
+         child != NULL;
+    child = gtk_widget_get_next_sibling(child))
+         {
+             force_show_menu_icons(child);
+         }
+}
+
+static void hwg_popover_mapped_cb(GtkWidget *widget, gpointer user_data)
+{
+    HB_SYMBOL_UNUSED(user_data);
+    force_show_menu_icons(widget);
 }
 
 HB_FUNC( HWG_TRACKMENU )
@@ -843,8 +947,16 @@ HB_FUNC( HWG_TRACKMENU )
      * no-op -- the action exists but lives nowhere the menu can find. */
     hwg_transfer_pending_actions( parent );
 
+    /* Install the CSS that forces icons to be visible and aligns them */
+    hwg_install_menu_icon_css();
+
     popover = gtk_popover_menu_new_from_model( model );
     gtk_widget_set_parent( popover, parent );
+
+    /* Destroy the popover if the parent window is destroyed */
+    g_signal_connect( parent, "destroy", G_CALLBACK(hwg_popover_parent_destroy_cb), popover );
+
+    g_signal_connect( popover, "map", G_CALLBACK(hwg_popover_mapped_cb), NULL );
 
     /*
      * Anchor the popover at the mouse pointer.
@@ -897,6 +1009,8 @@ HB_FUNC( HWG_TRACKMENU )
 
     gtk_popover_popup( GTK_POPOVER( popover ) );
 }
+
+
 
 HB_FUNC( HWG_DESTROYMENU )
 {
@@ -1046,6 +1160,113 @@ HB_FUNC( HWG__DELETEMENU )
 HB_FUNC( HWG_DRAWMENUBAR )
 {
     /* GtkPopoverMenuBar draws itself. */
+}
+
+/* =====================================================================
+ *  hwg_apply_menu_bitmap( GMenu *model, int nId, GdkPixbuf *pixbuf )
+ *
+ *  Recursively searches the GMenu model for an item with the given ID.
+ *  Once found, it converts the GdkPixbuf to a GBytesIcon (which is a
+ *  GIcon implementation natively supported by GtkPopoverMenu) and
+ *  applies it to the GMenuItem.
+ * ===================================================================== */
+static gboolean hwg_apply_menu_bitmap(GMenu *model, int nId, GdkPixbuf *pixbuf)
+{
+    int n_items = g_menu_model_get_n_items(G_MENU_MODEL(model));
+
+    for (int i = 0; i < n_items; i++) {
+        GMenuModel *submenu = g_menu_model_get_item_link(G_MENU_MODEL(model), i, G_MENU_LINK_SUBMENU);
+        if (submenu) {
+            if (hwg_apply_menu_bitmap(G_MENU(submenu), nId, pixbuf)) {
+                g_object_unref(submenu);
+                return TRUE;
+            }
+            g_object_unref(submenu);
+            continue;
+        }
+
+        GMenuModel *section = g_menu_model_get_item_link(G_MENU_MODEL(model), i, G_MENU_LINK_SECTION);
+        if (section) {
+            if (hwg_apply_menu_bitmap(G_MENU(section), nId, pixbuf)) {
+                g_object_unref(section);
+                return TRUE;
+            }
+            g_object_unref(section);
+            continue;
+        }
+
+        GMenuItem *item = g_menu_item_new_from_model(G_MENU_MODEL(model), i);
+        gint32 id = 0;
+
+        if (g_menu_item_get_attribute(item, "hwg-nid", "i", &id) && id == nId) {
+            if (pixbuf && GDK_IS_PIXBUF(pixbuf)) {
+                /* Ensure the pixbuf has an alpha channel before saving to PNG */
+                GdkPixbuf *pixbuf_alpha = pixbuf;
+                if (!gdk_pixbuf_get_has_alpha(pixbuf)) {
+                    pixbuf_alpha = gdk_pixbuf_add_alpha(pixbuf, FALSE, 0, 0, 0);
+                }
+
+                gchar *buffer = NULL;
+                gsize buffer_size = 0;
+                if (gdk_pixbuf_save_to_buffer(pixbuf_alpha, &buffer, &buffer_size, "png", NULL, NULL)) {
+                    GBytes *bytes = g_bytes_new_take(buffer, buffer_size);
+                    GIcon *icon = g_bytes_icon_new(bytes);
+                    GVariant *icon_variant = g_icon_serialize(icon);
+
+                    if (icon_variant) {
+                        g_menu_item_set_attribute_value(item, G_MENU_ATTRIBUTE_ICON, icon_variant);
+                        g_variant_unref(icon_variant);
+                    }
+                    g_object_unref(icon);
+                    g_bytes_unref(bytes);
+                }
+
+                if (pixbuf_alpha != pixbuf) {
+                    g_object_unref(pixbuf_alpha);
+                }
+            }
+
+            g_menu_remove(model, i);
+            g_menu_insert_item(model, i, item);
+            g_object_unref(item);
+            return TRUE;
+        }
+        g_object_unref(item);
+    }
+    return FALSE;
+}
+
+/* =====================================================================
+ *  HWG__SETMENUITEMBITMAPS( hMenu, nId, hPixbuf )
+ * ===================================================================== */
+HB_FUNC( HWG__SETMENUITEMBITMAPS )
+{
+    GMenu *model = (GMenu *) HB_PARHANDLE(1);
+    int nId = hb_parni(2);
+
+    PHWGUI_PIXBUF hpix = (PHWGUI_PIXBUF) HB_PARHANDLE(3);
+    GdkPixbuf *pixbuf = (hpix && hpix->handle) ? hpix->handle : NULL;
+
+    if (model && G_IS_MENU(model)) {
+        hwg_apply_menu_bitmap(model, nId, pixbuf);
+    }
+}
+
+/* =====================================================================
+ *  HWG__INSERTBITMAPMENU( hMenu, nId, hPixbuf )
+ * ===================================================================== */
+HB_FUNC( HWG__INSERTBITMAPMENU )
+{
+    GMenu *model = (GMenu *) HB_PARHANDLE(1);
+    int nId = hb_parni(2);
+
+    /* HWGUI passes a PHWGUI_PIXBUF wrapper, not a raw GdkPixbuf */
+    PHWGUI_PIXBUF hpix = (PHWGUI_PIXBUF) HB_PARHANDLE(3);
+    GdkPixbuf *pixbuf = (hpix && hpix->handle) ? hpix->handle : NULL;
+
+    if (model && G_IS_MENU(model)) {
+        hwg_apply_menu_bitmap(model, nId, pixbuf);
+    }
 }
 
 /* =========================== EOF of menu_c.c ================================== */
