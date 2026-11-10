@@ -15,7 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-2026-11-10 14:30 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+2026-11-10 15:51 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
+   * source/gtk4/hownbtn.prg: Fix dark mode support (text and icons).
+                Text color defaults to theme foreground (hwg_GetThemeColors()[2])
+                instead of hardcoded black. Icons are inverted (RGB only) when
+                hwg_ShouldAppsUseDarkMode() is true.
+   * source/gtk4/control.c: Added HWG_INVERTPIXBUF() with a C-layer guard
+                to prevent double inversion of reused bitmaps.
+
+2026-11-10 17:26 UTC-0300  Itamar Junior  <itamarlins@gmail.com>
    * source/gtk4/misc.c: HWG_SHOWWINDOW honours optional lShow parameter.
                 Was always calling gtk_widget_set_visible(w, TRUE),
                 ignoring the 2nd arg.  HPanel:Collapse relies on
