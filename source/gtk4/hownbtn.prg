@@ -87,7 +87,8 @@ METHOD New( oWndParent, nId, aStyles, nLeft, nTop, nWidth, nHeight,   ;
 
    ::aStyle  := aStyles
    ::title   := cText
-   ::tcolor  := Iif( color == Nil, 0, color )
+   ::tcolor  := Iif( color == Nil, hwg_GetThemeColors()[2], color )
+
    IF bColor != Nil
       ::bcolor := bcolor
       ::brush  := HBrush():Add( bcolor )
@@ -113,6 +114,13 @@ METHOD New( oWndParent, nId, aStyles, nLeft, nTop, nWidth, nHeight,   ;
             HBitmap():AddResource( bmp ), ;
             HBitmap():AddFile( Iif( ::cPath != Nil,::cPath + bmp,bmp ) ) )
       ENDIF
+
+      // --- NEW: Invert the icon if the system theme is dark ---
+      IF ::oBitmap != Nil .AND. hwg_ShouldAppsUseDarkMode()
+         hwg_InvertPixbuf( ::oBitmap:handle )
+      ENDIF
+      // --------------------------------------------------------
+
       IF ::oBitmap != Nil .AND. lTr != Nil .AND. lTr
          ::lTransp := .T.
       ENDIF
@@ -273,7 +281,7 @@ METHOD Paint() CLASS HOwnButton
       IF ::lEnabled
          hwg_Settextcolor( hDC, ::tcolor )
       ELSE
-         hwg_Settextcolor( hDC, 0 )
+         hwg_Settextcolor( hDC, hwg_GetThemeColors()[8] )
       ENDIF
       x1 := Iif( ::xt != Nil .AND. ::xt != 0, ::xt, aCoors[1] + 2 )
       y1 := Iif( ::yt != Nil .AND. ::yt != 0, ::yt, ;

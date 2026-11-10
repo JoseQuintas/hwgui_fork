@@ -3744,4 +3744,49 @@ HB_FUNC( HWG_KILLTIMER )
     }
 }
 
+/*=============================================================================
+ * HWG_INVERTPIXBUF( hPixbuf )
+ * Inverts the RGB channels of a GdkPixbuf (black becomes white, dark gray
+ * becomes light gray) while keeping the Alpha (transparency) channel intact.
+ * Used to adapt dark icons to GTK4 dark mode.
+ *===========================================================================*/
+HB_FUNC( HWG_INVERTPIXBUF )
+{
+    PHWGUI_PIXBUF hpix = (PHWGUI_PIXBUF) HB_PARHANDLE( 1 );
+    GdkPixbuf *pixbuf;
+    int width, height, n_channels, rowstride, x, y;
+    guchar *pixels, *p;
+
+    if( !hpix || !hpix->handle || !GDK_IS_PIXBUF( hpix->handle ) )
+        return;
+
+    pixbuf = hpix->handle;
+
+    // Check if already inverted to prevent double inversion
+    if( g_object_get_data( G_OBJECT( pixbuf ), "hwg_inverted" ) )
+        return;
+
+    width  = gdk_pixbuf_get_width( pixbuf );
+    height = gdk_pixbuf_get_height( pixbuf );
+    n_channels = gdk_pixbuf_get_n_channels( pixbuf );
+    rowstride  = gdk_pixbuf_get_rowstride( pixbuf );
+    pixels     = gdk_pixbuf_get_pixels( pixbuf );
+
+    for( y = 0; y < height; y++ )
+    {
+        p = pixels + y * rowstride;
+        for( x = 0; x < width; x++ )
+        {
+            p[0] = 255 - p[0]; /* Red */
+            p[1] = 255 - p[1]; /* Green */
+            p[2] = 255 - p[2]; /* Blue */
+            /* p[3] is Alpha, we leave it intact */
+            p += n_channels;
+        }
+    }
+
+    // Mark as inverted so we don't do it again
+    g_object_set_data( G_OBJECT( pixbuf ), "hwg_inverted", GINT_TO_POINTER( 1 ) );
+}
+
 /* ====================== EOF of control.c ======================= */
